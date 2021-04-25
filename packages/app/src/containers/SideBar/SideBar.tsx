@@ -1,26 +1,127 @@
-import React from "react";
-import fWalletLogo from "../../assets/img/fWalletLogo.svg";
+import React, { useEffect, useState } from "react";
 import Spacer from "../../components/Spacer";
+import styled from "styled-components";
+import { useHistory, NavLink } from "react-router-dom";
 
-const SideBar: React.FC<any> = () => {
+import { Typography1 } from "../../components";
+
+import fWalletLogoImg from "../../assets/img/fWalletLogo.svg";
+import homeSymbolImg from "../../assets/img/symbols/Home.svg";
+import homeActiveSymbolImg from "../../assets/img/symbols/Home_active.svg";
+import sendSymbolImg from "../../assets/img/symbols/Send.svg";
+import sendActiveSymbolImg from "../../assets/img/symbols/Send_active.svg";
+import stakingSymbolImg from "../../assets/img/symbols/Staking.svg";
+import stakingActiveSymbolImg from "../../assets/img/symbols/Staking_active.svg";
+import defiSymbolImg from "../../assets/img/symbols/DeFi.svg";
+import defiActiveSymbolImg from "../../assets/img/symbols/DeFi_active.svg";
+import governanceSymbolImg from "../../assets/img/symbols/Governance.svg";
+import governanceActiveSymbolImg from "../../assets/img/symbols/Governance_active.svg";
+
+const SideBarLink: React.FC<any> = ({
+  img,
+  activeImg,
+  name,
+  path,
+  currentPath,
+  setCurrentPath,
+}) => {
+  const isActive = path === currentPath;
+
   return (
-    <div
-      style={{
-        backgroundColor: "darkgray",
-        display: "flex",
-        flexDirection: "column",
-        width: "12rem",
-        padding: "2rem 0 0 2rem",
-      }}
-    >
-      <img height="50" width="109" src={fWalletLogo} alt="fWallet" />
-      <Spacer />
-      <div style={{ marginBottom: "1rem" }}>SIDEBAR 1</div>
-      <div style={{ marginBottom: "1rem" }}>SIDEBAR 2</div>
-      <div style={{ marginBottom: "1rem" }}>SIDEBAR 3</div>
-      <div style={{ marginBottom: "1rem" }}>SIDEBAR 4</div>
-    </div>
+    <StyledNavLink to={path}>
+      <a onClick={() => setCurrentPath(path)}>
+        <StyledLinkContainer>
+          <img
+            style={{ height: "35px", width: "35px" }}
+            src={isActive ? activeImg : img}
+            alt="name"
+          />
+          <StyledLinkName active={isActive}>{name}</StyledLinkName>
+        </StyledLinkContainer>
+      </a>
+    </StyledNavLink>
   );
 };
+
+interface StyledLinkNameProps {
+  active: boolean;
+}
+const StyledNavLink = styled(NavLink)`
+  text-decoration: none;
+  padding-bottom: 2rem;
+`;
+const StyledLinkContainer = styled.div`
+  display: flex;
+`;
+const StyledLinkName = styled(Typography1)<StyledLinkNameProps>`
+  color: ${(props) =>
+    props.active
+      ? props.theme.color.primary.cyan()
+      : props.theme.fontColor.secondary};
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  padding-left: 2rem;
+`;
+
+const SideBar: React.FC<any> = () => {
+  const history = useHistory();
+  const [currentPath, setCurrentPath] = useState(history.location.pathname);
+
+  return (
+    <StyledSideBar>
+      <img height="50" width="109" src={fWalletLogoImg} alt="fWallet" />
+      <div style={{ marginTop: "4rem" }} />
+      <SideBarLink
+        img={homeSymbolImg}
+        activeImg={homeActiveSymbolImg}
+        name="Home"
+        path="/home"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={sendSymbolImg}
+        activeImg={sendActiveSymbolImg}
+        name="Send"
+        path="/send"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={stakingSymbolImg}
+        activeImg={stakingActiveSymbolImg}
+        name="Staking"
+        path="/staking"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={defiSymbolImg}
+        activeImg={defiActiveSymbolImg}
+        name="Defi"
+        path="/defi"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={governanceSymbolImg}
+        activeImg={governanceActiveSymbolImg}
+        name="Governance"
+        path="/governance"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+    </StyledSideBar>
+  );
+};
+
+const StyledSideBar = styled.div`
+  background-color: ${(props) => props.theme.color.secondary.navy()};
+  display: flex;
+  flex-direction: column;
+  width: 12rem;
+  padding: 2rem 0 0 2rem;
+`;
 
 export default SideBar;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
 
 import { Button } from "../../components";
@@ -12,6 +12,8 @@ import {
   GET_GAS_PRICE,
   GET_TOKEN_PRICE,
 } from "../../graphql/subgraph";
+import { ThemeContext, useTheme } from "styled-components";
+import { useHistory } from "react-router-dom";
 
 const getNativeBalance = async (provider: Web3Provider, account: string) => {
   const balance = await provider.getBalance(account);
@@ -39,6 +41,8 @@ const sendContract = async (
 const Test: React.FC<any> = () => {
   const { wallet } = useWalletProvider();
   const { transaction, dispatchTx } = useTransaction();
+  const { color } = useContext(ThemeContext);
+  const history = useHistory();
   const {
     loading: GET_GAS_PRICE_loading,
     error: GET_GAS_PRICE_error,
@@ -74,14 +78,32 @@ const Test: React.FC<any> = () => {
   }, [GET_TOKEN_PRICE_loading, GET_TOKEN_PRICE_error, GET_TOKEN_PRICE_data]);
 
   return (
-    <>
-      <div style={{ height: "2rem" }} />
+    <div
+      style={{
+        backgroundColor: color.secondary.navy(),
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        padding: "4rem",
+      }}
+    >
+      <div
+        style={{
+          height: "2rem",
+          paddingBottom: "2rem",
+          fontSize: "40px",
+          fontWeight: "bold",
+        }}
+      >
+        {history.location.pathname}
+      </div>
       <Button
         disabled={!wallet.provider}
         onClick={() =>
           getNativeBalance(
             wallet.provider,
-            "0x29725Cb1fBD4c7E38116A34651B93baE7581bbf1"
+            "0x93FF1ff42f534BbEE207fa380d967C760d27076A"
           ).then((result) => setNotConnectedNativeBalance(result))
         }
       >
@@ -142,7 +164,7 @@ const Test: React.FC<any> = () => {
           </span>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

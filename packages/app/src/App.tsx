@@ -17,28 +17,31 @@ const TestWithWallet = withConnectedWallet(Test);
 function App() {
   return (
     <Providers>
-      <Router>
-        <Body>
-          <SideBar />
-          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <TopBar />
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "2rem",
-              }}
-            >
-              <Switch>
-                <Route path="/" exact component={Test} />
-                <Route path="/otherRoute" component={TestWithWallet} />
-              </Switch>
-            </div>
+      <Body>
+        <SideBar />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <TopBar />
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "stretch",
+              padding: "0 2rem",
+            }}
+          >
+            <Switch>
+              <Route path="/otherRoute" component={TestWithWallet} />
+              <Route path="/home" component={Test} />
+              <Route path="/send" component={Test} />
+              <Route path="/staking" component={Test} />
+              <Route path="/defi" component={Test} />
+              <Route path="/governance" component={Test} />
+              <Route path="/" exact component={Test} />
+            </Switch>
           </div>
-        </Body>
-      </Router>
+        </div>
+      </Body>
     </Providers>
   );
 }

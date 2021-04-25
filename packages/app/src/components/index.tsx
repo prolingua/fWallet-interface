@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const Header = styled.div`
-  background-color: lightblue;
+  background-color: ${(props) => props.theme.color.primary.black()};
   height: ${(props) => props.theme.topBarSize}px;
   display: flex;
   flex-direction: row;
@@ -12,7 +12,7 @@ export const Header = styled.div`
 
 export const Body = styled.div`
   font-family: Proxima Nova;
-  background-color: #181821;
+  background-color: ${(props) => props.theme.color.primary.black()};
   color: white;
   display: flex;
   font-size: calc(10px + 2vmin);
@@ -37,6 +37,10 @@ export const Header1 = styled.div`
 export const Header2 = styled.div`
   font-size: 20px;
   font-weight: bold;
+`;
+
+export const Typography1 = styled.div`
+  font-size: 18px;
 `;
 
 export const Button = styled.button`
