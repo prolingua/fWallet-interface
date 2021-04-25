@@ -1,0 +1,27 @@
+{
+  "name": "f-wallet",
+  "version": "0.0.1",
+  "keywords": [
+    "ethereum",
+    "fantom",
+    "wallet"
+  ],
+  "private": true,
+  "scripts": {
+    "react-app:build": "yarn workspace @f-wallet/app build",
+    "react-app:eject": "yarn workspace @f-wallet/app eject",
+    "react-app:start": "yarn workspace @f-wallet/app start",
+    "react-app:test": "yarn workspace @f-wallet/app test"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "devDependencies": {
+    "@types/styled-components": "^5.1.7"
+  }
+}
