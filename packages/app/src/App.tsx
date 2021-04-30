@@ -12,6 +12,7 @@ import theme from "./theme/theme";
 import SideBar from "./containers/SideBar/SideBar";
 import { Body } from "./components";
 import { SettingsProvider } from "./context/SettingsProvider";
+import { AccountsProvider } from "./context/AccountsProvider";
 
 const TestWithWallet = withConnectedWallet(Test);
 
@@ -51,11 +52,13 @@ const Providers: React.FC<any> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <SettingsProvider>
-        <WalletProvider>
-          <TransactionProvider>
-            <ModalProvider>{children}</ModalProvider>
-          </TransactionProvider>
-        </WalletProvider>
+        <AccountsProvider>
+          <WalletProvider>
+            <TransactionProvider>
+              <ModalProvider>{children}</ModalProvider>
+            </TransactionProvider>
+          </WalletProvider>
+        </AccountsProvider>
       </SettingsProvider>
     </ThemeProvider>
   );

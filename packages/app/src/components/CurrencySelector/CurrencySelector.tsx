@@ -44,7 +44,7 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
   );
 };
 
-const CurrencyDropdown: React.FC<any> = ({ current, dispatch }) => {
+const CurrencySelector: React.FC<any> = ({ current, dispatch }) => {
   const [closeDropDown, setCloseDropDown] = useState(false);
   const handleClose = () => {
     setCloseDropDown(true);
@@ -80,4 +80,4 @@ const CurrencyDropdown: React.FC<any> = ({ current, dispatch }) => {
   );
 };
 
-export default CurrencyDropdown;
+export default CurrencySelector;

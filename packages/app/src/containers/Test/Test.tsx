@@ -10,6 +10,7 @@ import useTransaction from "../../hooks/useTransaction";
 import { GET_GAS_PRICE, GET_TOKEN_PRICE } from "../../graphql/subgraph";
 import { ThemeContext } from "styled-components";
 import { useHistory } from "react-router-dom";
+import { restoreAccountByPrivateKey } from "../../fantom/FantomWeb3Wallet";
 
 const getNativeBalance = async (provider: Web3Provider, account: string) => {
   const balance = await provider.getBalance(account);

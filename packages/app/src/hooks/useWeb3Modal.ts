@@ -5,12 +5,14 @@ import { Contract } from "@ethersproject/contracts";
 // @ts-ignore
 import { abis, addresses } from "@f-wallet/contracts";
 import useWalletProvider from "./useWalletProvider";
+import useAccounts from "./useAccounts";
 
 // const INFURA_ID = "7a9c4ff3188d481f9143904079638424";
 // const NETWORK_NAME = "fantom";
 
 function useWeb3Modal(config = {}) {
   const { wallet, dispatchWp } = useWalletProvider();
+  const { dispatchAccounts } = useAccounts();
   // const [autoLoaded, setAutoLoaded] = useState(false);
   // const {
   // autoLoad = true,
@@ -50,6 +52,11 @@ function useWeb3Modal(config = {}) {
       // ],
     ]);
 
+    await dispatchAccounts({
+      type: "addAccount",
+      activeAccount: { account: accounts[0], type: "metamask" },
+    });
+
     return dispatchWp({
       type: "setContext",
       contracts,
@@ -76,25 +83,34 @@ function useWeb3Modal(config = {}) {
     provider.on("chainChanged", async (chainId: string) => {
       console.info("[PROVIDER] chain changed to ", chainId);
 
-      const web3Provider = new Web3Provider(provider, "any");
-      loadContext(web3Provider, parseInt(chainId)).then(() =>
-        console.info("Contracts LOADED")
-      );
+      // const web3Provider = new Web3Provider(provider, "any");
+      // loadContext(web3Provider, parseInt(chainId)).then(() =>
+      //   console.info("Contracts LOADED")
+      // );
     });
 
     provider.on("accountsChanged", async (account: string) => {
       console.info("[PROVIDER] account changed to ", account);
 
-      const web3Provider = new Web3Provider(provider, "any");
-      loadContext(web3Provider).then(() => {
-        console.info("Contracts LOADED");
-      });
+      // const web3Provider = new Web3Provider(provider, "any");
+      // loadContext(web3Provider).then(() => {
+      //   console.info("Contracts LOADED");
+      // });
     });
   };
 
   // Open wallet selection modal.
   const loadWeb3Modal = useCallback(async () => {
     const newProvider = await web3Modal.connect();
+
+    if (
+      wallet.account &&
+      newProvider.selectedAddress.toLowerCase() === wallet.account.toLowerCase()
+    ) {
+      console.log("Wallet already selected");
+      return;
+    }
+
     await subscribeProvider(newProvider);
     const web3Provider = new Web3Provider(newProvider, "any");
 
