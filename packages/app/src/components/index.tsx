@@ -29,6 +29,11 @@ export const Link = styled.a.attrs({
   margin-top: 10px;
 `;
 
+export const WrapA = styled.a`
+  text-decoration: none;
+  cursor: pointer;
+`;
+
 export const Header1 = styled.div`
   font-size: 32px;
   font-weight: bold;
@@ -43,20 +48,36 @@ export const Typography1 = styled.div`
   font-size: 18px;
 `;
 
-export const Button = styled.button`
-  background-color: white;
-  border: none;
+export const Button = styled.button<{
+  variant: "primary" | "secondary";
+  disabled?: boolean;
+}>`
+  background-color: ${(props) =>
+    props.variant === "primary"
+      ? props.theme.color.primary.fantomBlue()
+      : "transparent"};
+  border: ${(props) =>
+    props.variant === "primary"
+      ? "none"
+      : `1px solid ${props.theme.color.greys.mediumGray()}`};
   border-radius: 8px;
-  color: ${(props) => (!props.disabled ? "#282c34" : "#6c726c")};
+  color: ${(props) => (!props.disabled ? "white" : "#6c726c")};
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   text-align: center;
   text-decoration: none;
   margin: 0px 20px;
   padding: 12px 24px;
 
   ${(props) => props.hidden && "hidden"} :focus {
-    border: none;
+    border: ${(props) => props.variant === "primary" && "none"};
     outline: none;
   }
+`;
+
+export const Container = styled.div<any>`
+  border: ${(props) => `1px solid ${props.theme.color.greys.mediumGray()}`};
+  padding: 2rem;
+  background-color: ${(props) => props.theme.color.primary.black()};
+  border-radius: 8px;
 `;

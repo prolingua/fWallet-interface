@@ -9,6 +9,7 @@ const WalletButton: React.FC<any> = () => {
 
   return (
     <Button
+      variant="primary"
       onClick={() => {
         if (!wallet.account) {
           loadWeb3Modal();

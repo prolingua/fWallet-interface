@@ -11,6 +11,7 @@ import TopBar from "./containers/TopBar/TopBar";
 import theme from "./theme/theme";
 import SideBar from "./containers/SideBar/SideBar";
 import { Body } from "./components";
+import { SettingsProvider } from "./context/SettingsProvider";
 
 const TestWithWallet = withConnectedWallet(Test);
 
@@ -49,11 +50,13 @@ function App() {
 const Providers: React.FC<any> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
-      <WalletProvider>
-        <TransactionProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </TransactionProvider>
-      </WalletProvider>
+      <SettingsProvider>
+        <WalletProvider>
+          <TransactionProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </TransactionProvider>
+        </WalletProvider>
+      </SettingsProvider>
     </ThemeProvider>
   );
 };

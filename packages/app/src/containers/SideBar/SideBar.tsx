@@ -28,17 +28,15 @@ const SideBarLink: React.FC<any> = ({
   const isActive = path === currentPath;
 
   return (
-    <StyledNavLink to={path}>
-      <a onClick={() => setCurrentPath(path)}>
-        <StyledLinkContainer>
-          <img
-            style={{ height: "35px", width: "35px" }}
-            src={isActive ? activeImg : img}
-            alt="name"
-          />
-          <StyledLinkName active={isActive}>{name}</StyledLinkName>
-        </StyledLinkContainer>
-      </a>
+    <StyledNavLink to={path} onClick={() => setCurrentPath(path)}>
+      <StyledLinkContainer>
+        <img
+          style={{ height: "35px", width: "35px" }}
+          src={isActive ? activeImg : img}
+          alt="name"
+        />
+        <StyledLinkName active={isActive}>{name}</StyledLinkName>
+      </StyledLinkContainer>
     </StyledNavLink>
   );
 };

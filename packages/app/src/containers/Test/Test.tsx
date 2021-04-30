@@ -7,12 +7,8 @@ import { Contract } from "@ethersproject/contracts";
 import { Web3Provider } from "@ethersproject/providers";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useTransaction from "../../hooks/useTransaction";
-import {
-  // GET_AGGREGATED_UNISWAP_DATA,
-  GET_GAS_PRICE,
-  GET_TOKEN_PRICE,
-} from "../../graphql/subgraph";
-import { ThemeContext, useTheme } from "styled-components";
+import { GET_GAS_PRICE, GET_TOKEN_PRICE } from "../../graphql/subgraph";
+import { ThemeContext } from "styled-components";
 import { useHistory } from "react-router-dom";
 
 const getNativeBalance = async (provider: Web3Provider, account: string) => {
@@ -99,6 +95,7 @@ const Test: React.FC<any> = () => {
         {history.location.pathname}
       </div>
       <Button
+        variant="primary"
         disabled={!wallet.provider}
         onClick={() =>
           getNativeBalance(
@@ -112,6 +109,7 @@ const Test: React.FC<any> = () => {
       <div>Your native balance: {notConnectedNativeBalance || "No data"}</div>
       <div style={{ height: "2rem" }} />
       <Button
+        variant="primary"
         disabled={!wallet.provider}
         onClick={() =>
           getNativeBalance(wallet.provider, wallet.account).then((result) =>
@@ -124,6 +122,7 @@ const Test: React.FC<any> = () => {
       <div>Your native balance: {nativeBalance || "No data"}</div>
       <div style={{ height: "2rem" }} />
       <Button
+        variant="primary"
         disabled={!wallet.provider}
         onClick={() =>
           callContract(wallet.contracts, wallet.account).then((result) =>
@@ -136,6 +135,7 @@ const Test: React.FC<any> = () => {
       <div>Your token balance: {tokenBalance || "No data"}</div>
       <div style={{ height: "2rem" }} />
       <Button
+        variant="primary"
         disabled={!wallet.provider}
         onClick={() => {
           setLoading([...loading, "test"]);
