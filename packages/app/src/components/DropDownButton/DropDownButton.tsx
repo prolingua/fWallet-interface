@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 const DropDownButton: React.FC<any> = ({
   children,
@@ -7,19 +8,27 @@ const DropDownButton: React.FC<any> = ({
   triggerClose,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (triggerClose) {
       setIsOpen(false);
     }
   }, [triggerClose]);
+
+  useOutsideClick(dropdownRef, () => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  });
+
   return (
     <div style={{ position: "relative" }}>
       <a style={{ textDecoration: "none" }} onClick={() => setIsOpen(!isOpen)}>
         {children}
       </a>
       {isOpen && (
-        <StyledDropDown top={4}>
+        <StyledDropDown ref={dropdownRef} top={4}>
           <DropDown />
         </StyledDropDown>
       )}

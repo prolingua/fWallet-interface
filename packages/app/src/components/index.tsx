@@ -66,7 +66,6 @@ export const Button = styled.button<{
   font-size: 18px;
   text-align: center;
   text-decoration: none;
-  margin: 0px 20px;
   padding: 12px 24px;
 
   ${(props) => props.hidden && "hidden"} :focus {
@@ -75,9 +74,9 @@ export const Button = styled.button<{
   }
 `;
 
-export const Container = styled.div<any>`
+export const Container = styled.div<{ padding?: string }>`
   border: ${(props) => `1px solid ${props.theme.color.greys.mediumGray()}`};
-  padding: 2rem;
+  padding: ${(props) => (props.padding ? props.padding : "2rem")};
   background-color: ${(props) => props.theme.color.primary.black()};
   border-radius: 8px;
 `;
