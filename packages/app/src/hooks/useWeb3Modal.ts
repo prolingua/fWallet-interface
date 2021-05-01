@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Web3Provider } from "@ethersproject/providers";
 import Web3Modal from "web3modal";
 import { Contract } from "@ethersproject/contracts";
@@ -9,10 +9,10 @@ import useAccounts from "./useAccounts";
 
 // const INFURA_ID = "7a9c4ff3188d481f9143904079638424";
 // const NETWORK_NAME = "fantom";
-
+// TODO clean up provider flow
 function useWeb3Modal(config = {}) {
   const { wallet, dispatchWp } = useWalletProvider();
-  const { dispatchAccounts } = useAccounts();
+  const { accounts, dispatchAccounts } = useAccounts();
   // const [autoLoaded, setAutoLoaded] = useState(false);
   // const {
   // autoLoad = true,
@@ -29,17 +29,13 @@ function useWeb3Modal(config = {}) {
 
   const loadContext = async (
     web3Provider: Web3Provider,
-    updatedChainId: number = null
+    existingAccount: boolean = false
   ) => {
     if (!web3Provider) {
       return;
     }
 
-    let chainId = updatedChainId;
-    if (!chainId) {
-      const network = await web3Provider.getNetwork();
-      chainId = network.chainId;
-    }
+    const { chainId } = await web3Provider.getNetwork();
     const accounts = await web3Provider.listAccounts();
     const contracts = new Map([
       // [
@@ -52,17 +48,24 @@ function useWeb3Modal(config = {}) {
       // ],
     ]);
 
-    await dispatchAccounts({
-      type: "addAccount",
-      activeAccount: { account: accounts[0], type: "metamask" },
-    });
-
-    return dispatchWp({
-      type: "setContext",
+    const walletProvider = {
       contracts,
       chainId,
       account: accounts[0],
       provider: web3Provider,
+      signer: web3Provider.getSigner(),
+    };
+
+    if (!existingAccount) {
+      await dispatchAccounts({
+        type: "addAccount",
+        activeAccount: { account: accounts[0], type: "metamask" },
+      });
+    }
+
+    return dispatchWp({
+      type: "setContext",
+      ...walletProvider,
     });
   };
 
@@ -90,30 +93,49 @@ function useWeb3Modal(config = {}) {
     });
 
     provider.on("accountsChanged", async (account: string) => {
-      console.info("[PROVIDER] account changed to ", account);
+      console.info(
+        "[PROVIDER] account changed to ",
+        account,
+        " : ",
+        provider.selectedAddress
+      );
 
-      // const web3Provider = new Web3Provider(provider, "any");
-      // loadContext(web3Provider).then(() => {
-      //   console.info("Contracts LOADED");
-      // });
+      const existingActiveAccount = accounts.activeAccounts.find(
+        (activeAccount: any) =>
+          activeAccount.account.toLowerCase() === account[0].toLowerCase()
+      );
+      if (existingActiveAccount) {
+        const web3Provider = new Web3Provider(provider, "any");
+        loadContext(web3Provider, true).then(() => {
+          console.info("Contracts LOADED");
+        });
+      } else {
+        // TODO: move to user modal
+        console.log(
+          "Please select correct account in metamask or add current one?"
+        );
+      }
     });
   };
 
   // Open wallet selection modal.
   const loadWeb3Modal = useCallback(async () => {
-    const newProvider = await web3Modal.connect();
+    const connectProvider = await web3Modal.connect();
 
+    // TODO: move to user modal
     if (
       wallet.account &&
-      newProvider.selectedAddress.toLowerCase() === wallet.account.toLowerCase()
+      connectProvider.selectedAddress.toLowerCase() ===
+        wallet.account.toLowerCase()
     ) {
       console.log("Wallet already selected");
       return;
     }
 
-    await subscribeProvider(newProvider);
-    const web3Provider = new Web3Provider(newProvider, "any");
-
+    await subscribeProvider(connectProvider);
+    const web3Provider = new Web3Provider(connectProvider, "any");
+    // @ts-ignore
+    window.fWallet = web3Provider;
     loadContext(web3Provider).then(() => console.log("Contracts LOADED"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3Modal]);
@@ -135,7 +157,7 @@ function useWeb3Modal(config = {}) {
   //   }
   // }, [autoLoad, autoLoaded, loadWeb3Modal, setAutoLoaded, web3Modal.cachedProvider]);
 
-  return [wallet.provider, loadWeb3Modal, logoutOfWeb3Modal];
+  return [loadWeb3Modal, logoutOfWeb3Modal];
 }
 
 export default useWeb3Modal;

@@ -4,17 +4,34 @@ import { useQuery } from "@apollo/react-hooks";
 import { Button } from "../../components";
 import { send } from "../../utils/contract";
 import { Contract } from "@ethersproject/contracts";
-import { Web3Provider } from "@ethersproject/providers";
+import {
+  Provider,
+  JsonRpcProvider,
+  Web3Provider,
+} from "@ethersproject/providers";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useTransaction from "../../hooks/useTransaction";
 import { GET_GAS_PRICE, GET_TOKEN_PRICE } from "../../graphql/subgraph";
 import { ThemeContext } from "styled-components";
 import { useHistory } from "react-router-dom";
-import { restoreAccountByPrivateKey } from "../../fantom/FantomWeb3Wallet";
+import { Wallet } from "@ethersproject/wallet";
+import config from "../../config/config.test";
+import { parseEther } from "@ethersproject/units";
+import { Signer } from "@ethersproject/abstract-signer";
 
-const getNativeBalance = async (provider: Web3Provider, account: string) => {
+const getNativeBalance = async (provider: Provider, account: string) => {
+  console.log("GET");
+  console.log(provider, account);
   const balance = await provider.getBalance(account);
   return balance.toString();
+};
+
+const sendTransaction = async (signer: Signer, to: string, value: string) => {
+  // const send(provider, () => provider.sendTransaction({}))
+  return signer.sendTransaction({
+    to: to,
+    value: parseEther(value),
+  });
 };
 
 const callContract = async (
@@ -73,7 +90,14 @@ const Test: React.FC<any> = () => {
       GET_TOKEN_PRICE_data,
     });
   }, [GET_TOKEN_PRICE_loading, GET_TOKEN_PRICE_error, GET_TOKEN_PRICE_data]);
-
+  // const account = restoreAccountByPrivateKey();
+  // const provider = new JsonRpcProvider(config.rpc);
+  // // console.log(account);
+  // const wallet = new Wallet(
+  //   "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583",
+  //   provider
+  // );
+  // console.log(wallet);
   return (
     <div
       style={{
@@ -140,6 +164,25 @@ const Test: React.FC<any> = () => {
         disabled={!wallet.provider}
         onClick={() => {
           setLoading([...loading, "test"]);
+          sendTransaction(
+            wallet.signer,
+            "0xDbA4392F0fC03B4FFF1b42861ad733FcfA812da7",
+            "0.1"
+          ).finally(() =>
+            setLoading(loading.filter((item) => item === "test"))
+          );
+        }}
+      >
+        {loading.find((item) => item === "test")
+          ? "Sending..."
+          : "Send Native Transaction (0.1 FTM)"}
+      </Button>
+      <div style={{ height: "2rem" }} />
+      <Button
+        variant="primary"
+        disabled={!wallet.provider}
+        onClick={() => {
+          setLoading([...loading, "test"]);
           sendContract(
             wallet.contracts,
             dispatchTx,
@@ -151,8 +194,9 @@ const Test: React.FC<any> = () => {
       >
         {loading.find((item) => item === "test")
           ? "Sending..."
-          : "Send Transaction"}
+          : "Send Contract Transaction"}
       </Button>
+      <div style={{ height: "2rem" }} />
       <div>
         <div style={{ fontWeight: "bold" }}> Transaction details: </div>
         {transaction && transaction.id ? (

@@ -1,9 +1,10 @@
 import React, { useReducer } from "react";
 
-type ProviderType = "metamask" | "key";
+type ProviderType = "metamask" | "keyStore";
 export interface ActiveAccount {
   account: string;
   type: ProviderType;
+  walletProvider?: any;
 }
 const initial: { activeAccounts: ActiveAccount[] } = {
   activeAccounts: [],

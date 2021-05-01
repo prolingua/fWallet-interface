@@ -7,6 +7,7 @@ const initial = {
   chainId: null,
   contracts: new Map([]),
   provider: new JsonRpcProvider(config.rpc),
+  signer: null,
 } as any;
 export const WalletContext = React.createContext(null);
 
@@ -19,6 +20,7 @@ export const WalletProvider: React.FC = ({ children }) => {
           account: action.account,
           chainId: action.chainId,
           contracts: action.contracts,
+          signer: action.signer,
         };
         // @ts-ignore
         window.fWallet = newState;

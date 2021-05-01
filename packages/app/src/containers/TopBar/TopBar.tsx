@@ -4,7 +4,6 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import useSettings from "../../hooks/useSettings";
 
 import { Button, Container, Header, WrapA } from "../../components";
-import WalletButton from "../../components/WalletButton/WalletButton";
 import CurrencySelector from "../../components/CurrencySelector";
 import Column from "../../components/Column";
 import DropDownButton from "../../components/DropDownButton";
@@ -13,11 +12,37 @@ import useAccounts from "../../hooks/useAccounts";
 import { ActiveAccount } from "../../context/AccountsProvider";
 import Spacer from "../../components/Spacer";
 import useWeb3Modal from "../../hooks/useWeb3Modal";
+import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
 
 const WalletSelect: React.FC<any> = ({ handleClose, activeWallet }) => {
-  const [, loadWeb3Modal] = useWeb3Modal();
+  const [loadWeb3Modal] = useWeb3Modal();
+  const { restoreWalletFromPrivateKey } = useKeyStoreWallet();
   const { accounts } = useAccounts();
-  console.log(accounts);
+  const { wallet, dispatchWp } = useWalletProvider();
+
+  const handleSwitchAccount = async (activeAccount: ActiveAccount) => {
+    if (activeAccount.account === wallet.account) {
+      return;
+    }
+
+    if (activeAccount.type === "metamask") {
+      if (
+        activeAccount.account.toLowerCase() !==
+        window.ethereum.selectedAddress.toLowerCase()
+      ) {
+        // TODO: move to user modal
+        console.log("Please select correct account in metamask");
+        return;
+      }
+      return loadWeb3Modal();
+    }
+
+    return dispatchWp({
+      type: "setContext",
+      ...activeAccount.walletProvider,
+    });
+  };
+
   return (
     <Container padding="0">
       <Column style={{ padding: "1rem" }}>
@@ -31,7 +56,7 @@ const WalletSelect: React.FC<any> = ({ handleClose, activeWallet }) => {
               <WrapA
                 key={activeAccount.account}
                 onClick={() => {
-                  handleClose();
+                  handleSwitchAccount(activeAccount).then(handleClose());
                 }}
               >
                 <Column style={{ color: isActive && "green" }}>
@@ -53,7 +78,18 @@ const WalletSelect: React.FC<any> = ({ handleClose, activeWallet }) => {
             handleClose();
           }}
         >
-          Connect Account
+          Connect Metamask
+        </WrapA>
+      </Column>
+      <Column style={{ borderTop: "1px solid grey", padding: "1rem" }}>
+        <WrapA
+          onClick={() => {
+            restoreWalletFromPrivateKey(
+              "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"
+            ).then(handleClose());
+          }}
+        >
+          Connect Privatekey
         </WrapA>
       </Column>
     </Container>
