@@ -1,8 +1,10 @@
 import styled from "styled-components";
 
 export const Header = styled.div`
+  font-family: Proxima Nova;
   background-color: ${(props) => props.theme.color.primary.black()};
   height: ${(props) => props.theme.topBarSize}px;
+  padding: 0 4rem 0 2rem;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -34,18 +36,22 @@ export const WrapA = styled.a`
   cursor: pointer;
 `;
 
-export const Header1 = styled.div`
+export const Heading1 = styled.div`
   font-size: 32px;
   font-weight: bold;
 `;
 
-export const Header2 = styled.div`
+export const Heading2 = styled.div`
   font-size: 20px;
   font-weight: bold;
 `;
 
-export const Typography1 = styled.div`
+export const Typo1 = styled.div`
   font-size: 18px;
+`;
+
+export const Typo2 = styled.div`
+  font-size: 16px;
 `;
 
 export const Button = styled.button<{

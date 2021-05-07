@@ -44,7 +44,7 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
   );
 };
 
-const CurrencySelector: React.FC<any> = ({ current, dispatch }) => {
+const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
   const [closeDropDown, setCloseDropDown] = useState(false);
   const handleClose = () => {
     setCloseDropDown(true);
@@ -57,8 +57,12 @@ const CurrencySelector: React.FC<any> = ({ current, dispatch }) => {
   }, [closeDropDown]);
   return (
     <DropDownButton
+      width={width}
       triggerClose={closeDropDown}
       DropDown={() => CurrencySelect({ dispatch, handleClose })}
+      dropdownWidth={344}
+      dropdownTop={70}
+      dropdownLeft={0}
     >
       <Button
         variant="secondary"
@@ -67,6 +71,8 @@ const CurrencySelector: React.FC<any> = ({ current, dispatch }) => {
           alignItems: "center",
           justifyContent: "center",
           fontWeight: "bold",
+          width: "100%",
+          height: "56px",
         }}
       >
         <img

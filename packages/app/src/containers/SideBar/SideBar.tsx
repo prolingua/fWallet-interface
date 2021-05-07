@@ -3,7 +3,7 @@ import Spacer from "../../components/Spacer";
 import styled from "styled-components";
 import { useHistory, NavLink } from "react-router-dom";
 
-import { Typography1 } from "../../components";
+import { Typo1 } from "../../components";
 
 import fWalletLogoImg from "../../assets/img/fWalletLogo.svg";
 import homeSymbolImg from "../../assets/img/symbols/Home.svg";
@@ -51,7 +51,7 @@ const StyledNavLink = styled(NavLink)`
 const StyledLinkContainer = styled.div`
   display: flex;
 `;
-const StyledLinkName = styled(Typography1)<StyledLinkNameProps>`
+const StyledLinkName = styled(Typo1)<StyledLinkNameProps>`
   color: ${(props) =>
     props.active
       ? props.theme.color.primary.cyan()

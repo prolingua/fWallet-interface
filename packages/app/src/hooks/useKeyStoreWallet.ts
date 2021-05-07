@@ -3,6 +3,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import config from "../config/config.test";
 import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
+import { loadContracts } from "../utils/wallet";
 
 export const useKeyStoreWallet = () => {
   const { dispatchActiveWallet } = useWalletProvider();
@@ -13,9 +14,9 @@ export const useKeyStoreWallet = () => {
       const provider = new JsonRpcProvider(config.rpc);
       const wallet = new Wallet(pkey, provider);
       const walletProvider: any = {
-        contracts: [],
-        chainId: parseInt(config.rpc),
-        account: wallet.address,
+        contracts: loadContracts(wallet),
+        chainId: parseInt(config.chainId),
+        address: wallet.address,
         provider: wallet.provider,
         signer: wallet,
       };
@@ -24,14 +25,17 @@ export const useKeyStoreWallet = () => {
         type: "addWallet",
         wallet: {
           address: wallet.address,
-          type: "keyStore",
+          providerType: "keyStore",
           walletProvider,
         },
       });
 
       await dispatchActiveWallet({
         type: "setActiveWallet",
-        ...walletProvider,
+        data: {
+          ...walletProvider,
+          providerType: "keyStore",
+        },
       });
     } catch (err) {
       console.error(err);

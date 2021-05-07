@@ -1,9 +1,9 @@
 import React, { useReducer } from "react";
 
-type ProviderType = "metamask" | "keyStore";
+export type ProviderType = "metamask" | "keyStore";
 export interface Wallet {
   address: string;
-  type: ProviderType;
+  providerType: ProviderType;
   walletProvider?: any;
 }
 const initial: { wallets: Wallet[] } = {

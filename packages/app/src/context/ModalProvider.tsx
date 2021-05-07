@@ -70,7 +70,7 @@ const StyledModalWrapper = styled.div`
 `;
 
 const StyledModalBackdrop = styled.div`
-  background-color: ${(props) => props.theme.color.grey()};
+  background-color: ${(props) => props.theme.color.greys.grey(0.4)};
   position: absolute;
   top: 0;
   right: 0;

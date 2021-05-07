@@ -6,6 +6,11 @@ const DropDownButton: React.FC<any> = ({
   children,
   DropDown,
   triggerClose,
+  width,
+  dropdownWidth,
+  dropdownTop,
+  dropdownRight,
+  dropdownLeft,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -23,12 +28,18 @@ const DropDownButton: React.FC<any> = ({
   });
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ width, position: "relative" }}>
       <a style={{ textDecoration: "none" }} onClick={() => setIsOpen(!isOpen)}>
         {children}
       </a>
       {isOpen && (
-        <StyledDropDown ref={dropdownRef} top={4}>
+        <StyledDropDown
+          ref={dropdownRef}
+          width={dropdownWidth}
+          top={dropdownTop}
+          left={dropdownLeft}
+          right={dropdownRight}
+        >
           <DropDown />
         </StyledDropDown>
       )}
@@ -37,14 +48,16 @@ const DropDownButton: React.FC<any> = ({
 };
 
 const StyledDropDown = styled.div<{
-  top: number;
+  width?: number;
+  top?: number;
   left?: number;
   right?: number;
 }>`
   position: absolute;
-  top: ${(props) => props.top}rem;
-  left: ${(props) => props.left && `${props.left}rem`};
-  right: ${(props) => props.right && `${props.right}rem`};
+  width: ${(props) => props.width}px;
+  top: ${(props) => props.top}px;
+  left: ${(props) => props.left && `${props.left}px`};
+  right: ${(props) => props.right && `${props.right}px`};
 `;
 
 export default DropDownButton;

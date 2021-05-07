@@ -29,7 +29,7 @@ function App() {
               display: "flex",
               flexDirection: "column",
               alignItems: "stretch",
-              padding: "0 2rem",
+              padding: "0 4rem 0 2rem",
             }}
           >
             <Switch>
