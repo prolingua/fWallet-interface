@@ -9,15 +9,15 @@ const initial = {
   provider: new JsonRpcProvider(config.rpc),
   signer: null,
 } as any;
-export const WalletContext = React.createContext(null);
+export const ActiveWalletContext = React.createContext(null);
 
-export const WalletProvider: React.FC = ({ children }) => {
-  const walletReducer = (state: any, action: any) => {
+export const ActiveWalletProvider: React.FC = ({ children }) => {
+  const activeWalletReducer = (state: any, action: any) => {
     switch (action.type) {
-      case "setContext":
+      case "setActiveWallet":
         const newState = {
           provider: action.provider,
-          account: action.account,
+          address: action.account,
           chainId: action.chainId,
           contracts: action.contracts,
           signer: action.signer,
@@ -25,7 +25,7 @@ export const WalletProvider: React.FC = ({ children }) => {
         // @ts-ignore
         window.fWallet = newState;
         return newState;
-      case "resetContext":
+      case "reset":
         const initialState = {
           ...initial,
         };
@@ -37,11 +37,11 @@ export const WalletProvider: React.FC = ({ children }) => {
     }
   };
 
-  const [state, dispatch] = useReducer(walletReducer, initial);
+  const [state, dispatch] = useReducer(activeWalletReducer, initial);
 
   return (
-    <WalletContext.Provider value={[state, dispatch]}>
+    <ActiveWalletContext.Provider value={[state, dispatch]}>
       {children}
-    </WalletContext.Provider>
+    </ActiveWalletContext.Provider>
   );
 };

@@ -8,8 +8,8 @@ import CurrencySelector from "../../components/CurrencySelector";
 import Column from "../../components/Column";
 import DropDownButton from "../../components/DropDownButton";
 import vShape from "../../assets/img/shapes/vShape.png";
-import useAccounts from "../../hooks/useAccounts";
-import { ActiveAccount } from "../../context/AccountsProvider";
+import useAccounts from "../../hooks/useAccount";
+import { Wallet } from "../../context/AccountProvider";
 import Spacer from "../../components/Spacer";
 import useWeb3Modal from "../../hooks/useWeb3Modal";
 import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
@@ -17,17 +17,17 @@ import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
 const WalletSelect: React.FC<any> = ({ handleClose, activeWallet }) => {
   const [loadWeb3Modal] = useWeb3Modal();
   const { restoreWalletFromPrivateKey } = useKeyStoreWallet();
-  const { accounts } = useAccounts();
-  const { wallet, dispatchWp } = useWalletProvider();
+  const { account } = useAccounts();
+  const { dispatchActiveWallet } = useWalletProvider();
 
-  const handleSwitchAccount = async (activeAccount: ActiveAccount) => {
-    if (activeAccount.account === wallet.account) {
+  const handleSwitchWallet = async (wallet: Wallet) => {
+    if (activeWallet.address.toLowerCase() === wallet.address.toLowerCase()) {
       return;
     }
 
-    if (activeAccount.type === "metamask") {
+    if (wallet.type === "metamask") {
       if (
-        activeAccount.account.toLowerCase() !==
+        wallet.address.toLowerCase() !==
         window.ethereum.selectedAddress.toLowerCase()
       ) {
         // TODO: move to user modal
@@ -37,31 +37,31 @@ const WalletSelect: React.FC<any> = ({ handleClose, activeWallet }) => {
       return loadWeb3Modal();
     }
 
-    return dispatchWp({
-      type: "setContext",
-      ...activeAccount.walletProvider,
+    return dispatchActiveWallet({
+      type: "setActiveWallet",
+      ...wallet.walletProvider,
     });
   };
 
   return (
     <Container padding="0">
       <Column style={{ padding: "1rem" }}>
-        {accounts.activeAccounts.length ? (
-          accounts.activeAccounts.map((activeAccount: ActiveAccount) => {
+        {account.wallets.length ? (
+          account.wallets.map((wallet: Wallet) => {
             const isActive =
-              activeWallet.account &&
-              activeAccount.account.toLowerCase() ===
-                activeWallet.account.toLowerCase();
+              activeWallet.address &&
+              wallet.address.toLowerCase() ===
+                activeWallet.address.toLowerCase();
             return (
               <WrapA
-                key={activeAccount.account}
+                key={wallet.address}
                 onClick={() => {
-                  handleSwitchAccount(activeAccount).then(handleClose());
+                  handleSwitchWallet(wallet).then(handleClose());
                 }}
               >
                 <Column style={{ color: isActive && "green" }}>
-                  <div>{activeAccount.account}</div>
-                  <div>{activeAccount.type}</div>
+                  <div>{wallet.address}</div>
+                  <div>{wallet.type}</div>
                 </Column>
               </WrapA>
             );
@@ -124,7 +124,7 @@ const WalletSelector: React.FC<any> = ({ activeWallet }) => {
       >
         <div></div>
         <div>
-          {activeWallet.account ? activeWallet.account : "Connect to wallet"}
+          {activeWallet.address ? activeWallet.address : "Connect to wallet"}
         </div>
         <img src={vShape} style={{ paddingLeft: ".5rem" }} />
       </Button>
@@ -133,7 +133,7 @@ const WalletSelector: React.FC<any> = ({ activeWallet }) => {
 };
 
 const TopBar: React.FC<any> = () => {
-  const { wallet } = useWalletProvider();
+  const { activeWallet } = useWalletProvider();
   const { settings, dispatchSettings } = useSettings();
 
   return (
@@ -142,7 +142,7 @@ const TopBar: React.FC<any> = () => {
         current={settings.currency}
         dispatch={dispatchSettings}
       />
-      <WalletSelector activeWallet={wallet} />
+      <WalletSelector activeWallet={activeWallet} />
     </Header>
   );
 };

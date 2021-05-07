@@ -2,11 +2,11 @@ import { Wallet } from "@ethersproject/wallet";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import config from "../config/config.test";
 import useWalletProvider from "./useWalletProvider";
-import useAccounts from "./useAccounts";
+import useAccounts from "./useAccount";
 
 export const useKeyStoreWallet = () => {
-  const { dispatchWp } = useWalletProvider();
-  const { dispatchAccounts } = useAccounts();
+  const { dispatchActiveWallet } = useWalletProvider();
+  const { dispatchAccount } = useAccounts();
 
   const handleRestoreWalletFromPrivateKey = async (pkey: string) => {
     try {
@@ -20,17 +20,17 @@ export const useKeyStoreWallet = () => {
         signer: wallet,
       };
 
-      await dispatchAccounts({
-        type: "addAccount",
-        activeAccount: {
-          account: wallet.address,
+      await dispatchAccount({
+        type: "addWallet",
+        wallet: {
+          address: wallet.address,
           type: "keyStore",
           walletProvider,
         },
       });
 
-      await dispatchWp({
-        type: "setContext",
+      await dispatchActiveWallet({
+        type: "setActiveWallet",
         ...walletProvider,
       });
     } catch (err) {

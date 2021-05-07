@@ -5,14 +5,14 @@ import { Contract } from "@ethersproject/contracts";
 // @ts-ignore
 import { abis, addresses } from "@f-wallet/contracts";
 import useWalletProvider from "./useWalletProvider";
-import useAccounts from "./useAccounts";
+import useAccounts from "./useAccount";
 
 // const INFURA_ID = "7a9c4ff3188d481f9143904079638424";
 // const NETWORK_NAME = "fantom";
 // TODO clean up provider flow
 function useWeb3Modal(config = {}) {
-  const { wallet, dispatchWp } = useWalletProvider();
-  const { accounts, dispatchAccounts } = useAccounts();
+  const { activeWallet, dispatchActiveWallet } = useWalletProvider();
+  const { account, dispatchAccount } = useAccounts();
   // const [autoLoaded, setAutoLoaded] = useState(false);
   // const {
   // autoLoad = true,
@@ -57,23 +57,25 @@ function useWeb3Modal(config = {}) {
     };
 
     if (!existingAccount) {
-      await dispatchAccounts({
-        type: "addAccount",
-        activeAccount: { account: accounts[0], type: "metamask" },
+      await dispatchAccount({
+        type: "addWallet",
+        wallet: { address: accounts[0], type: "metamask" },
       });
     }
 
-    return dispatchWp({
-      type: "setContext",
+    return dispatchActiveWallet({
+      type: "setActiveWallet",
       ...walletProvider,
     });
   };
 
   const resetApp = async () => {
-    wallet.provider && wallet.provider.close && (await wallet.provider.close());
+    activeWallet.provider &&
+      activeWallet.provider.close &&
+      (await activeWallet.provider.close());
 
     await web3Modal.clearCachedProvider();
-    await dispatchWp({
+    await dispatchActiveWallet({
       type: "reset",
     });
     window.location.reload();
@@ -92,19 +94,19 @@ function useWeb3Modal(config = {}) {
       // );
     });
 
-    provider.on("accountsChanged", async (account: string) => {
+    provider.on("accountsChanged", async (accountChanged: string) => {
       console.info(
         "[PROVIDER] account changed to ",
-        account,
+        accountChanged,
         " : ",
         provider.selectedAddress
       );
 
-      const existingActiveAccount = accounts.activeAccounts.find(
-        (activeAccount: any) =>
-          activeAccount.account.toLowerCase() === account[0].toLowerCase()
+      const existingWallet = account.wallets.find(
+        (wallet: any) =>
+          wallet.address.toLowerCase() === accountChanged[0].toLowerCase()
       );
-      if (existingActiveAccount) {
+      if (existingWallet) {
         const web3Provider = new Web3Provider(provider, "any");
         loadContext(web3Provider, true).then(() => {
           console.info("Contracts LOADED");
@@ -124,9 +126,9 @@ function useWeb3Modal(config = {}) {
 
     // TODO: move to user modal
     if (
-      wallet.account &&
+      activeWallet.address &&
       connectProvider.selectedAddress.toLowerCase() ===
-        wallet.account.toLowerCase()
+        activeWallet.address.toLowerCase()
     ) {
       console.log("Wallet already selected");
       return;

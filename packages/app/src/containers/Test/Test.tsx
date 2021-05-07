@@ -53,7 +53,7 @@ const sendContract = async (
 };
 
 const Test: React.FC<any> = () => {
-  const { wallet } = useWalletProvider();
+  const { activeWallet } = useWalletProvider();
   const { transaction, dispatchTx } = useTransaction();
   const { color } = useContext(ThemeContext);
   const history = useHistory();
@@ -93,11 +93,11 @@ const Test: React.FC<any> = () => {
   // const account = restoreAccountByPrivateKey();
   // const provider = new JsonRpcProvider(config.rpc);
   // // console.log(account);
-  // const wallet = new Wallet(
+  // const activeWallet = new Wallet(
   //   "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583",
   //   provider
   // );
-  // console.log(wallet);
+  // console.log(activeWallet);
   return (
     <div
       style={{
@@ -121,10 +121,10 @@ const Test: React.FC<any> = () => {
       </div>
       <Button
         variant="primary"
-        disabled={!wallet.provider}
+        disabled={!activeWallet.provider}
         onClick={() =>
           getNativeBalance(
-            wallet.provider,
+            activeWallet.provider,
             "0x93FF1ff42f534BbEE207fa380d967C760d27076A"
           ).then((result) => setNotConnectedNativeBalance(result))
         }
@@ -135,11 +135,12 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!wallet.provider}
+        disabled={!activeWallet.provider}
         onClick={() =>
-          getNativeBalance(wallet.provider, wallet.account).then((result) =>
-            setNativeBalance(result)
-          )
+          getNativeBalance(
+            activeWallet.provider,
+            activeWallet.address
+          ).then((result) => setNativeBalance(result))
         }
       >
         Get Native Balance
@@ -148,11 +149,12 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!wallet.provider}
+        disabled={!activeWallet.provider}
         onClick={() =>
-          callContract(wallet.contracts, wallet.account).then((result) =>
-            setTokenBalance(result)
-          )
+          callContract(
+            activeWallet.contracts,
+            activeWallet.address
+          ).then((result) => setTokenBalance(result))
         }
       >
         Get Token Balance
@@ -161,11 +163,11 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!wallet.provider}
+        disabled={!activeWallet.provider}
         onClick={() => {
           setLoading([...loading, "test"]);
           sendTransaction(
-            wallet.signer,
+            activeWallet.signer,
             "0xDbA4392F0fC03B4FFF1b42861ad733FcfA812da7",
             "0.1"
           ).finally(() =>
@@ -180,13 +182,13 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!wallet.provider}
+        disabled={!activeWallet.provider}
         onClick={() => {
           setLoading([...loading, "test"]);
           sendContract(
-            wallet.contracts,
+            activeWallet.contracts,
             dispatchTx,
-            wallet.provider
+            activeWallet.provider
           ).finally(() =>
             setLoading(loading.filter((item) => item === "test"))
           );

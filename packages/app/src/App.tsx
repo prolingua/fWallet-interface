@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import ModalProvider from "./context/ModalProvider";
 import { ThemeProvider } from "styled-components";
 import { TransactionProvider } from "./context/TransactionProvider";
-import { WalletProvider } from "./context/WalletProvider";
+import { ActiveWalletProvider } from "./context/ActiveWalletProvider";
 import withConnectedWallet from "./hocs/withConnectedWallet";
 import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
@@ -12,7 +12,7 @@ import theme from "./theme/theme";
 import SideBar from "./containers/SideBar/SideBar";
 import { Body } from "./components";
 import { SettingsProvider } from "./context/SettingsProvider";
-import { AccountsProvider } from "./context/AccountsProvider";
+import { AccountProvider } from "./context/AccountProvider";
 
 const TestWithWallet = withConnectedWallet(Test);
 
@@ -52,13 +52,13 @@ const Providers: React.FC<any> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <SettingsProvider>
-        <AccountsProvider>
-          <WalletProvider>
+        <AccountProvider>
+          <ActiveWalletProvider>
             <TransactionProvider>
               <ModalProvider>{children}</ModalProvider>
             </TransactionProvider>
-          </WalletProvider>
-        </AccountsProvider>
+          </ActiveWalletProvider>
+        </AccountProvider>
       </SettingsProvider>
     </ThemeProvider>
   );

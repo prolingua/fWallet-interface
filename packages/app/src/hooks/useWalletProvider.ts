@@ -1,9 +1,9 @@
 import { useContext } from "react";
-import { WalletContext } from "../context/WalletProvider";
+import { ActiveWalletContext } from "../context/ActiveWalletProvider";
 
 const useWalletProvider = () => {
-  const [wallet, dispatchWp] = useContext(WalletContext);
-  return { wallet, dispatchWp };
+  const [activeWallet, dispatchActiveWallet] = useContext(ActiveWalletContext);
+  return { activeWallet, dispatchActiveWallet };
 };
 
 export default useWalletProvider;
