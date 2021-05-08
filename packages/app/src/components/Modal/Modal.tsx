@@ -28,8 +28,7 @@ const StyledResponsiveWrapper = styled.div`
   flex-direction: column;
   justify-content: flex-end;
   position: relative;
-  width: 100%;
-  max-width: 800px;
+  max-width: 50vw;
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}px) {
     flex: 1;
     position: absolute;
@@ -43,15 +42,17 @@ const StyledResponsiveWrapper = styled.div`
 `;
 
 const StyledModal = styled.div`
-  padding: 40px;
-  background: rgba(58, 72, 107, 0.3);
+  padding: 20px 60px;
+  background: ${(props) => props.theme.color.primary.black()};
+  color: ${(props) => props.theme.color.white};
+  font-family: Proxima Nova;
   border: 1.5px solid #3a486b;
+  border-radius: 8px;
   backdrop-filter: blur(40px);
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  width: 100%;
   min-height: 0;
   z-index: 1;
 `;

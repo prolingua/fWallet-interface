@@ -6,7 +6,7 @@ import useAccounts from "./useAccount";
 import { loadContracts } from "../utils/wallet";
 
 export const useKeyStoreWallet = () => {
-  const { dispatchActiveWallet } = useWalletProvider();
+  const { dispatchWalletContext } = useWalletProvider();
   const { dispatchAccount } = useAccounts();
 
   const handleRestoreWalletFromPrivateKey = async (pkey: string) => {
@@ -30,7 +30,7 @@ export const useKeyStoreWallet = () => {
         },
       });
 
-      await dispatchActiveWallet({
+      await dispatchWalletContext({
         type: "setActiveWallet",
         data: {
           ...walletProvider,

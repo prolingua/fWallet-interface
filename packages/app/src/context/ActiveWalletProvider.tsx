@@ -2,41 +2,44 @@ import React, { useReducer } from "react";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
 import config from "../config/config.test";
-import useAccount from "../hooks/useAccount";
-import { isSameAddress } from "../utils/wallet";
 
 export const ActiveWalletContext = React.createContext(null);
 const initial = {
-  address: null,
-  chainId: null,
-  contracts: new Map([]),
-  provider: new JsonRpcProvider(config.rpc),
-  signer: null,
-  providerType: null,
+  activeWallet: {
+    address: null,
+    chainId: null,
+    contracts: new Map([]),
+    provider: new JsonRpcProvider(config.rpc),
+    signer: null,
+    providerType: null,
+  },
+  web3ProviderState: {
+    accountSelected: null,
+    walletProvider: null,
+  },
 } as any;
 
 export const ActiveWalletProvider: React.FC = ({ children }) => {
-  const { account } = useAccount();
-
   const activeWalletReducer = (state: any, action: any) => {
     switch (action.type) {
       case "setActiveWallet":
-        return action.data;
+        return {
+          activeWallet: action.data,
+          web3ProviderState: {
+            accountSelected:
+              action.data.providerType === "metamask"
+                ? action.data.address
+                : state.metamaskAccountSelected,
+          },
+        };
 
       case "web3ProviderAccountChanged":
-        const existingWallet = account.wallets.find((wallet: any) =>
-          isSameAddress(wallet.address, action.data.address)
-        );
-
-        if (existingWallet && state.providerType === "metamask") {
-          return action.data;
-        }
-
-        console.log(
-          "Please select correct account in metamask or add current one?"
-        );
-
-        return state;
+        return {
+          ...state,
+          web3ProviderState: {
+            ...action.data,
+          },
+        };
 
       case "reset":
         return initial;

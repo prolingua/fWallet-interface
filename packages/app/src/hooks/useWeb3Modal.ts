@@ -13,8 +13,9 @@ import {
 
 // TODO clean up provider flow
 function useWeb3Modal(config = {}) {
-  const { activeWallet, dispatchActiveWallet } = useWalletProvider();
+  const { walletContext, dispatchWalletContext } = useWalletProvider();
   const { dispatchAccount } = useAccounts();
+  const [web3BaseProvider, setWeb3BaseProvider] = useState(null);
   // const [autoLoaded, setAutoLoaded] = useState(false);
   // const {
   // autoLoad = true,
@@ -43,7 +44,7 @@ function useWeb3Modal(config = {}) {
       });
     }
 
-    return dispatchActiveWallet({
+    return dispatchWalletContext({
       type: "setActiveWallet",
       data: {
         ...walletProvider,
@@ -53,12 +54,12 @@ function useWeb3Modal(config = {}) {
   };
 
   const resetApp = async () => {
-    activeWallet.provider &&
-      activeWallet.provider.close &&
-      (await activeWallet.provider.close());
+    walletContext.activeWallet.provider &&
+      walletContext.activeWallet.provider.close &&
+      (await walletContext.activeWallet.provider.close());
 
     await web3Modal.clearCachedProvider();
-    await dispatchActiveWallet({
+    await dispatchWalletContext({
       type: "reset",
     });
     window.location.reload();
@@ -81,11 +82,11 @@ function useWeb3Modal(config = {}) {
       const web3Provider = createWeb3Provider(provider);
       const walletProvider = await createWalletContext(web3Provider);
 
-      dispatchActiveWallet({
+      dispatchWalletContext({
         type: "web3ProviderAccountChanged",
         data: {
-          ...walletProvider,
-          providerType: "metamask",
+          accountSelected: accountChanged[0],
+          walletProvider: walletProvider,
         },
       });
     });
@@ -97,8 +98,11 @@ function useWeb3Modal(config = {}) {
 
     // TODO: move to user modal
     if (
-      activeWallet.address &&
-      isSameAddress(activeWallet.address, connectProvider.selectedAddress)
+      walletContext.activeWallet.address &&
+      isSameAddress(
+        walletContext.activeWallet.address,
+        connectProvider.selectedAddress
+      )
     ) {
       console.info("Wallet already connected");
       return;
@@ -130,7 +134,7 @@ function useWeb3Modal(config = {}) {
   //   }
   // }, [autoLoad, autoLoaded, loadWeb3Modal, setAutoLoaded, web3Modal.cachedProvider]);
 
-  return [loadWeb3Modal, logoutOfWeb3Modal];
+  return [loadWeb3Modal, logoutOfWeb3Modal, web3BaseProvider];
 }
 
 export default useWeb3Modal;

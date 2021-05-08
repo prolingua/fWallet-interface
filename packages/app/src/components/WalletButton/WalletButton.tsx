@@ -5,20 +5,22 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 
 const WalletButton: React.FC<any> = () => {
   const [, loadWeb3Modal, logoutWeb3Modal] = useWeb3Modal();
-  const { activeWallet } = useWalletProvider();
+  const { walletContext } = useWalletProvider();
 
   return (
     <Button
       variant="primary"
       onClick={() => {
-        if (!activeWallet.address) {
+        if (!walletContext.activeWallet.address) {
           loadWeb3Modal();
         } else {
           logoutWeb3Modal();
         }
       }}
     >
-      {!activeWallet.address ? "Connect Wallet" : "Disconnect Wallet"}
+      {!walletContext.activeWallet.address
+        ? "Connect Wallet"
+        : "Disconnect Wallet"}
     </Button>
   );
 };

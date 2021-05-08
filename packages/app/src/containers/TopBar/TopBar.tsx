@@ -23,21 +23,22 @@ import useWeb3Modal from "../../hooks/useWeb3Modal";
 import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
 import Row from "../../components/Row";
 import { ThemeContext } from "styled-components";
-import { formatAddress } from "../../utils/wallet";
+import { formatAddress, isSameAddress } from "../../utils/wallet";
 import editSymbol from "../../assets/img/symbols/Edit.svg";
 import copySymbol from "../../assets/img/symbols/Copy.svg";
 import crossSymbol from "../../assets/img/symbols/Cross.svg";
 import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import InfoModal from "../../components/InfoModal";
 import useModal from "../../hooks/useModal";
+import useAccount from "../../hooks/useAccount";
 
 const WalletSelectView: React.FC<any> = ({ wallet, isActive }) => {
   return (
-    <Row>
+    <Row key={wallet.address}>
       <div
         style={{
           alignSelf: "center",
-          backgroundColor: stc(wallet.address),
+          backgroundColor: stc(wallet.address.toLowerCase()),
           borderRadius: "50%",
           height: "1.8rem",
           width: "1.8rem",
@@ -58,11 +59,12 @@ const WalletSelect: React.FC<any> = ({
   handleClose,
   activeWallet,
   setWarning,
+  setRequiredAccount,
 }) => {
   const [loadWeb3Modal] = useWeb3Modal();
   const { restoreWalletFromPrivateKey } = useKeyStoreWallet();
   const { account } = useAccounts();
-  const { dispatchActiveWallet } = useWalletProvider();
+  const { dispatchWalletContext } = useWalletProvider();
   const { color } = useContext(ThemeContext);
 
   const handleSwitchWallet = async (wallet: Wallet) => {
@@ -75,14 +77,14 @@ const WalletSelect: React.FC<any> = ({
         wallet.address.toLowerCase() !==
         window.ethereum.selectedAddress.toLowerCase()
       ) {
-        console.log("GOGO!!");
-        setWarning(`Please select ${wallet.address} account in metamask`);
+        setWarning(`Please select account ${wallet.address} in metamask`);
+        setRequiredAccount(wallet.address);
         return;
       }
       return loadWeb3Modal();
     }
 
-    return dispatchActiveWallet({
+    return dispatchWalletContext({
       type: "setActiveWallet",
       data: {
         ...wallet.walletProvider,
@@ -104,7 +106,7 @@ const WalletSelect: React.FC<any> = ({
               wallet.address.toLowerCase() ===
                 activeWallet.address.toLowerCase();
             return (
-              <Row>
+              <Row key={wallet.address}>
                 <WrapA
                   style={{ marginTop: ".8rem" }}
                   key={wallet.address}
@@ -229,36 +231,114 @@ const WalletSelect: React.FC<any> = ({
   );
 };
 
-const WalletSelector: React.FC<any> = ({ activeWallet, width }) => {
+const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
+  const { account, dispatchAccount } = useAccount();
+  const { dispatchWalletContext } = useWalletProvider();
   const [closeDropDown, setCloseDropDown] = useState(false);
   const [warning, setWarning] = useState(null);
-  const [onPresentInfoModal, onDismissInfoModal] = useModal(
+  const [requiredAccount, setRequiredAccount] = useState(null);
+  const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
     <InfoModal message={warning} />
   );
+
+  const switchToNewWeb3Provider = () => {
+    return dispatchWalletContext({
+      type: "setActiveWallet",
+      data: {
+        ...walletContext.web3ProviderState.walletProvider,
+        providerType: "metamask",
+      },
+    });
+  };
+
+  const [onPresentUnknownAccountModal] = useModal(
+    <InfoModal
+      message={`Unknown metamask account selected, do you want to add ${walletContext.web3ProviderState.accountSelected}`}
+      handleButton={() => {
+        switchToNewWeb3Provider();
+        dispatchAccount({
+          type: "addWallet",
+          wallet: {
+            address: walletContext.web3ProviderState.accountSelected,
+            providerType: "metamask",
+          },
+        });
+      }}
+    />
+  );
+
+  useEffect(() => {
+    const { activeWallet, web3ProviderState } = walletContext;
+    if (!web3ProviderState.accountSelected) {
+      return;
+    }
+
+    // Switch to new provider if the required account is the currently active metamask account
+    if (
+      activeWallet.providerType !== "metamask" &&
+      isSameAddress(requiredAccount, web3ProviderState.accountSelected)
+    ) {
+      return switchToNewWeb3Provider();
+    }
+
+    // Handle provider account change only if current provider is of type metamask
+    if (
+      !isSameAddress(activeWallet.address, web3ProviderState.accountSelected) &&
+      activeWallet.providerType === "metamask"
+    ) {
+      const existingWallet = account.wallets.find((wallet: any) =>
+        isSameAddress(wallet.address, web3ProviderState.accountSelected)
+      );
+
+      // Prompt user to add unknown wallet
+      if (!existingWallet) {
+        onPresentUnknownAccountModal();
+        return;
+      }
+
+      // Switch to existing wallet
+      return switchToNewWeb3Provider();
+    }
+  }, [walletContext, requiredAccount]);
 
   const handleClose = () => {
     setCloseDropDown(true);
   };
 
+  // Force closing of the dropdown
   useEffect(() => {
     if (closeDropDown) {
       setCloseDropDown(false);
     }
   }, [closeDropDown]);
 
+  // Present warning modal if wrong metamask account is selected
   useEffect(() => {
-    console.log({ warning });
     if (warning) {
-      onPresentInfoModal();
+      onPresentWrongAccountModal();
+      setWarning(null);
     }
-    setWarning(null);
-  }, [warning]);
+  }, [warning, requiredAccount]);
+
+  // Close warning modal if requirements are met
+  useEffect(() => {
+    if (isSameAddress(requiredAccount, walletContext.activeWallet.address)) {
+      onDismissWrongAccountModal();
+    }
+  }, [requiredAccount, walletContext.activeWallet.address]);
 
   return (
     <DropDownButton
       width={width}
       triggerClose={closeDropDown}
-      DropDown={() => WalletSelect({ handleClose, activeWallet, setWarning })}
+      DropDown={() =>
+        WalletSelect({
+          handleClose,
+          activeWallet: walletContext.activeWallet,
+          setWarning,
+          setRequiredAccount,
+        })
+      }
       dropdownWidth={344}
       dropdownTop={70}
       dropdownRight={0}
@@ -275,8 +355,8 @@ const WalletSelector: React.FC<any> = ({ activeWallet, width }) => {
       >
         <Row style={{ flex: 1, justifyContent: "space-between" }}>
           <Row>
-            {activeWallet.address ? (
-              <WalletSelectView wallet={activeWallet} />
+            {walletContext.activeWallet.address ? (
+              <WalletSelectView wallet={walletContext.activeWallet} />
             ) : (
               <div>Select wallet</div>
             )}
@@ -297,9 +377,8 @@ const WalletSelector: React.FC<any> = ({ activeWallet, width }) => {
 };
 
 const TopBar: React.FC<any> = () => {
-  const { activeWallet } = useWalletProvider();
+  const { walletContext } = useWalletProvider();
   const { settings, dispatchSettings } = useSettings();
-
   return (
     <Header>
       <CurrencySelector
@@ -308,7 +387,7 @@ const TopBar: React.FC<any> = () => {
         dispatch={dispatchSettings}
       />
       <Spacer />
-      <WalletSelector width="200px" activeWallet={activeWallet} />
+      <WalletSelector width="200px" walletContext={walletContext} />
     </Header>
   );
 };

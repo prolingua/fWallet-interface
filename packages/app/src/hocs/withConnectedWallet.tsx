@@ -5,9 +5,9 @@ import WalletButton from "../components/WalletButton/WalletButton";
 
 function withConnectedWallet(WrappedComponent: React.FC) {
   return function WithConnectedWalletComponent({ ...props }) {
-    const { activeWallet } = useWalletProvider();
+    const { walletContext } = useWalletProvider();
 
-    if (!activeWallet.address) {
+    if (!walletContext.activeWallet.address) {
       return (
         <div>
           <div>No WALLET connected</div>

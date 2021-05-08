@@ -11,12 +11,12 @@ const ModalTitle: React.FC<ModalTitleProps> = ({ text }) => (
 
 const StyledModalTitle = styled.div`
   align-items: center;
-  color: ${(props) => props.theme.color.grey()};
+  color: ${(props) => props.theme.color.white};
   display: flex;
   font-size: 22px;
   font-weight: 700;
-  height: ${(props) => props.theme.topBarSize}px;
   justify-content: center;
+  padding-bottom: 1rem;
 `;
 
 export default ModalTitle;

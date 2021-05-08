@@ -4,24 +4,16 @@ import { useQuery } from "@apollo/react-hooks";
 import { Button } from "../../components";
 import { send } from "../../utils/contract";
 import { Contract } from "@ethersproject/contracts";
-import {
-  Provider,
-  JsonRpcProvider,
-  Web3Provider,
-} from "@ethersproject/providers";
+import { Provider, Web3Provider } from "@ethersproject/providers";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useTransaction from "../../hooks/useTransaction";
 import { GET_GAS_PRICE, GET_TOKEN_PRICE } from "../../graphql/subgraph";
 import { ThemeContext } from "styled-components";
 import { useHistory } from "react-router-dom";
-import { Wallet } from "@ethersproject/wallet";
-import config from "../../config/config.test";
 import { parseEther } from "@ethersproject/units";
 import { Signer } from "@ethersproject/abstract-signer";
 
 const getNativeBalance = async (provider: Provider, account: string) => {
-  console.log("GET");
-  console.log(provider, account);
   const balance = await provider.getBalance(account);
   return balance.toString();
 };
@@ -53,7 +45,7 @@ const sendContract = async (
 };
 
 const Test: React.FC<any> = () => {
-  const { activeWallet } = useWalletProvider();
+  const { walletContext } = useWalletProvider();
   const { transaction, dispatchTx } = useTransaction();
   const { color } = useContext(ThemeContext);
   const history = useHistory();
@@ -90,14 +82,7 @@ const Test: React.FC<any> = () => {
       GET_TOKEN_PRICE_data,
     });
   }, [GET_TOKEN_PRICE_loading, GET_TOKEN_PRICE_error, GET_TOKEN_PRICE_data]);
-  // const account = restoreAccountByPrivateKey();
-  // const provider = new JsonRpcProvider(config.rpc);
-  // // console.log(account);
-  // const activeWallet = new Wallet(
-  //   "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583",
-  //   provider
-  // );
-  // console.log(activeWallet);
+
   return (
     <div
       style={{
@@ -121,10 +106,10 @@ const Test: React.FC<any> = () => {
       </div>
       <Button
         variant="primary"
-        disabled={!activeWallet.provider}
+        disabled={!walletContext.activeWallet.provider}
         onClick={() =>
           getNativeBalance(
-            activeWallet.provider,
+            walletContext.activeWallet.provider,
             "0x93FF1ff42f534BbEE207fa380d967C760d27076A"
           ).then((result) => setNotConnectedNativeBalance(result))
         }
@@ -135,11 +120,11 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!activeWallet.provider}
+        disabled={!walletContext.activeWallet.provider}
         onClick={() =>
           getNativeBalance(
-            activeWallet.provider,
-            activeWallet.address
+            walletContext.activeWallet.provider,
+            walletContext.activeWallet.address
           ).then((result) => setNativeBalance(result))
         }
       >
@@ -149,11 +134,11 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!activeWallet.provider}
+        disabled={!walletContext.activeWallet.provider}
         onClick={() =>
           callContract(
-            activeWallet.contracts,
-            activeWallet.address
+            walletContext.activeWallet.contracts,
+            walletContext.activeWallet.address
           ).then((result) => setTokenBalance(result))
         }
       >
@@ -163,11 +148,11 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!activeWallet.provider}
+        disabled={!walletContext.activeWallet.provider}
         onClick={() => {
           setLoading([...loading, "test"]);
           sendTransaction(
-            activeWallet.signer,
+            walletContext.activeWallet.signer,
             "0xDbA4392F0fC03B4FFF1b42861ad733FcfA812da7",
             "0.1"
           ).finally(() =>
@@ -182,13 +167,13 @@ const Test: React.FC<any> = () => {
       <div style={{ height: "2rem" }} />
       <Button
         variant="primary"
-        disabled={!activeWallet.provider}
+        disabled={!walletContext.activeWallet.provider}
         onClick={() => {
           setLoading([...loading, "test"]);
           sendContract(
-            activeWallet.contracts,
+            walletContext.activeWallet.contracts,
             dispatchTx,
-            activeWallet.provider
+            walletContext.activeWallet.provider
           ).finally(() =>
             setLoading(loading.filter((item) => item === "test"))
           );
