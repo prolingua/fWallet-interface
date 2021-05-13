@@ -8,6 +8,7 @@ import {
   Button,
   Container,
   Header,
+  OverlayButton,
   Typo1,
   Typo2,
   WrapA,
@@ -24,7 +25,7 @@ import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
 import Row from "../../components/Row";
 import { ThemeContext } from "styled-components";
 import { formatAddress, isSameAddress } from "../../utils/wallet";
-import editSymbol from "../../assets/img/symbols/Edit.svg";
+// import editSymbol from "../../assets/img/symbols/Edit.svg";
 import copySymbol from "../../assets/img/symbols/Copy.svg";
 import crossSymbol from "../../assets/img/symbols/Cross.svg";
 import syncSymbol from "../../assets/img/symbols/Sync.svg";
@@ -164,6 +165,7 @@ const WalletSelect: React.FC<any> = ({
                   <WrapA onClick={() => handleCopy(wallet.address)}>
                     <div style={{ position: "relative" }}>
                       <img
+                        alt=""
                         style={{
                           height: "16px",
                           width: "16px",
@@ -187,6 +189,7 @@ const WalletSelect: React.FC<any> = ({
                   </WrapA>
                   <WrapA onClick={() => handleDelete(wallet.address)}>
                     <img
+                      alt=""
                       style={{
                         height: "16px",
                         width: "16px",
@@ -243,19 +246,19 @@ const WalletSelect: React.FC<any> = ({
           padding: "1rem 2rem",
         }}
       >
-        <WrapA
+        <OverlayButton
           onClick={() => {
             loadWeb3Modal();
             handleClose();
           }}
         >
           <Row>
-            <img src={syncSymbol} />
+            <img alt="" src={syncSymbol} />
             <Spacer />
             <Typo1 style={{ fontWeight: "bold" }}>Connect Metamask</Typo1>
           </Row>
-        </WrapA>
-        <WrapA
+        </OverlayButton>
+        <OverlayButton
           onClick={() => {
             restoreWalletFromPrivateKey(
               "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"
@@ -263,11 +266,11 @@ const WalletSelect: React.FC<any> = ({
           }}
         >
           <Row>
-            <img src={syncSymbol} />
+            <img alt="" src={syncSymbol} />
             <Spacer />
             <Typo1 style={{ fontWeight: "bold" }}>Connect PrivateKey</Typo1>
           </Row>
-        </WrapA>
+        </OverlayButton>
       </Column>
     </Container>
   );
@@ -405,6 +408,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
           </Row>
           <Row align="center" justify="center">
             <img
+              alt=""
               src={vShape}
               style={{
                 marginLeft: ".5rem",

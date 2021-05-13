@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import useOutsideClick from "../../hooks/useOutsideClick";
+import { OverlayButton } from "../index";
 
 const DropDownButton: React.FC<any> = ({
   children,
@@ -29,9 +30,9 @@ const DropDownButton: React.FC<any> = ({
 
   return (
     <div style={{ width, position: "relative" }}>
-      <a style={{ textDecoration: "none" }} onClick={() => setIsOpen(!isOpen)}>
+      <OverlayButton onClick={() => setIsOpen(!isOpen)}>
         {children}
-      </a>
+      </OverlayButton>
       {isOpen && (
         <StyledDropDown
           ref={dropdownRef}

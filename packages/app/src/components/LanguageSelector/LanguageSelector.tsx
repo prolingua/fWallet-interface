@@ -76,7 +76,7 @@ const LanguageSelector: React.FC<any> = ({
         }}
       >
         {languageOptions[current].name}
-        <img src={vShape} style={{ paddingLeft: ".5rem" }} />
+        <img alt="" src={vShape} style={{ paddingLeft: ".5rem" }} />
       </Button>
     </DropDownButton>
   );

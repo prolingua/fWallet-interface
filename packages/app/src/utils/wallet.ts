@@ -1,4 +1,4 @@
-import { Provider, Web3Provider } from "@ethersproject/providers";
+import { Web3Provider } from "@ethersproject/providers";
 import { Signer } from "@ethersproject/abstract-signer";
 
 export const isSameAddress = (address1: string, address2: string): boolean => {
@@ -51,5 +51,3 @@ export const loadContracts = async (signer: Signer) => {
     // ],
   ]);
 };
-
-// export const createWeb3Provider(provider)

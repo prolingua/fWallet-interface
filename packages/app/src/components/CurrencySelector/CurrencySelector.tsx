@@ -76,11 +76,12 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
         }}
       >
         <img
+          alt=""
           src={currencyOptions[current].icon}
           style={{ height: "20px", width: "20px", paddingRight: ".5rem" }}
         />
         {current.toUpperCase()}
-        <img src={vShape} style={{ paddingLeft: ".5rem" }} />
+        <img alt="" src={vShape} style={{ paddingLeft: ".5rem" }} />
       </Button>
     </DropDownButton>
   );

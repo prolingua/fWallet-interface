@@ -35,7 +35,11 @@ function App() {
               justifyContent: "center",
             }}
           >
-            <img style={{ width: "15rem" }} src={fWalletLogoImg} />
+            <img
+              alt="fwallet"
+              style={{ width: "15rem" }}
+              src={fWalletLogoImg}
+            />
             <Spacer />
             <Heading1>Resolution not supported</Heading1>
             <Heading2>Mobile is coming soon!</Heading2>

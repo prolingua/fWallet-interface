@@ -1,8 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Web3Provider } from "@ethersproject/providers";
 import Web3Modal from "web3modal";
-// @ts-ignore
-import { abis, addresses } from "@f-wallet/contracts";
 import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
 import {
@@ -15,7 +13,6 @@ import {
 function useWeb3Modal(config = {}) {
   const { walletContext, dispatchWalletContext } = useWalletProvider();
   const { dispatchAccount } = useAccounts();
-  const [web3BaseProvider, setWeb3BaseProvider] = useState(null);
   // const [autoLoaded, setAutoLoaded] = useState(false);
   // const {
   // autoLoad = true,
@@ -133,7 +130,7 @@ function useWeb3Modal(config = {}) {
   //   }
   // }, [autoLoad, autoLoaded, loadWeb3Modal, setAutoLoaded, web3Modal.cachedProvider]);
 
-  return [loadWeb3Modal, logoutOfWeb3Modal, web3BaseProvider];
+  return [loadWeb3Modal, logoutOfWeb3Modal];
 }
 
 export default useWeb3Modal;
