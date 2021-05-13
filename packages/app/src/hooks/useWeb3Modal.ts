@@ -81,7 +81,6 @@ function useWeb3Modal(config = {}) {
 
       const web3Provider = createWeb3Provider(provider);
       const walletProvider = await createWalletContext(web3Provider);
-
       dispatchWalletContext({
         type: "web3ProviderAccountChanged",
         data: {

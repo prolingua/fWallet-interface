@@ -13,15 +13,17 @@ const InfoModal: React.FC<any> = ({ message, handleButton, onDismiss }) => {
         <Typo1>{message}</Typo1>
       </ModalContent>
       <ModalActions>
-        <Button
-          onClick={() => {
-            handleButton();
-            onDismiss();
-          }}
-          variant="secondary"
-        >
-          ADD
-        </Button>
+        {handleButton && (
+          <Button
+            onClick={() => {
+              handleButton();
+              onDismiss();
+            }}
+            variant="secondary"
+          >
+            ADD
+          </Button>
+        )}
         <Button onClick={() => onDismiss()} variant="secondary">
           CLOSE
         </Button>
