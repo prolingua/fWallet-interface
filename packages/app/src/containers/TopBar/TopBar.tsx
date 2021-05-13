@@ -247,6 +247,7 @@ const WalletSelect: React.FC<any> = ({
         }}
       >
         <OverlayButton
+          style={{ color: "white " }}
           onClick={() => {
             loadWeb3Modal();
             handleClose();
@@ -259,6 +260,7 @@ const WalletSelect: React.FC<any> = ({
           </Row>
         </OverlayButton>
         <OverlayButton
+          style={{ color: "white " }}
           onClick={() => {
             restoreWalletFromPrivateKey(
               "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"

@@ -58,6 +58,7 @@ export const OverlayButton = styled.button`
   background-color: transparent;
   border: none;
   text-decoration: none;
+  cursor: pointer;
 `;
 
 export const Button = styled.button<{
