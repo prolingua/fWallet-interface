@@ -1,8 +1,8 @@
 import React, { useReducer } from "react";
 
 const initial = {
-  currency: "USD",
-  language: null,
+  currency: "usd",
+  language: "en",
 } as any;
 export const SettingsContext = React.createContext(null);
 

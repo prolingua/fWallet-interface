@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import React, { Suspense } from "react";
+import { Route, Switch } from "react-router-dom";
 
 import ModalProvider from "./context/ModalProvider";
 import { ThemeProvider } from "styled-components";
@@ -10,9 +10,11 @@ import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
 import theme from "./theme/theme";
 import SideBar from "./containers/SideBar/SideBar";
-import { Body } from "./components";
+import { Body, Header } from "./components";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { AccountProvider } from "./context/AccountProvider";
+import { I18nextProvider } from "react-i18next";
+import i18next from "./i18n";
 
 const TestWithWallet = withConnectedWallet(Test);
 
@@ -22,7 +24,9 @@ function App() {
       <Body>
         <SideBar />
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <TopBar />
+          <Suspense fallback="Loading">
+            <TopBar />
+          </Suspense>
           <div
             style={{
               flex: 1,
@@ -50,17 +54,19 @@ function App() {
 
 const Providers: React.FC<any> = ({ children }) => {
   return (
-    <ThemeProvider theme={theme}>
-      <SettingsProvider>
-        <AccountProvider>
-          <ActiveWalletProvider>
-            <TransactionProvider>
-              <ModalProvider>{children}</ModalProvider>
-            </TransactionProvider>
-          </ActiveWalletProvider>
-        </AccountProvider>
-      </SettingsProvider>
-    </ThemeProvider>
+    <I18nextProvider i18n={i18next}>
+      <ThemeProvider theme={theme}>
+        <SettingsProvider>
+          <AccountProvider>
+            <ActiveWalletProvider>
+              <TransactionProvider>
+                <ModalProvider>{children}</ModalProvider>
+              </TransactionProvider>
+            </ActiveWalletProvider>
+          </AccountProvider>
+        </SettingsProvider>
+      </ThemeProvider>
+    </I18nextProvider>
   );
 };
 

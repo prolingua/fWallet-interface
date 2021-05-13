@@ -31,6 +31,8 @@ import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import InfoModal from "../../components/InfoModal";
 import useModal from "../../hooks/useModal";
 import useAccount from "../../hooks/useAccount";
+import LanguageSelector from "../../components/LanguageSelector/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 const WalletSelectView: React.FC<any> = ({ wallet, isActive }) => {
   return (
@@ -379,15 +381,30 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
 const TopBar: React.FC<any> = () => {
   const { walletContext } = useWalletProvider();
   const { settings, dispatchSettings } = useSettings();
+  const { t, i18n } = useTranslation("common");
   return (
     <Header>
-      <CurrencySelector
-        width="120px"
-        current={settings.currency}
-        dispatch={dispatchSettings}
-      />
-      <Spacer />
-      <WalletSelector width="200px" walletContext={walletContext} />
+      <Row>
+        <Row style={{ alignItems: "center" }}>
+          {t("welcome.title", { framework: "FWallet" })}
+        </Row>
+        <Spacer />
+        <LanguageSelector
+          width="120px"
+          current={settings.language}
+          dispatch={dispatchSettings}
+          i18n={i18n}
+        />
+      </Row>
+      <Row>
+        <CurrencySelector
+          width="120px"
+          current={settings.currency}
+          dispatch={dispatchSettings}
+        />
+        <Spacer />
+        <WalletSelector width="200px" walletContext={walletContext} />
+      </Row>
     </Header>
   );
 };

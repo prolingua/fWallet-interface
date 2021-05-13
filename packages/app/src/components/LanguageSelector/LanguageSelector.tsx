@@ -5,37 +5,32 @@ import Row from "../Row";
 import DropDownButton from "../DropDownButton";
 
 import vShape from "../../assets/img/shapes/vShape.png";
-import usFlagIcon from "../../assets/img/icons/usFlag.svg";
-import euFlagIcon from "../../assets/img/icons/euFlag.png";
 
-export const currencyOptions: any = {
-  usd: {
-    name: "USD",
-    symbol: "$",
-    icon: usFlagIcon,
+export const languageOptions: any = {
+  en: {
+    name: "English (EN)",
   },
-  eur: {
-    name: "EUR",
-    symbol: "€",
-    icon: euFlagIcon,
+  de: {
+    name: "German (DE)",
   },
 };
 
-const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
+const LanguageSelect: React.FC<any> = ({ dispatch, handleClose, i18n }) => {
   return (
     <Container padding="1rem">
       <Column>
-        {Object.keys(currencyOptions).map((key: string) => {
-          const value = currencyOptions[key];
+        {Object.keys(languageOptions).map((key: string) => {
+          const value = languageOptions[key];
           return (
             <WrapA
               key={value.name}
               onClick={() => {
-                dispatch({ type: "changeCurrency", currency: key });
+                dispatch({ type: "changeLanguage", language: key });
+                i18n.changeLanguage(key);
                 handleClose();
               }}
             >
-              <Row>{`${value.name} (${value.symbol})`}</Row>
+              <Row>{`${value.name}`}</Row>
             </WrapA>
           );
         })}
@@ -44,7 +39,12 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
   );
 };
 
-const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
+const LanguageSelector: React.FC<any> = ({
+  current,
+  width,
+  dispatch,
+  i18n,
+}) => {
   const [closeDropDown, setCloseDropDown] = useState(false);
   const handleClose = () => {
     setCloseDropDown(true);
@@ -59,8 +59,8 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
     <DropDownButton
       width={width}
       triggerClose={closeDropDown}
-      DropDown={() => CurrencySelect({ dispatch, handleClose })}
-      dropdownWidth={344}
+      DropDown={() => LanguageSelect({ dispatch, handleClose, i18n })}
+      dropdownWidth={254}
       dropdownTop={70}
       dropdownLeft={0}
     >
@@ -75,15 +75,11 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
           height: "56px",
         }}
       >
-        <img
-          src={currencyOptions[current].icon}
-          style={{ height: "20px", width: "20px", paddingRight: ".5rem" }}
-        />
-        {current.toUpperCase()}
+        {languageOptions[current].name}
         <img src={vShape} style={{ paddingLeft: ".5rem" }} />
       </Button>
     </DropDownButton>
   );
 };
 
-export default CurrencySelector;
+export default LanguageSelector;
