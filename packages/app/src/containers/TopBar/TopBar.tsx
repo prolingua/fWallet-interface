@@ -65,12 +65,16 @@ const WalletSelect: React.FC<any> = ({
 }) => {
   const [loadWeb3Modal] = useWeb3Modal();
   const { restoreWalletFromPrivateKey } = useKeyStoreWallet();
-  const { account } = useAccounts();
+  const { account, dispatchAccount } = useAccounts();
   const { dispatchWalletContext } = useWalletProvider();
   const { color } = useContext(ThemeContext);
+  const [copied, setCopied] = useState(null);
 
   const handleSwitchWallet = async (wallet: Wallet) => {
-    if (activeWallet.address.toLowerCase() === wallet.address.toLowerCase()) {
+    if (
+      activeWallet.address &&
+      activeWallet.address.toLowerCase() === wallet.address.toLowerCase()
+    ) {
       return;
     }
 
@@ -93,6 +97,28 @@ const WalletSelect: React.FC<any> = ({
         providerType: wallet.providerType,
       },
     });
+  };
+
+  const handleCopy = (address: string) => {
+    navigator.clipboard.writeText(address).then(() => {
+      setCopied(address);
+      setTimeout(() => {
+        setCopied(null);
+      }, 2000);
+    });
+  };
+
+  const handleDelete = (address: string) => {
+    dispatchAccount({
+      type: "removeWallet",
+      address,
+    });
+
+    if (activeWallet && isSameAddress(address, activeWallet.address)) {
+      dispatchWalletContext({
+        type: "reset",
+      });
+    }
   };
 
   return (
@@ -125,27 +151,41 @@ const WalletSelect: React.FC<any> = ({
                     justifyContent: "flex-end",
                   }}
                 >
-                  <WrapA>
-                    <img
-                      style={{
-                        height: "16px",
-                        width: "16px",
-                        marginRight: "1.5rem",
-                      }}
-                      src={editSymbol}
-                    />
+                  {/*<WrapA>*/}
+                  {/*  <img*/}
+                  {/*    style={{*/}
+                  {/*      height: "16px",*/}
+                  {/*      width: "16px",*/}
+                  {/*      marginRight: "1.5rem",*/}
+                  {/*    }}*/}
+                  {/*    src={editSymbol}*/}
+                  {/*  />*/}
+                  {/*</WrapA>*/}
+                  <WrapA onClick={() => handleCopy(wallet.address)}>
+                    <div style={{ position: "relative" }}>
+                      <img
+                        style={{
+                          height: "16px",
+                          width: "16px",
+                          marginRight: "1.5rem",
+                        }}
+                        src={copySymbol}
+                      />
+                      {copied === wallet.address && (
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: "-1rem",
+                            top: "-.7rem",
+                            fontSize: "14px",
+                          }}
+                        >
+                          COPIED
+                        </div>
+                      )}
+                    </div>
                   </WrapA>
-                  <WrapA>
-                    <img
-                      style={{
-                        height: "16px",
-                        width: "16px",
-                        marginRight: "1.5rem",
-                      }}
-                      src={copySymbol}
-                    />
-                  </WrapA>
-                  <WrapA>
+                  <WrapA onClick={() => handleDelete(wallet.address)}>
                     <img
                       style={{
                         height: "16px",

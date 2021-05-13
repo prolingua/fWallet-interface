@@ -28,6 +28,12 @@ export const AccountProvider: React.FC = ({ children }) => {
         return {
           wallets: [...state.wallets, action.wallet],
         };
+      case "removeWallet":
+        return {
+          wallets: state.wallets.filter(
+            (wallet: Wallet) => wallet.address !== action.address
+          ),
+        };
       default:
         return state;
     }
