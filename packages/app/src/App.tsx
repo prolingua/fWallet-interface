@@ -10,43 +10,65 @@ import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
 import theme from "./theme/theme";
 import SideBar from "./containers/SideBar/SideBar";
-import { Body, Header } from "./components";
+import { Body, Heading1, Heading2 } from "./components";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { AccountProvider } from "./context/AccountProvider";
 import { I18nextProvider } from "react-i18next";
 import i18next from "./i18n";
+import useDetectResolutionType from "./hooks/useDetectResolutionType";
+import Column from "./components/Column";
+import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
+import Spacer from "./components/Spacer";
 
 const TestWithWallet = withConnectedWallet(Test);
 
 function App() {
+  const resolutionType = useDetectResolutionType();
   return (
     <Providers>
       <Body>
-        <SideBar />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <Suspense fallback="Loading">
-            <TopBar />
-          </Suspense>
-          <div
+        {resolutionType === "mobile" || resolutionType === "tablet" ? (
+          <Column
             style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "stretch",
-              padding: "0 4rem 0 2rem",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <Switch>
-              <Route path="/otherRoute" component={TestWithWallet} />
-              <Route path="/home" component={Test} />
-              <Route path="/send" component={Test} />
-              <Route path="/staking" component={Test} />
-              <Route path="/defi" component={Test} />
-              <Route path="/governance" component={Test} />
-              <Route path="/" exact component={Test} />
-            </Switch>
-          </div>
-        </div>
+            <img style={{ width: "15rem" }} src={fWalletLogoImg} />
+            <Spacer />
+            <Heading1>Resolution not supported</Heading1>
+            <Heading2>Mobile is coming soon!</Heading2>
+          </Column>
+        ) : (
+          <>
+            <SideBar />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <Suspense fallback="Loading">
+                <TopBar />
+              </Suspense>
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  padding: "0 4rem 0 2rem",
+                }}
+              >
+                <Switch>
+                  <Route path="/otherRoute" component={TestWithWallet} />
+                  <Route path="/home" component={Test} />
+                  <Route path="/send" component={Test} />
+                  <Route path="/staking" component={Test} />
+                  <Route path="/defi" component={Test} />
+                  <Route path="/governance" component={Test} />
+                  <Route path="/" exact component={Test} />
+                </Switch>
+              </div>
+            </div>
+          </>
+        )}
       </Body>
     </Providers>
   );

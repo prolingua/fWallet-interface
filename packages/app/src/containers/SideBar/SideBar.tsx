@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Spacer from "../../components/Spacer";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useHistory, NavLink } from "react-router-dom";
 
@@ -118,7 +117,7 @@ const StyledSideBar = styled.div`
   background-color: ${(props) => props.theme.color.secondary.navy()};
   display: flex;
   flex-direction: column;
-  width: 12rem;
+  min-width: 12rem;
   padding: 2rem 0 0 2rem;
 `;
 
