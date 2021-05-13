@@ -19,7 +19,6 @@ const getNativeBalance = async (provider: Provider, account: string) => {
 };
 
 const sendTransaction = async (signer: Signer, to: string, value: string) => {
-  // const send(provider, () => provider.sendTransaction({}))
   return signer.sendTransaction({
     to: to,
     value: parseEther(value),

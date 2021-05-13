@@ -69,6 +69,7 @@ export const Button = styled.button<{
   border-radius: 8px;
   color: ${(props) => (!props.disabled ? "white" : "#6c726c")};
   cursor: pointer;
+  font-family: Proxima Nova;
   font-size: 18px;
   text-align: center;
   text-decoration: none;
