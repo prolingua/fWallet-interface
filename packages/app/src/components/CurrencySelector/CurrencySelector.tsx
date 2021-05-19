@@ -60,9 +60,9 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
       width={width}
       triggerClose={closeDropDown}
       DropDown={() => CurrencySelect({ dispatch, handleClose })}
-      dropdownWidth={344}
+      dropdownWidth={336}
       dropdownTop={70}
-      dropdownLeft={0}
+      dropdownLeft={5}
     >
       <Button
         variant="secondary"

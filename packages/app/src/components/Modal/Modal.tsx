@@ -45,7 +45,7 @@ const StyledModal = styled.div`
   padding: 20px 60px;
   background: ${(props) => props.theme.color.primary.black()};
   color: ${(props) => props.theme.color.white};
-  font-family: Proxima Nova;
+  font-family: "proxima-nova", sans-serif;
   border: 1.5px solid #3a486b;
   border-radius: 8px;
   backdrop-filter: blur(40px);

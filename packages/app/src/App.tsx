@@ -19,6 +19,7 @@ import useDetectResolutionType from "./hooks/useDetectResolutionType";
 import Column from "./components/Column";
 import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 import Spacer from "./components/Spacer";
+import Home from "./containers/Home";
 
 const TestWithWallet = withConnectedWallet(Test);
 
@@ -62,7 +63,7 @@ function App() {
               >
                 <Switch>
                   <Route path="/otherRoute" component={TestWithWallet} />
-                  <Route path="/home" component={Test} />
+                  <Route path="/home" component={Home} />
                   <Route path="/send" component={Test} />
                   <Route path="/staking" component={Test} />
                   <Route path="/defi" component={Test} />

@@ -386,9 +386,9 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
           setRequiredAccount,
         })
       }
-      dropdownWidth={344}
+      dropdownWidth={336}
       dropdownTop={70}
-      dropdownRight={0}
+      dropdownRight={5}
     >
       <Button
         variant="secondary"
@@ -436,7 +436,7 @@ const TopBar: React.FC<any> = () => {
         </Row>
         <Spacer />
         <LanguageSelector
-          width="120px"
+          width="180px"
           current={settings.language}
           dispatch={dispatchSettings}
           i18n={i18n}
@@ -444,11 +444,11 @@ const TopBar: React.FC<any> = () => {
       </Row>
       <Row>
         <CurrencySelector
-          width="120px"
+          width="140px"
           current={settings.currency}
           dispatch={dispatchSettings}
         />
-        <Spacer />
+        <Spacer size="sm" />
         <WalletSelector width="200px" walletContext={walletContext} />
       </Row>
     </Header>

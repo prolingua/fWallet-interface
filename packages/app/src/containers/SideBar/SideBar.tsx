@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useHistory, NavLink } from "react-router-dom";
 
-import { Typo1 } from "../../components";
+import { Typo2 } from "../../components";
 
 import fWalletLogoImg from "../../assets/img/fWalletLogo.svg";
 import homeSymbolImg from "../../assets/img/symbols/Home.svg";
@@ -50,7 +50,7 @@ const StyledNavLink = styled(NavLink)`
 const StyledLinkContainer = styled.div`
   display: flex;
 `;
-const StyledLinkName = styled(Typo1)<StyledLinkNameProps>`
+const StyledLinkName = styled(Typo2)<StyledLinkNameProps>`
   color: ${(props) =>
     props.active
       ? props.theme.color.primary.cyan()
@@ -58,7 +58,7 @@ const StyledLinkName = styled(Typo1)<StyledLinkNameProps>`
   font-weight: bold;
   display: flex;
   align-items: center;
-  padding-left: 2rem;
+  padding-left: 1.5rem;
 `;
 
 const SideBar: React.FC<any> = () => {

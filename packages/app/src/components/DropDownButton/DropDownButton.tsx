@@ -30,7 +30,7 @@ const DropDownButton: React.FC<any> = ({
 
   return (
     <div style={{ width, position: "relative" }}>
-      <OverlayButton onClick={() => setIsOpen(!isOpen)}>
+      <OverlayButton style={{ width }} onClick={() => setIsOpen(!isOpen)}>
         {children}
       </OverlayButton>
       {isOpen && (

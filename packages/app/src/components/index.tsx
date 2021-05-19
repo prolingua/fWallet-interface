@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const Header = styled.div`
-  font-family: Proxima Nova;
+  font-family: "proxima-nova", sans-serif;
   background-color: ${(props) => props.theme.color.primary.black()};
   height: ${(props) => props.theme.topBarSize}px;
   padding: 0 4rem 0 2rem;
@@ -13,7 +13,7 @@ export const Header = styled.div`
 `;
 
 export const Body = styled.div`
-  font-family: Proxima Nova;
+  font-family: "proxima-nova", sans-serif;
   background-color: ${(props) => props.theme.color.primary.black()};
   color: white;
   display: flex;
@@ -76,7 +76,7 @@ export const Button = styled.button<{
   border-radius: 8px;
   color: ${(props) => (!props.disabled ? "white" : "#6c726c")};
   cursor: pointer;
-  font-family: Proxima Nova;
+  font-family: "proxima-nova", sans-serif;
   font-size: 18px;
   text-align: center;
   text-decoration: none;
@@ -92,5 +92,12 @@ export const Container = styled.div<{ padding?: string }>`
   border: ${(props) => `1px solid ${props.theme.color.greys.mediumGray()}`};
   padding: ${(props) => (props.padding ? props.padding : "2rem")};
   background-color: ${(props) => props.theme.color.primary.black()};
+  border-radius: 8px;
+`;
+
+export const ContentBox = styled.div<any>`
+  background-color: ${(props) => props.theme.color.secondary.navy()};
+  display: flex;
+  padding: 2rem;
   border-radius: 8px;
 `;

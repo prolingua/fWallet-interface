@@ -1,7 +1,7 @@
 import { black, white } from "./colors";
 
 const theme = {
-  fontFamily: "Proxima Nova",
+  fontFamily: '"proxima-nova", sans-serif',
   borderRadius: 12,
   breakpoints: {
     mobile: 576,
@@ -24,7 +24,7 @@ const theme = {
     },
     secondary: {
       aqua: (opacity: number = 1) => `rgba(105, 226, 220, ${opacity})`,
-      electricBlue: (opacity: number = 1) => `rgba(25, 255, 255, ${opacity})`, //#0D1FFF
+      electricBlue: (opacity: number = 1) => `rgba(13, 31, 255, ${opacity})`, //#0D1FFF
       navy: (opacity: number = 1) => `rgba(14, 29, 55, ${opacity})`, // #0E1D37
       red: (opacity: number = 1) => `rgba(248, 66, 57, ${opacity})`, // #F84239
     },
