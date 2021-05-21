@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import React, { useContext, useState } from "react";
 
 import { Button } from "../../components";
 import { send } from "../../utils/contract";
@@ -7,11 +6,12 @@ import { Contract } from "@ethersproject/contracts";
 import { Provider, Web3Provider } from "@ethersproject/providers";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useTransaction from "../../hooks/useTransaction";
-import { GET_GAS_PRICE, GET_TOKEN_PRICE } from "../../graphql/subgraph";
 import { ThemeContext } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { parseEther } from "@ethersproject/units";
 import { Signer } from "@ethersproject/abstract-signer";
+import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
+import useFantomApiData from "../../hooks/useFantomApiData";
 
 const getNativeBalance = async (provider: Provider, account: string) => {
   const balance = await provider.getBalance(account);
@@ -46,18 +46,19 @@ const sendContract = async (
 const Test: React.FC<any> = () => {
   const { walletContext } = useWalletProvider();
   const { transaction, dispatchTx } = useTransaction();
+  const { apiData } = useFantomApiData();
   const { color } = useContext(ThemeContext);
   const history = useHistory();
-  const {
-    loading: GET_GAS_PRICE_loading,
-    error: GET_GAS_PRICE_error,
-    data: GET_GAS_PRICE_data,
-  } = useQuery(GET_GAS_PRICE);
-  const {
-    loading: GET_TOKEN_PRICE_loading,
-    error: GET_TOKEN_PRICE_error,
-    data: GET_TOKEN_PRICE_data,
-  } = useQuery(GET_TOKEN_PRICE, { variables: { to: "USD" } });
+  // const {
+  //   loading: GET_GAS_PRICE_loading,
+  //   error: GET_GAS_PRICE_error,
+  //   data: GET_GAS_PRICE_data,
+  // } = useQuery(GET_GAS_PRICE);
+  // const {
+  //   loading: GET_TOKEN_PRICE_loading,
+  //   error: GET_TOKEN_PRICE_error,
+  //   data: GET_TOKEN_PRICE_data,
+  // } = useQuery(GET_TOKEN_PRICE, { variables: { to: "USD" } });
 
   const [loading, setLoading] = useState([]);
   const [notConnectedNativeBalance, setNotConnectedNativeBalance] = useState(
@@ -66,21 +67,25 @@ const Test: React.FC<any> = () => {
   const [nativeBalance, setNativeBalance] = useState(null);
   const [tokenBalance, setTokenBalance] = useState(null);
 
-  useEffect(() => {
-    console.log({
-      GET_GAS_PRICE_loading,
-      GET_GAS_PRICE_error,
-      GET_GAS_PRICE_data,
-    });
-  }, [GET_GAS_PRICE_loading, GET_GAS_PRICE_error, GET_GAS_PRICE_data]);
+  useFantomApi(FantomApiMethods.getGasPrice, null);
+  console.log(apiData[FantomApiMethods.getGasPrice]);
 
-  useEffect(() => {
-    console.log({
-      GET_TOKEN_PRICE_loading,
-      GET_TOKEN_PRICE_error,
-      GET_TOKEN_PRICE_data,
-    });
-  }, [GET_TOKEN_PRICE_loading, GET_TOKEN_PRICE_error, GET_TOKEN_PRICE_data]);
+  useFantomApi(FantomApiMethods.getTokenPrice, { to: "USD" });
+  // useEffect(() => {
+  //   console.log({
+  //     GET_GAS_PRICE_loading,
+  //     GET_GAS_PRICE_error,
+  //     GET_GAS_PRICE_data,
+  //   });
+  // }, [GET_GAS_PRICE_loading, GET_GAS_PRICE_error, GET_GAS_PRICE_data]);
+
+  // useEffect(() => {
+  //   console.log({
+  //     GET_TOKEN_PRICE_loading,
+  //     GET_TOKEN_PRICE_error,
+  //     GET_TOKEN_PRICE_data,
+  //   });
+  // }, [GET_TOKEN_PRICE_loading, GET_TOKEN_PRICE_error, GET_TOKEN_PRICE_data]);
 
   return (
     <div

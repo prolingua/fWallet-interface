@@ -20,6 +20,7 @@ import Column from "./components/Column";
 import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 import Spacer from "./components/Spacer";
 import Home from "./containers/Home";
+import { FantomApiProvider } from "./context/FantomApiProvider";
 
 const TestWithWallet = withConnectedWallet(Test);
 
@@ -84,13 +85,15 @@ const Providers: React.FC<any> = ({ children }) => {
     <I18nextProvider i18n={i18next}>
       <ThemeProvider theme={theme}>
         <SettingsProvider>
-          <AccountProvider>
-            <ActiveWalletProvider>
-              <TransactionProvider>
-                <ModalProvider>{children}</ModalProvider>
-              </TransactionProvider>
-            </ActiveWalletProvider>
-          </AccountProvider>
+          <FantomApiProvider>
+            <AccountProvider>
+              <ActiveWalletProvider>
+                <TransactionProvider>
+                  <ModalProvider>{children}</ModalProvider>
+                </TransactionProvider>
+              </ActiveWalletProvider>
+            </AccountProvider>
+          </FantomApiProvider>
         </SettingsProvider>
       </ThemeProvider>
     </I18nextProvider>

@@ -24,3 +24,37 @@ export const GET_GAS_PRICE = gql`
     gasPrice
   }
 `;
+
+export const ACCOUNT_BY_ADDRESS = gql`
+  query AccountByAddress($address: Address!, $cursor: Cursor, $count: Int!) {
+    account(address: $address) {
+      address
+      balance
+      txCount
+      txList(cursor: $cursor, count: $count) {
+        pageInfo {
+          first
+          last
+          hasNext
+          hasPrevious
+        }
+        totalCount
+        edges {
+          cursor
+          transaction {
+            hash
+            from
+            to
+            value
+            gasUsed
+            status
+            block {
+              number
+              timestamp
+            }
+          }
+        }
+      }
+    }
+  }
+`;

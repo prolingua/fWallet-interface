@@ -6,6 +6,8 @@ import { ThemeContext } from "styled-components";
 import Spacer from "../../components/Spacer";
 import { buildStyles, CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 
 const CRatio: React.FC<any> = ({ value }) => {
   const { color } = useContext(ThemeContext);
@@ -81,6 +83,7 @@ const StatPair: React.FC<any> = ({ title, value1, value2, suffix }) => {
 
 const Home: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
+
   return (
     <ContentBox>
       <Column style={{ flex: 4 }}>
