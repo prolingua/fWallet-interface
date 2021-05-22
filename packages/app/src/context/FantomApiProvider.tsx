@@ -1,9 +1,11 @@
 import React, { useReducer } from "react";
 
 const initial: any = {
-  getAccountTransactionHistory: new Map([]),
+  getAccount: new Map([]),
   getTokenPrice: null,
   getGasPrice: null,
+  getFMintForAccount: new Map([]),
+  getDelegationsForAccount: new Map([]),
 };
 export const FantomApiContext = React.createContext(null);
 

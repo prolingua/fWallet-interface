@@ -36,7 +36,7 @@ const TransactionLine: React.FC<any> = ({
         </Typo1>
         <Spacer size="sm" />
         <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
-          {amount} FTM
+          {amount.toFixed(2)} FTM
         </Typo1>
         <Spacer size="sm" />
         <Typo1 style={{ color: color.greys.darkGrey() }}>

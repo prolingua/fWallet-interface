@@ -2,8 +2,30 @@ export const formatHexToInt = (value: string) => {
   return parseInt(value, 16);
 };
 
-export const WeiToUnit = (value: string, decimals = 18) => {
-  return parseInt(value, 10) / Math.pow(10, decimals);
+export const WeiToUnit = (value: string | number, decimals = 18) => {
+  return parseInt(value.toString(), 10) / Math.pow(10, decimals);
+};
+
+export const toFormattedBalance = (value: number) => {
+  const formatThousands = (value: number) => {
+    let valueLeft = value;
+    let formatted = ".";
+    while (valueLeft >= 1000) {
+      formatted = "," + valueLeft.toString().substr(0, -3) + formatted;
+      valueLeft = valueLeft / 1000;
+    }
+
+    return (
+      valueLeft.toString() + (formatted.length > 1 ? "," + formatted : ".")
+    );
+  };
+  const full = value.toString();
+  const parts = full.toString().split(".");
+
+  return [
+    formatThousands(parseInt(parts[0], 10)),
+    parts[1] ? parts[1].substr(0, 2) : "00",
+  ];
 };
 
 export const toCurrencySymbol = (currency: string) => {

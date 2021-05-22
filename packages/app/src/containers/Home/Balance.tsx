@@ -6,63 +6,137 @@ import Spacer from "../../components/Spacer";
 import Row from "../../components/Row";
 import StatPair from "../../components/StatPair";
 import CRatio from "../../components/C-Ratio";
+import {
+  toCurrencySymbol,
+  toFormattedBalance,
+  WeiToUnit,
+} from "../../utils/conversion";
+import { getAccountDelegationSummary } from "../../utils/delegations";
+import { getCurrentCRatio, getLockedCollateral } from "../../utils/fMint";
+import { getAccountBalance } from "../../utils/account";
+import { getTotalFTMBalanceForAccount } from "../../utils/common";
 
-const Balance: React.FC<any> = () => {
+const BalanceContent: React.FC<any> = ({
+  accountData,
+  fMint,
+  delegations,
+  tokenPrice,
+  currency,
+}) => {
   const { color } = useContext(ThemeContext);
 
+  const accountBalance = getAccountBalance(accountData);
+  const totalDelegated = getAccountDelegationSummary(delegations);
+  const fMintFTMCollateral = getLockedCollateral(fMint);
+  const cRatioPercentage = getCurrentCRatio(fMint);
+
+  const availableFTM = toFormattedBalance(WeiToUnit(accountBalance));
+  const stakedFTM = toFormattedBalance(WeiToUnit(totalDelegated.totalStaked));
+  const rewardsFTM = toFormattedBalance(
+    WeiToUnit(totalDelegated.totalPendingRewards)
+  );
+  const mintedSFTM = toFormattedBalance(
+    WeiToUnit(totalDelegated.totalMintedSFTM)
+  );
+  const lockedFTMCollateral = toFormattedBalance(WeiToUnit(fMintFTMCollateral));
+  const totalBalance = toFormattedBalance(
+    getTotalFTMBalanceForAccount(
+      accountBalance,
+      totalDelegated.totalStaked,
+      fMintFTMCollateral,
+      tokenPrice
+    )
+  );
+
   return (
-    <ContentBox>
+    <Row>
       <Column style={{ flex: 4 }}>
-        <Heading1>Balance</Heading1>
-        <Spacer size="sm" />
         <Row style={{ alignItems: "flex-end" }}>
-          <div style={{ fontSize: "64px", fontWeight: "bold" }}>$8,412</div>
+          <div style={{ fontSize: "64px", fontWeight: "bold" }}>
+            {`${toCurrencySymbol(currency)}${totalBalance[0]}`}
+          </div>
           <div
             style={{
               fontSize: "32px",
               fontWeight: "bold",
               color: color.greys.darkGrey(),
-              paddingBottom: ".5rem",
+              marginBottom: ".5rem",
             }}
           >
-            .67
+            {totalBalance[1]}
           </div>
         </Row>
       </Column>
       <Column style={{ flex: 2 }}>
-        <Spacer size="lg" />
-        <StatPair title="Available" value1="7,121" value2="" suffix="FTM" />
+        <StatPair
+          title="Available"
+          value1={availableFTM[0]}
+          value2={availableFTM[1]}
+          suffix="FTM"
+        />
         <Spacer />
-        <StatPair title="Staked" value1="2,734" value2=".43" suffix="FTM" />
+        <StatPair
+          title="Staked"
+          value1={stakedFTM[0]}
+          value2={stakedFTM[1]}
+          suffix="FTM"
+        />
         <Spacer />
         <StatPair
           title="Pending rewards"
-          value1="996"
-          value2=".58"
+          value1={rewardsFTM[0]}
+          value2={rewardsFTM[1]}
           suffix="FTM"
         />
       </Column>
       <Column style={{ flex: 2 }}>
-        <Spacer size="lg" />
         <StatPair
           title="Minted sFTM"
-          value1="1,414"
-          value2=".89"
+          value1={mintedSFTM[0]}
+          value2={mintedSFTM[1]}
           suffix="sFTM"
         />
         <Spacer />
         <StatPair
           title="Locked collateral"
-          value1="756"
-          value2=""
+          value1={lockedFTMCollateral[0]}
+          value2={lockedFTMCollateral[1]}
           suffix="FTM"
         />
-        <Spacer />
-        <StatPair title="Net APY" value1="8.41%" value2="" suffix="" />
+        {/*<Spacer />*/}
+        {/*<StatPair title="Net APY" value1="8.41%" value2="" suffix="" />*/}
       </Column>
       <Column style={{ flex: 2 }}>
-        <Spacer size="lg" />
-        <CRatio value="620" />
+        <CRatio value={cRatioPercentage ? cRatioPercentage.toFixed(0) : 0} />
+      </Column>
+    </Row>
+  );
+};
+
+const Balance: React.FC<any> = ({
+  accountData,
+  fMint,
+  delegations,
+  tokenPrice,
+  currency,
+  loading,
+}) => {
+  return (
+    <ContentBox>
+      <Column style={{ flex: 1 }}>
+        <Heading1>Balance</Heading1>
+        <Spacer size="sm" />
+        {loading ? (
+          <div> LOADING... </div>
+        ) : (
+          <BalanceContent
+            accountData={accountData.data}
+            fMint={fMint.data}
+            delegations={delegations.data}
+            tokenPrice={tokenPrice}
+            currency={currency}
+          />
+        )}
       </Column>
     </ContentBox>
   );

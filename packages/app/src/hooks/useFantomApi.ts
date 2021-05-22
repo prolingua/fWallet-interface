@@ -1,5 +1,7 @@
 import {
   ACCOUNT_BY_ADDRESS,
+  DELEGATIONS_BY_ADDRESS,
+  FMINT_ACCOUNT_BY_ADDRESS,
   GET_GAS_PRICE,
   GET_TOKEN_PRICE,
 } from "../graphql/subgraph";
@@ -9,14 +11,18 @@ import useFantomApiData from "./useFantomApiData";
 import useWalletProvider from "./useWalletProvider";
 
 export enum FantomApiMethods {
-  getAccountTransactionHistory = "getAccountTransactionHistory",
+  getAccount = "getAccount",
   getTokenPrice = "getTokenPrice",
   getGasPrice = "getGasPrice",
+  getFMintForAccount = "getFMintForAccount",
+  getDelegationsForAccount = "getDelegationsForAccount",
 }
 const methods: { [key in FantomApiMethods]: any } = {
-  [FantomApiMethods.getAccountTransactionHistory]: ACCOUNT_BY_ADDRESS,
+  [FantomApiMethods.getAccount]: ACCOUNT_BY_ADDRESS,
   [FantomApiMethods.getTokenPrice]: GET_TOKEN_PRICE,
   [FantomApiMethods.getGasPrice]: GET_GAS_PRICE,
+  [FantomApiMethods.getDelegationsForAccount]: DELEGATIONS_BY_ADDRESS,
+  [FantomApiMethods.getFMintForAccount]: FMINT_ACCOUNT_BY_ADDRESS,
 };
 
 const useFantomApi = (

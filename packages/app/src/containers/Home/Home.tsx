@@ -21,17 +21,34 @@ const Home: React.FC<any> = () => {
     address: activeAddress,
     count: 10,
   });
+
   const tokenPrice = apiData[FantomApiMethods.getTokenPrice];
-  const accountTransactionHistory = apiData[
-    FantomApiMethods.getAccountTransactionHistory
+  const accountData = apiData[FantomApiMethods.getAccount].get(activeAddress);
+  const fMintData = apiData[FantomApiMethods.getFMintForAccount].get(
+    activeAddress
+  );
+  const delegationsData = apiData[
+    FantomApiMethods.getDelegationsForAccount
   ].get(activeAddress);
 
   useFantomApi(FantomApiMethods.getTokenPrice, {
     to: settings.currency.toUpperCase(),
   });
   useFantomApi(
-    FantomApiMethods.getAccountTransactionHistory,
+    FantomApiMethods.getAccount,
     fetchTransHistoryVars,
+    activeAddress
+  );
+  useFantomApi(
+    FantomApiMethods.getFMintForAccount,
+    { address: activeAddress },
+    activeAddress
+  );
+  useFantomApi(
+    FantomApiMethods.getDelegationsForAccount,
+    {
+      address: activeAddress,
+    },
     activeAddress
   );
 
@@ -44,21 +61,31 @@ const Home: React.FC<any> = () => {
     }
   }, [activeAddress]);
 
-  const transactionHistoryIsLoaded =
+  const isDoneLoading =
     activeAddress &&
-    apiData[FantomApiMethods.getAccountTransactionHistory].has(activeAddress);
+    accountData?.data &&
+    fMintData?.data &&
+    delegationsData?.data &&
+    tokenPrice?.data;
 
   return (
     <>
-      <Balance />
+      <Balance
+        loading={!isDoneLoading}
+        accountData={accountData}
+        fMint={fMintData}
+        delegations={delegationsData}
+        tokenPrice={tokenPrice?.data?.price?.price}
+        currency={settings.currency}
+      />
       <Spacer />
       <Row style={{ marginBottom: "1rem" }}>
         <TransactionHistory
           address={activeAddress}
           tokenPrice={tokenPrice?.data?.price?.price}
           currency={settings.currency}
-          loading={!transactionHistoryIsLoaded}
-          history={accountTransactionHistory}
+          loading={!isDoneLoading}
+          accountData={accountData}
         />
         <Spacer />
         <ContentBox style={{ flex: 1 }}>

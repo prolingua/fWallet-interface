@@ -1,16 +1,5 @@
 import { gql } from "apollo-boost";
 
-// See more example queries on https://thegraph.com/explorer/subgraph/uniswap/uniswap-v2
-// export const GET_AGGREGATED_UNISWAP_DATA = gql`
-//   {
-//     uniswapFactories(first: 1) {
-//       pairCount
-//       totalVolumeUSD
-//       totalLiquidityUSD
-//     }
-//   }
-// `;
-
 export const GET_TOKEN_PRICE = gql`
   query Price($to: String!) {
     price(to: $to) {
@@ -52,6 +41,44 @@ export const ACCOUNT_BY_ADDRESS = gql`
               number
               timestamp
             }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const FMINT_ACCOUNT_BY_ADDRESS = gql`
+  query FMintAccountByAddress($address: Address!) {
+    fMintAccount(owner: $address) {
+      collateralValue
+      debtValue
+      collateral {
+        balance
+        value
+        token {
+          name
+          symbol
+          address
+          decimals
+          logoUrl
+        }
+      }
+    }
+  }
+`;
+
+export const DELEGATIONS_BY_ADDRESS = gql`
+  query DelegationsByAddress($address: Address!) {
+    delegationsByAddress(address: $address) {
+      totalCount
+      edges {
+        delegation {
+          toStakerId
+          amountDelegated
+          outstandingSFTM
+          pendingRewards {
+            amount
           }
         }
       }
