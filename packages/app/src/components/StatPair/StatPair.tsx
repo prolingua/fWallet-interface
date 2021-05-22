@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "styled-components";
-import Column from "../Column";
 import { Typo1 } from "../index";
 import Spacer from "../Spacer";
 import Row from "../Row";

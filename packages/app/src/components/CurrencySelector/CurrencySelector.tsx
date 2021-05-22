@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, WrapA } from "../index";
+import { Button, Container, OverlayButton } from "../index";
 import Column from "../Column";
 import Row from "../Row";
 import DropDownButton from "../DropDownButton";
@@ -28,7 +28,7 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
         {Object.keys(currencyOptions).map((key: string) => {
           const value = currencyOptions[key];
           return (
-            <WrapA
+            <OverlayButton
               key={value.name}
               onClick={() => {
                 dispatch({ type: "changeCurrency", currency: key });
@@ -36,7 +36,7 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
               }}
             >
               <Row>{`${value.name} (${value.symbol})`}</Row>
-            </WrapA>
+            </OverlayButton>
           );
         })}
       </Column>

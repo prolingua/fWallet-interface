@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, WrapA } from "../index";
+import { Button, Container, OverlayButton } from "../index";
 import Column from "../Column";
 import Row from "../Row";
 import DropDownButton from "../DropDownButton";
@@ -22,7 +22,7 @@ const LanguageSelect: React.FC<any> = ({ dispatch, handleClose, i18n }) => {
         {Object.keys(languageOptions).map((key: string) => {
           const value = languageOptions[key];
           return (
-            <WrapA
+            <OverlayButton
               key={value.name}
               onClick={() => {
                 dispatch({ type: "changeLanguage", language: key });
@@ -31,7 +31,7 @@ const LanguageSelect: React.FC<any> = ({ dispatch, handleClose, i18n }) => {
               }}
             >
               <Row>{`${value.name}`}</Row>
-            </WrapA>
+            </OverlayButton>
           );
         })}
       </Column>
