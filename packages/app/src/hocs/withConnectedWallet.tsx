@@ -1,7 +1,7 @@
 import React from "react";
 
 import useWalletProvider from "../hooks/useWalletProvider";
-import WalletButton from "../components/WalletButton/WalletButton";
+import Column from "../components/Column";
 
 function withConnectedWallet(WrappedComponent: React.FC) {
   return function WithConnectedWalletComponent({ ...props }) {
@@ -9,10 +9,17 @@ function withConnectedWallet(WrappedComponent: React.FC) {
 
     if (!walletContext.activeWallet.address) {
       return (
-        <div>
-          <div>No WALLET connected</div>
-          <WalletButton />
-        </div>
+        <Column
+          style={{
+            alignItems: "center",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <div style={{ marginTop: "5rem", marginBottom: "1rem" }}>
+            No WALLET connected
+          </div>
+        </Column>
       );
     }
 

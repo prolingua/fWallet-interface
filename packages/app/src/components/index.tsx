@@ -21,6 +21,13 @@ export const Body = styled.div`
   min-height: calc(100vh);
   display: flex;
   flex-direction: row;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  button {
+    font-family: inherit;
+  }
 `;
 
 export const Link = styled.a.attrs({
@@ -34,6 +41,17 @@ export const Link = styled.a.attrs({
 export const WrapA = styled.a`
   text-decoration: none;
   cursor: pointer;
+`;
+
+export const LinkExt = styled.a.attrs({
+  target: "_blank",
+  rel: "noopener noreferrer",
+})`
+  color: ${(props) => props.theme.color.semiWhite};
+
+  :visited {
+    color: ${(props) => props.theme.color.greys.darkGrey()};
+  }
 `;
 
 export const Heading1 = styled.div`
@@ -76,7 +94,6 @@ export const Button = styled.button<{
   border-radius: 8px;
   color: ${(props) => (!props.disabled ? "white" : "#6c726c")};
   cursor: pointer;
-  font-family: "proxima-nova", sans-serif;
   font-size: 18px;
   text-align: center;
   text-decoration: none;

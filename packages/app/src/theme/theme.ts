@@ -16,6 +16,7 @@ const theme = {
   color: {
     white,
     black,
+    semiWhite: "#EFF3FB",
     primary: {
       fantomBlue: (opacity: number = 1) => `rgba(25, 105, 255, ${opacity})`, // #1969FF
       cyan: (opacity: number = 1) => `rgba(25, 255, 255, ${opacity})`, // #19E1FF
@@ -30,7 +31,7 @@ const theme = {
     },
     greys: {
       mediumGray: (opacity: number = 1) => `rgba(58, 72, 97, ${opacity})`, // #3A4861
-      darkGrey: (opacity: number = 1) => `rgba(112, 123, 143, ${opacity})`, // #202F49;
+      darkGrey: (opacity: number = 1) => `rgba(112, 123, 143, ${opacity})`, // #202F49; // #707B8F
       grey: (opacity: number = 1) => `rgba(183, 190, 203, ${opacity})`, // #B7BECB
     },
   },

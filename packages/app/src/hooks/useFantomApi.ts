@@ -6,47 +6,60 @@ import {
 import { useQuery } from "@apollo/react-hooks";
 import { useEffect } from "react";
 import useFantomApiData from "./useFantomApiData";
+import useWalletProvider from "./useWalletProvider";
 
 export enum FantomApiMethods {
-  getAccount = "getAccount",
+  getAccountTransactionHistory = "getAccountTransactionHistory",
   getTokenPrice = "getTokenPrice",
   getGasPrice = "getGasPrice",
 }
 const methods: { [key in FantomApiMethods]: any } = {
-  [FantomApiMethods.getAccount]: ACCOUNT_BY_ADDRESS,
+  [FantomApiMethods.getAccountTransactionHistory]: ACCOUNT_BY_ADDRESS,
   [FantomApiMethods.getTokenPrice]: GET_TOKEN_PRICE,
   [FantomApiMethods.getGasPrice]: GET_GAS_PRICE,
 };
 
-const useFantomApi = (request: FantomApiMethods, variables: any) => {
+const useFantomApi = (
+  request: FantomApiMethods,
+  variables?: any,
+  address?: string
+) => {
+  const { walletContext } = useWalletProvider();
   const { dispatchApiData } = useFantomApiData();
-  const { loading, error, data } = useQuery(methods[request], { variables });
-  console.log(loading);
+  const { loading, error, data } = useQuery(
+    methods[request],
+    variables ? { variables } : null
+  );
+
   useEffect(() => {
+    if (!walletContext.activeWallet.address) {
+      return;
+    }
+
     if (request && data) {
-      console.log(data);
       dispatchApiData({
         type: "success",
+        address: address,
         method: request,
         data,
       });
     }
     if (request && error) {
-      console.log(error);
       dispatchApiData({
         type: "error",
+        address: address,
         method: request,
         error,
       });
     }
     if (request && loading) {
-      console.log(loading);
       dispatchApiData({
         type: "loading",
+        address: address,
         method: request,
       });
     }
-  }, [loading, error, data, request]);
+  }, [loading, error, data, request, walletContext.activeWallet.address]);
 };
 
 export default useFantomApi;

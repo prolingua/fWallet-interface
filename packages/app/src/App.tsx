@@ -22,7 +22,7 @@ import Spacer from "./components/Spacer";
 import Home from "./containers/Home";
 import { FantomApiProvider } from "./context/FantomApiProvider";
 
-const TestWithWallet = withConnectedWallet(Test);
+const HomeWithWallet = withConnectedWallet(Home);
 
 function App() {
   const resolutionType = useDetectResolutionType();
@@ -63,8 +63,8 @@ function App() {
                 }}
               >
                 <Switch>
-                  <Route path="/otherRoute" component={TestWithWallet} />
-                  <Route path="/home" component={Home} />
+                  <Route path="/otherRoute" component={Test} />
+                  <Route path="/home" component={HomeWithWallet} />
                   <Route path="/send" component={Test} />
                   <Route path="/staking" component={Test} />
                   <Route path="/defi" component={Test} />
