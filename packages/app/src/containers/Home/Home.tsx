@@ -25,7 +25,9 @@ const Home: React.FC<any> = () => {
   });
 
   const tokenPrice = apiData[FantomApiMethods.getTokenPrice];
-  const accountData = apiData[FantomApiMethods.getAccount].get(activeAddress);
+  const accountData = apiData[
+    FantomApiMethods.getAccountTransactionHistory
+  ].get(activeAddress);
   const fMintData = apiData[FantomApiMethods.getFMintForAccount].get(
     activeAddress
   );
@@ -40,7 +42,7 @@ const Home: React.FC<any> = () => {
     to: settings.currency.toUpperCase(),
   });
   useFantomApi(
-    FantomApiMethods.getAccount,
+    FantomApiMethods.getAccountTransactionHistory,
     fetchTransHistoryVars,
     activeAddress
   );

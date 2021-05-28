@@ -1,28 +1,30 @@
-import React, { Suspense, useContext } from "react";
+import React, { Suspense } from "react";
 import { Route, Switch } from "react-router-dom";
-
-import ModalProvider from "./context/ModalProvider";
+import { I18nextProvider } from "react-i18next";
 import { ThemeProvider } from "styled-components";
-import { TransactionProvider } from "./context/TransactionProvider";
-import { ActiveWalletProvider } from "./context/ActiveWalletProvider";
+
+import i18next from "./i18n";
+import theme from "./theme/theme";
 import withConnectedWallet from "./hocs/withConnectedWallet";
+import ModalProvider from "./context/ModalProvider";
+import { AccountProvider } from "./context/AccountProvider";
+import { ActiveWalletProvider } from "./context/ActiveWalletProvider";
+import { FantomApiProvider } from "./context/FantomApiProvider";
+import { SettingsProvider } from "./context/SettingsProvider";
+import { TransactionProvider } from "./context/TransactionProvider";
+import useDetectResolutionType from "./hooks/useDetectResolutionType";
+import Home from "./containers/Home";
+import SideBar from "./containers/SideBar/SideBar";
 import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
-import theme from "./theme/theme";
-import SideBar from "./containers/SideBar/SideBar";
+import Send from "./containers/Send";
 import { Body, Heading1, Heading2 } from "./components";
-import { SettingsProvider } from "./context/SettingsProvider";
-import { AccountProvider } from "./context/AccountProvider";
-import { I18nextProvider } from "react-i18next";
-import i18next from "./i18n";
-import useDetectResolutionType from "./hooks/useDetectResolutionType";
 import Column from "./components/Column";
-import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 import Spacer from "./components/Spacer";
-import Home from "./containers/Home";
-import { FantomApiProvider } from "./context/FantomApiProvider";
+import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 
 const HomeWithWallet = withConnectedWallet(Home);
+const SendWithWallet = withConnectedWallet(Send);
 
 function App() {
   const resolutionType = useDetectResolutionType();
@@ -66,7 +68,7 @@ function App() {
                 <Switch>
                   <Route path="/otherRoute" component={Test} />
                   <Route path="/home" component={HomeWithWallet} />
-                  <Route path="/send" component={Test} />
+                  <Route path="/send" component={SendWithWallet} />
                   <Route path="/staking" component={Test} />
                   <Route path="/defi" component={Test} />
                   <Route path="/governance" component={Test} />

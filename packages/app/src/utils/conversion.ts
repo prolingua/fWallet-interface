@@ -1,9 +1,15 @@
 import { BigNumber } from "@ethersproject/bignumber";
 
+export const formatHexToBN = (value: string) => {
+  return BigNumber.from(value);
+};
 export const formatHexToInt = (value: string) => {
   return parseInt(value, 16);
 };
 
+export const weiToUnitBN = (value: BigNumber, decimals = 18) => {
+  return value.div(Math.pow(10, decimals));
+};
 export const weiToUnit = (value: string | number, decimals = 18) => {
   return parseInt(value.toString(), 10) / Math.pow(10, decimals);
 };
@@ -13,25 +19,26 @@ export const hexToUnit = (value: string, decimals = 18) => {
   return weiToUnit(bn.toString(), decimals);
 };
 
-export const toFormattedBalance = (value: number) => {
+export const toFormattedBalance = (value: string | number): string[] => {
   const formatThousands = (value: number) => {
     let valueLeft = value;
-    let formatted = ".";
+    let formatted = "";
     while (valueLeft >= 1000) {
-      formatted = "," + valueLeft.toString().substr(0, -3) + formatted;
-      valueLeft = valueLeft / 1000;
+      formatted =
+        "," +
+        valueLeft.toString().substr(valueLeft.toString().length - 3) +
+        formatted;
+      valueLeft = parseInt((valueLeft / 1000).toString());
     }
 
-    return (
-      valueLeft.toString() + (formatted.length > 1 ? "," + formatted : ".")
-    );
+    return valueLeft.toString() + formatted;
   };
   const full = value.toString();
   const parts = full.toString().split(".");
 
   return [
     formatThousands(parseInt(parts[0], 10)),
-    parts[1] ? parts[1].substr(0, 2) : "00",
+    parts[1] ? `.${parts[1].substr(0, 2)}` : ".00",
   ];
 };
 

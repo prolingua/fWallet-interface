@@ -8,3 +8,7 @@ export const getTotalFTMBalanceForAccount = (
 ) => {
   return weiToUnit((balance + staked + collateral) * price);
 };
+
+export const getTokenPrice = (tokenPrice: any) => {
+  return tokenPrice.price.price;
+};

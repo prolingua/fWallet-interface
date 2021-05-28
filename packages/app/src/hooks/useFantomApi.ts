@@ -1,11 +1,12 @@
 import {
-  ACCOUNT_BY_ADDRESS,
+  GET_ACCOUNT_TRANSACTION_HISTORY,
   DELEGATIONS_BY_ADDRESS,
   ERC20_ASSETS,
   ERC20_TOKEN_LIST_AND_BALANCE,
   FMINT_ACCOUNT_BY_ADDRESS,
   GET_GAS_PRICE,
   GET_TOKEN_PRICE,
+  GET_ACCOUNT_BALANCE,
 } from "../graphql/subgraph";
 import { useQuery } from "@apollo/react-hooks";
 import { useEffect } from "react";
@@ -13,7 +14,8 @@ import useFantomApiData from "./useFantomApiData";
 import useWalletProvider from "./useWalletProvider";
 
 export enum FantomApiMethods {
-  getAccount = "getAccount",
+  getAccountBalance = "getAccountBalance",
+  getAccountTransactionHistory = "getAccountTransactionHistory",
   getTokenPrice = "getTokenPrice",
   getGasPrice = "getGasPrice",
   getFMintForAccount = "getFMintForAccount",
@@ -22,7 +24,8 @@ export enum FantomApiMethods {
   getAssetsListForAccount = "getAssetsListForAccount",
 }
 const methods: { [key in FantomApiMethods]: any } = {
-  [FantomApiMethods.getAccount]: ACCOUNT_BY_ADDRESS,
+  [FantomApiMethods.getAccountBalance]: GET_ACCOUNT_BALANCE,
+  [FantomApiMethods.getAccountTransactionHistory]: GET_ACCOUNT_TRANSACTION_HISTORY,
   [FantomApiMethods.getTokenPrice]: GET_TOKEN_PRICE,
   [FantomApiMethods.getGasPrice]: GET_GAS_PRICE,
   [FantomApiMethods.getDelegationsForAccount]: DELEGATIONS_BY_ADDRESS,

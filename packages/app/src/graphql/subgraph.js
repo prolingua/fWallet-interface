@@ -14,8 +14,21 @@ export const GET_GAS_PRICE = gql`
   }
 `;
 
-export const ACCOUNT_BY_ADDRESS = gql`
-  query AccountByAddress($address: Address!, $cursor: Cursor, $count: Int!) {
+export const GET_ACCOUNT_BALANCE = gql`
+  query AccountByAddress($address: Address!) {
+    account(address: $address) {
+      address
+      balance
+    }
+  }
+`;
+
+export const GET_ACCOUNT_TRANSACTION_HISTORY = gql`
+  query AccountHistoryByAddress(
+    $address: Address!
+    $cursor: Cursor
+    $count: Int!
+  ) {
     account(address: $address) {
       address
       balance

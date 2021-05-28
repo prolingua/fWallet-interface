@@ -1,7 +1,8 @@
 import React, { useReducer } from "react";
 
 const initial: any = {
-  getAccount: new Map([]),
+  getAccountBalance: new Map([]),
+  getAccountTransactionHistory: new Map([]),
   getTokenPrice: null,
   getGasPrice: null,
   getFMintForAccount: new Map([]),

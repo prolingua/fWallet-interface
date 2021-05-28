@@ -1,4 +1,4 @@
-import { formatHexToInt } from "./conversion";
+import { formatHexToBN, formatHexToInt } from "./conversion";
 import { Token } from "../shared/types";
 
 export interface Account {
@@ -31,6 +31,7 @@ export interface ERC20Assets {
 
 export const getAccountBalance = (accountData: Account) => {
   return formatHexToInt(accountData.account.balance);
+  // return formatHexToBN(accountData.account.balance);
 };
 
 export const getAccountTransactions = (accountData: Account) => {

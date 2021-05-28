@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ThemeContext } from "styled-components";
 import Row from "../../components/Row";
 import { ContentBox, Heading1, Typo1, Typo2 } from "../../components";
-import { hexToUnit } from "../../utils/conversion";
+import { hexToUnit, toFormattedBalance } from "../../utils/conversion";
 import { getAccountAssets } from "../../utils/account";
 import Spacer from "../../components/Spacer";
 import { Token } from "../../shared/types";
@@ -11,6 +11,9 @@ import Column from "../../components/Column";
 const TokenBalanceLine: React.FC<any> = ({ token }) => {
   const { color } = useContext(ThemeContext);
 
+  const formattedBalance = toFormattedBalance(
+    hexToUnit(token.balanceOf, token.decimals)
+  );
   return (
     <Row style={{ justifyContent: "space-between" }}>
       <Row style={{ alignItems: "center" }}>
@@ -28,7 +31,8 @@ const TokenBalanceLine: React.FC<any> = ({ token }) => {
             color: color.primary.semiWhite(),
           }}
         >
-          {hexToUnit(token.balanceOf, token.decimals).toFixed(2)}
+          {formattedBalance[0]}
+          {formattedBalance[1]}
         </Typo2>
       </Row>
     </Row>
