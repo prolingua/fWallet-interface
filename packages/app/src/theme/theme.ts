@@ -16,7 +16,6 @@ const theme = {
   color: {
     white,
     black,
-    semiWhite: "#EFF3FB",
     primary: {
       fantomBlue: (opacity: number = 1) => `rgba(25, 105, 255, ${opacity})`, // #1969FF
       cyan: (opacity: number = 1) => `rgba(25, 255, 255, ${opacity})`, // #19E1FF

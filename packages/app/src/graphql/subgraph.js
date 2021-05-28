@@ -85,3 +85,44 @@ export const DELEGATIONS_BY_ADDRESS = gql`
     }
   }
 `;
+
+export const ERC20_TOKEN_LIST = gql`
+  query ERC20TokenList {
+    erc20TokenList {
+      address
+      name
+      symbol
+      decimals
+      totalSupply
+      logoURL
+    }
+  }
+`;
+
+export const ERC20_TOKEN_LIST_AND_BALANCE = gql`
+  query ERC20TokenList($owner: Address!) {
+    erc20TokenList {
+      address
+      name
+      symbol
+      decimals
+      totalSupply
+      logoURL
+      balanceOf(owner: $owner)
+    }
+  }
+`;
+
+export const ERC20_ASSETS = gql`
+  query ERC20Assets($owner: Address!) {
+    erc20Assets(owner: $owner) {
+      address
+      name
+      symbol
+      decimals
+      totalSupply
+      logoURL
+      balanceOf(owner: $owner)
+    }
+  }
+`;

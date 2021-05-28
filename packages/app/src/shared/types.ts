@@ -3,5 +3,7 @@ export interface Token {
   symbol: string;
   address: string;
   decimals: string;
-  logoUrl: string;
+  logoURL: string;
+  totalSupply?: string;
+  balanceOf?: string;
 }

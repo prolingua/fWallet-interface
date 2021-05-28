@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "react-circular-progressbar/dist/styles.css";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 import Balance from "./Balance";
 import useWalletProvider from "../../hooks/useWalletProvider";
-import { ContentBox, Heading1 } from "../../components";
 import Spacer from "../../components/Spacer";
-import Row from "../../components/Row";
 import useSettings from "../../hooks/useSettings";
 import TransactionHistory from "./TransactionHistory";
+import { ThemeContext } from "styled-components";
+import { ResponsiveRow } from "../../components/Row/Row";
+import Tokens from "./Tokens";
 
 const Home: React.FC<any> = () => {
+  const { breakpoints } = useContext(ThemeContext);
   const { apiData } = useFantomApiData();
   const { walletContext } = useWalletProvider();
   const { settings } = useSettings();
@@ -30,6 +32,9 @@ const Home: React.FC<any> = () => {
   const delegationsData = apiData[
     FantomApiMethods.getDelegationsForAccount
   ].get(activeAddress);
+  const assetsList = apiData[FantomApiMethods.getAssetsListForAccount].get(
+    activeAddress
+  );
 
   useFantomApi(FantomApiMethods.getTokenPrice, {
     to: settings.currency.toUpperCase(),
@@ -51,6 +56,13 @@ const Home: React.FC<any> = () => {
     },
     activeAddress
   );
+  useFantomApi(
+    FantomApiMethods.getAssetsListForAccount,
+    {
+      owner: activeAddress,
+    },
+    activeAddress
+  );
 
   useEffect(() => {
     if (activeAddress) {
@@ -61,17 +73,22 @@ const Home: React.FC<any> = () => {
     }
   }, [activeAddress]);
 
-  const isDoneLoading =
+  const isDoneLoadingBalance =
     activeAddress &&
     accountData?.data &&
     fMintData?.data &&
     delegationsData?.data &&
     tokenPrice?.data;
 
+  const isDoneLoadingTransactionHistory =
+    activeAddress && accountData?.data && tokenPrice?.data;
+
+  const isDoneLoadingTokens = activeAddress && assetsList?.data;
+
   return (
     <>
       <Balance
-        loading={!isDoneLoading}
+        loading={!isDoneLoadingBalance}
         accountData={accountData}
         fMint={fMintData}
         delegations={delegationsData}
@@ -79,19 +96,21 @@ const Home: React.FC<any> = () => {
         currency={settings.currency}
       />
       <Spacer />
-      <Row style={{ marginBottom: "1rem" }}>
+      <ResponsiveRow
+        breakpoint={breakpoints.ultra}
+        breakpointReverse
+        style={{ marginBottom: "1rem" }}
+      >
         <TransactionHistory
+          loading={!isDoneLoadingTransactionHistory}
           address={activeAddress}
           tokenPrice={tokenPrice?.data?.price?.price}
           currency={settings.currency}
-          loading={!isDoneLoading}
           accountData={accountData}
         />
         <Spacer />
-        <ContentBox style={{ flex: 1 }}>
-          <Heading1>Tokens</Heading1>
-        </ContentBox>
-      </Row>
+        <Tokens loading={!isDoneLoadingTokens} tokenList={assetsList} />
+      </ResponsiveRow>
     </>
   );
 };

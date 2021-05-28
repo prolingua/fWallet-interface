@@ -1,9 +1,16 @@
+import { BigNumber } from "@ethersproject/bignumber";
+
 export const formatHexToInt = (value: string) => {
   return parseInt(value, 16);
 };
 
-export const WeiToUnit = (value: string | number, decimals = 18) => {
+export const weiToUnit = (value: string | number, decimals = 18) => {
   return parseInt(value.toString(), 10) / Math.pow(10, decimals);
+};
+
+export const hexToUnit = (value: string, decimals = 18) => {
+  const bn = BigNumber.from(value);
+  return weiToUnit(bn.toString(), decimals);
 };
 
 export const toFormattedBalance = (value: number) => {

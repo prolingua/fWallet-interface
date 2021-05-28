@@ -13,7 +13,7 @@ export const StyledPairHeader = styled.div`
 `;
 
 export const StyledPairValue = styled.div`
-  color: ${(props) => props.theme.color.semiWhite};
+  color: ${(props) => props.theme.color.primary.semiWhite()};
   font-size: 14px;
   max-width: 100%;
   white-space: nowrap;

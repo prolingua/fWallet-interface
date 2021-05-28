@@ -1,6 +1,8 @@
 import {
   ACCOUNT_BY_ADDRESS,
   DELEGATIONS_BY_ADDRESS,
+  ERC20_ASSETS,
+  ERC20_TOKEN_LIST_AND_BALANCE,
   FMINT_ACCOUNT_BY_ADDRESS,
   GET_GAS_PRICE,
   GET_TOKEN_PRICE,
@@ -16,6 +18,8 @@ export enum FantomApiMethods {
   getGasPrice = "getGasPrice",
   getFMintForAccount = "getFMintForAccount",
   getDelegationsForAccount = "getDelegationsForAccount",
+  getTokenListForAccount = "getTokenListForAccount",
+  getAssetsListForAccount = "getAssetsListForAccount",
 }
 const methods: { [key in FantomApiMethods]: any } = {
   [FantomApiMethods.getAccount]: ACCOUNT_BY_ADDRESS,
@@ -23,6 +27,8 @@ const methods: { [key in FantomApiMethods]: any } = {
   [FantomApiMethods.getGasPrice]: GET_GAS_PRICE,
   [FantomApiMethods.getDelegationsForAccount]: DELEGATIONS_BY_ADDRESS,
   [FantomApiMethods.getFMintForAccount]: FMINT_ACCOUNT_BY_ADDRESS,
+  [FantomApiMethods.getTokenListForAccount]: ERC20_TOKEN_LIST_AND_BALANCE,
+  [FantomApiMethods.getAssetsListForAccount]: ERC20_ASSETS,
 };
 
 const useFantomApi = (

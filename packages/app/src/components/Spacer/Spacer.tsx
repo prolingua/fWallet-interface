@@ -11,7 +11,7 @@ const Spacer: React.FC<SpacerProps> = ({ size = "md" }) => {
   let s: number;
   switch (size) {
     case "lg":
-      s = spacing[6];
+      s = spacing[5];
       break;
     case "sm":
       s = spacing[2];

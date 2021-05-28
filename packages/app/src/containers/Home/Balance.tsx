@@ -9,7 +9,7 @@ import CRatio from "../../components/C-Ratio";
 import {
   toCurrencySymbol,
   toFormattedBalance,
-  WeiToUnit,
+  weiToUnit,
 } from "../../utils/conversion";
 import { getAccountDelegationSummary } from "../../utils/delegations";
 import { getCurrentCRatio, getLockedCollateral } from "../../utils/fMint";
@@ -30,15 +30,15 @@ const BalanceContent: React.FC<any> = ({
   const fMintFTMCollateral = getLockedCollateral(fMint);
   const cRatioPercentage = getCurrentCRatio(fMint);
 
-  const availableFTM = toFormattedBalance(WeiToUnit(accountBalance));
-  const stakedFTM = toFormattedBalance(WeiToUnit(totalDelegated.totalStaked));
+  const availableFTM = toFormattedBalance(weiToUnit(accountBalance));
+  const stakedFTM = toFormattedBalance(weiToUnit(totalDelegated.totalStaked));
   const rewardsFTM = toFormattedBalance(
-    WeiToUnit(totalDelegated.totalPendingRewards)
+    weiToUnit(totalDelegated.totalPendingRewards)
   );
   const mintedSFTM = toFormattedBalance(
-    WeiToUnit(totalDelegated.totalMintedSFTM)
+    weiToUnit(totalDelegated.totalMintedSFTM)
   );
-  const lockedFTMCollateral = toFormattedBalance(WeiToUnit(fMintFTMCollateral));
+  const lockedFTMCollateral = toFormattedBalance(weiToUnit(fMintFTMCollateral));
   const totalBalance = toFormattedBalance(
     getTotalFTMBalanceForAccount(
       accountBalance,

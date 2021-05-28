@@ -6,6 +6,8 @@ const initial: any = {
   getGasPrice: null,
   getFMintForAccount: new Map([]),
   getDelegationsForAccount: new Map([]),
+  getTokenListForAccount: new Map([]),
+  getAssetsListForAccount: new Map([]),
 };
 export const FantomApiContext = React.createContext(null);
 

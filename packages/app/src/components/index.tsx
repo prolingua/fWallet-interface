@@ -47,7 +47,7 @@ export const LinkExt = styled.a.attrs({
   target: "_blank",
   rel: "noopener noreferrer",
 })`
-  color: ${(props) => props.theme.color.semiWhite};
+  color: ${(props) => props.theme.color.primary.semiWhite()};
 
   :visited {
     color: ${(props) => props.theme.color.greys.darkGrey()};

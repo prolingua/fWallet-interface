@@ -5,7 +5,7 @@ import {
   formatHexToInt,
   millisecondsToTimeUnit,
   toCurrencySymbol,
-  WeiToUnit,
+  weiToUnit,
 } from "../../utils/conversion";
 import Row from "../Row";
 import { LinkExt, OverlayButton, Typo1 } from "../index";
@@ -22,7 +22,7 @@ const TransactionLine: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [expanded, setExpanded] = useState(false);
   const isSender = isSameAddress(address, transaction.from);
-  const amount = WeiToUnit(formatHexToInt(transaction.value).toString());
+  const amount = weiToUnit(formatHexToInt(transaction.value).toString());
   const value = amount * tokenPrice;
   const timestamp = formatHexToInt(transaction.block.timestamp) * 1000;
   const now = Date.now();
@@ -69,7 +69,7 @@ const TransactionLine: React.FC<any> = ({
             <StyledPair>
               <StyledPairHeader>Date</StyledPairHeader>
               <StyledPairValue
-                style={{ color: color.semiWhite, fontSize: "14px" }}
+                style={{ color: color.primary.semiWhite(), fontSize: "14px" }}
               >
                 {new Date(timestamp).toDateString()}
               </StyledPairValue>
@@ -78,7 +78,7 @@ const TransactionLine: React.FC<any> = ({
             <StyledPair>
               <StyledPairHeader>{isSender ? "To" : "From"}</StyledPairHeader>
               <StyledPairValue
-                style={{ color: color.semiWhite, fontSize: "14px" }}
+                style={{ color: color.primary.semiWhite(), fontSize: "14px" }}
               >
                 {isSender ? transaction.to : transaction.from}
               </StyledPairValue>
@@ -89,7 +89,7 @@ const TransactionLine: React.FC<any> = ({
             <StyledPair>
               <StyledPairHeader>Transaction ID</StyledPairHeader>
               <StyledPairValue
-                style={{ color: color.semiWhite, fontSize: "14px" }}
+                style={{ color: color.primary.semiWhite(), fontSize: "14px" }}
               >
                 <LinkExt
                   href={`${config.explorerUrl}${config.explorerTransactionPath}/${transaction.hash}`}

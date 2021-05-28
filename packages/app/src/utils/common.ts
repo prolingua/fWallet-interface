@@ -1,4 +1,4 @@
-import { WeiToUnit } from "./conversion";
+import { weiToUnit } from "./conversion";
 
 export const getTotalFTMBalanceForAccount = (
   balance: number,
@@ -6,5 +6,5 @@ export const getTotalFTMBalanceForAccount = (
   collateral: number,
   price: number
 ) => {
-  return WeiToUnit((balance + staked + collateral) * price);
+  return weiToUnit((balance + staked + collateral) * price);
 };

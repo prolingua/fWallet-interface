@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useContext } from "react";
 import { Route, Switch } from "react-router-dom";
 
 import ModalProvider from "./context/ModalProvider";
@@ -60,6 +60,7 @@ function App() {
                   flexDirection: "column",
                   alignItems: "stretch",
                   padding: "0 4rem 0 2rem",
+                  backgroundColor: "rgba(10, 22, 46, 1)",
                 }}
               >
                 <Switch>

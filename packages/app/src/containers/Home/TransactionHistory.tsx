@@ -43,7 +43,7 @@ const TransactionHistory: React.FC<any> = ({
     !loading && getAccountTransactions(accountData.data);
 
   return (
-    <ContentBox style={{ flex: 1 }}>
+    <ContentBox style={{ flex: 2 }}>
       <Column style={{ width: "100%" }}>
         <Heading1>History</Heading1>
         <Spacer size="lg" />
