@@ -81,24 +81,29 @@ export const OverlayButton = styled.button`
 `;
 
 export const Button = styled.button<{
-  variant: "primary" | "secondary";
+  variant: "primary" | "secondary" | "tertiary";
+  padding?: string;
+  color?: string;
+  fontSize?: string;
   disabled?: boolean;
 }>`
   background-color: ${(props) =>
     props.variant === "primary"
       ? props.theme.color.primary.fantomBlue()
-      : "transparent"};
+      : props.variant === "secondary"
+      ? "transparent"
+      : props.theme.color.secondary.navy()};
   border: ${(props) =>
-    props.variant === "primary"
+    props.variant === "primary" || props.variant === "tertiary"
       ? "none"
       : `1px solid ${props.theme.color.greys.mediumGray()}`};
   border-radius: 8px;
-  color: ${(props) => (!props.disabled ? "white" : "#6c726c")};
+  color: ${(props) => (!props.disabled ? props.color || "white" : "#6c726c")};
   cursor: pointer;
-  font-size: 18px;
+  font-size: ${(props) => (props.fontSize ? props.fontSize : "18px")};
   text-align: center;
   text-decoration: none;
-  padding: 12px 24px;
+  padding: ${(props) => (props.padding ? props.padding : "12px 24px")};
 
   ${(props) => props.hidden && "hidden"} :focus {
     border: ${(props) => props.variant === "primary" && "none"};

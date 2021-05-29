@@ -37,6 +37,10 @@ const AmountInput: React.FC<any> = ({
   const formattedBalance = toFormattedBalance(weiToUnit(accountBalance));
   const formattedTotalValue = value && toFormattedBalance(value);
 
+  const handleSetMax = () => {
+    setAmount(weiToUnit(accountBalance).toString());
+  };
+
   useEffect(() => {
     if (!amount) {
       return setValue(null);
@@ -74,13 +78,28 @@ const AmountInput: React.FC<any> = ({
           onChange={(event) => handleChange(event.target.value)}
         />
         {formattedTotalValue?.length && (
-          <Row style={{ flex: 1 }}>
-            <Typo2 style={{ color: color.greys.grey() }}>
+          <Row style={{ flex: 1, alignItems: "center" }}>
+            <Typo2 style={{ flex: 4, color: color.greys.grey() }}>
               ~
               {`${toCurrencySymbol(currency)}${formattedTotalValue[0]}${
                 formattedTotalValue[1] !== ".00" ? formattedTotalValue[1] : ""
               }`}
             </Typo2>
+            <Spacer />
+            <Button
+              fontSize="14px"
+              color={color.greys.grey()}
+              padding="8px"
+              style={{ flex: 1 }}
+              variant="tertiary"
+              onClick={handleSetMax}
+            >
+              MAX
+            </Button>
+            <Spacer />
+            <Button style={{ flex: 2 }} variant="secondary">
+              FTM
+            </Button>
           </Row>
         )}
       </Row>
