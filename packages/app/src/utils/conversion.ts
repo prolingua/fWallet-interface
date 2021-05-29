@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber, parseFixed } from "@ethersproject/bignumber";
 
 export const formatHexToBN = (value: string) => {
   return BigNumber.from(value);
@@ -7,16 +7,18 @@ export const formatHexToInt = (value: string) => {
   return parseInt(value, 16);
 };
 
-export const weiToUnitBN = (value: BigNumber, decimals = 18) => {
-  return value.div(Math.pow(10, decimals));
+export const weiToUnit = (value: BigNumber, decimals = 18) => {
+  const result = value.mul(10000).div(BigNumber.from(10).pow(decimals));
+  return result.toNumber() / 10000;
 };
-export const weiToUnit = (value: string | number, decimals = 18) => {
-  return parseInt(value.toString(), 10) / Math.pow(10, decimals);
+
+export const weiToMaxUnit = (value: string, decimals = 18) => {
+  return parseInt(value) / Math.pow(10, decimals);
 };
 
 export const hexToUnit = (value: string, decimals = 18) => {
   const bn = BigNumber.from(value);
-  return weiToUnit(bn.toString(), decimals);
+  return weiToUnit(bn, decimals);
 };
 
 export const toFormattedBalance = (value: string | number): string[] => {

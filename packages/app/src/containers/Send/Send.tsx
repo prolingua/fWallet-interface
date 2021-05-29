@@ -14,6 +14,7 @@ import { getTokenPrice } from "../../utils/common";
 import {
   toCurrencySymbol,
   toFormattedBalance,
+  weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
 
@@ -38,7 +39,7 @@ const AmountInput: React.FC<any> = ({
   const formattedTotalValue = value && toFormattedBalance(value);
 
   const handleSetMax = () => {
-    setAmount(weiToUnit(accountBalance).toString());
+    setAmount(weiToMaxUnit(accountBalance).toString());
   };
 
   useEffect(() => {

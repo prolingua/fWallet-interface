@@ -1,4 +1,5 @@
-import { formatHexToInt } from "./conversion";
+import { formatHexToBN, formatHexToInt } from "./conversion";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface Delegations {
   delegationsByAddress: {
@@ -16,18 +17,18 @@ export interface Delegation {
 }
 
 export interface AccountDelegationSummary {
-  totalStaked: number;
-  totalPendingRewards: number;
-  totalMintedSFTM: number;
+  totalStaked: BigNumber;
+  totalPendingRewards: BigNumber;
+  totalMintedSFTM: BigNumber;
 }
 
 export const getAccountDelegationSummary = (
   delegations: Delegations
 ): AccountDelegationSummary => {
   const initial = {
-    totalStaked: 0,
-    totalPendingRewards: 0,
-    totalMintedSFTM: 0,
+    totalStaked: BigNumber.from(0),
+    totalPendingRewards: BigNumber.from(0),
+    totalMintedSFTM: BigNumber.from(0),
   };
 
   if (!delegations || !delegations.delegationsByAddress) {
@@ -39,14 +40,14 @@ export const getAccountDelegationSummary = (
 
   return delegations.delegationsByAddress.edges.reduce(
     (accumulated: any, current: any) => {
-      const stake = formatHexToInt(current.delegation.amountDelegated);
-      const reward = formatHexToInt(current.delegation.pendingRewards.amount);
-      const minted = formatHexToInt(current.delegation.outstandingSFTM);
+      const stake = formatHexToBN(current.delegation.amountDelegated);
+      const reward = formatHexToBN(current.delegation.pendingRewards.amount);
+      const minted = formatHexToBN(current.delegation.outstandingSFTM);
 
       return {
-        totalStaked: accumulated.totalStaked + stake,
-        totalPendingRewards: accumulated.totalPendingRewards + reward,
-        totalMintedSFTM: accumulated.totalMintedSFTM + minted,
+        totalStaked: stake.add(accumulated.totalStaked),
+        totalPendingRewards: reward.add(accumulated.totalPendingRewards),
+        totalMintedSFTM: minted.add(accumulated.totalMintedSFTM),
       };
     },
     initial

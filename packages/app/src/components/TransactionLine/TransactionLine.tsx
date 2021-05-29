@@ -2,10 +2,11 @@ import React, { useContext, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { isSameAddress } from "../../utils/wallet";
 import {
+  formatHexToBN,
   formatHexToInt,
+  hexToUnit,
   millisecondsToTimeUnit,
   toCurrencySymbol,
-  weiToUnit,
 } from "../../utils/conversion";
 import Row from "../Row";
 import { LinkExt, OverlayButton, Typo1 } from "../index";
@@ -22,7 +23,7 @@ const TransactionLine: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [expanded, setExpanded] = useState(false);
   const isSender = isSameAddress(address, transaction.from);
-  const amount = weiToUnit(formatHexToInt(transaction.value).toString());
+  const amount = hexToUnit(transaction.value);
   const value = amount * tokenPrice;
   const timestamp = formatHexToInt(transaction.block.timestamp) * 1000;
   const now = Date.now();

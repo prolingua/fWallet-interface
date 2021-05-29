@@ -45,7 +45,7 @@ const BalanceContent: React.FC<any> = ({
       totalDelegated.totalStaked,
       fMintFTMCollateral,
       tokenPrice
-    )
+    ).toString()
   );
 
   return (

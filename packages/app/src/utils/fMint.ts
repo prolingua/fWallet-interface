@@ -1,5 +1,5 @@
 import { Token } from "../shared/types";
-import { formatHexToInt } from "./conversion";
+import { formatHexToBN, formatHexToInt } from "./conversion";
 
 export interface FMint {
   fMintAccount: {
@@ -20,7 +20,7 @@ export const getLockedCollateral = (fMint: FMint, tokenSymbol = "WFTM") => {
     return;
   }
 
-  return formatHexToInt(
+  return formatHexToBN(
     fMint.fMintAccount.collateral.find(
       (collateral: any) => collateral.token.symbol === "WFTM"
     ).balance
