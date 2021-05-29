@@ -17,6 +17,8 @@ import {
   weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
+import DropDownButton from "../../components/DropDownButton";
+import TokenSelector from "../../components/TokenSelector";
 
 const AmountInput: React.FC<any> = ({
   accountBalance,
@@ -46,7 +48,7 @@ const AmountInput: React.FC<any> = ({
     if (!amount) {
       return setValue(null);
     }
-    setValue(parseInt(amount) * fantomPrice);
+    setValue(parseFloat(amount) * fantomPrice);
   }, [amount, fantomPrice]);
 
   return (
@@ -78,31 +80,35 @@ const AmountInput: React.FC<any> = ({
           value={amount}
           onChange={(event) => handleChange(event.target.value)}
         />
-        {formattedTotalValue?.length && (
-          <Row style={{ flex: 1, alignItems: "center" }}>
+
+        <Row style={{ flex: 1, alignItems: "center" }}>
+          {formattedTotalValue?.length ? (
             <Typo2 style={{ flex: 4, color: color.greys.grey() }}>
               ~
               {`${toCurrencySymbol(currency)}${formattedTotalValue[0]}${
                 formattedTotalValue[1] !== ".00" ? formattedTotalValue[1] : ""
               }`}
             </Typo2>
-            <Spacer />
-            <Button
-              fontSize="14px"
-              color={color.greys.grey()}
-              padding="8px"
-              style={{ flex: 1 }}
-              variant="tertiary"
-              onClick={handleSetMax}
-            >
-              MAX
-            </Button>
-            <Spacer />
-            <Button style={{ flex: 2 }} variant="secondary">
-              FTM
-            </Button>
-          </Row>
-        )}
+          ) : (
+            <div style={{ flex: 4 }} />
+          )}
+          <Spacer />
+          <Button
+            fontSize="14px"
+            color={color.greys.grey()}
+            padding="8px"
+            style={{ flex: 1 }}
+            variant="tertiary"
+            onClick={handleSetMax}
+          >
+            MAX
+          </Button>
+          <Spacer />
+          <Button style={{ flex: 2, padding: "10px" }} variant="secondary">
+            <Typo2>FTM</Typo2>
+          </Button>
+          <Spacer />
+        </Row>
       </Row>
     </Column>
   );

@@ -59,6 +59,7 @@ const StyledDropDown = styled.div<{
   top: ${(props) => props.top}px;
   left: ${(props) => props.left && `${props.left}px`};
   right: ${(props) => props.right && `${props.right}px`};
+  z-index: 10;
 `;
 
 export default DropDownButton;
