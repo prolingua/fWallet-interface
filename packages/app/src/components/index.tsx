@@ -89,18 +89,19 @@ export const Button = styled.button<{
 }>`
   background-color: ${(props) =>
     props.variant === "primary"
-      ? props.theme.color.primary.fantomBlue()
+      ? props.theme.color.primary.fantomBlue(props.disabled ? 0.6 : 1)
       : props.variant === "secondary"
       ? "transparent"
-      : props.theme.color.secondary.navy()};
+      : props.theme.color.secondary.navy(props.disabled ? 0.6 : 1)};
   border: ${(props) =>
     props.variant === "primary" || props.variant === "tertiary"
       ? "none"
       : `1px solid ${props.theme.color.greys.mediumGray()}`};
   border-radius: 8px;
   color: ${(props) => (!props.disabled ? props.color || "white" : "#6c726c")};
-  cursor: pointer;
+  cursor: ${(props) => (!props.disabled ? "pointer" : "cursor")};
   font-size: ${(props) => (props.fontSize ? props.fontSize : "18px")};
+  font-weight: bold;
   text-align: center;
   text-decoration: none;
   padding: ${(props) => (props.padding ? props.padding : "12px 24px")};

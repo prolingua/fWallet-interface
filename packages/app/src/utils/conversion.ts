@@ -1,4 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber, parseFixed } from "@ethersproject/bignumber";
 
 export const formatHexToBN = (value: string) => {
   return BigNumber.from(value);
@@ -19,6 +19,13 @@ export const weiToMaxUnit = (value: string, decimals = 18) => {
 export const hexToUnit = (value: string, decimals = 18) => {
   const bn = BigNumber.from(value);
   return weiToUnit(bn, decimals);
+};
+
+export const unitToWei = (value: string, decimals = 18) => {
+  if (!(parseFloat(value) > 0)) {
+    return BigNumber.from(0);
+  }
+  return parseFixed(value, decimals);
 };
 
 export const toFormattedBalance = (value: string | number): string[] => {

@@ -1,5 +1,14 @@
 import { weiToUnit } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
+import { Token } from "../shared/types";
+
+export const FANTOM_NATIVE: Token = {
+  address: null,
+  decimals: 18,
+  name: "Fantom",
+  symbol: "FTM",
+  logoURL: null,
+};
 
 export const getTotalFTMBalanceForAccount = (
   balance: BigNumber,

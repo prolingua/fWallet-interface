@@ -48,3 +48,21 @@ export const getAccountAssets = (assetList: ERC20Assets) => {
 
   return assetList.erc20Assets;
 };
+
+export const getAccountAssetBalance = (
+  assetList: ERC20Assets,
+  tokenAddress: string
+) => {
+  if (!assetList?.erc20Assets) {
+    return;
+  }
+
+  const asset = assetList.erc20Assets.find(
+    (asset) => asset.address === tokenAddress
+  );
+  if (!asset) {
+    return;
+  }
+
+  return formatHexToBN(asset.balanceOf);
+};

@@ -1,5 +1,10 @@
 import { Web3Provider } from "@ethersproject/providers";
+import { isAddress } from "@ethersproject/address";
 import { Signer } from "@ethersproject/abstract-signer";
+
+export const isValidAddress = (address: string): boolean => {
+  return isAddress(address);
+};
 
 export const isSameAddress = (address1: string, address2: string): boolean => {
   if (!address1 || !address2) {
