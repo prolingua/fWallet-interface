@@ -2,7 +2,7 @@ export interface Token {
   name: string;
   symbol: string;
   address: string;
-  decimals: string;
+  decimals: number;
   logoURL: string;
   totalSupply?: string;
   balanceOf?: string;

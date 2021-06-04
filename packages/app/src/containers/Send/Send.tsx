@@ -17,29 +17,40 @@ import {
   weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
-import DropDownButton from "../../components/DropDownButton";
-import TokenSelector from "../../components/TokenSelector";
+import { Token } from "../../shared/types";
+
+import ftmIcon from "../../assets/img/tokens/FTM.svg";
+import vShape from "../../assets/img/shapes/vShape.png";
 
 const AmountInput: React.FC<any> = ({
   accountBalance,
   accountAssets,
   fantomPrice,
   currency,
+  token,
 }) => {
   const { color } = useContext(ThemeContext);
   const [amount, setAmount] = useState("");
   const [value, setValue] = useState(null);
+  const [error, setError] = useState(null);
+  const isNative = token.symbol === "FTM";
+  const tokenBalanceInWei = isNative ? accountBalance : token.balanceOf;
+  const tokenBalance = weiToUnit(tokenBalanceInWei);
+  const formattedBalance = toFormattedBalance(tokenBalance);
+  const formattedTotalValue = value && toFormattedBalance(value);
 
   const handleChange = (value: string) => {
     if (value && !Number(value)) {
       return;
     }
+    console.log(value, tokenBalance);
+    if (parseFloat(value) > tokenBalance) {
+      setError("Insufficient funds");
+    }
 
-    setAmount(value);
+    if (token) setAmount(value);
   };
-  const formattedBalance = toFormattedBalance(weiToUnit(accountBalance));
-  const formattedTotalValue = value && toFormattedBalance(value);
-
+  console.log(error);
   const handleSetMax = () => {
     setAmount(weiToMaxUnit(accountBalance).toString());
   };
@@ -61,7 +72,7 @@ const AmountInput: React.FC<any> = ({
           <Typo2 style={{ color: color.greys.grey() }}>
             {`${formattedBalance[0]}${
               formattedBalance[1] !== ".00" ? formattedBalance[1] : ""
-            } FTM`}
+            } ${token.symbol}`}
           </Typo2>
         </Row>
       </Row>
@@ -105,11 +116,19 @@ const AmountInput: React.FC<any> = ({
           </Button>
           <Spacer />
           <Button style={{ flex: 2, padding: "10px" }} variant="secondary">
-            <Typo2>FTM</Typo2>
+            <Row style={{ alignItems: "center" }}>
+              <img src={token.symbol === "FTM" ? ftmIcon : token.logoURL} />
+              <Spacer size="sm" />
+              <Typo2>{token.symbol}</Typo2>
+              <Spacer size="sm" />
+              <Spacer size="xs" />
+              <img src={vShape} />
+            </Row>
           </Button>
           <Spacer />
         </Row>
       </Row>
+      {error && <div>{error}</div>}
     </Column>
   );
 };
@@ -182,6 +201,15 @@ const SendTokensContent: React.FC<any> = ({
   currency,
 }) => {
   const { color } = useContext(ThemeContext);
+
+  const ftmNative = {
+    address: null,
+    decimals: 18,
+    name: "Fantom",
+    symbol: "FTM",
+    logoURL: null,
+  } as Token;
+  const [tokenSelected, setTokenSelected] = useState(ftmNative);
   return (
     <Column style={{ width: "100%" }}>
       <div
@@ -199,6 +227,7 @@ const SendTokensContent: React.FC<any> = ({
         accountAssets={getAccountAssets(assetsList)}
         fantomPrice={getTokenPrice(tokenPrice)}
         currency={currency}
+        token={tokenSelected}
       />
       <Spacer size="lg" />
       <Spacer size="lg" />

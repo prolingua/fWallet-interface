@@ -1,4 +1,4 @@
-import { BigNumber, parseFixed } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export const formatHexToBN = (value: string) => {
   return BigNumber.from(value);

@@ -71,6 +71,14 @@ function useWeb3Modal(config = {}) {
 
     provider.on("chainChanged", async (chainId: string) => {
       console.info("[PROVIDER] chain changed to ", chainId);
+      const web3Provider = createWeb3Provider(provider);
+      const walletProvider = await createWalletContext(web3Provider);
+      dispatchWalletContext({
+        type: "web3ProviderChainChanged",
+        data: {
+          walletProvider: walletProvider,
+        },
+      });
     });
 
     provider.on("accountsChanged", async (accountChanged: string) => {

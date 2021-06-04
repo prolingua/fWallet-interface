@@ -15,6 +15,7 @@ const initial = {
   },
   web3ProviderState: {
     accountSelected: null,
+    chainSelected: null,
     walletProvider: null,
   },
 } as any;
@@ -30,14 +31,24 @@ export const ActiveWalletProvider: React.FC = ({ children }) => {
               action.data.providerType === "metamask"
                 ? action.data.address
                 : state.metamaskAccountSelected,
+            chainSelected:
+              action.data.providerType === "metamask" && action.data.chainId,
           },
         };
-
       case "web3ProviderAccountChanged":
         return {
           ...state,
           web3ProviderState: {
             ...action.data,
+            chainSelected: action.data.walletProvider.chainId,
+          },
+        };
+      case "web3ProviderChainChanged":
+        return {
+          ...state,
+          web3ProviderState: {
+            ...action.data,
+            chainSelected: action.data.walletProvider.chainId,
           },
         };
 

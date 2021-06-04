@@ -10,6 +10,7 @@ import Row from "../Row";
 import vShape from "../../assets/img/shapes/vShape.png";
 import WalletSelectView from "./WalletSelectView";
 import WalletSelect from "./WalletSelect";
+import config from "../../config/config.test";
 
 const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const { account, dispatchAccount } = useAccount();
@@ -19,6 +20,11 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const [requiredAccount, setRequiredAccount] = useState(null);
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
     <InfoModal message={warning} />
+  );
+  const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
+    <InfoModal
+      message={`Metamask: wrong network selected. Please change your network to Fantom Testnet`}
+    />
   );
 
   const switchToNewWeb3Provider = () => {
@@ -92,13 +98,26 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     }
   }, [closeDropDown]);
 
-  // Present warning modal if wrong metamask account is selected
+  // TODO move chain check to other place (own hook preferably)
+  // Present warning modal if wrong metamask account or network is selected
   useEffect(() => {
+    if (
+      walletContext.activeWallet.providerType === "metamask" &&
+      walletContext.web3ProviderState.chainSelected &&
+      walletContext.web3ProviderState.chainSelected !== parseInt(config.chainId)
+    ) {
+      return onPresentWrongChainSelected();
+    }
+    if (
+      walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
+    ) {
+      onDismissWrongChainSelected();
+    }
     if (warning) {
       onPresentWrongAccountModal();
       setWarning(null);
     }
-  }, [warning, requiredAccount]);
+  }, [warning, requiredAccount, walletContext.web3ProviderState]);
 
   // Close warning modal if requirements are met
   useEffect(() => {
