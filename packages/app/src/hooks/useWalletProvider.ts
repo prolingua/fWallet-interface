@@ -5,6 +5,11 @@ const useWalletProvider = () => {
   const [walletContext, dispatchWalletContext] = useContext(
     ActiveWalletContext
   );
+
+  const sendTransaction = () => {
+    walletContext.activeWallet.signer.sendTransaction();
+  };
+
   return { walletContext, dispatchWalletContext };
 };
 

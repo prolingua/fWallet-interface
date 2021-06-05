@@ -2,9 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   ContentBox,
+  Heading1,
   OverlayButton,
   Typo1,
   Typo2,
+  Typo3,
 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
@@ -36,6 +38,9 @@ import { isValidAddress } from "../../utils/wallet";
 import { useQuery } from "@apollo/react-hooks";
 import { ERC20_ASSETS, GET_ACCOUNT_BALANCE } from "../../graphql/subgraph";
 import { BigNumber } from "@ethersproject/bignumber";
+import useNativeTransaction from "../../hooks/useFantomNative";
+import useFantomNative from "../../hooks/useFantomNative";
+import useTransaction from "../../hooks/useTransaction";
 
 const ErrorLine: React.FC<any> = ({ error }) => {
   return (
@@ -310,10 +315,15 @@ const SendTokensContent: React.FC<any> = ({
   const [receiverAddress, setReceiverAddress] = useState(null);
   const [isValidTransaction, setIsValidTransaction] = useState(false);
   const [readyToSend, setReadyToSend] = useState(false);
+  const [acceptedRisk, setAcceptedRisk] = useState(false);
   const [tokenSelected, setTokenSelected] = useState(FANTOM_NATIVE);
+  const [transactionError, setTransactionError] = useState(null);
+  const { sendNativeTransaction } = useFantomNative();
+  const { transaction, dispatchTx } = useTransaction();
 
-  const formattedAmountToSend =
-    amountToSend && toFormattedBalance(weiToMaxUnit(amountToSend));
+  const formattedAmountToSend = amountToSend
+    ? toFormattedBalance(weiToMaxUnit(amountToSend))
+    : ["", ""];
 
   useEffect(() => {
     if (amountToSend && amountToSend.gt(BigNumber.from(0)) && receiverAddress) {
@@ -321,8 +331,26 @@ const SendTokensContent: React.FC<any> = ({
     }
     return setIsValidTransaction(false);
   }, [amountToSend, receiverAddress]);
+
+  useEffect(() => {
+    if (transaction.state === "failed") {
+      setTransactionError(transaction.error);
+    }
+    if (transaction.state === "completed") {
+      setTimeout(() => {
+        setAmountToSend(null);
+        setReceiverAddress(null);
+        setIsValidTransaction(false);
+        setReadyToSend(false);
+        setAcceptedRisk(false);
+        dispatchTx({ type: "reset" });
+      }, 1000);
+    }
+  }, [transaction]);
+
   console.log(amountToSend, receiverAddress);
   console.log({ isValidTransaction });
+  console.log({ transaction });
   return (
     <Column style={{ width: "100%", height: "620px" }}>
       {!readyToSend ? (
@@ -390,27 +418,123 @@ const SendTokensContent: React.FC<any> = ({
             </Row>
           </Row>
           <Spacer size="lg" />
-          <Row
-            style={{
-              width: "100%",
-              backgroundColor: color.primary.black(),
-              borderRadius: "8px",
-            }}
-          >
-            <Column style={{ padding: "2rem" }}>
-              <div>{`${formattedAmountToSend[0]}${formattedAmountToSend[1]} ${tokenSelected.symbol}`}</div>
-              <div>{`~${toCurrencySymbol(currency)}${(
-                weiToMaxUnit(amountToSend) * getTokenPrice(tokenPrice)
-              ).toFixed(2)}`}</div>
-              <div>To {receiverAddress}</div>
-            </Column>
-          </Row>
+          <Column>
+            <Row
+              style={{
+                width: "100%",
+                backgroundColor: color.primary.black(),
+                borderRadius: "8px",
+              }}
+            >
+              <Column
+                style={{ padding: "2rem", alignItems: "center", width: "100%" }}
+              >
+                <Heading1
+                  style={{ color: color.primary.cyan() }}
+                >{`${formattedAmountToSend[0]}${formattedAmountToSend[1]} ${tokenSelected.symbol}`}</Heading1>
+                <Spacer size="sm" />
+                <Typo2>{`~${toCurrencySymbol(currency)}${(
+                  weiToMaxUnit(amountToSend) * getTokenPrice(tokenPrice)
+                ).toFixed(2)}`}</Typo2>
+                <Spacer size="lg" />
+                <Row style={{ alignItems: "center" }}>
+                  <Typo2 style={{ display: "flex", marginTop: "auto" }}>
+                    To
+                  </Typo2>
+                  <Spacer size="lg" />
+                  <Typo1 style={{ fontWeight: "bold", marginTop: "auto" }}>
+                    {receiverAddress}
+                  </Typo1>
+                </Row>
+              </Column>
+            </Row>
+            <Spacer size="lg" />
+            <Spacer size="lg" />
+            <Row>
+              <Spacer size="lg" />
+              <Spacer size="lg" />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <StyledCheckbox
+                  name="acceptRisk"
+                  type="checkbox"
+                  checked={acceptedRisk}
+                  onChange={() => setAcceptedRisk(!acceptedRisk)}
+                />
+              </div>
+              <Spacer size="lg" />
+              <Spacer size="lg" />
+              <Typo2 style={{ marginRight: "4rem", alignSelf: "center" }}>
+                I understand that I'm sending tokens to a Fantom Opera mainnet
+                wallet, and not to an Ethereum wallet. If I send tokens to a
+                non-Fantom Opera address, they may never be recoverable.
+              </Typo2>
+              <Spacer size="lg" />
+            </Row>
+            <Spacer size="lg" />
+            <Spacer />
+            <Button
+              padding="17px"
+              disabled={
+                !acceptedRisk ||
+                transaction.state === "pending" ||
+                transaction === "completed"
+              }
+              variant="primary"
+              onClick={() =>
+                sendNativeTransaction(receiverAddress, amountToSend)
+              }
+            >
+              {transaction.state === "pending"
+                ? "Sending..."
+                : transaction.state === "completed"
+                ? "Success"
+                : transaction.state === "failed"
+                ? "Failed, try again"
+                : "Send now"}
+            </Button>
+            {transaction.error ? (
+              <div>{transaction.error.error.message}</div>
+            ) : (
+              <Spacer />
+            )}
+            <Spacer />
+          </Column>
         </>
       )}
       <Estimated currency={currency} />
     </Column>
   );
 };
+
+const StyledCheckbox = styled.input`
+  -webkit-appearance: none;
+  background-color: transparent;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid ${(props) => props.theme.color.primary.cyan()};
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+
+  :checked {
+    background-color: ${(props) => props.theme.color.primary.cyan()};
+  }
+
+  :checked:after {
+    content: "\\2714";
+    font-size: 1.5rem;
+    position: absolute;
+    top: -4px;
+    left: 0px;
+    color: ${(props) => props.theme.color.secondary.navy()};
+  }
+`;
 
 const SendTokens: React.FC<any> = ({
   loading,

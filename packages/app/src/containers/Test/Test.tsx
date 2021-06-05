@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 
 import { Button } from "../../components";
-import { send } from "../../utils/contract";
+import { send } from "../../utils/transactions";
 import { Contract } from "@ethersproject/contracts";
 import { Provider, Web3Provider } from "@ethersproject/providers";
 import useWalletProvider from "../../hooks/useWalletProvider";

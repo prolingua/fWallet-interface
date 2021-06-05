@@ -72,6 +72,10 @@ export const Typo2 = styled.div`
   font-size: 16px;
 `;
 
+export const Typo3 = styled.div`
+  font-size: 14px;
+`;
+
 export const OverlayButton = styled.button`
   background-color: transparent;
   border: none;

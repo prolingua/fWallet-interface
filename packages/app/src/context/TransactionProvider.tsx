@@ -3,6 +3,7 @@ import React, { useReducer } from "react";
 const initial = {
   id: null,
   error: null,
+  state: null,
 } as any;
 export const TransactionContext = React.createContext(null);
 
@@ -25,6 +26,8 @@ export const TransactionProvider: React.FC = ({ children }) => {
           error: action.error,
           state: "failed",
         };
+      case "reset":
+        return initial;
       default:
         return state;
     }
