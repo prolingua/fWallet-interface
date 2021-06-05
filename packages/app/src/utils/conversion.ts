@@ -28,7 +28,10 @@ export const unitToWei = (value: string, decimals = 18) => {
   return parseFixed(value, decimals);
 };
 
-export const toFormattedBalance = (value: string | number): string[] => {
+export const toFormattedBalance = (
+  value: string | number,
+  toFixed = 2
+): string[] => {
   const formatThousands = (value: number) => {
     let valueLeft = value;
     let formatted = "";
@@ -47,7 +50,7 @@ export const toFormattedBalance = (value: string | number): string[] => {
 
   return [
     formatThousands(parseInt(parts[0], 10)),
-    parts[1] ? `.${parts[1].substr(0, 2)}` : ".00",
+    parts[1] ? `.${parts[1].substr(0, toFixed)}` : ".00",
   ];
 };
 

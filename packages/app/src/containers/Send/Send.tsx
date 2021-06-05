@@ -321,7 +321,7 @@ const SendTokensContent: React.FC<any> = ({
   const { sendNativeTransaction } = useFantomNative();
   const { transaction, dispatchTx } = useTransaction();
   const formattedAmountToSend = amountToSend
-    ? toFormattedBalance(weiToMaxUnit(amountToSend))
+    ? toFormattedBalance(weiToMaxUnit(amountToSend), 18)
     : ["", ""];
 
   useEffect(() => {
