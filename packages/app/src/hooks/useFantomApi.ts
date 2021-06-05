@@ -37,13 +37,28 @@ const methods: { [key in FantomApiMethods]: any } = {
 const useFantomApi = (
   request: FantomApiMethods,
   variables?: any,
-  address?: string
+  fromAddress?: string,
+  pollInterval?: number
 ) => {
   const { walletContext } = useWalletProvider();
   const { dispatchApiData } = useFantomApiData();
-  const { loading, error, data } = useQuery(
+
+  const createOptions = () => {
+    if (!variables && !pollInterval) return null;
+
+    //TODO polling is not working.. useQuery known bug.
+    const options = {} as any;
+    if (variables) options.variables = variables;
+    if (pollInterval) {
+      options.pollInterval = pollInterval;
+      options.fetchPolicy = "network-only";
+    }
+    return options;
+  };
+
+  const { loading, error, data, refetch } = useQuery(
     methods[request],
-    variables ? { variables } : null
+    createOptions()
   );
 
   useEffect(() => {
@@ -54,23 +69,25 @@ const useFantomApi = (
     if (request && data) {
       dispatchApiData({
         type: "success",
-        address: address,
+        address: fromAddress,
         method: request,
+        refetch,
         data,
       });
     }
     if (request && error) {
       dispatchApiData({
         type: "error",
-        address: address,
+        address: fromAddress,
         method: request,
+        refetch,
         error,
       });
     }
     if (request && loading) {
       dispatchApiData({
         type: "loading",
-        address: address,
+        address: fromAddress,
         method: request,
       });
     }

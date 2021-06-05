@@ -42,12 +42,12 @@ import useNativeTransaction from "../../hooks/useFantomNative";
 import useFantomNative from "../../hooks/useFantomNative";
 import useTransaction from "../../hooks/useTransaction";
 
-const ErrorLine: React.FC<any> = ({ error }) => {
+const ErrorLine: React.FC<any> = ({ error, fontSize }) => {
   return (
     <div
       style={{
         height: "32px",
-        fontSize: "24px",
+        fontSize: fontSize || "24px",
         color: "#F84239",
         paddingLeft: "1rem",
       }}
@@ -306,6 +306,7 @@ const Estimated: React.FC<any> = ({ currency }) => {
 
 const SendTokensContent: React.FC<any> = ({
   accountData,
+  accountDataRefetch,
   assetsList,
   tokenPrice,
   currency,
@@ -317,10 +318,8 @@ const SendTokensContent: React.FC<any> = ({
   const [readyToSend, setReadyToSend] = useState(false);
   const [acceptedRisk, setAcceptedRisk] = useState(false);
   const [tokenSelected, setTokenSelected] = useState(FANTOM_NATIVE);
-  const [transactionError, setTransactionError] = useState(null);
   const { sendNativeTransaction } = useFantomNative();
   const { transaction, dispatchTx } = useTransaction();
-
   const formattedAmountToSend = amountToSend
     ? toFormattedBalance(weiToMaxUnit(amountToSend))
     : ["", ""];
@@ -333,9 +332,6 @@ const SendTokensContent: React.FC<any> = ({
   }, [amountToSend, receiverAddress]);
 
   useEffect(() => {
-    if (transaction.state === "failed") {
-      setTransactionError(transaction.error);
-    }
     if (transaction.state === "completed") {
       setTimeout(() => {
         setAmountToSend(null);
@@ -344,13 +340,11 @@ const SendTokensContent: React.FC<any> = ({
         setReadyToSend(false);
         setAcceptedRisk(false);
         dispatchTx({ type: "reset" });
+        accountDataRefetch();
       }, 1000);
     }
   }, [transaction]);
 
-  console.log(amountToSend, receiverAddress);
-  console.log({ isValidTransaction });
-  console.log({ transaction });
   return (
     <Column style={{ width: "100%", height: "620px" }}>
       {!readyToSend ? (
@@ -483,7 +477,7 @@ const SendTokensContent: React.FC<any> = ({
               disabled={
                 !acceptedRisk ||
                 transaction.state === "pending" ||
-                transaction === "completed"
+                transaction.state === "completed"
               }
               variant="primary"
               onClick={() =>
@@ -499,11 +493,22 @@ const SendTokensContent: React.FC<any> = ({
                 : "Send now"}
             </Button>
             {transaction.error ? (
-              <div>{transaction.error.error.message}</div>
+              <>
+                <Spacer size="sm" />
+                <Row style={{ justifyContent: "center" }}>
+                  <ErrorLine
+                    fontSize="18px"
+                    error={transaction.error.message}
+                  />
+                </Row>
+                <Spacer />
+              </>
             ) : (
-              <Spacer />
+              <>
+                <Spacer />
+                <Spacer />
+              </>
             )}
-            <Spacer />
           </Column>
         </>
       )}
@@ -550,6 +555,7 @@ const SendTokens: React.FC<any> = ({
       ) : (
         <SendTokensContent
           accountData={accountData.data}
+          accountDataRefetch={accountData.refetch}
           assetsList={assetsList.data}
           tokenPrice={tokenPrice.data}
           currency={currency}
@@ -580,7 +586,8 @@ const Send: React.FC<any> = () => {
     {
       address: activeAddress,
     },
-    activeAddress
+    activeAddress,
+    1000
   );
   useFantomApi(FantomApiMethods.getTokenPrice, {
     to: settings.currency.toUpperCase(),
@@ -592,6 +599,15 @@ const Send: React.FC<any> = () => {
     },
     activeAddress
   );
+
+  // TODO workaround for broken polling of useQuery
+  useEffect(() => {
+    const interval = setInterval(() => {
+      accountData && accountData.refetch && accountData.refetch();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const isDoneLoading =
     activeAddress && accountData?.data && assetsList?.data && tokenPrice?.data;

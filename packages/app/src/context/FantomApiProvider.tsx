@@ -20,6 +20,7 @@ export const FantomApiProvider: React.FC = ({ children }) => {
           status: action.type,
           data: action.data,
           error: null,
+          refetch: action.refetch,
         } as any;
 
         if (action.address) {
@@ -40,6 +41,7 @@ export const FantomApiProvider: React.FC = ({ children }) => {
           status: action.type,
           data: null,
           error: action.error,
+          refetch: action.refetch,
         } as any;
 
         if (action.address) {
@@ -60,6 +62,7 @@ export const FantomApiProvider: React.FC = ({ children }) => {
           status: action.type,
           data: null,
           error: null,
+          refetch: null,
         } as any;
 
         if (action.address) {
