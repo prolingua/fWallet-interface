@@ -88,27 +88,35 @@ const SideBar: React.FC<any> = () => {
       <SideBarLink
         img={stakingSymbolImg}
         activeImg={stakingActiveSymbolImg}
-        name="Staking"
-        path="/staking"
+        name="Test"
+        path="/test"
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
-      <SideBarLink
-        img={defiSymbolImg}
-        activeImg={defiActiveSymbolImg}
-        name="Defi"
-        path="/defi"
-        currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
-      />
-      <SideBarLink
-        img={governanceSymbolImg}
-        activeImg={governanceActiveSymbolImg}
-        name="Governance"
-        path="/governance"
-        currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
-      />
+      {/*<SideBarLink*/}
+      {/*  img={stakingSymbolImg}*/}
+      {/*  activeImg={stakingActiveSymbolImg}*/}
+      {/*  name="Staking"*/}
+      {/*  path="/staking"*/}
+      {/*  currentPath={currentPath}*/}
+      {/*  setCurrentPath={setCurrentPath}*/}
+      {/*/>*/}
+      {/*<SideBarLink*/}
+      {/*  img={defiSymbolImg}*/}
+      {/*  activeImg={defiActiveSymbolImg}*/}
+      {/*  name="Defi"*/}
+      {/*  path="/defi"*/}
+      {/*  currentPath={currentPath}*/}
+      {/*  setCurrentPath={setCurrentPath}*/}
+      {/*/>*/}
+      {/*<SideBarLink*/}
+      {/*  img={governanceSymbolImg}*/}
+      {/*  activeImg={governanceActiveSymbolImg}*/}
+      {/*  name="Governance"*/}
+      {/*  path="/governance"*/}
+      {/*  currentPath={currentPath}*/}
+      {/*  setCurrentPath={setCurrentPath}*/}
+      {/*/>*/}
     </StyledSideBar>
   );
 };

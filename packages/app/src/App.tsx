@@ -69,6 +69,7 @@ function App() {
                   <Route path="/otherRoute" component={Test} />
                   <Route path="/home" component={HomeWithWallet} />
                   <Route path="/send" component={SendWithWallet} />
+                  <Route path="/test" component={Test} />
                   <Route path="/staking" component={Test} />
                   <Route path="/defi" component={Test} />
                   <Route path="/governance" component={Test} />
