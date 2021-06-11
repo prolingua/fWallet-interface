@@ -8,7 +8,10 @@ import Spacer from "../../components/Spacer";
 import { Token } from "../../shared/types";
 import Column from "../../components/Column";
 
-const TokenBalanceLine: React.FC<any> = ({ token }) => {
+export const TokenBalanceLine: React.FC<any> = ({
+  token,
+  imageSize = " 32px",
+}) => {
   const { color } = useContext(ThemeContext);
 
   const formattedBalance = toFormattedBalance(
@@ -19,7 +22,7 @@ const TokenBalanceLine: React.FC<any> = ({ token }) => {
       <Row style={{ alignItems: "center" }}>
         <img
           alt=""
-          style={{ width: "32px", height: "32px", marginRight: ".4rem" }}
+          style={{ width: imageSize, height: imageSize, marginRight: ".4rem" }}
           src={token.logoURL}
         />
         <Typo1 style={{ fontWeight: "bold" }}>{token.symbol}</Typo1>

@@ -60,6 +60,11 @@ export const Heading1 = styled.div`
 `;
 
 export const Heading2 = styled.div`
+  font-size: 26px;
+  font-weight: bold;
+`;
+
+export const Heading3 = styled.div`
   font-size: 20px;
   font-weight: bold;
 `;

@@ -5,10 +5,10 @@ export interface ModalProps {
   onDismiss?: () => void;
 }
 
-const Modal: React.FC = ({ children }) => {
+const Modal: React.FC<any> = ({ children, padding }) => {
   return (
     <StyledResponsiveWrapper>
-      <StyledModal>{children}</StyledModal>
+      <StyledModal padding={padding}>{children}</StyledModal>
     </StyledResponsiveWrapper>
   );
 };
@@ -22,7 +22,7 @@ const mobileKeyframes = keyframes`
   }
 `;
 
-const StyledResponsiveWrapper = styled.div`
+const StyledResponsiveWrapper = styled.div<any>`
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@ const StyledResponsiveWrapper = styled.div`
   max-width: 50vw;
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}px) {
     flex: 1;
-    position: absolute;
+    // position: absolute;
     top: 100%;
     right: 0;
     left: 0;
@@ -41,8 +41,9 @@ const StyledResponsiveWrapper = styled.div`
   }
 `;
 
-const StyledModal = styled.div`
-  padding: 20px 60px;
+const StyledModal = styled.div<any>`
+  padding: ${(props) =>
+    props.padding === undefined ? "20px 40px" : props.padding};
   background: ${(props) => props.theme.color.primary.black()};
   color: ${(props) => props.theme.color.white};
   font-family: "proxima-nova", sans-serif;

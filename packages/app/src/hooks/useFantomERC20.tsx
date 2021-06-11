@@ -1,12 +1,17 @@
 import useWalletProvider from "./useWalletProvider";
 import useTransaction from "./useTransaction";
 import { send } from "../utils/transactions";
+import { loadERC20Contract } from "../utils/wallet";
 
-const useFantomNative = () => {
+const useFantomERC20 = () => {
   const { walletContext } = useWalletProvider();
   const { dispatchTx } = useTransaction();
 
-  const sendNativeTokens = async (toAddress: string, amount: string) => {
+  const sendTokens = async (
+    contractAddress: string,
+    toAddress: string,
+    amount: string
+  ) => {
     if (!walletContext.activeWallet.signer) {
       console.error("[sendTransation] signer not found");
       return;
@@ -16,21 +21,25 @@ const useFantomNative = () => {
       return;
     }
 
+    const contract = await loadERC20Contract(
+      contractAddress,
+      walletContext.activeWallet.signer
+    );
+
     return send(
       walletContext.activeWallet.provider,
-      () =>
-        walletContext.activeWallet.signer.sendTransaction({
-          to: toAddress,
-          value: amount,
-        }),
+      () => contract.transfer(toAddress, amount),
       dispatchTx
     );
   };
 
   return {
-    sendNativeTokens: async (toAddress: string, amount: string) =>
-      await sendNativeTokens(toAddress, amount),
+    sendTokens: async (
+      contractAddress: string,
+      toAddress: string,
+      amount: string
+    ) => await sendTokens(contractAddress, toAddress, amount),
   };
 };
 
-export default useFantomNative;
+export default useFantomERC20;

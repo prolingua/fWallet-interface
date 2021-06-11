@@ -18,7 +18,7 @@ import SideBar from "./containers/SideBar/SideBar";
 import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
 import Send from "./containers/Send";
-import { Body, Heading1, Heading2 } from "./components";
+import { Body, Heading1, Heading3 } from "./components";
 import Column from "./components/Column";
 import Spacer from "./components/Spacer";
 import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
@@ -46,7 +46,7 @@ function App() {
             />
             <Spacer />
             <Heading1>Resolution not supported</Heading1>
-            <Heading2>Mobile is coming soon!</Heading2>
+            <Heading3>Mobile is coming soon!</Heading3>
           </Column>
         ) : (
           <>

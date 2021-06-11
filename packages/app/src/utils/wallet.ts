@@ -1,6 +1,10 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { isAddress } from "@ethersproject/address";
 import { Signer } from "@ethersproject/abstract-signer";
+import { Contract } from "@ethersproject/contracts";
+
+// @ts-ignore
+import { abis } from "@f-wallet/contracts";
 
 export const isValidAddress = (address: string): boolean => {
   return isAddress(address);
@@ -55,4 +59,15 @@ export const loadContracts = async (signer: Signer) => {
     //   ),
     // ],
   ]);
+};
+
+export const loadERC20Contract = async (
+  contractAddress: string,
+  signer: Signer
+) => {
+  if (!signer) {
+    return;
+  }
+
+  return new Contract(contractAddress, abis.erc20.abi, signer);
 };

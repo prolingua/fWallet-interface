@@ -41,6 +41,8 @@ import { BigNumber } from "@ethersproject/bignumber";
 import useNativeTransaction from "../../hooks/useFantomNative";
 import useFantomNative from "../../hooks/useFantomNative";
 import useTransaction from "../../hooks/useTransaction";
+import TokenSelectButton from "../../components/TokenSelectModal";
+import useFantomERC20 from "../../hooks/useFantomERC20";
 
 const ErrorLine: React.FC<any> = ({ error, fontSize }) => {
   return (
@@ -64,6 +66,7 @@ const AmountInput: React.FC<any> = ({
   token,
   setAmountToSend,
   initial,
+  setTokenSelected,
 }) => {
   const { color } = useContext(ThemeContext);
   const [amount, setAmount] = useState(
@@ -94,7 +97,7 @@ const AmountInput: React.FC<any> = ({
     return setAmountToSend(unitToWei(value, token.decimals));
   };
   const handleSetMax = () => {
-    handleChange(weiToMaxUnit(accountBalance, token.decimals).toString());
+    handleChange(weiToMaxUnit(tokenBalanceInWei, token.decimals).toString());
   };
 
   useEffect(() => {
@@ -103,6 +106,11 @@ const AmountInput: React.FC<any> = ({
     }
     setValue(parseFloat(amount) * fantomPrice);
   }, [amount, fantomPrice]);
+
+  useEffect(() => {
+    setAmount("");
+    setValue(null);
+  }, [token]);
 
   return (
     <Column>
@@ -136,7 +144,7 @@ const AmountInput: React.FC<any> = ({
         />
 
         <Row style={{ flex: 1, alignItems: "center" }}>
-          {formattedTotalValue?.length ? (
+          {isNative && formattedTotalValue?.length ? (
             <Typo2 style={{ flex: 4, color: color.greys.grey() }}>
               ~
               {`${toCurrencySymbol(currency)}${formattedTotalValue[0]}${
@@ -158,19 +166,12 @@ const AmountInput: React.FC<any> = ({
             MAX
           </Button>
           <Spacer />
-          <Button style={{ flex: 2, padding: "10px" }} variant="secondary">
-            <Row style={{ alignItems: "center" }}>
-              <img
-                alt=""
-                src={token.symbol === "FTM" ? ftmIcon : token.logoURL}
-              />
-              <Spacer size="sm" />
-              <Typo2>{token.symbol}</Typo2>
-              <Spacer size="sm" />
-              <Spacer size="xs" />
-              <img alt="" src={vShape} />
-            </Row>
-          </Button>
+          <TokenSelectButton
+            currentToken={token}
+            ftmBalance={accountBalance}
+            assets={accountAssets}
+            setTokenSelected={setTokenSelected}
+          />
           <Spacer />
         </Row>
       </Row>
@@ -208,7 +209,7 @@ const CounterAddressBalance: React.FC<any> = ({ address, token }) => {
 
   return (
     <Typo2 style={{ color: color.greys.grey() }}>
-      {balance ? `${formattedBalance[0]}${formattedBalance[1]}` : "0"}
+      {balance ? `${formattedBalance[0]}${formattedBalance[1]}` : "0 "}
       {token.symbol}
     </Typo2>
   );
@@ -254,7 +255,9 @@ const AddressInput: React.FC<any> = ({
           {validAddress ? (
             <CounterAddressBalance address={validAddress} token={token} />
           ) : (
-            <Typo2 style={{ color: color.greys.grey() }}>0 FTM</Typo2>
+            <Typo2 style={{ color: color.greys.grey() }}>
+              {`0 ${token.symbol}`}`
+            </Typo2>
           )}
         </Row>
       </Row>
@@ -318,11 +321,14 @@ const SendTokensContent: React.FC<any> = ({
   const [readyToSend, setReadyToSend] = useState(false);
   const [acceptedRisk, setAcceptedRisk] = useState(false);
   const [tokenSelected, setTokenSelected] = useState(FANTOM_NATIVE);
-  const { sendNativeTransaction } = useFantomNative();
+  const { sendNativeTokens } = useFantomNative();
+  const { sendTokens } = useFantomERC20();
   const { transaction, dispatchTx } = useTransaction();
   const formattedAmountToSend = amountToSend
-    ? toFormattedBalance(weiToMaxUnit(amountToSend), 18)
+    ? toFormattedBalance(weiToMaxUnit(amountToSend, tokenSelected.decimals), 18)
     : ["", ""];
+
+  const isNative = tokenSelected.symbol === "FTM";
 
   useEffect(() => {
     if (amountToSend && amountToSend.gt(BigNumber.from(0)) && receiverAddress) {
@@ -367,6 +373,7 @@ const SendTokensContent: React.FC<any> = ({
             token={tokenSelected}
             setAmountToSend={setAmountToSend}
             initial={amountToSend}
+            setTokenSelected={setTokenSelected}
           />
           <Spacer size="lg" />
           <Spacer />
@@ -428,7 +435,8 @@ const SendTokensContent: React.FC<any> = ({
                 >{`${formattedAmountToSend[0]}${formattedAmountToSend[1]} ${tokenSelected.symbol}`}</Heading1>
                 <Spacer size="sm" />
                 <Typo2>{`~${toCurrencySymbol(currency)}${(
-                  weiToMaxUnit(amountToSend) * getTokenPrice(tokenPrice)
+                  weiToMaxUnit(amountToSend, tokenSelected.decimals) *
+                  getTokenPrice(tokenPrice)
                 ).toFixed(2)}`}</Typo2>
                 <Spacer size="lg" />
                 <Row style={{ alignItems: "center" }}>
@@ -481,7 +489,13 @@ const SendTokensContent: React.FC<any> = ({
               }
               variant="primary"
               onClick={() =>
-                sendNativeTransaction(receiverAddress, amountToSend)
+                isNative
+                  ? sendNativeTokens(receiverAddress, amountToSend)
+                  : sendTokens(
+                      tokenSelected.address,
+                      receiverAddress,
+                      amountToSend
+                    )
               }
             >
               {transaction.state === "pending"
