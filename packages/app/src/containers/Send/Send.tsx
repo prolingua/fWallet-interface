@@ -58,10 +58,12 @@ const CounterAddressBalance: React.FC<any> = ({ address, token }) => {
 
   return (
     <Typo2 style={{ color: color.greys.grey() }}>
-      <FormattedValue
-        formattedValue={formattedBalance}
-        tokenSymbol={token.symbol}
-      />
+      {formattedBalance && (
+        <FormattedValue
+          formattedValue={formattedBalance}
+          tokenSymbol={token.symbol}
+        />
+      )}
     </Typo2>
   );
 };
