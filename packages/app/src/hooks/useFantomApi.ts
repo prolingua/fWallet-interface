@@ -8,7 +8,7 @@ import {
   GET_TOKEN_PRICE,
   GET_ACCOUNT_BALANCE,
 } from "../graphql/subgraph";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import useFantomApiData from "./useFantomApiData";
 import useWalletProvider from "./useWalletProvider";

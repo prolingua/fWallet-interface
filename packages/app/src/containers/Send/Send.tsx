@@ -32,7 +32,7 @@ import {
 
 import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
 import { isValidAddress } from "../../utils/wallet";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import { ERC20_ASSETS, GET_ACCOUNT_BALANCE } from "../../graphql/subgraph";
 import { BigNumber } from "@ethersproject/bignumber";
 import useFantomNative from "../../hooks/useFantomNative";
@@ -466,18 +466,18 @@ const Send: React.FC<any> = () => {
     {
       owner: activeAddress,
     },
-    activeAddress
+    activeAddress,
+    1000
   );
 
-  // TODO workaround for broken polling of useQuery
-  useEffect(() => {
-    const interval = setInterval(() => {
-      accountData && accountData.refetch && accountData.refetch();
-      assetsList && assetsList.refetch && assetsList.refetch();
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     accountData && accountData.refetch && accountData.refetch();
+  //     assetsList && assetsList.refetch && assetsList.refetch();
+  //   }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const isDoneLoading =
     activeAddress && accountData?.data && assetsList?.data && tokenPrice?.data;

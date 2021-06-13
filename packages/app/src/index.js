@@ -1,18 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
-import ApolloClient from "apollo-boost";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import "./index.css";
 import App from "./App";
 import config from "./config/config.test";
 
-// This is the official Uniswap v2 subgraph just for testing
-// See all subgraphs: https://thegraph.com/explorer/
-// const client = new ApolloClient({
-//   uri: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
-// });
 const client = new ApolloClient({
+  cache: new InMemoryCache(),
   uri: config.providers[0].http,
 });
 

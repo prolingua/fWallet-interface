@@ -16,6 +16,7 @@ import TokenSelectButton from "../../components/TokenSelectModal";
 import InputError from "../../components/InputError";
 import InputCurrency from "../../components/InputCurrency";
 import FormattedValue from "../../components/FormattedBalance";
+import { getAccountAssetBalance } from "../../utils/account";
 
 const AmountInputRow: React.FC<any> = ({
   accountAssets,
@@ -37,7 +38,9 @@ const AmountInputRow: React.FC<any> = ({
   const [error, setError] = useState(null);
 
   const isNative = token.symbol === "FTM";
-  const tokenBalanceInWei = isNative ? accountBalance : token.balanceOf;
+  const tokenBalanceInWei = isNative
+    ? accountBalance
+    : getAccountAssetBalance({ erc20Assets: accountAssets }, token.address);
   const tokenBalance = weiToMaxUnit(tokenBalanceInWei, token.decimals);
   const formattedBalance = toFormattedBalance(tokenBalance);
   const formattedTotalValue = fiatValue && toFormattedBalance(fiatValue);
