@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button, Typo2 } from "../index";
 import useModal from "../../hooks/useModal";
 import TokenSelectModal from "./TokenSelectModal";
@@ -13,7 +13,7 @@ const TokenSelectButton: React.FC<any> = ({
   assets,
   setTokenSelected,
 }) => {
-  const [onPresentSelectTokenModal, onDismissSelectTokenModal] = useModal(
+  const [onPresentSelectTokenModal] = useModal(
     <TokenSelectModal
       ftmBalance={ftmBalance}
       assets={assets}
