@@ -23,7 +23,7 @@ const StatPair: React.FC<any> = ({ title, value1, value2, suffix }) => {
         >
           {value2}
         </div>
-        <Spacer size="xs" />
+        <Spacer size="xxs" />
         <div
           style={{
             fontSize: "18px",

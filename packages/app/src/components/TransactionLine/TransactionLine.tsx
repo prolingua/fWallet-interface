@@ -35,11 +35,11 @@ const TransactionLine: React.FC<any> = ({
         <Typo1 style={{ color: color.greys.grey() }}>
           {isSender ? "Sent" : "Received"}
         </Typo1>
-        <Spacer size="sm" />
+        <Spacer size="xs" />
         <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
           {amount.toFixed(2)} FTM
         </Typo1>
-        <Spacer size="sm" />
+        <Spacer size="xs" />
         <Typo1 style={{ color: color.greys.darkGrey() }}>
           ({`${toCurrencySymbol(currency)}${value.toFixed(2)}`})
         </Typo1>

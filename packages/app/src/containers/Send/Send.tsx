@@ -40,6 +40,7 @@ import useTransaction from "../../hooks/useTransaction";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import AmountInputRow from "./AmountInputRow";
 import InputError from "../../components/InputError";
+import FormattedValue from "../../components/FormattedBalance";
 
 const CounterAddressBalance: React.FC<any> = ({ address, token }) => {
   const { color } = useContext(ThemeContext);
@@ -52,12 +53,15 @@ const CounterAddressBalance: React.FC<any> = ({ address, token }) => {
     data && isNative
       ? getAccountBalance(data)
       : getAccountAssetBalance(data, token.address);
-  const formattedBalance = balance && toFormattedBalance(weiToUnit(balance));
+  const formattedBalance =
+    balance && toFormattedBalance(weiToUnit(balance, token.decimals));
 
   return (
     <Typo2 style={{ color: color.greys.grey() }}>
-      {balance ? `${formattedBalance[0]}${formattedBalance[1]}` : "0 "}
-      {token.symbol}
+      <FormattedValue
+        formattedValue={formattedBalance}
+        tokenSymbol={token.symbol}
+      />
     </Typo2>
   );
 };
@@ -98,17 +102,17 @@ const AddressInput: React.FC<any> = ({
         <Typo2 style={{ color: color.greys.grey() }}>To</Typo2>
         <Row>
           <img src={walletSymbol} />
-          <Spacer size="sm" />
+          <Spacer size="xs" />
           {validAddress ? (
             <CounterAddressBalance address={validAddress} token={token} />
           ) : (
             <Typo2 style={{ color: color.greys.grey() }}>
-              {`0 ${token.symbol}`}`
+              {`0 ${token.symbol}`}
             </Typo2>
           )}
         </Row>
       </Row>
-      <Spacer size="sm" />
+      <Spacer size="xs" />
       <Row
         style={{
           backgroundColor: "#202F49",
@@ -128,7 +132,7 @@ const AddressInput: React.FC<any> = ({
           placeholder="Input a Fantom Opera address"
         />
       </Row>
-      <Spacer size="sm" />
+      <Spacer size="xs" />
       {error ? <InputError error={error} /> : <Spacer size="lg" />}
     </Column>
   );
@@ -147,7 +151,7 @@ const Estimated: React.FC<any> = ({ currency }) => {
         }}
       >
         <Typo2>Estimated Fees</Typo2>
-        <Spacer size="sm" />
+        <Spacer size="xs" />
         <Typo2>Estimated Fees in {toCurrencySymbol(currency)}</Typo2>
       </Column>
     </Row>
@@ -283,7 +287,7 @@ const SendTokensContent: React.FC<any> = ({
                 <Heading1
                   style={{ color: color.primary.cyan() }}
                 >{`${formattedAmountToSend[0]}${formattedAmountToSend[1]} ${tokenSelected.symbol}`}</Heading1>
-                <Spacer size="sm" />
+                <Spacer size="xs" />
                 <Typo2>{`~${toCurrencySymbol(currency)}${(
                   weiToMaxUnit(amountToSend, tokenSelected.decimals) *
                   getTokenPrice(tokenPrice)
@@ -358,7 +362,7 @@ const SendTokensContent: React.FC<any> = ({
             </Button>
             {transaction.error ? (
               <>
-                <Spacer size="sm" />
+                <Spacer size="xs" />
                 <Row style={{ justifyContent: "center" }}>
                   <InputError
                     fontSize="18px"

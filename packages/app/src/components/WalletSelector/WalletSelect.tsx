@@ -164,7 +164,7 @@ const WalletSelect: React.FC<any> = ({
           </Typo1>
         )}
       </Column>
-      <Spacer size="sm" />
+      <Spacer size="xs" />
       <Column
         style={{
           borderTop: "1px solid rgba(58,72,97,1)",
@@ -183,7 +183,7 @@ const WalletSelect: React.FC<any> = ({
           </Typo2>
           <Typo2 style={{ fontWeight: "bold" }}>12,000,100.72 FTM</Typo2>
         </Column>
-        <Spacer size="sm" />
+        <Spacer size="xs" />
         <Column>
           <Typo2
             style={{

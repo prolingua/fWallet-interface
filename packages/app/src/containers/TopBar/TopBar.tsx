@@ -34,7 +34,7 @@ const TopBar: React.FC<any> = () => {
           current={settings.currency}
           dispatch={dispatchSettings}
         />
-        <Spacer size="sm" />
+        <Spacer size="xs" />
         <WalletSelector width="200px" walletContext={walletContext} />
       </Row>
     </Header>

@@ -70,7 +70,7 @@ const AmountInputRow: React.FC<any> = ({
         <Typo2 style={{ color: color.greys.grey() }}>Amount</Typo2>
         <Row>
           <img alt="" src={walletSymbol} />
-          <Spacer size="sm" />
+          <Spacer size="xs" />
           <FormattedValue
             formattedValue={formattedBalance}
             tokenSymbol={token.symbol}
@@ -79,7 +79,7 @@ const AmountInputRow: React.FC<any> = ({
           />
         </Row>
       </Row>
-      <Spacer size="sm" />
+      <Spacer size="xs" />
       <Row
         style={{
           backgroundColor: "#202F49",
@@ -131,7 +131,7 @@ const AmountInputRow: React.FC<any> = ({
           <Spacer />
         </Row>
       </Row>
-      <Spacer size="sm" />
+      <Spacer size="xs" />
       {error ? <InputError error={error} /> : <Spacer size="lg" />}
     </Column>
   );

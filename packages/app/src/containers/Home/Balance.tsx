@@ -125,7 +125,7 @@ const Balance: React.FC<any> = ({
     <ContentBox>
       <Column style={{ flex: 1 }}>
         <Heading1>Balance</Heading1>
-        <Spacer size="sm" />
+        <Spacer size="xs" />
         {loading ? (
           <div> LOADING... </div>
         ) : (
