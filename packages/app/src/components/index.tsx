@@ -134,3 +134,16 @@ export const ContentBox = styled.div<any>`
   padding: 2rem;
   border-radius: 8px;
 `;
+
+export const Input = styled.input`
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+
+  :focus {
+    outline: none;
+  }
+`;

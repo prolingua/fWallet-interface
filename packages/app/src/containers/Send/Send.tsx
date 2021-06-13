@@ -3,6 +3,7 @@ import {
   Button,
   ContentBox,
   Heading1,
+  Input,
   OverlayButton,
   Typo1,
   Typo2,
@@ -25,7 +26,6 @@ import { FANTOM_NATIVE, getTokenPrice } from "../../utils/common";
 import {
   toCurrencySymbol,
   toFormattedBalance,
-  unitToWei,
   weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
@@ -37,158 +37,9 @@ import { ERC20_ASSETS, GET_ACCOUNT_BALANCE } from "../../graphql/subgraph";
 import { BigNumber } from "@ethersproject/bignumber";
 import useFantomNative from "../../hooks/useFantomNative";
 import useTransaction from "../../hooks/useTransaction";
-import TokenSelectButton from "../../components/TokenSelectModal";
 import useFantomERC20 from "../../hooks/useFantomERC20";
-
-const ErrorLine: React.FC<any> = ({ error, fontSize }) => {
-  return (
-    <div
-      style={{
-        height: "32px",
-        fontSize: fontSize || "24px",
-        color: "#F84239",
-        paddingLeft: "1rem",
-      }}
-    >
-      {error}
-    </div>
-  );
-};
-const AmountInput: React.FC<any> = ({
-  accountBalance,
-  accountAssets,
-  fantomPrice,
-  currency,
-  token,
-  setAmountToSend,
-  initial,
-  setTokenSelected,
-}) => {
-  const { color } = useContext(ThemeContext);
-  const [amount, setAmount] = useState(
-    initial ? weiToMaxUnit(initial.toString()).toString() : ""
-  );
-  const [value, setValue] = useState(null);
-  const [error, setError] = useState(null);
-  const isNative = token.symbol === "FTM";
-  const tokenBalanceInWei = isNative ? accountBalance : token.balanceOf;
-  const tokenBalance = weiToMaxUnit(tokenBalanceInWei, token.decimals);
-  const formattedBalance = toFormattedBalance(tokenBalance);
-  const formattedTotalValue = value && toFormattedBalance(value);
-
-  const handleChange = (value: string) => {
-    setError(null);
-    if (value && !Number(value)) {
-      if (value === "0") setAmount("0");
-      if (value === "0.") setAmount("0.");
-      return;
-    }
-
-    if (parseFloat(value) > tokenBalance) {
-      setError("Insufficient funds");
-      setAmount(value);
-      return setAmountToSend(BigNumber.from(0));
-    }
-    setAmount(value);
-    return setAmountToSend(unitToWei(value, token.decimals));
-  };
-  const handleSetMax = () => {
-    handleChange(weiToMaxUnit(tokenBalanceInWei, token.decimals).toString());
-  };
-
-  useEffect(() => {
-    if (!amount) {
-      return setValue(null);
-    }
-    setValue(parseFloat(amount) * fantomPrice);
-  }, [amount, fantomPrice]);
-
-  useEffect(() => {
-    setAmount("");
-    setValue(null);
-  }, [token]);
-
-  return (
-    <Column>
-      <Row style={{ position: "relative", justifyContent: "space-between" }}>
-        <Typo2 style={{ color: color.greys.grey() }}>Amount</Typo2>
-        <Row>
-          <img alt="" src={walletSymbol} />
-          <Spacer size="sm" />
-          <Typo2 style={{ color: color.greys.grey() }}>
-            {`${formattedBalance[0]}${
-              formattedBalance[1] !== ".00" ? formattedBalance[1] : ""
-            } ${token.symbol}`}
-          </Typo2>
-        </Row>
-      </Row>
-      <Spacer size="sm" />
-      <Row
-        style={{
-          backgroundColor: "#202F49",
-          borderRadius: "8px",
-          height: "64px",
-          alignItems: "center",
-        }}
-      >
-        <Spacer />
-        <StyledInput
-          type="text"
-          value={amount}
-          onChange={(event) => handleChange(event.target.value)}
-          placeholder="Enter an amount"
-        />
-
-        <Row style={{ flex: 1, alignItems: "center" }}>
-          {isNative && formattedTotalValue?.length ? (
-            <Typo2 style={{ flex: 4, color: color.greys.grey() }}>
-              ~
-              {`${toCurrencySymbol(currency)}${formattedTotalValue[0]}${
-                formattedTotalValue[1] !== ".00" ? formattedTotalValue[1] : ""
-              }`}
-            </Typo2>
-          ) : (
-            <div style={{ flex: 4 }} />
-          )}
-          <Spacer />
-          <Button
-            fontSize="14px"
-            color={color.greys.grey()}
-            padding="8px"
-            style={{ flex: 1 }}
-            variant="tertiary"
-            onClick={handleSetMax}
-          >
-            MAX
-          </Button>
-          <Spacer />
-          <TokenSelectButton
-            currentToken={token}
-            ftmBalance={accountBalance}
-            assets={accountAssets}
-            setTokenSelected={setTokenSelected}
-          />
-          <Spacer />
-        </Row>
-      </Row>
-      <Spacer size="sm" />
-      {error ? <ErrorLine error={error} /> : <Spacer size="lg" />}
-    </Column>
-  );
-};
-
-const StyledInput = styled.input`
-  flex: 1;
-  background-color: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-
-  :focus {
-    outline: none;
-  }
-`;
+import AmountInputRow from "./AmountInputRow";
+import InputError from "../../components/InputError";
 
 const CounterAddressBalance: React.FC<any> = ({ address, token }) => {
   const { color } = useContext(ThemeContext);
@@ -267,7 +118,7 @@ const AddressInput: React.FC<any> = ({
         }}
       >
         <Spacer />
-        <StyledInput
+        <Input
           type="text"
           value={value}
           onChange={(event) => {
@@ -278,7 +129,7 @@ const AddressInput: React.FC<any> = ({
         />
       </Row>
       <Spacer size="sm" />
-      {error ? <ErrorLine error={error} /> : <Spacer size="lg" />}
+      {error ? <InputError error={error} /> : <Spacer size="lg" />}
     </Column>
   );
 };
@@ -325,6 +176,18 @@ const SendTokensContent: React.FC<any> = ({
     : ["", ""];
 
   const isNative = tokenSelected.symbol === "FTM";
+  const resetStep2 = () => {
+    setReadyToSend(false);
+    setAcceptedRisk(false);
+    dispatchTx({ type: "reset" });
+    accountDataRefetch();
+  };
+  const resetState = () => {
+    setAmountToSend(null);
+    setReceiverAddress(null);
+    setIsValidTransaction(false);
+    resetStep2();
+  };
 
   useEffect(() => {
     if (amountToSend && amountToSend.gt(BigNumber.from(0)) && receiverAddress) {
@@ -336,13 +199,7 @@ const SendTokensContent: React.FC<any> = ({
   useEffect(() => {
     if (transaction.state === "completed") {
       setTimeout(() => {
-        setAmountToSend(null);
-        setReceiverAddress(null);
-        setIsValidTransaction(false);
-        setReadyToSend(false);
-        setAcceptedRisk(false);
-        dispatchTx({ type: "reset" });
-        accountDataRefetch();
+        resetState();
       }, 1000);
     }
   }, [transaction]);
@@ -361,14 +218,14 @@ const SendTokensContent: React.FC<any> = ({
             Send Tokens
           </div>
           <Spacer size="lg" />
-          <AmountInput
+          <AmountInputRow
             accountBalance={getAccountBalance(accountData)}
             accountAssets={getAccountAssets(assetsList)}
             fantomPrice={getTokenPrice(tokenPrice)}
             currency={currency}
             token={tokenSelected}
             setAmountToSend={setAmountToSend}
-            initial={amountToSend}
+            initialInputValue={amountToSend}
             setTokenSelected={setTokenSelected}
           />
           <Spacer size="lg" />
@@ -394,10 +251,7 @@ const SendTokensContent: React.FC<any> = ({
       ) : (
         <>
           <Row>
-            <OverlayButton
-              style={{ zIndex: 1 }}
-              onClick={() => setReadyToSend(false)}
-            >
+            <OverlayButton style={{ zIndex: 1 }} onClick={() => resetStep2()}>
               <img alt="" src={backArrowSymbol} />
             </OverlayButton>
             <Row
@@ -506,7 +360,7 @@ const SendTokensContent: React.FC<any> = ({
               <>
                 <Spacer size="sm" />
                 <Row style={{ justifyContent: "center" }}>
-                  <ErrorLine
+                  <InputError
                     fontSize="18px"
                     error={transaction.error.message}
                   />

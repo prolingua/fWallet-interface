@@ -25,13 +25,16 @@ export const unitToWei = (value: string, decimals = 18) => {
   if (!(parseFloat(value) > 0)) {
     return BigNumber.from(0);
   }
-  return parseFixed(value, decimals);
+  return parseFixed(
+    value.length > decimals ? value.substr(0, decimals) : value,
+    decimals
+  );
 };
 
 export const toFormattedBalance = (
   value: string | number,
   toFixed = 2
-): string[] => {
+): [string, string] => {
   const formatThousands = (value: number) => {
     let valueLeft = value;
     let formatted = "";

@@ -7,3 +7,5 @@ export interface Token {
   totalSupply?: string;
   balanceOf?: string;
 }
+
+export type FormattedValueType = [string, string];
