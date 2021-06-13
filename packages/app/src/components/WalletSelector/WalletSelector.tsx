@@ -19,12 +19,14 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const [warning, setWarning] = useState(null);
   const [requiredAccount, setRequiredAccount] = useState(null);
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
-    <InfoModal message={warning} />
+    <InfoModal message={warning} />,
+    "metamask-wrong-account-modal"
   );
   const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
     <InfoModal
       message={`Metamask: wrong network selected. Please change your network to Fantom Testnet`}
-    />
+    />,
+    "metamask-wrong-network-modal"
   );
 
   const switchToNewWeb3Provider = () => {
@@ -50,7 +52,8 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
           },
         });
       }}
-    />
+    />,
+    "metamask-unknown-account-modal"
   );
 
   useEffect(() => {
@@ -108,11 +111,12 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     ) {
       return onPresentWrongChainSelected();
     }
-    if (
-      walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
-    ) {
-      onDismissWrongChainSelected();
-    }
+    // TODO enable auto-close modal
+    // if (
+    //   walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
+    // ) {
+    //   onDismissWrongChainSelected();
+    // }
     if (warning) {
       onPresentWrongAccountModal();
       setWarning(null);

@@ -6,7 +6,6 @@ import {
   OverlayButton,
   Typo1,
   Typo2,
-  Typo3,
 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
@@ -31,14 +30,11 @@ import {
   weiToUnit,
 } from "../../utils/conversion";
 
-import ftmIcon from "../../assets/img/tokens/FTM.svg";
 import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
-import vShape from "../../assets/img/shapes/vShape.png";
 import { isValidAddress } from "../../utils/wallet";
 import { useQuery } from "@apollo/react-hooks";
 import { ERC20_ASSETS, GET_ACCOUNT_BALANCE } from "../../graphql/subgraph";
 import { BigNumber } from "@ethersproject/bignumber";
-import useNativeTransaction from "../../hooks/useFantomNative";
 import useFantomNative from "../../hooks/useFantomNative";
 import useTransaction from "../../hooks/useTransaction";
 import TokenSelectButton from "../../components/TokenSelectModal";
