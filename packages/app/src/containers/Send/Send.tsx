@@ -595,6 +595,7 @@ const Send: React.FC<any> = () => {
     activeAddress
   );
 
+  // TODO create HOC / hook for loading all required endpoints
   useFantomApi(
     FantomApiMethods.getAccountBalance,
     {
@@ -618,6 +619,7 @@ const Send: React.FC<any> = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       accountData && accountData.refetch && accountData.refetch();
+      assetsList && assetsList.refetch && assetsList.refetch();
     }, 1000);
 
     return () => clearInterval(interval);

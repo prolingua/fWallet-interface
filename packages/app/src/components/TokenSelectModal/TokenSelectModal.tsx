@@ -73,6 +73,7 @@ const TokenSelectModal: React.FC<any> = ({
           {allAssets.map((asset) => {
             return (
               <StyledOverlayButton
+                key={"token-select-" + asset.address}
                 onClick={() => {
                   setTokenSelected(asset);
                   onDismiss();
