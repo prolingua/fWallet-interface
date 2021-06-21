@@ -17,6 +17,7 @@ import InputError from "../../components/InputError";
 import InputCurrency from "../../components/InputCurrency";
 import FormattedValue from "../../components/FormattedBalance";
 import { getAccountAssetBalance } from "../../utils/account";
+import useWalletProvider from "../../hooks/useWalletProvider";
 
 const AmountInputRow: React.FC<any> = ({
   accountAssets,

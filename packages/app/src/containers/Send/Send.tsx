@@ -3,7 +3,6 @@ import {
   Button,
   ContentBox,
   Heading1,
-  Input,
   OverlayButton,
   Typo1,
   Typo2,
@@ -16,12 +15,7 @@ import useSettings from "../../hooks/useSettings";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 import styled, { ThemeContext } from "styled-components";
 import Row from "../../components/Row";
-import walletSymbol from "../../assets/img/symbols/wallet.svg";
-import {
-  getAccountAssetBalance,
-  getAccountAssets,
-  getAccountBalance,
-} from "../../utils/account";
+import { getAccountAssets, getAccountBalance } from "../../utils/account";
 import { FANTOM_NATIVE, getTokenPrice } from "../../utils/common";
 import {
   toCurrencySymbol,
@@ -31,117 +25,57 @@ import {
 } from "../../utils/conversion";
 
 import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
-import { isValidAddress } from "../../utils/wallet";
-import { useQuery } from "@apollo/client";
-import { ERC20_ASSETS, GET_ACCOUNT_BALANCE } from "../../graphql/subgraph";
 import { BigNumber } from "@ethersproject/bignumber";
 import useFantomNative from "../../hooks/useFantomNative";
 import useTransaction from "../../hooks/useTransaction";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import AmountInputRow from "./AmountInputRow";
 import InputError from "../../components/InputError";
+import InputAddress from "../../components/InputAddress";
 import FormattedValue from "../../components/FormattedBalance";
 
-const CounterAddressBalance: React.FC<any> = ({ address, token }) => {
-  const { color } = useContext(ThemeContext);
-  const isNative = token.symbol === "FTM";
-  const { loading, error, data } = useQuery(
-    isNative ? GET_ACCOUNT_BALANCE : ERC20_ASSETS,
-    { variables: isNative ? { address } : { owner: address } }
-  );
-  const balance =
-    data && isNative
-      ? getAccountBalance(data)
-      : getAccountAssetBalance(data, token.address);
-  const formattedBalance =
-    balance && toFormattedBalance(weiToUnit(balance, token.decimals));
-
-  return (
-    <Typo2 style={{ color: color.greys.grey() }}>
-      {formattedBalance && (
-        <FormattedValue
-          formattedValue={formattedBalance}
-          tokenSymbol={token.symbol}
-        />
-      )}
-    </Typo2>
-  );
-};
-const AddressInput: React.FC<any> = ({
+const Estimated: React.FC<any> = ({
+  currency,
   token,
-  setReceiverAddress,
-  initial,
+  tokenPrice,
+  gasPrice,
 }) => {
+  const { walletContext } = useWalletProvider();
+  const { estimateGas } = useFantomERC20();
   const { color } = useContext(ThemeContext);
-  const [value, setValue] = useState(initial || "");
-  const [error, setError] = useState(null);
-  const [validAddress, setValidAddress] = useState(null);
-  const onHandleBlur = (value: string) => {
-    if (!value.length) {
+  const [estimatedGas, setEstimatedGas] = useState(BigNumber.from(0));
+  const estimatedGasInUnits = weiToUnit(estimatedGas);
+  const formattedEstimatedGas = toFormattedBalance(estimatedGasInUnits, 18);
+
+  useEffect(() => {
+    const isNative = token.symbol === "FTM";
+    const mockAddress = "0x000000000000000000000000000000000000dead";
+    const mockAmount = "1000000000";
+
+    if (!tokenPrice || !gasPrice) {
       return;
     }
-    if (!isValidAddress(value)) {
-      setError("Invalid address");
-    }
-  };
-  const onHandleChange = (value: string) => {
-    setError(null);
-    setValidAddress(null);
-    setReceiverAddress(null);
-    setValue(value);
-    if ((value.length === 42 && !isValidAddress(value)) || value.length > 42) {
-      return setError("Invalid address");
-    }
-    if (value.length === 42 && isValidAddress(value)) {
-      setValidAddress(value);
-      setReceiverAddress(value);
-    }
-  };
 
-  return (
-    <Column>
-      <Row style={{ justifyContent: "space-between" }}>
-        <Typo2 style={{ color: color.greys.grey() }}>To</Typo2>
-        <Row>
-          <img src={walletSymbol} />
-          <Spacer size="xs" />
-          {validAddress ? (
-            <CounterAddressBalance address={validAddress} token={token} />
-          ) : (
-            <Typo2 style={{ color: color.greys.grey() }}>
-              {`0 ${token.symbol}`}
-            </Typo2>
-          )}
-        </Row>
-      </Row>
-      <Spacer size="xs" />
-      <Row
-        style={{
-          backgroundColor: "#202F49",
-          borderRadius: "8px",
-          height: "64px",
-          alignItems: "center",
-        }}
-      >
-        <Spacer />
-        <Input
-          type="text"
-          value={value}
-          onChange={(event) => {
-            onHandleChange(event.target.value);
-          }}
-          onBlur={(event) => onHandleBlur(event.target.value)}
-          placeholder="Input a Fantom Opera address"
-        />
-      </Row>
-      <Spacer size="xs" />
-      {error ? <InputError error={error} /> : <Spacer size="lg" />}
-    </Column>
-  );
-};
+    if (isNative) {
+      return walletContext.activeWallet.provider
+        .estimateGas({
+          to: mockAddress,
+          data: "0xd0e30db0",
+          value: mockAmount,
+        })
+        .then((result: any) =>
+          setEstimatedGas(result.mul(BigNumber.from(gasPrice.gasPrice)))
+        );
+    }
 
-const Estimated: React.FC<any> = ({ currency }) => {
-  const { color } = useContext(ThemeContext);
+    return estimateGas(token.address, "transfer", [
+      mockAddress,
+      mockAmount,
+    ]).then((result) =>
+      setEstimatedGas(result.mul(BigNumber.from(gasPrice.gasPrice)))
+    );
+  }, [currency, token]);
+
   return (
     <Row style={{ justifyContent: "center" }}>
       <Column
@@ -152,9 +86,37 @@ const Estimated: React.FC<any> = ({ currency }) => {
           padding: "1rem",
         }}
       >
-        <Typo2>Estimated Fees</Typo2>
+        <Row>
+          <Typo2
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>Estimated Fees </div>
+            <FormattedValue
+              formattedValue={formattedEstimatedGas}
+              tokenSymbol={"FTM"}
+            />
+          </Typo2>
+        </Row>
         <Spacer size="xs" />
-        <Typo2>Estimated Fees in {toCurrencySymbol(currency)}</Typo2>
+        <Row>
+          <Typo2
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>Estimated Fees in {toCurrencySymbol(currency)}</div>
+            <div>
+              {toCurrencySymbol(currency)}{" "}
+              {(estimatedGasInUnits * tokenPrice.price.price).toFixed(5)}
+            </div>
+          </Typo2>
+        </Row>
       </Column>
     </Row>
   );
@@ -165,6 +127,7 @@ const SendTokensContent: React.FC<any> = ({
   accountDataRefetch,
   assetsList,
   tokenPrice,
+  gasPrice,
   currency,
 }) => {
   const { color } = useContext(ThemeContext);
@@ -227,16 +190,16 @@ const SendTokensContent: React.FC<any> = ({
           <AmountInputRow
             accountBalance={getAccountBalance(accountData)}
             accountAssets={getAccountAssets(assetsList)}
-            fantomPrice={getTokenPrice(tokenPrice)}
             currency={currency}
-            token={tokenSelected}
-            setAmountToSend={setAmountToSend}
+            fantomPrice={getTokenPrice(tokenPrice)}
             initialInputValue={amountToSend}
+            setAmountToSend={setAmountToSend}
             setTokenSelected={setTokenSelected}
+            token={tokenSelected}
           />
           <Spacer size="lg" />
           <Spacer />
-          <AddressInput
+          <InputAddress
             token={tokenSelected}
             setReceiverAddress={setReceiverAddress}
             initial={receiverAddress}
@@ -382,7 +345,12 @@ const SendTokensContent: React.FC<any> = ({
           </Column>
         </>
       )}
-      <Estimated currency={currency} />
+      <Estimated
+        currency={currency}
+        token={tokenSelected}
+        tokenPrice={tokenPrice}
+        gasPrice={gasPrice}
+      />
     </Column>
   );
 };
@@ -416,6 +384,7 @@ const SendTokens: React.FC<any> = ({
   accountData,
   assetsList,
   tokenPrice,
+  gasPrice,
   currency,
 }) => {
   return (
@@ -428,6 +397,7 @@ const SendTokens: React.FC<any> = ({
           accountDataRefetch={accountData.refetch}
           assetsList={assetsList.data}
           tokenPrice={tokenPrice.data}
+          gasPrice={gasPrice.data}
           currency={currency}
         />
       )}
@@ -444,6 +414,7 @@ const Send: React.FC<any> = () => {
     : null;
 
   const tokenPrice = apiData[FantomApiMethods.getTokenPrice];
+  const gasPrice = apiData[FantomApiMethods.getGasPrice];
   const accountData = apiData[FantomApiMethods.getAccountBalance].get(
     activeAddress
   );
@@ -471,6 +442,7 @@ const Send: React.FC<any> = () => {
     activeAddress,
     1000
   );
+  useFantomApi(FantomApiMethods.getGasPrice, null);
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -492,6 +464,7 @@ const Send: React.FC<any> = () => {
         accountData={accountData}
         assetsList={assetsList}
         tokenPrice={tokenPrice}
+        gasPrice={gasPrice}
         currency={settings.currency}
       />
     </Column>

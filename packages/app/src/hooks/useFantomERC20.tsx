@@ -33,12 +33,32 @@ const useFantomERC20 = () => {
     );
   };
 
+  const estimateGas = async (
+    contractAddress: string,
+    method: string,
+    args: string[]
+  ) => {
+    const contract = await loadERC20Contract(
+      contractAddress,
+      walletContext.activeWallet.signer
+    );
+
+    return contract.estimateGas[method](...args);
+  };
+
   return {
     sendTokens: async (
       contractAddress: string,
       toAddress: string,
       amount: string
     ) => await sendTokens(contractAddress, toAddress, amount),
+    estimateGas: async (
+      contractAddress: string,
+      method: string,
+      args: string[]
+    ) => {
+      return estimateGas(contractAddress, method, args);
+    },
   };
 };
 
