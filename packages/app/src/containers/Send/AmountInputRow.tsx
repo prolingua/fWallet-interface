@@ -17,7 +17,6 @@ import InputError from "../../components/InputError";
 import InputCurrency from "../../components/InputCurrency";
 import FormattedValue from "../../components/FormattedBalance";
 import { getAccountAssetBalance } from "../../utils/account";
-import useWalletProvider from "../../hooks/useWalletProvider";
 
 const AmountInputRow: React.FC<any> = ({
   accountAssets,
@@ -32,7 +31,7 @@ const AmountInputRow: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [inputValue, setInputValue] = useState(
     initialInputValue
-      ? weiToMaxUnit(initialInputValue.toString()).toString()
+      ? weiToMaxUnit(initialInputValue.toString(), token.decimals).toString()
       : ""
   );
   const [fiatValue, setFiatValue] = useState(null);

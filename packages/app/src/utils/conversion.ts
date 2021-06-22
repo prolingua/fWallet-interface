@@ -25,6 +25,7 @@ export const unitToWei = (value: string, decimals = 18) => {
   if (!(parseFloat(value) > 0)) {
     return BigNumber.from(0);
   }
+
   return parseFixed(
     value.length > decimals ? value.substr(0, decimals) : value,
     decimals

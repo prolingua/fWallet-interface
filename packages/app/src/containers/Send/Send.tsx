@@ -21,7 +21,6 @@ import {
   toCurrencySymbol,
   toFormattedBalance,
   weiToMaxUnit,
-  weiToUnit,
 } from "../../utils/conversion";
 
 import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
@@ -32,99 +31,10 @@ import useFantomERC20 from "../../hooks/useFantomERC20";
 import AmountInputRow from "./AmountInputRow";
 import InputError from "../../components/InputError";
 import InputAddress from "../../components/InputAddress";
-import FormattedValue from "../../components/FormattedBalance";
-
-const Estimated: React.FC<any> = ({
-  currency,
-  token,
-  tokenPrice,
-  gasPrice,
-}) => {
-  const { walletContext } = useWalletProvider();
-  const { estimateGas } = useFantomERC20();
-  const { color } = useContext(ThemeContext);
-  const [estimatedGas, setEstimatedGas] = useState(BigNumber.from(0));
-  const estimatedGasInUnits = weiToUnit(estimatedGas);
-  const formattedEstimatedGas = toFormattedBalance(estimatedGasInUnits, 18);
-
-  useEffect(() => {
-    const isNative = token.symbol === "FTM";
-    const mockAddress = "0x000000000000000000000000000000000000dead";
-    const mockAmount = "1000000000";
-
-    if (!tokenPrice || !gasPrice) {
-      return;
-    }
-
-    if (isNative) {
-      return walletContext.activeWallet.provider
-        .estimateGas({
-          to: mockAddress,
-          data: "0xd0e30db0",
-          value: mockAmount,
-        })
-        .then((result: any) =>
-          setEstimatedGas(result.mul(BigNumber.from(gasPrice.gasPrice)))
-        );
-    }
-
-    return estimateGas(token.address, "transfer", [
-      mockAddress,
-      mockAmount,
-    ]).then((result) =>
-      setEstimatedGas(result.mul(BigNumber.from(gasPrice.gasPrice)))
-    );
-  }, [currency, token]);
-
-  return (
-    <Row style={{ justifyContent: "center" }}>
-      <Column
-        style={{
-          width: "60%",
-          backgroundColor: color.primary.black(),
-          borderRadius: "8px",
-          padding: "1rem",
-        }}
-      >
-        <Row>
-          <Typo2
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>Estimated Fees </div>
-            <FormattedValue
-              formattedValue={formattedEstimatedGas}
-              tokenSymbol={"FTM"}
-            />
-          </Typo2>
-        </Row>
-        <Spacer size="xs" />
-        <Row>
-          <Typo2
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>Estimated Fees in {toCurrencySymbol(currency)}</div>
-            <div>
-              {toCurrencySymbol(currency)}{" "}
-              {(estimatedGasInUnits * tokenPrice.price.price).toFixed(5)}
-            </div>
-          </Typo2>
-        </Row>
-      </Column>
-    </Row>
-  );
-};
+import EstimatedFees from "./EstimatedFees";
 
 const SendTokensContent: React.FC<any> = ({
   accountData,
-  accountDataRefetch,
   assetsList,
   tokenPrice,
   gasPrice,
@@ -145,16 +55,18 @@ const SendTokensContent: React.FC<any> = ({
     : ["", ""];
 
   const isNative = tokenSelected.symbol === "FTM";
+  const resetStep1 = () => {
+    setAmountToSend(null);
+    setReceiverAddress(null);
+    setIsValidTransaction(false);
+  };
   const resetStep2 = () => {
     setReadyToSend(false);
     setAcceptedRisk(false);
     dispatchTx({ type: "reset" });
-    accountDataRefetch();
   };
-  const resetState = () => {
-    setAmountToSend(null);
-    setReceiverAddress(null);
-    setIsValidTransaction(false);
+  const resetInitial = () => {
+    resetStep1();
     resetStep2();
   };
 
@@ -168,7 +80,7 @@ const SendTokensContent: React.FC<any> = ({
   useEffect(() => {
     if (transaction.state === "completed") {
       setTimeout(() => {
-        resetState();
+        resetInitial();
       }, 1000);
     }
   }, [transaction]);
@@ -253,10 +165,14 @@ const SendTokensContent: React.FC<any> = ({
                   style={{ color: color.primary.cyan() }}
                 >{`${formattedAmountToSend[0]}${formattedAmountToSend[1]} ${tokenSelected.symbol}`}</Heading1>
                 <Spacer size="xs" />
-                <Typo2>{`~${toCurrencySymbol(currency)}${(
-                  weiToMaxUnit(amountToSend, tokenSelected.decimals) *
-                  getTokenPrice(tokenPrice)
-                ).toFixed(2)}`}</Typo2>
+                {isNative ? (
+                  <Typo2>{`~${toCurrencySymbol(currency)}${(
+                    weiToMaxUnit(amountToSend, tokenSelected.decimals) *
+                    getTokenPrice(tokenPrice)
+                  ).toFixed(2)}`}</Typo2>
+                ) : (
+                  <Spacer />
+                )}
                 <Spacer size="lg" />
                 <Row style={{ alignItems: "center" }}>
                   <Typo2 style={{ display: "flex", marginTop: "auto" }}>
@@ -345,7 +261,7 @@ const SendTokensContent: React.FC<any> = ({
           </Column>
         </>
       )}
-      <Estimated
+      <EstimatedFees
         currency={currency}
         token={tokenSelected}
         tokenPrice={tokenPrice}
@@ -394,7 +310,6 @@ const SendTokens: React.FC<any> = ({
       ) : (
         <SendTokensContent
           accountData={accountData.data}
-          accountDataRefetch={accountData.refetch}
           assetsList={assetsList.data}
           tokenPrice={tokenPrice.data}
           gasPrice={gasPrice.data}
@@ -431,9 +346,6 @@ const Send: React.FC<any> = () => {
     activeAddress,
     1000
   );
-  useFantomApi(FantomApiMethods.getTokenPrice, {
-    to: settings.currency.toUpperCase(),
-  });
   useFantomApi(
     FantomApiMethods.getAssetsListForAccount,
     {
@@ -442,16 +354,10 @@ const Send: React.FC<any> = () => {
     activeAddress,
     1000
   );
+  useFantomApi(FantomApiMethods.getTokenPrice, {
+    to: settings.currency.toUpperCase(),
+  });
   useFantomApi(FantomApiMethods.getGasPrice, null);
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     accountData && accountData.refetch && accountData.refetch();
-  //     assetsList && assetsList.refetch && assetsList.refetch();
-  //   }, 1000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
 
   const isDoneLoading =
     activeAddress && accountData?.data && assetsList?.data && tokenPrice?.data;
