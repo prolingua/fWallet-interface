@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useAccount from "../../hooks/useAccount";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useModal from "../../hooks/useModal";
@@ -11,8 +11,10 @@ import vShape from "../../assets/img/shapes/vShape.png";
 import WalletSelectView from "./WalletSelectView";
 import WalletSelect from "./WalletSelect";
 import config from "../../config/config.test";
+import { Context } from "../../context/ModalProvider";
 
 const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
+  const modalContext = useContext(Context);
   const { account, dispatchAccount } = useAccount();
   const { dispatchWalletContext } = useWalletProvider();
   const [closeDropDown, setCloseDropDown] = useState(false);
@@ -88,7 +90,8 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
       // Switch to existing wallet
       return switchToNewWeb3Provider();
     }
-  }, [walletContext, requiredAccount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletContext, requiredAccount, modalContext.isOpen]);
 
   const handleClose = () => {
     setCloseDropDown(true);
@@ -111,24 +114,30 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     ) {
       return onPresentWrongChainSelected();
     }
-    // TODO enable auto-close modal
-    // if (
-    //   walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
-    // ) {
-    //   onDismissWrongChainSelected();
-    // }
+    if (
+      walletContext.web3ProviderState.chainSelected ===
+        parseInt(config.chainId) &&
+      modalContext.modalKey === "metamask-wrong-network-modal"
+    ) {
+      onDismissWrongChainSelected();
+    }
     if (warning) {
       onPresentWrongAccountModal();
       setWarning(null);
     }
-  }, [warning, requiredAccount, walletContext.web3ProviderState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [warning, requiredAccount, walletContext.web3ProviderState, modalContext]);
 
   // Close warning modal if requirements are met
   useEffect(() => {
-    if (isSameAddress(requiredAccount, walletContext.activeWallet.address)) {
+    if (
+      isSameAddress(requiredAccount, walletContext.activeWallet.address) &&
+      modalContext.modalKey === "metamask-wrong-account-modal"
+    ) {
       onDismissWrongAccountModal();
     }
-  }, [requiredAccount, walletContext.activeWallet.address]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requiredAccount, walletContext.activeWallet.address, modalContext]);
 
   return (
     <DropDownButton

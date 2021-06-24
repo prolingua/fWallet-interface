@@ -6,10 +6,6 @@ const useWalletProvider = () => {
     ActiveWalletContext
   );
 
-  const sendTransaction = () => {
-    walletContext.activeWallet.signer.sendTransaction();
-  };
-
   return { walletContext, dispatchWalletContext };
 };
 

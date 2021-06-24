@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { isSameAddress } from "../../utils/wallet";
 import {
-  formatHexToBN,
   formatHexToInt,
   hexToUnit,
   millisecondsToTimeUnit,

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { Button } from "../../components";
 import { send } from "../../utils/transactions";
@@ -12,8 +12,8 @@ import { parseEther } from "@ethersproject/units";
 import { Signer } from "@ethersproject/abstract-signer";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 import useFantomApiData from "../../hooks/useFantomApiData";
-import { useQuery } from "@apollo/client";
-import { GET_TOKEN_PRICE } from "../../graphql/subgraph";
+// import { useQuery } from "@apollo/client";
+// import { GET_TOKEN_PRICE } from "../../graphql/subgraph";
 
 const getNativeBalance = async (provider: Provider, account: string) => {
   const balance = await provider.getBalance(account);

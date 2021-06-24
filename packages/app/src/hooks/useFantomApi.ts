@@ -91,6 +91,7 @@ const useFantomApi = (
         method: request,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, error, data, request, walletContext.activeWallet.address]);
 };
 

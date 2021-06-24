@@ -1,4 +1,4 @@
-import { formatHexToBN, formatHexToInt } from "./conversion";
+import { formatHexToBN } from "./conversion";
 import { Token } from "../shared/types";
 
 export interface Account {

@@ -55,6 +55,7 @@ const EstimatedFees: React.FC<any> = ({
     ]).then((result) =>
       setEstimatedGas(result.mul(BigNumber.from(gasPrice.gasPrice)))
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency, token]);
 
   return (

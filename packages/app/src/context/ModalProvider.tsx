@@ -4,6 +4,7 @@ import styled from "styled-components";
 interface ModalsContext {
   content?: React.ReactNode;
   isOpen?: boolean;
+  modalKey?: string;
   onPresent: (content: React.ReactNode, key?: string) => void;
   onDismiss: () => void;
 }
@@ -30,6 +31,7 @@ const ModalProvider: React.FC = ({ children }) => {
   const handleDismiss = useCallback(() => {
     setContent(undefined);
     setIsOpen(false);
+    setModalKey(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setContent, setIsOpen, modalKey]);
 
@@ -38,6 +40,7 @@ const ModalProvider: React.FC = ({ children }) => {
       value={{
         content,
         isOpen,
+        modalKey,
         onPresent: handlePresent,
         onDismiss: handleDismiss,
       }}

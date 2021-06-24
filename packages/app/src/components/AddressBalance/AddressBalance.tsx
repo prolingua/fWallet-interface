@@ -10,10 +10,9 @@ import FormattedValue from "../FormattedBalance";
 const AddressBalance: React.FC<any> = ({ address, token }) => {
   const { color } = useContext(ThemeContext);
   const isNative = token.symbol === "FTM";
-  const { loading, error, data } = useQuery(
-    isNative ? GET_ACCOUNT_BALANCE : ERC20_ASSETS,
-    { variables: isNative ? { address } : { owner: address } }
-  );
+  const { data } = useQuery(isNative ? GET_ACCOUNT_BALANCE : ERC20_ASSETS, {
+    variables: isNative ? { address } : { owner: address },
+  });
   const balance =
     data && isNative
       ? getAccountBalance(data)

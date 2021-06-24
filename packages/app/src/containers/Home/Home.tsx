@@ -73,6 +73,7 @@ const Home: React.FC<any> = () => {
         address: activeAddress,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAddress]);
 
   const isDoneLoadingBalance =

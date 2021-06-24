@@ -1,4 +1,4 @@
-import { formatHexToBN, formatHexToInt } from "./conversion";
+import { formatHexToBN } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export interface Delegations {

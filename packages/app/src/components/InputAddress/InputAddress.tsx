@@ -53,7 +53,7 @@ const InputAddress: React.FC<any> = ({
       <Row style={{ justifyContent: "space-between" }}>
         <Typo2 style={{ color: color.greys.grey() }}>To</Typo2>
         <Row>
-          <img src={walletSymbol} />
+          <img alt="" src={walletSymbol} />
           <Spacer size="xs" />
           {validAddress ? (
             <AddressBalance address={validAddress} token={token} />

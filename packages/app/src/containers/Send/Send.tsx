@@ -83,6 +83,7 @@ const SendTokensContent: React.FC<any> = ({
         resetInitial();
       }, 1000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction]);
 
   return (

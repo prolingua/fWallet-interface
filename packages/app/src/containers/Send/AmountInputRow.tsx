@@ -65,6 +65,7 @@ const AmountInputRow: React.FC<any> = ({
     setAmountToSend(
       error ? BigNumber.from(0) : unitToWei(inputValue, token.decimals)
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue, fantomPrice, error]);
 
   return (
