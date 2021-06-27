@@ -126,7 +126,12 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
       setWarning(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [warning, requiredAccount, walletContext.web3ProviderState, modalContext]);
+  }, [
+    warning,
+    requiredAccount,
+    walletContext.web3ProviderState,
+    modalContext.isOpen,
+  ]);
 
   // Close warning modal if requirements are met
   useEffect(() => {
@@ -137,7 +142,11 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
       onDismissWrongAccountModal();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requiredAccount, walletContext.activeWallet.address, modalContext]);
+  }, [
+    requiredAccount,
+    walletContext.activeWallet.address,
+    modalContext.isOpen,
+  ]);
 
   return (
     <DropDownButton
