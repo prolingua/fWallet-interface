@@ -3,11 +3,12 @@ import { ThemeContext } from "styled-components";
 import { Typo1 } from "../index";
 import Spacer from "../Spacer";
 import Row from "../Row";
+import Column from "../Column";
 
 const StatPair: React.FC<any> = ({ title, value1, value2, suffix }) => {
   const { color } = useContext(ThemeContext);
   return (
-    <>
+    <Column>
       <Typo1 style={{ fontWeight: "bold", color: color.greys.grey() }}>
         {title}
       </Typo1>
@@ -35,7 +36,7 @@ const StatPair: React.FC<any> = ({ title, value1, value2, suffix }) => {
           {suffix}
         </div>
       </Row>
-    </>
+    </Column>
   );
 };
 

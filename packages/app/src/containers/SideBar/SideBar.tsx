@@ -13,8 +13,8 @@ import stakingSymbolImg from "../../assets/img/symbols/Staking.svg";
 import stakingActiveSymbolImg from "../../assets/img/symbols/Staking_active.svg";
 // import defiSymbolImg from "../../assets/img/symbols/DeFi.svg";
 // import defiActiveSymbolImg from "../../assets/img/symbols/DeFi_active.svg";
-// import governanceSymbolImg from "../../assets/img/symbols/Governance.svg";
-// import governanceActiveSymbolImg from "../../assets/img/symbols/Governance_active.svg";
+import governanceSymbolImg from "../../assets/img/symbols/Governance.svg";
+import governanceActiveSymbolImg from "../../assets/img/symbols/Governance_active.svg";
 
 const SideBarLink: React.FC<any> = ({
   img,
@@ -88,19 +88,19 @@ const SideBar: React.FC<any> = () => {
       <SideBarLink
         img={stakingSymbolImg}
         activeImg={stakingActiveSymbolImg}
+        name="Staking"
+        path="/staking"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={governanceSymbolImg}
+        activeImg={governanceActiveSymbolImg}
         name="Test"
         path="/test"
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
-      {/*<SideBarLink*/}
-      {/*  img={stakingSymbolImg}*/}
-      {/*  activeImg={stakingActiveSymbolImg}*/}
-      {/*  name="Staking"*/}
-      {/*  path="/staking"*/}
-      {/*  currentPath={currentPath}*/}
-      {/*  setCurrentPath={setCurrentPath}*/}
-      {/*/>*/}
       {/*<SideBarLink*/}
       {/*  img={defiSymbolImg}*/}
       {/*  activeImg={defiActiveSymbolImg}*/}

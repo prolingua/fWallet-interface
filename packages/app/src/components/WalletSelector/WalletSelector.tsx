@@ -21,7 +21,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const [warning, setWarning] = useState(null);
   const [requiredAccount, setRequiredAccount] = useState(null);
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
-    <InfoModal message={warning} withCloseButton={false} />,
+    <InfoModal message={warning} withCloseButton={true} />,
     "metamask-wrong-account-modal",
     true
   );

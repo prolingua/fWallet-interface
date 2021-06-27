@@ -18,6 +18,7 @@ import SideBar from "./containers/SideBar/SideBar";
 import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
 import Send from "./containers/Send";
+import Staking from "./containers/Staking";
 import { Body, Heading1, Heading3 } from "./components";
 import Column from "./components/Column";
 import Spacer from "./components/Spacer";
@@ -25,6 +26,7 @@ import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 
 const HomeWithWallet = withConnectedWallet(Home);
 const SendWithWallet = withConnectedWallet(Send);
+const StakingWithWallet = withConnectedWallet(Staking);
 
 function App() {
   const resolutionType = useDetectResolutionType();
@@ -69,8 +71,8 @@ function App() {
                   <Route path="/otherRoute" component={Test} />
                   <Route path="/home" component={HomeWithWallet} />
                   <Route path="/send" component={SendWithWallet} />
+                  <Route path="/staking" component={StakingWithWallet} />
                   <Route path="/test" component={Test} />
-                  <Route path="/staking" component={Test} />
                   <Route path="/defi" component={Test} />
                   <Route path="/governance" component={Test} />
                   <Route path="/" exact component={Test} />
