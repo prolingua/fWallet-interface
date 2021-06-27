@@ -41,7 +41,9 @@ const WalletSelect: React.FC<any> = ({
         wallet.address.toLowerCase() !==
         window.ethereum.selectedAddress.toLowerCase()
       ) {
-        setWarning(`Please select account ${wallet.address} in metamask`);
+        setWarning(
+          `Please select account ${wallet.address} in metamask to continue`
+        );
         setRequiredAccount(wallet.address);
         return;
       }

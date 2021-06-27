@@ -5,7 +5,7 @@ interface ModalsContext {
   content?: React.ReactNode;
   isOpen?: boolean;
   modalKey?: string;
-  onPresent: (content: React.ReactNode, key?: string) => void;
+  onPresent: (content: React.ReactNode, persist: boolean, key?: string) => void;
   onDismiss: () => void;
 }
 
@@ -18,12 +18,14 @@ const ModalProvider: React.FC = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState<React.ReactNode>();
   const [modalKey, setModalKey] = useState<string>();
+  const [persist, setPersist] = useState(false);
 
   const handlePresent = useCallback(
-    (modalContent: React.ReactNode, key?: string) => {
+    (modalContent: React.ReactNode, persist: boolean, key?: string) => {
       setModalKey(key);
       setContent(modalContent);
       setIsOpen(true);
+      setPersist(persist);
     },
     [setContent, setIsOpen, setModalKey]
   );
@@ -48,7 +50,9 @@ const ModalProvider: React.FC = ({ children }) => {
       {children}
       {isOpen && (
         <StyledModalWrapper>
-          <StyledModalBackdrop onClick={handleDismiss} />
+          <StyledModalBackdrop
+            onClick={!persist ? handleDismiss : () => null}
+          />
           {React.isValidElement(content) &&
             React.cloneElement(content, {
               onDismiss: handleDismiss,

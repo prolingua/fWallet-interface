@@ -21,14 +21,17 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const [warning, setWarning] = useState(null);
   const [requiredAccount, setRequiredAccount] = useState(null);
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
-    <InfoModal message={warning} />,
-    "metamask-wrong-account-modal"
+    <InfoModal message={warning} withCloseButton={false} />,
+    "metamask-wrong-account-modal",
+    true
   );
   const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
     <InfoModal
-      message={`Metamask: wrong network selected. Please change your network to Fantom Testnet`}
+      message={`Metamask: wrong network selected. Please change your network to Fantom Testnet to continue`}
+      withCloseButton={false}
     />,
-    "metamask-wrong-network-modal"
+    "metamask-wrong-network-modal",
+    true
   );
 
   const switchToNewWeb3Provider = () => {
@@ -41,9 +44,16 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     });
   };
 
-  const [onPresentUnknownAccountModal] = useModal(
+  const [onPresentUnknownAccountModal, onDismissUnknownAccountModal] = useModal(
     <InfoModal
-      message={`Unknown metamask account selected, do you want to add ${walletContext.web3ProviderState.accountSelected}`}
+      message={
+        <div>
+          Unknown metamask account selected, do you want to add{" "}
+          {walletContext.web3ProviderState.accountSelected}? <br />
+          <br /> If not, select currently active account{" "}
+          {walletContext.activeWallet.address} <br /> in metamask to continue.
+        </div>
+      }
       handleButton={() => {
         switchToNewWeb3Provider();
         dispatchAccount({
@@ -54,8 +64,10 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
           },
         });
       }}
+      withCloseButton={false}
     />,
-    "metamask-unknown-account-modal"
+    "metamask-unknown-account-modal",
+    true
   );
 
   useEffect(() => {
@@ -141,10 +153,21 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     ) {
       onDismissWrongAccountModal();
     }
+    if (
+      isSameAddress(
+        walletContext.activeWallet.address,
+        walletContext.web3ProviderState.accountSelected
+      ) &&
+      modalContext.modalKey === "metamask-unknown-account-modal"
+    ) {
+      onDismissUnknownAccountModal();
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requiredAccount,
     walletContext.activeWallet.address,
+    walletContext.web3ProviderState.accountSelected,
     modalContext.isOpen,
   ]);
 

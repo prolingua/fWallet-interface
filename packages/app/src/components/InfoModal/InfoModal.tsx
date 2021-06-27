@@ -5,7 +5,12 @@ import ModalTitle from "../ModalTitle";
 import { Button, Typo1 } from "../index";
 import ModalActions from "../ModalActions";
 
-const InfoModal: React.FC<any> = ({ message, handleButton, onDismiss }) => {
+const InfoModal: React.FC<any> = ({
+  message,
+  handleButton,
+  withCloseButton = true,
+  onDismiss,
+}) => {
   return (
     <Modal>
       <ModalTitle text="Warning" />
@@ -24,9 +29,11 @@ const InfoModal: React.FC<any> = ({ message, handleButton, onDismiss }) => {
             ADD
           </Button>
         )}
-        <Button onClick={() => onDismiss()} variant="secondary">
-          CLOSE
-        </Button>
+        {withCloseButton && (
+          <Button onClick={() => onDismiss()} variant="secondary">
+            CLOSE
+          </Button>
+        )}
       </ModalActions>
     </Modal>
   );

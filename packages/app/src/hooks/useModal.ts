@@ -1,11 +1,11 @@
 import React, { useCallback, useContext } from "react";
 import { Context } from "../context/ModalProvider";
 
-const useModal = (modal: React.ReactNode, key?: string) => {
+const useModal = (modal: React.ReactNode, key?: string, persist = false) => {
   const { onDismiss, onPresent } = useContext(Context);
 
   const handlePresent = useCallback(() => {
-    onPresent(modal, key);
+    onPresent(modal, persist, key);
   }, [key, modal, onPresent]);
 
   return [handlePresent, onDismiss];
