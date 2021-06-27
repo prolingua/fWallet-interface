@@ -17,12 +17,12 @@ export const TransactionProvider: React.FC = ({ children }) => {
         };
       case "transactionCompleted":
         return {
-          ...state.transaction,
+          ...state,
           state: "completed",
         };
       case "transactionError":
         return {
-          ...state.transaction,
+          ...state,
           error: action.error,
           state: "failed",
         };

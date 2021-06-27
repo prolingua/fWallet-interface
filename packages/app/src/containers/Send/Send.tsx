@@ -32,6 +32,8 @@ import AmountInputRow from "./AmountInputRow";
 import InputError from "../../components/InputError";
 import InputAddress from "../../components/InputAddress";
 import EstimatedFees from "./EstimatedFees";
+import useModal from "../../hooks/useModal";
+import InfoModal from "../../components/InfoModal";
 
 const SendTokensContent: React.FC<any> = ({
   accountData,
@@ -77,8 +79,20 @@ const SendTokensContent: React.FC<any> = ({
     return setIsValidTransaction(false);
   }, [amountToSend, receiverAddress]);
 
+  const [onPresentTransactionModal] = useModal(
+    <InfoModal
+      message={
+        <div>
+          <div>Transaction {transaction.state}</div>
+          <div>TransactionId {transaction.id}</div>
+        </div>
+      }
+    />
+  );
+
   useEffect(() => {
     if (transaction.state === "completed") {
+      onPresentTransactionModal();
       setTimeout(() => {
         resetInitial();
       }, 1000);
