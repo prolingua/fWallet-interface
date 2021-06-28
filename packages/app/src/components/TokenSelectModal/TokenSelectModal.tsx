@@ -8,7 +8,7 @@ import CrossSymbol from "../../assets/img/symbols/Cross.svg";
 import { FANTOM_NATIVE } from "../../utils/common";
 import Column from "../Column";
 import styled, { ThemeContext } from "styled-components";
-import { TokenBalanceLine } from "../../containers/Home/Tokens";
+import TokenBalance from "../TokenBalance";
 
 const TokenSelectModal: React.FC<any> = ({
   onDismiss,
@@ -80,7 +80,7 @@ const TokenSelectModal: React.FC<any> = ({
                 }}
                 style={{ padding: ".8rem 2rem" }}
               >
-                <TokenBalanceLine token={asset} imageSize="24px" />
+                <TokenBalance token={asset} imageSize="24px" />
               </StyledOverlayButton>
             );
           })}

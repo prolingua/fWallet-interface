@@ -5,13 +5,23 @@ import Spacer from "../Spacer";
 import Row from "../Row";
 import Column from "../Column";
 
-const StatPair: React.FC<any> = ({ title, value1, value2, suffix }) => {
+const StatPair: React.FC<any> = ({
+  title,
+  value1,
+  value2,
+  suffix,
+  spacer = "xxs",
+  titleColor,
+}) => {
   const { color } = useContext(ThemeContext);
   return (
     <Column>
-      <Typo1 style={{ fontWeight: "bold", color: color.greys.grey() }}>
+      <Typo1
+        style={{ fontWeight: "bold", color: titleColor || color.greys.grey() }}
+      >
         {title}
       </Typo1>
+      <Spacer size={spacer} />
       <Row style={{ alignItems: "flex-end" }}>
         <div style={{ fontSize: "24px", fontWeight: "bold" }}>{value1}</div>
         <div

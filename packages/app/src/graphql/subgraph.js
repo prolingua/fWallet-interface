@@ -90,10 +90,30 @@ export const DELEGATIONS_BY_ADDRESS = gql`
           toStakerId
           amountDelegated
           outstandingSFTM
+          createdTime
+          amount
+          isDelegationLocked
+          lockedFromEpoch
+          lockedUntil
           pendingRewards {
             amount
           }
         }
+      }
+    }
+  }
+`;
+
+export const GET_DELEGATIONS = gql`
+  query Stakers {
+    stakers {
+      id
+      stakerAddress
+      stakerInfo {
+        name
+        website
+        contact
+        logoUrl
       }
     }
   }
@@ -139,3 +159,38 @@ export const ERC20_ASSETS = gql`
     }
   }
 `;
+
+// export const DELEGATION_BY_ADDRESS = gql`
+//   query DelegationsByAddress(
+//     $address: Address!
+//     $cursor: Cursor
+//     $count: Int!
+//   ) {
+//     delegationsByAddress(address: $address, cursor: $cursor, count: $count) {
+//       pageInfo {
+//         first
+//         last
+//         hasNext
+//         hasPrevious
+//       }
+//       totalCount
+//       edges {
+//         cursor
+//         delegation {
+//           toStakerId
+//           createdEpoch
+//           createdTime
+//           deactivatedEpoch
+//           deactivatedTime
+//           amount
+//           isDelegationLocked
+//           lockedFromEpoch
+//           lockedUntil
+//           pendingRewards {
+//             amount
+//           }
+//         }
+//       }
+//     }
+//   }
+// `;

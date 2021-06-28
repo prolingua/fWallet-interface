@@ -7,6 +7,7 @@ const initial: any = {
   getGasPrice: null,
   getFMintForAccount: new Map([]),
   getDelegationsForAccount: new Map([]),
+  getDelegations: null,
   getTokenListForAccount: new Map([]),
   getAssetsListForAccount: new Map([]),
 };

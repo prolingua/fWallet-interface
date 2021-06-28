@@ -2,18 +2,36 @@ import { formatHexToBN } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export interface Delegations {
-  delegationsByAddress: {
-    totalCount: string;
-    edges: Delegation[];
-  };
+  stakers: Delegation[];
 }
 
 export interface Delegation {
+  id: string;
+  address: string;
+  stakerInfo?: {
+    name?: string;
+    website?: string;
+    contact?: string;
+    logoUrl?: string;
+  };
+}
+
+export interface AccountDelegations {
+  delegationsByAddress: {
+    totalCount: string;
+    edges: AccountDelegation[];
+  };
+}
+
+export interface AccountDelegation {
   amountDelegated: string;
   outstandingSFTM: string;
   pendingRewards: {
     amount: string;
   };
+  isDelegationLocked: boolean;
+  lockedUntil: string;
+  toStakerId: string;
 }
 
 export interface AccountDelegationSummary {
@@ -22,8 +40,26 @@ export interface AccountDelegationSummary {
   totalMintedSFTM: BigNumber;
 }
 
+export const getDelegations = (delegations: Delegations): Delegation[] => {
+  if (!delegations || !delegations.stakers) {
+    return null;
+  }
+
+  return delegations.stakers;
+};
+
+export const getAccountDelegations = (
+  delegations: AccountDelegations
+): AccountDelegation[] => {
+  if (!delegations || !delegations.delegationsByAddress) {
+    return;
+  }
+
+  return delegations.delegationsByAddress.edges;
+};
+
 export const getAccountDelegationSummary = (
-  delegations: Delegations
+  delegations: AccountDelegations
 ): AccountDelegationSummary => {
   const initial = {
     totalStaked: BigNumber.from(0),

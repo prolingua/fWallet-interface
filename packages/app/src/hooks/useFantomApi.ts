@@ -7,6 +7,7 @@ import {
   GET_GAS_PRICE,
   GET_TOKEN_PRICE,
   GET_ACCOUNT_BALANCE,
+  GET_DELEGATIONS,
 } from "../graphql/subgraph";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
@@ -22,6 +23,7 @@ export enum FantomApiMethods {
   getDelegationsForAccount = "getDelegationsForAccount",
   getTokenListForAccount = "getTokenListForAccount",
   getAssetsListForAccount = "getAssetsListForAccount",
+  getDelegations = "getDelegations",
 }
 const methods: { [key in FantomApiMethods]: any } = {
   [FantomApiMethods.getAccountBalance]: GET_ACCOUNT_BALANCE,
@@ -29,6 +31,7 @@ const methods: { [key in FantomApiMethods]: any } = {
   [FantomApiMethods.getTokenPrice]: GET_TOKEN_PRICE,
   [FantomApiMethods.getGasPrice]: GET_GAS_PRICE,
   [FantomApiMethods.getDelegationsForAccount]: DELEGATIONS_BY_ADDRESS,
+  [FantomApiMethods.getDelegations]: GET_DELEGATIONS,
   [FantomApiMethods.getFMintForAccount]: FMINT_ACCOUNT_BY_ADDRESS,
   [FantomApiMethods.getTokenListForAccount]: ERC20_TOKEN_LIST_AND_BALANCE,
   [FantomApiMethods.getAssetsListForAccount]: ERC20_ASSETS,
