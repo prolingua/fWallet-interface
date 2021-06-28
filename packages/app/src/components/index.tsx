@@ -114,10 +114,15 @@ export const Button = styled.button<{
   text-align: center;
   text-decoration: none;
   padding: ${(props) => (props.padding ? props.padding : "12px 24px")};
+  transition: 0.2s all;
 
   ${(props) => props.hidden && "hidden"} :focus {
     border: ${(props) => props.variant === "primary" && "none"};
     outline: none;
+  }
+
+  :active {
+    transform: scale(0.98);
   }
 `;
 
