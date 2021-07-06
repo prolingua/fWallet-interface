@@ -14,7 +14,7 @@ export const useKeyStoreWallet = () => {
       const provider = new JsonRpcProvider(config.rpc);
       const wallet = new Wallet(pkey, provider);
       const walletProvider: any = {
-        contracts: loadContracts(wallet),
+        contracts: loadContracts(wallet, parseInt(config.chainId)),
         chainId: parseInt(config.chainId),
         address: wallet.address,
         provider: wallet.provider,

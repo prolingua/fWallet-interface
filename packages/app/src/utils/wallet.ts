@@ -4,7 +4,8 @@ import { Signer } from "@ethersproject/abstract-signer";
 import { Contract } from "@ethersproject/contracts";
 
 // @ts-ignore
-import { abis } from "@f-wallet/contracts";
+import { addresses, abis } from "@f-wallet/contracts";
+import config from "../config/config.test";
 
 export const isValidAddress = (address: string): boolean => {
   return isAddress(address);
@@ -33,7 +34,7 @@ export const createWalletContext = async (provider: Web3Provider) => {
   const { chainId } = await provider.getNetwork();
   const accounts = await provider.listAccounts();
   const signer = provider.getSigner();
-  const contracts = loadContracts(signer);
+  const contracts = await loadContracts(signer, chainId);
 
   return {
     contracts,
@@ -44,20 +45,17 @@ export const createWalletContext = async (provider: Web3Provider) => {
   };
 };
 
-export const loadContracts = async (signer: Signer) => {
+export const loadContracts = async (signer: Signer, chainId: number) => {
   if (!signer) {
     return;
   }
 
+  if (chainId !== parseInt(config.chainId)) {
+    return;
+  }
+
   return new Map([
-    // [
-    //   "PPDEX",
-    //   new Contract(
-    //     addresses[chainId].tokens["PPDEX"],
-    //     abis.ppdex,
-    //     signer
-    //   ),
-    // ],
+    ["sfc", new Contract(addresses[chainId]["sfc"], abis.sfc, signer)],
   ]);
 };
 
