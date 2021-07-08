@@ -9,6 +9,8 @@ import { FANTOM_NATIVE } from "../../utils/common";
 import Column from "../Column";
 import styled, { ThemeContext } from "styled-components";
 import TokenBalance from "../TokenBalance";
+import ModalTitle from "../ModalTitle";
+import ModalContent from "../ModalContent";
 
 const TokenSelectModal: React.FC<any> = ({
   onDismiss,
@@ -20,55 +22,53 @@ const TokenSelectModal: React.FC<any> = ({
   const allAssets = [{ ...FANTOM_NATIVE, balanceOf: ftmBalance }, ...assets];
 
   return (
-    <Modal style={{ padding: "0" }}>
-      <Column>
-        <Row style={{ padding: "2rem 2rem 1rem 2rem" }}>
-          <Heading2>Select token</Heading2>
-          <Spacer size="lg" />
-          <Spacer size="lg" />
-          <Spacer size="lg" />
-          <Spacer size="lg" />
-          <Spacer size="lg" />
-          <OverlayButton onClick={() => onDismiss()}>
-            <img
-              alt=""
-              src={CrossSymbol}
-              style={{ width: "1rem", height: "1rem" }}
-            />
-          </OverlayButton>
-        </Row>
-        <Row
+    <Modal style={{ padding: "20px 24px" }} onDismiss={onDismiss}>
+      <ModalTitle text="Select token" />
+      <Row
+        style={{
+          padding: "0 2rem",
+          borderBottom: `1px solid ${color.greys.grey(".5")}`,
+          boxSizing: "border-box",
+          width: "95%",
+        }}
+      >
+        <Typo1
           style={{
-            padding: "0 2rem",
-            borderBottom: `1px solid ${color.greys.grey(".5")}`,
+            borderBottom: `2px solid ${color.primary.fantomBlue()}`,
             boxSizing: "border-box",
+            fontWeight: "bold",
+            color: color.greys.grey(".8"),
           }}
         >
-          <Typo1
-            style={{
-              borderBottom: `2px solid ${color.primary.fantomBlue()}`,
-              boxSizing: "border-box",
-              fontWeight: "bold",
-              color: color.greys.grey(".8"),
-            }}
-          >
-            Your Tokens
-          </Typo1>
-        </Row>
-        <Column
-          style={{
-            paddingBottom: "1.5rem",
-            backgroundColor: color.secondary.navy(),
-          }}
-        >
+          Your Tokens
+        </Typo1>
+      </Row>
+      <ModalContent style={{ padding: "16px 0px" }}>
+        <Column>
           <Row
             style={{
-              padding: "1.5rem 2rem 1rem 2rem",
               justifyContent: "space-between",
+              padding: "0 1rem .5rem 1rem",
             }}
           >
-            <Typo3>TOKEN NAME</Typo3>
-            <Typo3>BALANCE</Typo3>
+            <Typo3
+              style={{
+                textAlign: "left",
+                width: "8rem",
+                color: color.greys.grey(),
+              }}
+            >
+              TOKEN NAME
+            </Typo3>
+            <Typo3
+              style={{
+                textAlign: "right",
+                width: "8rem",
+                color: color.greys.grey(),
+              }}
+            >
+              BALANCE
+            </Typo3>
           </Row>
           {allAssets.map((asset) => {
             return (
@@ -78,14 +78,14 @@ const TokenSelectModal: React.FC<any> = ({
                   setTokenSelected(asset);
                   onDismiss();
                 }}
-                style={{ padding: ".8rem 2rem" }}
+                style={{ padding: ".8rem" }}
               >
                 <TokenBalance token={asset} imageSize="24px" />
               </StyledOverlayButton>
             );
           })}
         </Column>
-      </Column>
+      </ModalContent>
     </Modal>
   );
 };
