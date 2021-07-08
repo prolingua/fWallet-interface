@@ -20,7 +20,7 @@ const TokenSelectModal: React.FC<any> = ({
   const allAssets = [{ ...FANTOM_NATIVE, balanceOf: ftmBalance }, ...assets];
 
   return (
-    <Modal padding={"0"}>
+    <Modal style={{ padding: "0" }}>
       <Column>
         <Row style={{ padding: "2rem 2rem 1rem 2rem" }}>
           <Heading2>Select token</Heading2>

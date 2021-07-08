@@ -1,8 +1,16 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Row, { ResponsiveRow } from "../../components/Row/Row";
 import { ThemeContext } from "styled-components";
 import Column from "../../components/Column";
-import { Button, ContentBox, Heading1, Typo1, Typo2 } from "../../components";
+import {
+  Button,
+  ContentBox,
+  Heading1,
+  OverlayButton,
+  Typo1,
+  Typo2,
+  Typo3,
+} from "../../components";
 import Spacer from "../../components/Spacer";
 import StatPair from "../../components/StatPair";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
@@ -15,9 +23,22 @@ import {
   getAccountDelegationSummary,
   getDelegations,
 } from "../../utils/delegations";
-import { toFormattedBalance, weiToUnit } from "../../utils/conversion";
+import {
+  hexToUnit,
+  toFormattedBalance,
+  weiToUnit,
+} from "../../utils/conversion";
 import { getAccountBalance } from "../../utils/account";
 import DelegationBalance from "../../components/DelegationBalance";
+import useModal from "../../hooks/useModal";
+import Modal from "../../components/Modal";
+import ModalTitle from "../../components/ModalTitle";
+import ModalContent from "../../components/ModalContent";
+import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
+import useFantomContract, {
+  SFC_SEND_METHODS,
+} from "../../hooks/useFantomContract";
+import useTransaction from "../../hooks/useTransaction";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -108,7 +129,152 @@ const RewardsContent: React.FC<any> = ({ accountDelegationsData }) => {
     />
   );
 };
-const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
+
+const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
+  const { color } = useContext(ThemeContext);
+  const { txSFCContractMethod } = useFantomContract();
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [claimed, setClaimed] = useState(false);
+  const pendingReward = hexToUnit(
+    activeDelegation.delegation.pendingRewards.amount
+  );
+  const formattedPendingReward = toFormattedBalance(
+    hexToUnit(activeDelegation.delegation.pendingRewards.amount)
+  );
+  const handleClaimReward = async () => {
+    setIsClaiming(true);
+    try {
+      await txSFCContractMethod(SFC_SEND_METHODS.CLAIM_REWARDS, [
+        activeDelegation.delegation.toStakerId,
+      ]);
+      setIsClaiming(false);
+      setClaimed(true);
+    } catch (error) {
+      setIsClaiming(false);
+      console.error(error);
+    }
+  };
+
+  return (
+    <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
+      <Row style={{ width: "18rem", alignItems: "center" }}>
+        <img
+          alt=""
+          style={{
+            borderRadius: "50%",
+            width: "2rem",
+            height: "2rem",
+            marginRight: ".6rem",
+          }}
+          src={activeDelegation.delegationInfo.logoURL || delegationFallbackImg}
+        />
+        <Column>
+          <Typo1 style={{ fontWeight: "bold" }}>
+            {activeDelegation.delegationInfo.name || "Unnamed"}
+          </Typo1>
+        </Column>
+      </Row>
+      <Row style={{ width: "12rem", alignItems: "center" }}>
+        <Typo1 style={{ fontWeight: "bold" }}>
+          {claimed
+            ? "0.00"
+            : `${formattedPendingReward[0]}${formattedPendingReward[1]}`}{" "}
+          FTM
+        </Typo1>
+      </Row>
+      <Row
+        style={{
+          marginLeft: "auto",
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
+      >
+        <OverlayButton
+          disabled={claimed || isClaiming || pendingReward < 0.01}
+          onClick={() => handleClaimReward()}
+        >
+          <Typo1
+            style={{
+              fontWeight: "bold",
+              color:
+                claimed || pendingReward < 0.01
+                  ? color.primary.cyan(0.5)
+                  : color.primary.cyan(),
+            }}
+          >
+            {claimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim now"}
+          </Typo1>
+        </OverlayButton>
+      </Row>
+    </Row>
+  );
+};
+const ClaimRewardsModal: React.FC<any> = ({
+  onDismiss,
+  accountDelegationsData,
+  delegationsData,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const accountDelegations = getAccountDelegations(accountDelegationsData);
+  const delegations = getDelegations(delegationsData);
+  const activeDelegations = !(delegations && accountDelegations)
+    ? []
+    : accountDelegations.map((accountDelegation: any) => ({
+        ...accountDelegation,
+        delegationInfo: delegations.find((delegation) => {
+          return delegation.id === accountDelegation.delegation.toStakerId;
+        }),
+      }));
+
+  return (
+    <Modal onDismiss={onDismiss}>
+      <ModalTitle text="Claim Rewards" />
+      <ModalContent>
+        <Row style={{ textAlign: "left" }}>
+          <Typo3
+            style={{
+              width: "18rem",
+              color: color.greys.grey(),
+            }}
+          >
+            Validator
+          </Typo3>
+          <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
+            Pending rewards
+          </Typo3>
+          <div style={{ width: "5rem" }} />
+        </Row>
+        <Spacer size="sm" />
+        {activeDelegations.map((delegation, index) => {
+          const isLastRow = delegations.length === index + 1;
+          return (
+            <div
+              key={`claim-rewards-row-${delegation.delegation.toStakerId}`}
+              style={{
+                borderBottom: !isLastRow && "2px solid #202F49",
+              }}
+            >
+              <ClaimDelegationRewardRow activeDelegation={delegation} />
+            </div>
+          );
+        })}
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const Rewards: React.FC<any> = ({
+  loading,
+  accountDelegations,
+  delegations,
+}) => {
+  const [onPresentClaimRewardsModal] = useModal(
+    <ClaimRewardsModal
+      accountDelegationsData={accountDelegations?.data}
+      delegationsData={delegations?.data}
+    />,
+    "staking-claim-rewards-modal"
+  );
   return (
     <ContentBox style={{ flex: 1 }}>
       <Column>
@@ -125,7 +291,12 @@ const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
             <RewardsContent accountDelegationsData={accountDelegations.data} />
           )}
           <Spacer />
-          <Button variant="primary">Claim rewards</Button>
+          <Button
+            variant="primary"
+            onClick={() => onPresentClaimRewardsModal()}
+          >
+            Claim rewards
+          </Button>
         </Column>
       </Column>
     </ContentBox>
@@ -270,7 +441,8 @@ const Staking: React.FC<any> = () => {
     {
       address: activeAddress,
     },
-    activeAddress
+    activeAddress,
+    2000
   );
 
   useFantomApi(
@@ -278,7 +450,8 @@ const Staking: React.FC<any> = () => {
     {
       address: activeAddress,
     },
-    activeAddress
+    activeAddress,
+    2000
   );
 
   return (
@@ -299,8 +472,9 @@ const Staking: React.FC<any> = () => {
           />
           <Spacer />
           <Rewards
-            loading={!accountDelegationsIsDoneLoading}
+            loading={!activeDelegationsIsDoneLoading}
             accountDelegations={accountDelegations}
+            delegations={delegations}
           />
         </Row>
         <Spacer />

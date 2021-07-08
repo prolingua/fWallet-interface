@@ -1,14 +1,18 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
+import ModalClose from "../ModalClose";
 
 export interface ModalProps {
   onDismiss?: () => void;
 }
 
-const Modal: React.FC<any> = ({ children, padding }) => {
+const Modal: React.FC<any> = ({ children, style, onDismiss }) => {
   return (
     <StyledResponsiveWrapper>
-      <StyledModal padding={padding}>{children}</StyledModal>
+      <StyledModal padding={style?.padding && style.padding}>
+        {onDismiss && <ModalClose onDismiss={onDismiss} />}
+        {children}
+      </StyledModal>
     </StyledResponsiveWrapper>
   );
 };
@@ -28,10 +32,9 @@ const StyledResponsiveWrapper = styled.div<any>`
   flex-direction: column;
   justify-content: flex-end;
   position: relative;
-  max-width: 50vw;
+
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}px) {
     flex: 1;
-    // position: absolute;
     top: 100%;
     right: 0;
     left: 0;
@@ -44,10 +47,9 @@ const StyledResponsiveWrapper = styled.div<any>`
 const StyledModal = styled.div<any>`
   padding: ${(props) =>
     props.padding === undefined ? "20px 40px" : props.padding};
-  background: ${(props) => props.theme.color.primary.black()};
+  background: ${(props) => props.theme.color.secondary.navy()};
   color: ${(props) => props.theme.color.white};
   font-family: "proxima-nova", sans-serif;
-  border: 1.5px solid #3a486b;
   border-radius: 8px;
   backdrop-filter: blur(40px);
   display: flex;
@@ -55,6 +57,7 @@ const StyledModal = styled.div<any>`
   align-items: center;
   position: relative;
   min-height: 0;
+  min-width: 20rem;
   z-index: 1;
 `;
 

@@ -81,11 +81,11 @@ export const Typo3 = styled.div`
   font-size: 14px;
 `;
 
-export const OverlayButton = styled.button`
+export const OverlayButton = styled.button<{ disabled?: boolean }>`
   background-color: transparent;
   border: none;
   text-decoration: none;
-  cursor: pointer;
+  cursor: ${(props) => !props.disabled && "pointer"};
   color: inherit;
 `;
 

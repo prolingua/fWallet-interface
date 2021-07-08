@@ -6,7 +6,10 @@ const ModalContent: React.FC = ({ children }) => {
 };
 
 const StyledModalContent = styled.div`
-  padding: ${(props) => props.theme.spacing[2]}px;
+  width: 100%;
+  padding: ${(props) => props.theme.spacing[3]}px;
+  background-color: #172641;
+  border-radius: 8px;
   text-align: center;
   @media (max-width: ${(props) => props.theme.breakpoints.mobile}px) {
     flex: 1;

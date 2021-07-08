@@ -9,6 +9,7 @@ export const send = async (
       type: "transactionPending",
       id: hash,
     });
+    console.log("PENDING", hash);
     return new Promise((resolve) => {
       provider.once(hash, (transaction: any) => {
         dispatch({
@@ -23,5 +24,6 @@ export const send = async (
       type: "transactionError",
       error: err,
     });
+    throw err;
   }
 };
