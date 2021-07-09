@@ -26,6 +26,9 @@ const ModalProvider: React.FC = ({ children }) => {
       setContent(modalContent);
       setIsOpen(true);
       setPersist(persist);
+
+      // Disable page scrollbar on modal open
+      document.body.style.overflow = "hidden";
     },
     [setContent, setIsOpen, setModalKey]
   );
@@ -34,6 +37,7 @@ const ModalProvider: React.FC = ({ children }) => {
     setContent(undefined);
     setIsOpen(false);
     setModalKey(undefined);
+    document.body.style.overflow = "auto";
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setContent, setIsOpen, modalKey]);
 

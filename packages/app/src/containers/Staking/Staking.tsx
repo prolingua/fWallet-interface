@@ -1,11 +1,13 @@
 import React, { useContext, useState } from "react";
 import Row, { ResponsiveRow } from "../../components/Row/Row";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import Column from "../../components/Column";
 import {
   Button,
   ContentBox,
   Heading1,
+  Heading2,
+  Heading3,
   OverlayButton,
   Typo1,
   Typo2,
@@ -26,6 +28,7 @@ import {
 import {
   hexToUnit,
   toFormattedBalance,
+  weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
 import { getAccountBalance } from "../../utils/account";
@@ -38,7 +41,12 @@ import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
 import useFantomContract, {
   SFC_SEND_METHODS,
 } from "../../hooks/useFantomContract";
-import useTransaction from "../../hooks/useTransaction";
+import { FANTOM_NATIVE } from "../../utils/common";
+import InputCurrency from "../../components/InputCurrency";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
+import { DelegationNameInfo } from "../../components/DelegationBalance/DelegationBalance";
+import Scrollbar from "../../components/Scrollbar";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -89,7 +97,233 @@ const DelegateContent: React.FC<any> = ({ accountBalanceData }) => {
     />
   );
 };
-const Delegate: React.FC<any> = ({ loading, accountBalance }) => {
+
+const InputCurrencyBox: React.FC<any> = ({ value, max, setValue }) => {
+  const { color } = useContext(ThemeContext);
+  const [error, setError] = useState(null);
+  const handleSetMax = () => {
+    setError(null);
+    setValue(max);
+  };
+
+  return (
+    <Row
+      style={{
+        width: "100%",
+        backgroundColor: "#202F49",
+        borderRadius: "8px",
+        height: "64px",
+        alignItems: "center",
+      }}
+    >
+      <Spacer />
+      <InputCurrency
+        value={value}
+        max={max}
+        handleValue={setValue}
+        handleError={setError}
+        token={FANTOM_NATIVE}
+      />
+      <Row style={{ alignItems: "center" }}>
+        <Button
+          fontSize="14px"
+          color={color.greys.grey()}
+          padding="8px"
+          style={{ flex: 1 }}
+          variant="tertiary"
+          onClick={handleSetMax}
+        >
+          MAX
+        </Button>
+        <Spacer />
+      </Row>
+    </Row>
+  );
+};
+
+const DelegationSelectRow: React.FC<any> = ({ delegation }) => {
+  const formattedTotalStake = toFormattedBalance(
+    hexToUnit(delegation.totalStake)
+  );
+  const formattedLimit = toFormattedBalance(
+    hexToUnit(delegation.delegatedLimit)
+  );
+  const uptime =
+    100 -
+    parseInt(delegation.downtime) /
+      (Date.now() - parseInt(delegation.createdTime));
+
+  return (
+    <Row
+      style={{
+        margin: "0 .5rem",
+        padding: ".5rem 0",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          textAlign: "left",
+          width: "10rem",
+        }}
+      >
+        <DelegationNameInfo
+          imageSize="32px"
+          delegationInfo={delegation.stakerInfo}
+        />
+      </div>
+      <Typo2 style={{ width: "5rem", fontWeight: "bold" }}>
+        {parseInt(delegation.id)}
+      </Typo2>
+      <Typo2 style={{ width: "10rem", fontWeight: "bold" }}>
+        {formattedTotalStake[0]}
+      </Typo2>
+      <Typo2 style={{ width: "10rem", fontWeight: "bold" }}>
+        {formattedLimit[0]}
+      </Typo2>
+      <Typo2 style={{ width: "5rem", fontWeight: "bold" }}>
+        {" "}
+        {parseFloat(uptime.toFixed(2)).toString()}%
+      </Typo2>
+    </Row>
+  );
+};
+
+const DelegateModal: React.FC<any> = ({
+  onDismiss,
+  delegationsData,
+  accountBalanceData,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const [delegateAmount, setDelegateAmount] = useState("");
+  const [selectedDelegation, setSelectedDelegation] = useState(null);
+  const balanceInWei = getAccountBalance(accountBalanceData);
+  const balance = weiToMaxUnit(balanceInWei.toString());
+  const delegations = getDelegations(delegationsData);
+
+  const handleSetDelegateAmount = (value: string) => {
+    if (parseFloat(value) > balance) {
+      return setDelegateAmount(balance.toString());
+    }
+    return setDelegateAmount(value);
+  };
+  return (
+    <Modal onDismiss={onDismiss}>
+      <ModalTitle text="Delegation" />
+      <Heading3 style={{ color: color.greys.grey() }}>
+        How much would you like to delegate?
+      </Heading3>
+      <Spacer />
+      <InputCurrencyBox
+        value={delegateAmount}
+        setValue={handleSetDelegateAmount}
+        max={balance}
+      />
+      <Spacer size="sm" />
+      <div style={{ width: "98%" }}>
+        <Slider
+          onChange={(value) => setDelegateAmount(value.toString())}
+          value={parseFloat(delegateAmount)}
+          min={0}
+          max={parseInt(balance.toString())}
+          trackStyle={{ backgroundColor: "#1969FF", height: 5 }}
+          handleStyle={{
+            borderColor: "#1969FF",
+            height: 18,
+            width: 18,
+            marginLeft: 0,
+            marginTop: -7,
+            backgroundColor: "#1969FF",
+          }}
+          railStyle={{ backgroundColor: "#0A162E", height: 5 }}
+        />
+        <Spacer size="xs" />
+        <Row style={{ justifyContent: "space-between" }}>
+          <div>0</div>
+          <div>{parseInt(balance.toString())}</div>
+        </Row>
+      </div>
+      <Heading3 style={{ color: color.greys.grey() }}>
+        Select a validator node
+      </Heading3>
+      <Spacer />
+      <ModalContent style={{ padding: "20px 0 0 0" }}>
+        <Row style={{ margin: "0 1.5rem" }}>
+          <Typo2
+            style={{
+              textAlign: "left",
+              width: "10rem",
+              color: color.greys.grey(),
+            }}
+          >
+            Name
+          </Typo2>
+          <Typo2 style={{ width: "5rem", color: color.greys.grey() }}>ID</Typo2>
+          <Typo2 style={{ width: "10rem", color: color.greys.grey() }}>
+            Total delegated
+          </Typo2>
+          <Typo2 style={{ width: "10rem", color: color.greys.grey() }}>
+            Free space
+          </Typo2>
+          <Typo2 style={{ width: "5rem", color: color.greys.grey() }}>
+            Uptime
+          </Typo2>
+        </Row>
+        <Spacer size="sm" />
+
+        <Scrollbar style={{ width: "100%", height: "40vh" }}>
+          {delegations.map((delegation, index) => {
+            const isLastRow = delegations.length === index + 1;
+            const isActive = delegation.id === selectedDelegation;
+            return (
+              <StyledDelegationSelectRow
+                key={`delegation-select-row-${delegation.id}-${index}`}
+                style={{
+                  borderBottom: !isLastRow && "2px solid #202F49",
+                  margin: "0 1rem",
+                  backgroundColor: isActive && color.primary.semiWhite(0.3),
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+                onClick={() => setSelectedDelegation(delegation.id)}
+              >
+                <DelegationSelectRow delegation={delegation} />
+              </StyledDelegationSelectRow>
+            );
+          })}
+        </Scrollbar>
+        <Spacer size="sm" />
+      </ModalContent>
+      <Spacer />
+      <Button
+        padding="17px"
+        width="100%"
+        disabled={
+          !delegateAmount || delegateAmount === "0" || !selectedDelegation
+        }
+        variant="primary"
+        onClick={() => console.log("CLICK")}
+      >
+        Continue
+      </Button>
+    </Modal>
+  );
+};
+
+const StyledDelegationSelectRow = styled.div`
+  :hover {
+    background-color: ${(props) => props.theme.color.primary.semiWhite(0.1)};
+  }
+`;
+
+const Delegate: React.FC<any> = ({ loading, accountBalance, delegations }) => {
+  const [onPresentDelegateModal] = useModal(
+    <DelegateModal
+      delegationsData={delegations?.data}
+      accountBalanceData={accountBalance?.data}
+    />,
+    "delegate-modal"
+  );
   return (
     <ContentBox style={{ flex: 1 }}>
       <Column>
@@ -106,7 +340,9 @@ const Delegate: React.FC<any> = ({ loading, accountBalance }) => {
             <DelegateContent accountBalanceData={accountBalance.data} />
           )}
           <Spacer />
-          <Button variant="primary">Stake now</Button>
+          <Button variant="primary" onClick={() => onPresentDelegateModal()}>
+            Stake now
+          </Button>
         </Column>
       </Column>
     </ContentBox>
@@ -209,6 +445,7 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
     </Row>
   );
 };
+
 const ClaimRewardsModal: React.FC<any> = ({
   onDismiss,
   accountDelegationsData,
@@ -430,7 +667,8 @@ const Staking: React.FC<any> = () => {
 
   const accountDelegationsIsDoneLoading =
     activeAddress && accountDelegations?.data;
-  const delegateIsDoneLoading = activeAddress && accountBalance?.data;
+  const delegateIsDoneLoading =
+    activeAddress && accountBalance?.data && delegations?.data;
   const activeDelegationsIsDoneLoading =
     activeAddress && accountDelegations?.data && delegations?.data;
 
@@ -469,6 +707,7 @@ const Staking: React.FC<any> = () => {
           <Delegate
             loading={!delegateIsDoneLoading}
             accountBalance={accountBalance}
+            delegations={delegations}
           />
           <Spacer />
           <Rewards

@@ -109,6 +109,12 @@ export const GET_DELEGATIONS = gql`
     stakers {
       id
       stakerAddress
+      totalStake
+      stake
+      totalDelegatedLimit
+      delegatedLimit
+      createdTime
+      downtime
       stakerInfo {
         name
         website

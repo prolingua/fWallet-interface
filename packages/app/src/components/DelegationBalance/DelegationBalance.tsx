@@ -10,6 +10,38 @@ import { Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
 
+export const DelegationNameInfo: React.FC<any> = ({
+  imageSize,
+  delegationInfo,
+  daysLocked,
+}) => {
+  const { color } = useContext(ThemeContext);
+  return (
+    <Row style={{ alignItems: "center" }}>
+      <img
+        alt=""
+        style={{
+          borderRadius: "50%",
+          width: imageSize,
+          height: imageSize,
+          marginRight: ".6rem",
+        }}
+        src={delegationInfo?.logoURL || delegationFallbackImg}
+      />
+      <Column>
+        <Typo1 style={{ fontWeight: "bold" }}>
+          {delegationInfo?.name || "Unnamed"}
+        </Typo1>
+        {daysLocked && (
+          <Typo3 style={{ color: color.greys.grey() }}>
+            {daysLocked ? `Unlocks in ${daysLocked} days` : ""}
+          </Typo3>
+        )}
+      </Column>
+    </Row>
+  );
+};
+
 export const DelegationBalance: React.FC<any> = ({
   activeDelegation,
   imageSize = " 32px",
@@ -32,28 +64,11 @@ export const DelegationBalance: React.FC<any> = ({
     : null;
   return (
     <Row style={{ justifyContent: "space-between" }}>
-      <Row style={{ alignItems: "center" }}>
-        <img
-          alt=""
-          style={{
-            borderRadius: "50%",
-            width: imageSize,
-            height: imageSize,
-            marginRight: ".6rem",
-          }}
-          src={activeDelegation.delegationInfo.logoURL || delegationFallbackImg}
-        />
-        <Column>
-          <Typo1 style={{ fontWeight: "bold" }}>
-            {activeDelegation.delegationInfo.name || "Unnamed"}
-          </Typo1>
-          {lockedUntil && (
-            <Typo3 style={{ color: color.greys.grey() }}>
-              {daysLocked ? `Unlocks in ${daysLocked} days` : ""}
-            </Typo3>
-          )}
-        </Column>
-      </Row>
+      <DelegationNameInfo
+        imageSize={imageSize}
+        delegationInfo={activeDelegation.delegationInfo}
+        daysLocked={daysLocked}
+      />
       <Row style={{ alignItems: "center" }}>
         <Typo2
           style={{

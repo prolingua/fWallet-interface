@@ -92,7 +92,7 @@ const TokenSelectModal: React.FC<any> = ({
 
 const StyledOverlayButton = styled(OverlayButton)`
   :hover {
-    background-color: ${(props) => props.theme.color.primary.semiWhite(".1")};
+    background-color: ${(props) => props.theme.color.primary.semiWhite(0.1)};
   }
 `;
 

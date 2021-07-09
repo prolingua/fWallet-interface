@@ -8,6 +8,7 @@ export interface Delegations {
 export interface Delegation {
   id: string;
   address: string;
+  toStakerId?: string;
   stakerInfo?: {
     name?: string;
     website?: string;

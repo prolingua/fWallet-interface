@@ -95,6 +95,7 @@ export const Button = styled.button<{
   color?: string;
   fontSize?: string;
   disabled?: boolean;
+  width?: string;
 }>`
   background-color: ${(props) =>
     props.variant === "primary"
@@ -115,6 +116,7 @@ export const Button = styled.button<{
   text-decoration: none;
   padding: ${(props) => (props.padding ? props.padding : "12px 24px")};
   transition: 0.2s all;
+  width: ${(props) => props.width && props.width};
 
   ${(props) => props.hidden && "hidden"} :focus {
     border: ${(props) => props.variant === "primary" && "none"};

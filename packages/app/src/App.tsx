@@ -23,6 +23,8 @@ import { Body, Heading1, Heading3 } from "./components";
 import Column from "./components/Column";
 import Spacer from "./components/Spacer";
 import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
+import { Scrollbars } from "react-custom-scrollbars-2";
+import Scrollbar from "./components/Scrollbar";
 
 const HomeWithWallet = withConnectedWallet(Home);
 const SendWithWallet = withConnectedWallet(Send);
@@ -57,27 +59,29 @@ function App() {
               <Suspense fallback="Loading">
                 <TopBar />
               </Suspense>
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "stretch",
-                  padding: "0 4rem 0 2rem",
-                  backgroundColor: "rgba(10, 22, 46, 1)",
-                }}
-              >
-                <Switch>
-                  <Route path="/otherRoute" component={Test} />
-                  <Route path="/home" component={HomeWithWallet} />
-                  <Route path="/send" component={SendWithWallet} />
-                  <Route path="/staking" component={StakingWithWallet} />
-                  <Route path="/test" component={Test} />
-                  <Route path="/defi" component={Test} />
-                  <Route path="/governance" component={Test} />
-                  <Route path="/" exact component={Test} />
-                </Switch>
-              </div>
+              <Scrollbar style={{ width: "100%", height: "100%" }}>
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "stretch",
+                    padding: "0 4rem 0 2rem",
+                    backgroundColor: "rgba(10, 22, 46, 1)",
+                  }}
+                >
+                  <Switch>
+                    <Route path="/otherRoute" component={Test} />
+                    <Route path="/home" component={HomeWithWallet} />
+                    <Route path="/send" component={SendWithWallet} />
+                    <Route path="/staking" component={StakingWithWallet} />
+                    <Route path="/test" component={Test} />
+                    <Route path="/defi" component={Test} />
+                    <Route path="/governance" component={Test} />
+                    <Route path="/" exact component={Test} />
+                  </Switch>
+                </div>
+              </Scrollbar>
             </div>
           </>
         )}
