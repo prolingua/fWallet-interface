@@ -15,6 +15,7 @@ export interface Delegation {
     contact?: string;
     logoUrl?: string;
   };
+  delegatedLimit: string;
 }
 
 export interface AccountDelegations {

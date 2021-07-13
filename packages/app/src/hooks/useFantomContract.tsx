@@ -2,6 +2,7 @@ import { Contract } from "@ethersproject/contracts";
 import useWalletProvider from "./useWalletProvider";
 import { send } from "../utils/transactions";
 import useTransaction from "./useTransaction";
+import { useState } from "react";
 
 // SFC_CLAIM_MAX_EPOCHS represents the max number of epochs
 // available for withdraw per single request.
@@ -16,6 +17,7 @@ export enum SFC_CALL_METHODS {
 export enum SFC_SEND_METHODS {
   CLAIM_REWARDS = "claimRewards",
   RESTAKE_REWARDS = "restakeRewards",
+  DELEGATE = "delegate",
 }
 
 const sfcContractCall: { [key in SFC_CALL_METHODS]: any } = {
@@ -36,11 +38,19 @@ const sfcContractSend: { [key in SFC_SEND_METHODS]: any } = {
   ) => {
     return contract.restakeRewards(toStakerID);
   },
+  [SFC_SEND_METHODS.DELEGATE]: async (
+    contract: Contract,
+    toStakedID: number,
+    amount: number
+  ) => {
+    return contract.delegate(toStakedID, { value: amount });
+  },
 };
 
 const useFantomContract = () => {
   const { walletContext } = useWalletProvider();
   const { dispatchTx } = useTransaction();
+  const [isPending, setIsPending] = useState(null);
 
   const contractIsLoaded = (contract: any) => {
     if (
@@ -83,29 +93,33 @@ const useFantomContract = () => {
     if (!contractIsLoaded(contract)) {
       return;
     }
+
     if (contract === FANTOM_CONTRACTS.SFC) {
       if (!sfcContractSend[method as SFC_SEND_METHODS]) {
         console.error(`[sfcContractSend] method: ${method} not found`);
       }
-
-      // return sfcContractSend[method as SFC_SEND_METHODS](
-      //   walletContext.activeWallet.contracts.get(contract),
-      //   ...args
-      // );
-
-      return send(
-        walletContext.activeWallet.provider,
-        () =>
-          sfcContractSend[method as SFC_SEND_METHODS](
-            walletContext.activeWallet.contracts.get(contract),
-            ...args
-          ),
-        dispatchTx
-      );
+      try {
+        setIsPending(method);
+        const result = await send(
+          walletContext.activeWallet.provider,
+          () =>
+            sfcContractSend[method as SFC_SEND_METHODS](
+              walletContext.activeWallet.contracts.get(contract),
+              ...args
+            ),
+          dispatchTx
+        );
+        setIsPending(null);
+        return result;
+      } catch (err) {
+        setIsPending(null);
+        return err;
+      }
     }
   };
 
   return {
+    isPending,
     callSFCContractMethod: async (method: SFC_CALL_METHODS, args: any[]) =>
       callFantomContractMethod(FANTOM_CONTRACTS.SFC, method, args),
     txSFCContractMethod: async (method: SFC_SEND_METHODS, args: any[]) =>

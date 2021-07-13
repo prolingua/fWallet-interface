@@ -6,7 +6,6 @@ import {
   Button,
   ContentBox,
   Heading1,
-  Heading2,
   Heading3,
   OverlayButton,
   Typo1,
@@ -28,6 +27,7 @@ import {
 import {
   hexToUnit,
   toFormattedBalance,
+  unitToWei,
   weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
@@ -197,6 +197,7 @@ const DelegateModal: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [delegateAmount, setDelegateAmount] = useState("");
   const [selectedDelegation, setSelectedDelegation] = useState(null);
+  const { txSFCContractMethod, isPending } = useFantomContract();
   const balanceInWei = getAccountBalance(accountBalanceData);
   const balance = weiToMaxUnit(balanceInWei.toString());
   const delegations = getDelegations(delegationsData);
@@ -207,6 +208,18 @@ const DelegateModal: React.FC<any> = ({
     }
     return setDelegateAmount(value);
   };
+
+  const handleDelegate = async () => {
+    try {
+      await txSFCContractMethod(SFC_SEND_METHODS.DELEGATE, [
+        selectedDelegation,
+        unitToWei(parseFloat(delegateAmount).toString()),
+      ]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <Modal onDismiss={onDismiss}>
       <ModalTitle text="Delegation" />
@@ -275,17 +288,22 @@ const DelegateModal: React.FC<any> = ({
           {delegations.map((delegation, index) => {
             const isLastRow = delegations.length === index + 1;
             const isActive = delegation.id === selectedDelegation;
+            const isValid =
+              hexToUnit(delegation.delegatedLimit) >= parseInt(delegateAmount);
             return (
               <StyledDelegationSelectRow
                 key={`delegation-select-row-${delegation.id}-${index}`}
                 style={{
                   borderBottom: !isLastRow && "2px solid #202F49",
                   margin: "0 1rem",
-                  backgroundColor: isActive && color.primary.semiWhite(0.3),
+                  backgroundColor:
+                    isActive && isValid && color.primary.semiWhite(0.3),
                   borderRadius: "8px",
-                  cursor: "pointer",
+                  cursor: isValid ? "pointer" : "default",
+                  opacity: !isValid && "0.4",
                 }}
-                onClick={() => setSelectedDelegation(delegation.id)}
+                onClick={() => isValid && setSelectedDelegation(delegation.id)}
+                disabled={!isValid}
               >
                 <DelegationSelectRow delegation={delegation} />
               </StyledDelegationSelectRow>
@@ -299,20 +317,24 @@ const DelegateModal: React.FC<any> = ({
         padding="17px"
         width="100%"
         disabled={
-          !delegateAmount || delegateAmount === "0" || !selectedDelegation
+          !delegateAmount ||
+          delegateAmount === "0" ||
+          !selectedDelegation ||
+          isPending === SFC_SEND_METHODS.DELEGATE
         }
         variant="primary"
-        onClick={() => console.log("CLICK")}
+        onClick={handleDelegate}
       >
-        Continue
+        {isPending === SFC_SEND_METHODS.DELEGATE ? "Delegating..." : "Delegate"}
       </Button>
     </Modal>
   );
 };
 
-const StyledDelegationSelectRow = styled.div`
+const StyledDelegationSelectRow = styled.div<{ disabled: boolean }>`
   :hover {
-    background-color: ${(props) => props.theme.color.primary.semiWhite(0.1)};
+    background-color: ${(props) =>
+      !props.disabled && props.theme.color.primary.semiWhite(0.1)};
   }
 `;
 

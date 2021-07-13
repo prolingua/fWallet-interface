@@ -23,7 +23,6 @@ import { Body, Heading1, Heading3 } from "./components";
 import Column from "./components/Column";
 import Spacer from "./components/Spacer";
 import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
-import { Scrollbars } from "react-custom-scrollbars-2";
 import Scrollbar from "./components/Scrollbar";
 
 const HomeWithWallet = withConnectedWallet(Home);
