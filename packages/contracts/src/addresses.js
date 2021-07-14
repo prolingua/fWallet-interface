@@ -28,12 +28,18 @@ export default {
     tokens: {
       DAI: "0x697Ed3E98aaeCFa3121F536251F9D500de159dBa",
       WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+      SFTM: "",
     },
     ...commonContracts,
     ...fantomContracts,
+    stakeTokenizer: "",
   },
   [FANTOM_TEST_ID]: {
+    tokens: {
+      SFTM: "0x3b28f151899bd945ac1559a3540b5741c7d2bd55",
+    },
     ...commonContracts,
     ...fantomContracts,
+    stakeTokenizer: "0xea285cffa1defe82d34639d275d444785e05a128",
   },
 };

@@ -92,12 +92,15 @@ export const DELEGATIONS_BY_ADDRESS = gql`
           outstandingSFTM
           createdTime
           amount
-          isDelegationLocked
-          lockedFromEpoch
-          lockedUntil
+          claimedReward
           pendingRewards {
             amount
           }
+          isDelegationLocked
+          lockedAmount
+          lockedFromEpoch
+          lockedUntil
+          tokenizerAllowedToWithdraw
         }
       }
     }
@@ -120,6 +123,9 @@ export const GET_DELEGATIONS = gql`
         website
         contact
         logoUrl
+      }
+      delegations {
+        totalCount
       }
     }
   }

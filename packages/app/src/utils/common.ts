@@ -2,6 +2,7 @@ import { weiToUnit } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Token } from "../shared/types";
 import FtmLogo from "../assets/img/tokens/FTM.svg";
+import { format } from "date-fns";
 
 export const FANTOM_NATIVE: Token = {
   address: null,
@@ -23,4 +24,8 @@ export const getTotalFTMBalanceForAccount = (
 
 export const getTokenPrice = (tokenPrice: any) => {
   return tokenPrice.price.price;
+};
+
+export const formatDate = (date: Date) => {
+  return format(date, "LLL d, yyy, HH:mm");
 };

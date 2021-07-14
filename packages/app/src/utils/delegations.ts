@@ -9,6 +9,8 @@ export interface Delegation {
   id: string;
   address: string;
   toStakerId?: string;
+  createdTime?: string;
+  downtime?: string;
   stakerInfo?: {
     name?: string;
     website?: string;
@@ -89,5 +91,27 @@ export const getAccountDelegationSummary = (
       };
     },
     initial
+  );
+};
+
+export const daysLockedLeft = (delegation: AccountDelegation) => {
+  const lockedUntil =
+    delegation.isDelegationLocked &&
+    formatHexToBN(delegation.lockedUntil).toString();
+  return lockedUntil
+    ? parseInt(
+        (
+          (parseInt(lockedUntil) * 1000 - Date.now()) /
+          (1000 * 60 * 60 * 24)
+        ).toString()
+      )
+    : 0;
+};
+
+export const nodeUptime = (delegation: Delegation) => {
+  return (
+    100 -
+    parseInt(delegation.downtime) /
+      (Date.now() - parseInt(delegation.createdTime))
   );
 };

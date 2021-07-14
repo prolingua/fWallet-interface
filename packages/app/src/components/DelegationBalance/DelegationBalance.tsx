@@ -9,6 +9,7 @@ import Row from "../Row";
 import { Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
+import { daysLockedLeft } from "../../utils/delegations";
 
 export const DelegationNameInfo: React.FC<any> = ({
   imageSize,
@@ -32,7 +33,7 @@ export const DelegationNameInfo: React.FC<any> = ({
         <Typo1 style={{ fontWeight: "bold" }}>
           {delegationInfo?.name || "Unnamed"}
         </Typo1>
-        {daysLocked && (
+        {daysLocked > 0 && (
           <Typo3 style={{ color: color.greys.grey() }}>
             {daysLocked ? `Unlocks in ${daysLocked} days` : ""}
           </Typo3>
@@ -51,17 +52,8 @@ export const DelegationBalance: React.FC<any> = ({
   const formattedBalance = toFormattedBalance(
     hexToUnit(activeDelegation.delegation.amountDelegated)
   );
-  const lockedUntil =
-    activeDelegation.delegation.isDelegationLocked &&
-    formatHexToBN(activeDelegation.delegation.lockedUntil).toString();
-  const daysLocked = lockedUntil
-    ? parseInt(
-        (
-          (parseInt(lockedUntil) * 1000 - Date.now()) /
-          (1000 * 60 * 60 * 24)
-        ).toString()
-      )
-    : null;
+  const daysLocked = daysLockedLeft(activeDelegation.delegation);
+
   return (
     <Row style={{ justifyContent: "space-between" }}>
       <DelegationNameInfo

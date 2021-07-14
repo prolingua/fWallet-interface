@@ -56,6 +56,14 @@ export const loadContracts = async (signer: Signer, chainId: number) => {
 
   return new Map([
     ["sfc", new Contract(addresses[chainId]["sfc"], abis.sfc, signer)],
+    [
+      "stakeTokenizer",
+      new Contract(
+        addresses[chainId]["stakeTokenizer"],
+        abis.stakeTokenizer,
+        signer
+      ),
+    ],
   ]);
 };
 

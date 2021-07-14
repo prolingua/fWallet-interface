@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Row, { ResponsiveRow } from "../../components/Row/Row";
 import styled, { ThemeContext } from "styled-components";
 import Column from "../../components/Column";
@@ -19,12 +19,16 @@ import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import {
   AccountDelegation,
+  daysLockedLeft,
   Delegation,
   getAccountDelegations,
   getAccountDelegationSummary,
   getDelegations,
+  nodeUptime,
 } from "../../utils/delegations";
 import {
+  formatHexToBN,
+  formatHexToInt,
   hexToUnit,
   toFormattedBalance,
   unitToWei,
@@ -37,16 +41,22 @@ import useModal from "../../hooks/useModal";
 import Modal from "../../components/Modal";
 import ModalTitle from "../../components/ModalTitle";
 import ModalContent from "../../components/ModalContent";
-import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
 import useFantomContract, {
-  SFC_SEND_METHODS,
+  SFC_TX_METHODS,
+  STAKE_TOKENIZER_TX_METHODS,
 } from "../../hooks/useFantomContract";
-import { FANTOM_NATIVE } from "../../utils/common";
+import { FANTOM_NATIVE, formatDate } from "../../utils/common";
 import InputCurrency from "../../components/InputCurrency";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { DelegationNameInfo } from "../../components/DelegationBalance/DelegationBalance";
 import Scrollbar from "../../components/Scrollbar";
+import useFantomERC20 from "../../hooks/useFantomERC20";
+// @ts-ignore
+import { addresses } from "@f-wallet/contracts";
+import { BigNumber } from "@ethersproject/bignumber";
+import config from "../../config/config.test";
+import { parse } from "url";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -148,10 +158,7 @@ const DelegationSelectRow: React.FC<any> = ({ delegation }) => {
   const formattedLimit = toFormattedBalance(
     hexToUnit(delegation.delegatedLimit)
   );
-  const uptime =
-    100 -
-    parseInt(delegation.downtime) /
-      (Date.now() - parseInt(delegation.createdTime));
+  const uptime = nodeUptime(delegation);
 
   return (
     <Row
@@ -211,7 +218,7 @@ const DelegateModal: React.FC<any> = ({
 
   const handleDelegate = async () => {
     try {
-      await txSFCContractMethod(SFC_SEND_METHODS.DELEGATE, [
+      await txSFCContractMethod(SFC_TX_METHODS.DELEGATE, [
         selectedDelegation,
         unitToWei(parseFloat(delegateAmount).toString()),
       ]);
@@ -320,12 +327,12 @@ const DelegateModal: React.FC<any> = ({
           !delegateAmount ||
           delegateAmount === "0" ||
           !selectedDelegation ||
-          isPending === SFC_SEND_METHODS.DELEGATE
+          isPending === SFC_TX_METHODS.DELEGATE
         }
         variant="primary"
         onClick={handleDelegate}
       >
-        {isPending === SFC_SEND_METHODS.DELEGATE ? "Delegating..." : "Delegate"}
+        {isPending === SFC_TX_METHODS.DELEGATE ? "Delegating..." : "Delegate"}
       </Button>
     </Modal>
   );
@@ -402,7 +409,7 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
   const handleClaimReward = async () => {
     setIsClaiming(true);
     try {
-      await txSFCContractMethod(SFC_SEND_METHODS.CLAIM_REWARDS, [
+      await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
         activeDelegation.delegation.toStakerId,
       ]);
       setIsClaiming(false);
@@ -416,21 +423,10 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
       <Row style={{ width: "18rem", alignItems: "center" }}>
-        <img
-          alt=""
-          style={{
-            borderRadius: "50%",
-            width: "2rem",
-            height: "2rem",
-            marginRight: ".6rem",
-          }}
-          src={activeDelegation.delegationInfo.logoURL || delegationFallbackImg}
+        <DelegationNameInfo
+          delegationInfo={activeDelegation.delegationInfo}
+          imageSize="32px"
         />
-        <Column>
-          <Typo1 style={{ fontWeight: "bold" }}>
-            {activeDelegation.delegationInfo.name || "Unnamed"}
-          </Typo1>
-        </Column>
       </Row>
       <Row style={{ width: "12rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>
@@ -578,7 +574,347 @@ const LiquidStakingContent: React.FC<any> = ({ accountDelegationsData }) => {
     />
   );
 };
-const LiquidStaking: React.FC<any> = ({ loading, accountDelegations }) => {
+
+const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
+  const { color } = useContext(ThemeContext);
+  const { txStakeTokenizerContractMethod } = useFantomContract();
+  const [isMinting, setIsMinting] = useState(false);
+  const [minted, setMinted] = useState(false);
+  const lockedFTM = activeDelegation.delegation.isDelegationLocked
+    ? hexToUnit(activeDelegation.delegation.amount)
+    : 0;
+  const formattedLockedFTM = toFormattedBalance(lockedFTM);
+  const mintableSFTM = activeDelegation.delegation.isDelegationLocked
+    ? weiToUnit(
+        formatHexToBN(activeDelegation.delegation.amount).sub(
+          formatHexToBN(activeDelegation.delegation.outstandingSFTM)
+        )
+      )
+    : 0;
+  const formattedMintableSFTM = toFormattedBalance(mintableSFTM);
+
+  const handleMintSFTM = async () => {
+    setIsMinting(true);
+    try {
+      await txStakeTokenizerContractMethod(
+        STAKE_TOKENIZER_TX_METHODS.mintSFTM,
+        [activeDelegation.delegation.toStakerId]
+      );
+      setIsMinting(false);
+      setMinted(true);
+    } catch (error) {
+      setIsMinting(false);
+      console.error(error);
+    }
+  };
+
+  return (
+    <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
+      <Row style={{ width: "18rem", alignItems: "center" }}>
+        <DelegationNameInfo
+          delegationInfo={activeDelegation.delegationInfo}
+          imageSize="32px"
+        />
+      </Row>
+      <Row style={{ width: "12rem", alignItems: "center" }}>
+        <Typo1 style={{ fontWeight: "bold" }}>
+          {`${formattedLockedFTM[0]}${formattedLockedFTM[1]}`} FTM
+        </Typo1>
+      </Row>
+      <Row style={{ width: "10rem", alignItems: "center" }}>
+        <Typo1 style={{ fontWeight: "bold" }}>
+          {minted
+            ? "0.00"
+            : `${formattedMintableSFTM[0]}${formattedMintableSFTM[1]}`}{" "}
+          FTM
+        </Typo1>
+      </Row>
+      <Row
+        style={{
+          marginLeft: "auto",
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
+      >
+        <OverlayButton
+          disabled={minted || isMinting || mintableSFTM < 0.01}
+          onClick={() => handleMintSFTM()}
+        >
+          <Typo1
+            style={{
+              fontWeight: "bold",
+              color:
+                minted || mintableSFTM < 0.01
+                  ? color.primary.cyan(0.5)
+                  : color.primary.cyan(),
+            }}
+          >
+            {minted ? "Minted" : isMinting ? "Minting..." : "Mint sFTM"}
+          </Typo1>
+        </OverlayButton>
+      </Row>
+    </Row>
+  );
+};
+
+const MintSFTMModal: React.FC<any> = ({
+  onDismiss,
+  accountDelegationsData,
+  delegationsData,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const accountDelegations = getAccountDelegations(accountDelegationsData);
+  const delegations = getDelegations(delegationsData);
+  const activeDelegations = !(delegations && accountDelegations)
+    ? []
+    : accountDelegations.map((accountDelegation: any) => ({
+        ...accountDelegation,
+        delegationInfo: delegations.find((delegation: any) => {
+          return delegation.id === accountDelegation.delegation.toStakerId;
+        }),
+      }));
+
+  return (
+    <Modal onDismiss={onDismiss}>
+      <ModalTitle text="Mint sFTM" />
+      <ModalContent>
+        <Row style={{ textAlign: "left" }}>
+          <Typo3
+            style={{
+              width: "18rem",
+              color: color.greys.grey(),
+            }}
+          >
+            Validator
+          </Typo3>
+          <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
+            Locked FTM
+          </Typo3>
+          <Typo3 style={{ width: "10rem", color: color.greys.grey() }}>
+            Mintable sFTM
+          </Typo3>
+          <div style={{ width: "5rem" }} />
+        </Row>
+        <Spacer size="sm" />
+        {activeDelegations.map((activeDelegation, index) => {
+          const isLastRow = activeDelegation.length === index + 1;
+          return (
+            <div
+              key={`mint-sftm-row-${activeDelegation.delegation.toStakerId}`}
+              style={{
+                borderBottom: !isLastRow && "2px solid #202F49",
+              }}
+            >
+              <MintSFTMRow activeDelegation={activeDelegation} />
+            </div>
+          );
+        })}
+        <Spacer size="sm" />
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const RepaySFTMRow: React.FC<any> = ({
+  activeDelegation,
+  hasAllowance,
+  isApproving,
+  approveSpending,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const { txStakeTokenizerContractMethod } = useFantomContract();
+
+  const [isRepaying, setIsRepaying] = useState(false);
+  const [repaid, setRepaid] = useState(false);
+
+  const mintedSFTMinWei = formatHexToBN(
+    activeDelegation.delegation.outstandingSFTM
+  );
+  const mintedSFTM = weiToUnit(mintedSFTMinWei);
+  const formattedMintedSFTM = toFormattedBalance(mintedSFTM);
+
+  const handleRepaySFTM = async () => {
+    setIsRepaying(true);
+    // allowance && approve ?
+    try {
+      await txStakeTokenizerContractMethod(
+        STAKE_TOKENIZER_TX_METHODS.redeemSFTM,
+        [activeDelegation.delegation.toStakerId, mintedSFTMinWei]
+      );
+      setIsRepaying(false);
+      setRepaid(true);
+    } catch (error) {
+      setIsRepaying(false);
+      console.error(error);
+    }
+  };
+
+  return (
+    <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
+      <Row style={{ width: "18rem", alignItems: "center" }}>
+        <DelegationNameInfo
+          delegationInfo={activeDelegation.delegationInfo}
+          imageSize="32px"
+        />
+      </Row>
+      <Row style={{ width: "10rem", alignItems: "center" }}>
+        <Typo1 style={{ fontWeight: "bold" }}>
+          {repaid
+            ? "0.00"
+            : `${formattedMintedSFTM[0]}${formattedMintedSFTM[1]}`}{" "}
+          FTM
+        </Typo1>
+      </Row>
+      <Row
+        style={{
+          marginLeft: "auto",
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
+      >
+        {hasAllowance ? (
+          <OverlayButton
+            disabled={repaid || isRepaying || mintedSFTM < 0.01}
+            onClick={() => handleRepaySFTM()}
+          >
+            <Typo1
+              style={{
+                fontWeight: "bold",
+                color:
+                  repaid || mintedSFTM < 0.01
+                    ? color.primary.cyan(0.5)
+                    : color.primary.cyan(),
+              }}
+            >
+              {repaid ? "Repaid" : isRepaying ? "Repaying..." : "Repay sFTM"}
+            </Typo1>
+          </OverlayButton>
+        ) : (
+          <OverlayButton
+            disabled={isApproving}
+            onClick={() => approveSpending()}
+          >
+            <Typo1
+              style={{
+                fontWeight: "bold",
+                color: isApproving
+                  ? color.primary.cyan(0.5)
+                  : color.primary.cyan(),
+              }}
+            >
+              {isApproving ? "Approving..." : "Approve"}
+            </Typo1>
+          </OverlayButton>
+        )}
+      </Row>
+    </Row>
+  );
+};
+
+const RepaySFTMModal: React.FC<any> = ({
+  onDismiss,
+  accountDelegationsData,
+  delegationsData,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const { getAllowance, approve } = useFantomERC20();
+  const [allowance, setAllowance] = useState(BigNumber.from(0));
+  const [isApproving, setIsApproving] = useState(false);
+  const accountDelegations = getAccountDelegations(accountDelegationsData);
+  const delegations = getDelegations(delegationsData);
+  const activeDelegations = !(delegations && accountDelegations)
+    ? []
+    : accountDelegations.map((accountDelegation: any) => ({
+        ...accountDelegation,
+        delegationInfo: delegations.find((delegation: any) => {
+          return delegation.id === accountDelegation.delegation.toStakerId;
+        }),
+      }));
+  const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
+  const mintedSFTM = weiToUnit(totalDelegated.totalMintedSFTM);
+
+  const handleApprove = async () => {
+    setIsApproving(true);
+    await approve(
+      addresses[parseInt(config.chainId)].tokens.SFTM,
+      addresses[parseInt(config.chainId)]["stakeTokenizer"]
+    );
+    setIsApproving(false);
+  };
+
+  useEffect(() => {
+    getAllowance(
+      addresses[parseInt(config.chainId)].tokens.SFTM,
+      addresses[parseInt(config.chainId)]["stakeTokenizer"]
+    ).then((result) => {
+      setAllowance(result);
+    });
+  }, [accountDelegationsData, isApproving]);
+
+  return (
+    <Modal onDismiss={onDismiss}>
+      <ModalTitle text="Repay sFTM" />
+      <ModalContent>
+        <Row style={{ textAlign: "left" }}>
+          <Typo3
+            style={{
+              width: "18rem",
+              color: color.greys.grey(),
+            }}
+          >
+            Validator
+          </Typo3>
+          <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
+            Minted sFTM
+          </Typo3>
+          <div style={{ width: "5rem" }} />
+        </Row>
+        <Spacer size="sm" />
+        {activeDelegations.map((activeDelegation, index) => {
+          const isLastRow = activeDelegation.length === index + 1;
+          return (
+            <div
+              key={`mint-sftm-row-${activeDelegation.delegation.toStakerId}`}
+              style={{
+                borderBottom: !isLastRow && "2px solid #202F49",
+              }}
+            >
+              <RepaySFTMRow
+                activeDelegation={activeDelegation}
+                approveSpending={handleApprove}
+                isApproving={isApproving}
+                hasAllowance={allowance.gt(
+                  BigNumber.from(unitToWei(mintedSFTM.toString()))
+                )}
+              />
+            </div>
+          );
+        })}
+        <Spacer size="sm" />
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const LiquidStaking: React.FC<any> = ({
+  loading,
+  accountDelegations,
+  delegations,
+}) => {
+  const [onPresentMintSFTMModal] = useModal(
+    <MintSFTMModal
+      accountDelegationsData={accountDelegations?.data}
+      delegationsData={delegations?.data}
+    />,
+    "mint-sFTM-modal"
+  );
+  const [onPresentRepaySFTMModal] = useModal(
+    <RepaySFTMModal
+      accountDelegationsData={accountDelegations?.data}
+      delegationsData={delegations?.data}
+    />,
+    "mint-sFTM-modal"
+  );
   return (
     <ContentBox style={{ flex: 1 }}>
       <Column>
@@ -597,9 +933,15 @@ const LiquidStaking: React.FC<any> = ({ loading, accountDelegations }) => {
             />
           )}
           <Spacer />
-          <Button variant="primary">Mint sFTM</Button>
+          <Button onClick={() => onPresentMintSFTMModal()} variant="primary">
+            Mint sFTM
+          </Button>
           <Spacer size="sm" />
-          <Button style={{ backgroundColor: "#202F49" }} variant="primary">
+          <Button
+            onClick={() => onPresentRepaySFTMModal()}
+            style={{ backgroundColor: "#202F49" }}
+            variant="primary"
+          >
             Repay sFTM
           </Button>
         </Column>
@@ -608,11 +950,178 @@ const LiquidStaking: React.FC<any> = ({ loading, accountDelegations }) => {
   );
 };
 
+const ManageDelegationModal: React.FC<any> = ({
+  onDismiss,
+  stakerId,
+  setActiveStakerId,
+  activeDelegations,
+}) => {
+  useEffect(() => {
+    return () => setActiveStakerId(null);
+  }, []);
+  const selectedDelegation = activeDelegations.find(
+    (activeDelegation: any) =>
+      activeDelegation.delegation.toStakerId === stakerId
+  );
+  const delegatedAmount = hexToUnit(
+    selectedDelegation.delegation.amountDelegated
+  );
+  const rewardsClaimed = hexToUnit(selectedDelegation.delegation.claimedReward);
+  const pendingRewards = hexToUnit(
+    selectedDelegation.delegation.pendingRewards.amount
+  );
+  const daysLocked = daysLockedLeft(selectedDelegation.delegation);
+  const delegationDate = new Date(
+    formatHexToInt(selectedDelegation.delegation.createdTime) * 1000
+  );
+  const unlockDate = new Date(
+    formatHexToInt(selectedDelegation.delegation.lockedUntil) * 1000
+  );
+  const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
+  const formattedPendingRewards = toFormattedBalance(pendingRewards);
+  const formattedRewardsClaimed = toFormattedBalance(rewardsClaimed);
+
+  const uptime = nodeUptime(selectedDelegation.delegationInfo);
+  const selfStaked = hexToUnit(selectedDelegation.delegationInfo.stake);
+  const totalStaked = hexToUnit(selectedDelegation.delegationInfo.totalStake);
+  const delegations = formatHexToInt(
+    selectedDelegation.delegationInfo.delegations.totalCount
+  );
+  const freeSpace = hexToUnit(selectedDelegation.delegationInfo.delegatedLimit);
+  const freeSpacePercentage =
+    100 -
+    freeSpace /
+      hexToUnit(selectedDelegation.delegationInfo.totalDelegatedLimit);
+  const formattedSelfStaked = toFormattedBalance(selfStaked);
+  const formattedTotalStaked = toFormattedBalance(totalStaked);
+  const formattedFreeSpace = toFormattedBalance(freeSpace);
+
+  return (
+    <Modal onDismiss={onDismiss}>
+      <ModalTitle text="Delegation details" />
+      <ContentBox
+        style={{
+          width: "92%",
+          border: "1px solid #707B8F",
+          borderRadius: "8px",
+        }}
+      >
+        <Column>
+          <Row
+            style={{ alignItems: "center", justifyContent: "space-between" }}
+          >
+            <StatPair
+              title="Delegation amount"
+              value1={formattedDelegatedAmount[0]}
+              value2={formattedDelegatedAmount[1]}
+              suffix="FTM"
+            />
+            <Spacer size="xxl" />
+            <StatPair
+              title="Pending rewards"
+              value1={formattedPendingRewards[0]}
+              value2={formattedPendingRewards[1]}
+              suffix="FTM"
+            />
+            <Spacer size="xxl" />
+            <StatPair
+              title="Rewards claimed"
+              value1={formattedRewardsClaimed[0]}
+              value2={formattedRewardsClaimed[1]}
+              suffix="FTM"
+              width="12rem"
+            />
+          </Row>
+          <Spacer />
+          <Row
+            style={{ alignItems: "center", justifyContent: "space-between" }}
+          >
+            <StatPair
+              title="Unlocks in"
+              value1={daysLocked > 0 ? `${daysLocked} days` : "-"}
+              value2={daysLocked > 0 && `(${formatDate(unlockDate)})`}
+            />
+            <Spacer size="xxl" />
+            <StatPair
+              title="Delegation date"
+              value2={formatDate(delegationDate)}
+              width="12rem"
+            />
+          </Row>
+        </Column>
+      </ContentBox>
+      <Spacer />
+      <ContentBox
+        style={{
+          width: "92%",
+          border: "1px solid #707B8F",
+          borderRadius: "8px",
+          backgroundColor: "#09172E",
+        }}
+      >
+        <Column style={{ width: "100%" }}>
+          <DelegationNameInfo
+            delegationInfo={selectedDelegation.delegationInfo}
+          />
+          <Spacer />
+          <Row
+            style={{
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <StatPair
+              title="Node ID"
+              value1={parseInt(selectedDelegation.delegation.toStakerId)}
+              width="12rem"
+            />
+            <StatPair title="Uptime" value1={`${uptime}%`} width="12rem" />
+            <StatPair title="Delegators" value1={delegations} width="12rem" />
+          </Row>
+          <Spacer />
+          <Row
+            style={{ alignItems: "center", justifyContent: "space-between" }}
+          >
+            <StatPair
+              title="Total staked"
+              value1={formattedTotalStaked[0]}
+              width="12rem"
+            />
+            <StatPair
+              title="Self staked"
+              value1={formattedSelfStaked[0]}
+              width="12rem"
+            />
+            <StatPair
+              title="Free space"
+              value1={formattedFreeSpace[0]}
+              value2={`(${freeSpacePercentage.toFixed(0)}%)`}
+              width="12rem"
+            />
+          </Row>
+        </Column>
+      </ContentBox>
+      <Spacer size="xl" />
+      <Row style={{ width: "100%" }}>
+        <Button style={{ flex: 1, backgroundColor: "red" }} variant="primary">
+          Undelegate
+        </Button>
+        <Spacer />
+        <Button style={{ flex: 1 }} variant="primary">
+          Claim rewards
+        </Button>
+      </Row>
+      <Spacer />
+    </Modal>
+  );
+};
+
 const ActiveDelegationsContent: React.FC<any> = ({
   accountDelegationsData,
   delegationsData,
 }) => {
   const { color } = useContext(ThemeContext);
+  const [activeStakerId, setActiveStakerId] = useState(null);
   const accountDelegations = getAccountDelegations(accountDelegationsData);
   const delegations = getDelegations(delegationsData);
   const activeDelegations = accountDelegations.map(
@@ -623,6 +1132,20 @@ const ActiveDelegationsContent: React.FC<any> = ({
       }),
     })
   );
+
+  const [onPresentManageDelegationModal] = useModal(
+    <ManageDelegationModal
+      stakerId={activeStakerId}
+      setActiveStakerId={setActiveStakerId}
+      activeDelegations={activeDelegations}
+    />,
+    "manage-delegation-modal"
+  );
+  useEffect(() => {
+    if (activeStakerId) {
+      onPresentManageDelegationModal();
+    }
+  }, [activeStakerId]);
 
   return (
     <div>
@@ -637,15 +1160,28 @@ const ActiveDelegationsContent: React.FC<any> = ({
       <Spacer size="lg" />
       {activeDelegations.map((delegation: ActiveDelegation) => {
         return (
-          <div key={delegation.delegation.toStakerId}>
+          <StyledActiveDelegationRow
+            onClick={() => {
+              setActiveStakerId(delegation.delegation.toStakerId);
+            }}
+            key={delegation.delegation.toStakerId}
+          >
             <DelegationBalance activeDelegation={delegation} />
-            <Spacer size="lg" />
-          </div>
+          </StyledActiveDelegationRow>
         );
       })}
     </div>
   );
 };
+const StyledActiveDelegationRow = styled.div`
+  padding: 1rem 2rem;
+  margin: 0 -2rem;
+  cursor: pointer;
+  :hover {
+    background-color: ${(props) => props.theme.color.primary.semiWhite(0.1)};
+  }
+`;
+
 const ActiveDelegations: React.FC<any> = ({
   loading,
   accountDelegations,
@@ -741,8 +1277,9 @@ const Staking: React.FC<any> = () => {
         <Spacer />
         <Row>
           <LiquidStaking
-            loading={!accountDelegationsIsDoneLoading}
+            loading={!activeDelegationsIsDoneLoading}
             accountDelegations={accountDelegations}
+            delegations={delegations}
           />
           <Spacer />
           <ContentBox style={{ flex: 1, backgroundColor: "transparent" }} />

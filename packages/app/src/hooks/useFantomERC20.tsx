@@ -1,3 +1,4 @@
+import { MaxUint256 } from "@ethersproject/constants";
 import useWalletProvider from "./useWalletProvider";
 import useTransaction from "./useTransaction";
 import { send } from "../utils/transactions";
@@ -6,6 +7,47 @@ import { loadERC20Contract } from "../utils/wallet";
 const useFantomERC20 = () => {
   const { walletContext } = useWalletProvider();
   const { dispatchTx } = useTransaction();
+
+  const approve = async (
+    contractAddress: string,
+    approveAddress: string,
+    amount?: string
+  ) => {
+    if (!walletContext.activeWallet.signer) {
+      console.error("[sendTransation] signer not found");
+      return;
+    }
+    if (parseFloat(amount) <= 0) {
+      console.error("[sendTransation] amount <= 0");
+      return;
+    }
+
+    const contract = await loadERC20Contract(
+      contractAddress,
+      walletContext.activeWallet.signer
+    );
+
+    return send(
+      walletContext.activeWallet.provider,
+      () => contract.approve(approveAddress, amount || MaxUint256),
+      dispatchTx
+    );
+  };
+
+  const allowance = async (
+    contractAddress: string,
+    approvedAddress: string
+  ) => {
+    const contract = await loadERC20Contract(
+      contractAddress,
+      walletContext.activeWallet.signer
+    );
+
+    return contract.allowance(
+      walletContext.activeWallet.address,
+      approvedAddress
+    );
+  };
 
   const sendTokens = async (
     contractAddress: string,
@@ -47,6 +89,13 @@ const useFantomERC20 = () => {
   };
 
   return {
+    approve: async (
+      contractAddress: string,
+      approveAddress: string,
+      amount?: string
+    ) => await approve(contractAddress, approveAddress, amount),
+    getAllowance: async (contractAddress: string, approveAddress: string) =>
+      await allowance(contractAddress, approveAddress),
     sendTokens: async (
       contractAddress: string,
       toAddress: string,

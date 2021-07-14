@@ -12,10 +12,11 @@ const StatPair: React.FC<any> = ({
   suffix,
   spacer = "xxs",
   titleColor,
+  width,
 }) => {
   const { color } = useContext(ThemeContext);
   return (
-    <Column>
+    <Column style={{ width: width && width }}>
       <Typo1
         style={{ fontWeight: "bold", color: titleColor || color.greys.grey() }}
       >

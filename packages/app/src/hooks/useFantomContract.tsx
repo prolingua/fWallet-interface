@@ -10,11 +10,12 @@ export const SFC_CLAIM_MAX_EPOCHS = 300;
 
 export enum FANTOM_CONTRACTS {
   SFC = "sfc",
+  STAKE_TOKENIZER = "stakeTokenizer",
 }
 export enum SFC_CALL_METHODS {
   URI = "uri",
 }
-export enum SFC_SEND_METHODS {
+export enum SFC_TX_METHODS {
   CLAIM_REWARDS = "claimRewards",
   RESTAKE_REWARDS = "restakeRewards",
   DELEGATE = "delegate",
@@ -25,25 +26,46 @@ const sfcContractCall: { [key in SFC_CALL_METHODS]: any } = {
     return contract.uri(id);
   },
 } as any;
-const sfcContractSend: { [key in SFC_SEND_METHODS]: any } = {
-  [SFC_SEND_METHODS.CLAIM_REWARDS]: async (
+const sfcContractTx: { [key in SFC_TX_METHODS]: any } = {
+  [SFC_TX_METHODS.CLAIM_REWARDS]: async (
     contract: Contract,
     toStakerID: number
   ) => {
     return contract.claimRewards(toStakerID);
   },
-  [SFC_SEND_METHODS.RESTAKE_REWARDS]: async (
+  [SFC_TX_METHODS.RESTAKE_REWARDS]: async (
     contract: Contract,
     toStakerID: number
   ) => {
     return contract.restakeRewards(toStakerID);
   },
-  [SFC_SEND_METHODS.DELEGATE]: async (
+  [SFC_TX_METHODS.DELEGATE]: async (
     contract: Contract,
     toStakedID: number,
     amount: number
   ) => {
     return contract.delegate(toStakedID, { value: amount });
+  },
+};
+
+export enum STAKE_TOKENIZER_TX_METHODS {
+  mintSFTM = "mintSFTM",
+  redeemSFTM = "redeemSFTM",
+}
+
+const stakeTokenizerTx: { [key in STAKE_TOKENIZER_TX_METHODS]: any } = {
+  [STAKE_TOKENIZER_TX_METHODS.mintSFTM]: async (
+    contract: Contract,
+    toStakerID: number
+  ) => {
+    return contract.mintSFTM(toStakerID);
+  },
+  [STAKE_TOKENIZER_TX_METHODS.redeemSFTM]: async (
+    contract: Contract,
+    toStakerID: number,
+    amount: number
+  ) => {
+    return contract.redeemSFTM(toStakerID, amount);
   },
 };
 
@@ -87,34 +109,53 @@ const useFantomContract = () => {
 
   const txFantomContractMethod = async (
     contract: FANTOM_CONTRACTS,
-    method: SFC_SEND_METHODS,
+    method: SFC_TX_METHODS | STAKE_TOKENIZER_TX_METHODS,
     args: any
   ) => {
     if (!contractIsLoaded(contract)) {
       return;
     }
 
-    if (contract === FANTOM_CONTRACTS.SFC) {
-      if (!sfcContractSend[method as SFC_SEND_METHODS]) {
-        console.error(`[sfcContractSend] method: ${method} not found`);
-      }
+    const sendTx = async (callback: any) => {
       try {
         setIsPending(method);
         const result = await send(
           walletContext.activeWallet.provider,
-          () =>
-            sfcContractSend[method as SFC_SEND_METHODS](
-              walletContext.activeWallet.contracts.get(contract),
-              ...args
-            ),
+          callback,
           dispatchTx
         );
         setIsPending(null);
         return result;
       } catch (err) {
         setIsPending(null);
-        return err;
+        throw err;
       }
+    };
+
+    if (contract === FANTOM_CONTRACTS.SFC) {
+      if (!sfcContractTx[method as SFC_TX_METHODS]) {
+        console.error(`[sfcContractTx] method: ${method} not found`);
+      }
+
+      return sendTx(() =>
+        sfcContractTx[method as SFC_TX_METHODS](
+          walletContext.activeWallet.contracts.get(contract),
+          ...args
+        )
+      );
+    }
+
+    if (contract === FANTOM_CONTRACTS.STAKE_TOKENIZER) {
+      if (!stakeTokenizerTx[method as STAKE_TOKENIZER_TX_METHODS]) {
+        console.error(`[stakeTokenizerContractTx] method: ${method} not found`);
+      }
+
+      return sendTx(() =>
+        stakeTokenizerTx[method as STAKE_TOKENIZER_TX_METHODS](
+          walletContext.activeWallet.contracts.get(contract),
+          ...args
+        )
+      );
     }
   };
 
@@ -122,8 +163,12 @@ const useFantomContract = () => {
     isPending,
     callSFCContractMethod: async (method: SFC_CALL_METHODS, args: any[]) =>
       callFantomContractMethod(FANTOM_CONTRACTS.SFC, method, args),
-    txSFCContractMethod: async (method: SFC_SEND_METHODS, args: any[]) =>
+    txSFCContractMethod: async (method: SFC_TX_METHODS, args: any[]) =>
       txFantomContractMethod(FANTOM_CONTRACTS.SFC, method, args),
+    txStakeTokenizerContractMethod: async (
+      method: STAKE_TOKENIZER_TX_METHODS,
+      args: any[]
+    ) => txFantomContractMethod(FANTOM_CONTRACTS.STAKE_TOKENIZER, method, args),
   };
 };
 

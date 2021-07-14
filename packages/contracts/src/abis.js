@@ -4,6 +4,7 @@ import pair from "./abis/pair.json";
 import router01 from "./abis/router01.json";
 import router02 from "./abis/router02.json";
 import sfc from "./abis/fantom/sfc-3.0.1.json";
+import stakeTokenizer from "./abis/fantom/stake-tokenizer.json";
 
 export default {
   erc20,
@@ -12,4 +13,5 @@ export default {
   router01,
   router02,
   sfc,
+  stakeTokenizer,
 };
