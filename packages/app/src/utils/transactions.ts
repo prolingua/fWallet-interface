@@ -3,25 +3,31 @@ export const send = async (
   callback: () => Promise<any>,
   dispatch: any
 ) => {
+  let hash: string = null;
   try {
-    const { hash } = await callback();
+    const result = await callback();
+    hash = result.hash;
     dispatch({
       type: "transactionPending",
-      id: hash,
+      hash,
     });
     console.log("PENDING", hash);
-    return new Promise((resolve) => {
+    new Promise((resolve) => {
       provider.once(hash, (transaction: any) => {
         dispatch({
           type: "transactionCompleted",
+          hash,
+          transaction,
         });
         console.log("COMPLETED", transaction);
         resolve(hash);
       });
     });
+    return hash;
   } catch (err) {
     dispatch({
       type: "transactionError",
+      hash,
       error: err,
     });
     throw err;

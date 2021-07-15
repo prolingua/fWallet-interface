@@ -57,6 +57,7 @@ import { addresses } from "@f-wallet/contracts";
 import { BigNumber } from "@ethersproject/bignumber";
 import config from "../../config/config.test";
 import { parse } from "url";
+import useTransaction from "../../hooks/useTransaction";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -398,24 +399,26 @@ const RewardsContent: React.FC<any> = ({ accountDelegationsData }) => {
 const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
   const { color } = useContext(ThemeContext);
   const { txSFCContractMethod } = useFantomContract();
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [claimed, setClaimed] = useState(false);
   const pendingReward = hexToUnit(
     activeDelegation.delegation.pendingRewards.amount
   );
   const formattedPendingReward = toFormattedBalance(
     hexToUnit(activeDelegation.delegation.pendingRewards.amount)
   );
+
+  const [txHash, setTxHash] = useState(null);
+  const { transaction } = useTransaction();
+  const tx = transaction[txHash];
+  const isClaiming = tx && tx.status === "pending";
+  const claimed = tx && tx.status === "completed";
+
   const handleClaimReward = async () => {
-    setIsClaiming(true);
     try {
-      await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
+      const hash = await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
         activeDelegation.delegation.toStakerId,
       ]);
-      setIsClaiming(false);
-      setClaimed(true);
+      setTxHash(hash);
     } catch (error) {
-      setIsClaiming(false);
       console.error(error);
     }
   };
@@ -578,8 +581,6 @@ const LiquidStakingContent: React.FC<any> = ({ accountDelegationsData }) => {
 const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
   const { color } = useContext(ThemeContext);
   const { txStakeTokenizerContractMethod } = useFantomContract();
-  const [isMinting, setIsMinting] = useState(false);
-  const [minted, setMinted] = useState(false);
   const lockedFTM = activeDelegation.delegation.isDelegationLocked
     ? hexToUnit(activeDelegation.delegation.amount)
     : 0;
@@ -593,17 +594,20 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
     : 0;
   const formattedMintableSFTM = toFormattedBalance(mintableSFTM);
 
+  const [txHash, setTxHash] = useState(null);
+  const { transaction } = useTransaction();
+  const tx = transaction[txHash];
+  const isMinting = tx && tx.status === "pending";
+  const minted = tx && tx.status === "completed";
+
   const handleMintSFTM = async () => {
-    setIsMinting(true);
     try {
-      await txStakeTokenizerContractMethod(
+      const hash = await txStakeTokenizerContractMethod(
         STAKE_TOKENIZER_TX_METHODS.mintSFTM,
         [activeDelegation.delegation.toStakerId]
       );
-      setIsMinting(false);
-      setMinted(true);
+      setTxHash(hash);
     } catch (error) {
-      setIsMinting(false);
       console.error(error);
     }
   };
@@ -724,27 +728,26 @@ const RepaySFTMRow: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const { txStakeTokenizerContractMethod } = useFantomContract();
 
-  const [isRepaying, setIsRepaying] = useState(false);
-  const [repaid, setRepaid] = useState(false);
-
   const mintedSFTMinWei = formatHexToBN(
     activeDelegation.delegation.outstandingSFTM
   );
   const mintedSFTM = weiToUnit(mintedSFTMinWei);
   const formattedMintedSFTM = toFormattedBalance(mintedSFTM);
 
+  const [txHash, setTxHash] = useState(null);
+  const { transaction } = useTransaction();
+  const tx = transaction[txHash];
+  const isRepaid = tx && tx.status === "completed";
+  const isRepaying = tx && tx.status === "pending";
+
   const handleRepaySFTM = async () => {
-    setIsRepaying(true);
-    // allowance && approve ?
     try {
-      await txStakeTokenizerContractMethod(
+      const hash = await txStakeTokenizerContractMethod(
         STAKE_TOKENIZER_TX_METHODS.redeemSFTM,
         [activeDelegation.delegation.toStakerId, mintedSFTMinWei]
       );
-      setIsRepaying(false);
-      setRepaid(true);
+      setTxHash(hash);
     } catch (error) {
-      setIsRepaying(false);
       console.error(error);
     }
   };
@@ -759,7 +762,7 @@ const RepaySFTMRow: React.FC<any> = ({
       </Row>
       <Row style={{ width: "10rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>
-          {repaid
+          {isRepaid
             ? "0.00"
             : `${formattedMintedSFTM[0]}${formattedMintedSFTM[1]}`}{" "}
           FTM
@@ -774,19 +777,19 @@ const RepaySFTMRow: React.FC<any> = ({
       >
         {hasAllowance ? (
           <OverlayButton
-            disabled={repaid || isRepaying || mintedSFTM < 0.01}
+            disabled={isRepaid || isRepaying || mintedSFTM < 0.01}
             onClick={() => handleRepaySFTM()}
           >
             <Typo1
               style={{
                 fontWeight: "bold",
                 color:
-                  repaid || mintedSFTM < 0.01
+                  isRepaid || mintedSFTM < 0.01
                     ? color.primary.cyan(0.5)
                     : color.primary.cyan(),
               }}
             >
-              {repaid ? "Repaid" : isRepaying ? "Repaying..." : "Repay sFTM"}
+              {isRepaid ? "Repaid" : isRepaying ? "Repaying..." : "Repay sFTM"}
             </Typo1>
           </OverlayButton>
         ) : (
@@ -956,9 +959,7 @@ const ManageDelegationModal: React.FC<any> = ({
   setActiveStakerId,
   activeDelegations,
 }) => {
-  useEffect(() => {
-    return () => setActiveStakerId(null);
-  }, []);
+  const { txSFCContractMethod } = useFantomContract();
   const selectedDelegation = activeDelegations.find(
     (activeDelegation: any) =>
       activeDelegation.delegation.toStakerId === stakerId
@@ -995,6 +996,20 @@ const ManageDelegationModal: React.FC<any> = ({
   const formattedSelfStaked = toFormattedBalance(selfStaked);
   const formattedTotalStaked = toFormattedBalance(totalStaked);
   const formattedFreeSpace = toFormattedBalance(freeSpace);
+
+  useEffect(() => {
+    return () => setActiveStakerId(null);
+  }, []);
+
+  const handleClaimReward = async () => {
+    try {
+      return txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
+        selectedDelegation.delegation.toStakerId,
+      ]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <Modal onDismiss={onDismiss}>
@@ -1103,11 +1118,19 @@ const ManageDelegationModal: React.FC<any> = ({
       </ContentBox>
       <Spacer size="xl" />
       <Row style={{ width: "100%" }}>
-        <Button style={{ flex: 1, backgroundColor: "red" }} variant="primary">
+        <Button
+          onClick={() => console.log}
+          style={{ flex: 1, backgroundColor: "red" }}
+          variant="primary"
+        >
           Undelegate
         </Button>
         <Spacer />
-        <Button style={{ flex: 1 }} variant="primary">
+        <Button
+          onClick={() => handleClaimReward()}
+          style={{ flex: 1 }}
+          variant="primary"
+        >
           Claim rewards
         </Button>
       </Row>

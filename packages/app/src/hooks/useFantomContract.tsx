@@ -116,18 +116,10 @@ const useFantomContract = () => {
       return;
     }
 
-    const sendTx = async (callback: any) => {
+    const sendTx = (callback: any) => {
       try {
-        setIsPending(method);
-        const result = await send(
-          walletContext.activeWallet.provider,
-          callback,
-          dispatchTx
-        );
-        setIsPending(null);
-        return result;
+        return send(walletContext.activeWallet.provider, callback, dispatchTx);
       } catch (err) {
-        setIsPending(null);
         throw err;
       }
     };

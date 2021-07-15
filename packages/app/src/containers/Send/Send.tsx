@@ -57,6 +57,26 @@ const SendTokensContent: React.FC<any> = ({
     : ["", ""];
 
   const isNative = tokenSelected.symbol === "FTM";
+  const [txHash, setTxHash] = useState(null);
+  const tx = transaction[txHash];
+  const isSending = tx && tx.status === "pending";
+  const isSend = tx && tx.status === "completed";
+
+  const handleSend = async () => {
+    try {
+      const hash = isNative
+        ? await sendNativeTokens(receiverAddress, amountToSend)
+        : await sendTokens(
+            tokenSelected.address,
+            receiverAddress,
+            amountToSend
+          );
+      setTxHash(hash);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const resetStep1 = () => {
     setAmountToSend(null);
     setReceiverAddress(null);
@@ -83,22 +103,22 @@ const SendTokensContent: React.FC<any> = ({
     <InfoModal
       message={
         <div>
-          <div>Transaction {transaction.state}</div>
-          <div>TransactionId {transaction.id}</div>
+          <div>Transaction {tx && tx.status}</div>
+          <div>TransactionId {tx && tx.hash}</div>
         </div>
       }
     />
   );
 
   useEffect(() => {
-    if (transaction.state === "completed") {
+    if (isSend) {
       onPresentTransactionModal();
       setTimeout(() => {
         resetInitial();
       }, 1000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transaction]);
+  }, [tx]);
 
   return (
     <Column style={{ width: "100%", height: "620px" }}>
@@ -232,38 +252,23 @@ const SendTokensContent: React.FC<any> = ({
             <Spacer />
             <Button
               padding="17px"
-              disabled={
-                !acceptedRisk ||
-                transaction.state === "pending" ||
-                transaction.state === "completed"
-              }
+              disabled={!acceptedRisk || isSending || isSend}
               variant="primary"
-              onClick={() =>
-                isNative
-                  ? sendNativeTokens(receiverAddress, amountToSend)
-                  : sendTokens(
-                      tokenSelected.address,
-                      receiverAddress,
-                      amountToSend
-                    )
-              }
+              onClick={handleSend}
             >
-              {transaction.state === "pending"
+              {isSending
                 ? "Sending..."
-                : transaction.state === "completed"
+                : isSend
                 ? "Success"
-                : transaction.state === "failed"
+                : tx && tx.state === "failed"
                 ? "Failed, try again"
                 : "Send now"}
             </Button>
-            {transaction.error ? (
+            {tx && tx.error ? (
               <>
                 <Spacer size="xs" />
                 <Row style={{ justifyContent: "center" }}>
-                  <InputError
-                    fontSize="18px"
-                    error={transaction.error.message}
-                  />
+                  <InputError fontSize="18px" error={tx.error.message} />
                 </Row>
                 <Spacer />
               </>
