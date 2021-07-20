@@ -66,7 +66,7 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
   const formattedLockedFTM = toFormattedBalance(lockedFTM);
   const mintableSFTM = activeDelegation.delegation.isDelegationLocked
     ? weiToUnit(
-        formatHexToBN(activeDelegation.delegation.amount).sub(
+        formatHexToBN(activeDelegation.delegation.lockedAmount).sub(
           formatHexToBN(activeDelegation.delegation.outstandingSFTM)
         )
       )

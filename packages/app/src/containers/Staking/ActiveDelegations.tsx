@@ -94,7 +94,7 @@ const UndelegateModal: React.FC<any> = ({
           <Spacer size="xs" />
           <Typo1 style={{ fontWeight: "bold" }}>
             {" "}
-            {formattedDelegatedAmount[0]} FTM
+            {`${formattedDelegatedAmount[0]}${formattedDelegatedAmount[1]}`} FTM
           </Typo1>
         </Row>
         <Spacer size="xl" />
