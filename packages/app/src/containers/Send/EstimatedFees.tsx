@@ -20,6 +20,7 @@ const EstimatedFees: React.FC<any> = ({
   token,
   tokenPrice,
   gasPrice,
+  loading,
 }) => {
   const { walletContext } = useWalletProvider();
   const { estimateGas } = useFantomERC20();
@@ -56,7 +57,7 @@ const EstimatedFees: React.FC<any> = ({
       setEstimatedGas(result.mul(BigNumber.from(gasPrice.gasPrice)))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currency, token]);
+  }, [currency, token, loading]);
 
   return (
     <Row style={{ justifyContent: "center" }}>
@@ -76,7 +77,7 @@ const EstimatedFees: React.FC<any> = ({
               justifyContent: "space-between",
             }}
           >
-            <div>Estimated Fees </div>
+            <div>Estimated Fees</div>
             <FormattedValue
               formattedValue={formattedEstimatedGas}
               tokenSymbol={"FTM"}
@@ -95,7 +96,9 @@ const EstimatedFees: React.FC<any> = ({
             <div>Estimated Fees in {toCurrencySymbol(currency)}</div>
             <div>
               {toCurrencySymbol(currency)}{" "}
-              {(estimatedGasInUnits * tokenPrice.price.price).toFixed(5)}
+              {(estimatedGasInUnits * (tokenPrice?.price?.price || 0)).toFixed(
+                5
+              )}
             </div>
           </Typo2>
         </Row>

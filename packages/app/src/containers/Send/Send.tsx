@@ -41,6 +41,7 @@ const SendTokensContent: React.FC<any> = ({
   tokenPrice,
   gasPrice,
   currency,
+  loading,
 }) => {
   const { color } = useContext(ThemeContext);
   const [amountToSend, setAmountToSend] = useState(null);
@@ -286,6 +287,7 @@ const SendTokensContent: React.FC<any> = ({
         token={tokenSelected}
         tokenPrice={tokenPrice}
         gasPrice={gasPrice}
+        loading={loading}
       />
     </Column>
   );
@@ -325,17 +327,14 @@ const SendTokens: React.FC<any> = ({
 }) => {
   return (
     <ContentBox style={{ width: "610px" }}>
-      {loading ? (
-        <div>LOADING...</div>
-      ) : (
-        <SendTokensContent
-          accountData={accountData.data}
-          assetsList={assetsList.data}
-          tokenPrice={tokenPrice.data}
-          gasPrice={gasPrice.data}
-          currency={currency}
-        />
-      )}
+      <SendTokensContent
+        accountData={accountData?.data}
+        assetsList={assetsList?.data}
+        tokenPrice={tokenPrice?.data}
+        gasPrice={gasPrice?.data}
+        currency={currency}
+        loading={loading}
+      />
     </ContentBox>
   );
 };

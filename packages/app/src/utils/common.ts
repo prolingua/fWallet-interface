@@ -23,6 +23,9 @@ export const getTotalFTMBalanceForAccount = (
 };
 
 export const getTokenPrice = (tokenPrice: any) => {
+  if (!tokenPrice?.price?.price) {
+    return 0;
+  }
   return tokenPrice.price.price;
 };
 

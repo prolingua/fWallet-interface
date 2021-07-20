@@ -1,5 +1,6 @@
 import { formatHexToBN } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
+import { MaxUint256 } from "@ethersproject/constants";
 
 export interface Delegations {
   stakers: Delegation[];
@@ -36,6 +37,7 @@ export interface AccountDelegation {
   isDelegationLocked: boolean;
   lockedUntil: string;
   toStakerId: string;
+  withdrawRequest: any[];
 }
 
 export interface AccountDelegationSummary {
@@ -94,7 +96,7 @@ export const getAccountDelegationSummary = (
   );
 };
 
-export const daysLockedLeft = (delegation: AccountDelegation) => {
+export const delegationDaysLockedLeft = (delegation: AccountDelegation) => {
   const lockedUntil =
     delegation.isDelegationLocked &&
     formatHexToBN(delegation.lockedUntil).toString();
@@ -108,10 +110,30 @@ export const daysLockedLeft = (delegation: AccountDelegation) => {
     : 0;
 };
 
+export const withdrawDaysLockedLeft = (createdTime: number, daysLocked = 7) => {
+  const lockedTime = daysLocked * 24 * 60 * 60 * 1000;
+  return parseInt(
+    (
+      (createdTime * 1000 + lockedTime - Date.now()) /
+      (1000 * 60 * 60 * 24)
+    ).toString()
+  );
+};
+
 export const nodeUptime = (delegation: Delegation) => {
   return (
     100 -
     parseInt(delegation.downtime) /
       (Date.now() - parseInt(delegation.createdTime))
   );
+};
+
+export const generateWithdrawalRequestId = () => {
+  const hexString = Array(16)
+    .fill(0)
+    .map(() => Math.round(Math.random() * 0xf).toString(16))
+    .join("");
+
+  const randomBigInt = BigInt(`0x${hexString}`);
+  return BigNumber.from(randomBigInt);
 };

@@ -19,12 +19,14 @@ import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import {
   AccountDelegation,
-  daysLockedLeft,
+  delegationDaysLockedLeft,
   Delegation,
+  generateWithdrawalRequestId,
   getAccountDelegations,
   getAccountDelegationSummary,
   getDelegations,
   nodeUptime,
+  withdrawDaysLockedLeft,
 } from "../../utils/delegations";
 import {
   formatHexToBN,
@@ -56,7 +58,6 @@ import useFantomERC20 from "../../hooks/useFantomERC20";
 import { addresses } from "@f-wallet/contracts";
 import { BigNumber } from "@ethersproject/bignumber";
 import config from "../../config/config.test";
-import { parse } from "url";
 import useTransaction from "../../hooks/useTransaction";
 
 export interface ActiveDelegation {
@@ -247,6 +248,28 @@ const DelegateModal: React.FC<any> = ({
           value={parseFloat(delegateAmount)}
           min={0}
           max={parseInt(balance.toString())}
+          marks={{
+            [0]: {
+              style: { color: "white", fontWeight: "bold", fontSize: "16px" },
+              label: "0%",
+            },
+            [(balance * 0.25).toFixed(0)]: {
+              style: { color: "white", fontWeight: "bold", fontSize: "16px" },
+              label: "25%",
+            },
+            [(balance * 0.5).toFixed(0)]: {
+              style: { color: "white", fontWeight: "bold", fontSize: "16px" },
+              label: "50%",
+            },
+            [(balance * 0.75).toFixed(0)]: {
+              style: { color: "white", fontWeight: "bold", fontSize: "16px" },
+              label: "75%",
+            },
+            [parseInt(balance.toString())]: {
+              style: { color: "white", fontWeight: "bold", fontSize: "16px" },
+              label: "100%",
+            },
+          }}
           trackStyle={{ backgroundColor: "#1969FF", height: 5 }}
           handleStyle={{
             borderColor: "#1969FF",
@@ -257,12 +280,9 @@ const DelegateModal: React.FC<any> = ({
             backgroundColor: "#1969FF",
           }}
           railStyle={{ backgroundColor: "#0A162E", height: 5 }}
+          dotStyle={{ backgroundColor: "transparent", border: "none" }}
         />
-        <Spacer size="xs" />
-        <Row style={{ justifyContent: "space-between" }}>
-          <div>0</div>
-          <div>{parseInt(balance.toString())}</div>
-        </Row>
+        <Spacer size="xl" />
       </div>
       <Heading3 style={{ color: color.greys.grey() }}>
         Select a validator node
@@ -953,6 +973,158 @@ const LiquidStaking: React.FC<any> = ({
   );
 };
 
+const UndelegateModal: React.FC<any> = ({
+  onDismiss,
+  stakerId,
+  delegatedAmount,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const { txSFCContractMethod } = useFantomContract();
+  const { transaction } = useTransaction();
+  const [undelegateAmount, setUndelegateAmount] = useState(0);
+  const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
+
+  const [txHash, setTxHash] = useState(null);
+  const tx = transaction[txHash];
+  const isPending = tx && tx.status === "pending";
+  const isCompleted = tx && tx.status === "completed";
+
+  const handleUnstake = async () => {
+    const wrId = generateWithdrawalRequestId().toString();
+    const hash = await txSFCContractMethod(SFC_TX_METHODS.UNDELEGATE, [
+      stakerId,
+      wrId,
+      unitToWei(undelegateAmount.toString()),
+    ]);
+    setTxHash(hash);
+  };
+
+  useEffect(() => {
+    if (isCompleted) {
+      setTimeout(() => {
+        onDismiss();
+      }, 1000);
+    }
+  }, [tx]);
+
+  return (
+    <Modal style={{ padding: "2rem 6rem" }} onDismiss={onDismiss}>
+      <ModalTitle text="How much FTM would you like to unstake?" />
+      <Column style={{ width: "100%", alignItems: "center" }}>
+        <Row>
+          <Typo1 style={{ color: color.greys.grey() }}>
+            Staking position size:{" "}
+          </Typo1>
+          <Spacer size="xs" />
+          <Typo1 style={{ fontWeight: "bold" }}>
+            {" "}
+            {formattedDelegatedAmount[0]} FTM
+          </Typo1>
+        </Row>
+        <Spacer size="xl" />
+        <Row
+          style={{
+            width: "100%",
+            backgroundColor: color.primary.black(),
+            borderRadius: "8px",
+          }}
+        >
+          <Column
+            style={{ padding: "2rem", alignItems: "center", width: "100%" }}
+          >
+            <Heading1 style={{ color: color.white }}>
+              {undelegateAmount} FTM
+            </Heading1>
+          </Column>
+        </Row>
+        <Spacer size="xl" />
+        <div style={{ width: "98%" }}>
+          <Slider
+            onChange={(value) => setUndelegateAmount(value)}
+            value={undelegateAmount}
+            min={0}
+            max={parseInt(delegatedAmount.toString())}
+            step={0.1}
+            marks={{
+              [0]: {
+                style: {
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  padding: "5px 0 0 5px",
+                },
+                label: "0%",
+              },
+              [(delegatedAmount * 0.25).toFixed(2)]: {
+                style: {
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  paddingTop: "5px",
+                },
+                label: "25%",
+              },
+              [(delegatedAmount * 0.5).toFixed(1)]: {
+                style: {
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  paddingTop: "5px",
+                },
+                label: "50%",
+              },
+              [(delegatedAmount * 0.75).toFixed(2)]: {
+                style: {
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  paddingTop: "5px",
+                },
+                label: "75%",
+              },
+              [delegatedAmount]: {
+                style: {
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  paddingTop: "5px",
+                },
+                label: "100%",
+              },
+            }}
+            trackStyle={{ backgroundColor: "#1969FF", height: 7 }}
+            handleStyle={{
+              borderColor: "#1969FF",
+              height: 20,
+              width: 20,
+              marginLeft: 0,
+              marginTop: -7,
+              backgroundColor: "#1969FF",
+            }}
+            railStyle={{ backgroundColor: "#0A162E", height: 7 }}
+            dotStyle={{ backgroundColor: "transparent", border: "none" }}
+          />
+          <Spacer size="xxl" />
+          <Spacer size="xxl" />
+          <Button
+            disabled={isPending || isCompleted || undelegateAmount < 0.01}
+            style={{ padding: "1rem", width: "100%" }}
+            variant="primary"
+            onClick={handleUnstake}
+          >
+            {isCompleted ? "Success" : isPending ? "Unstaking..." : "Unstake"}
+          </Button>
+          <Spacer size="sm" />
+          <Typo1 style={{ textAlign: "center", color: color.greys.grey() }}>
+            *as a security measure, unstaking takes 7 days.
+          </Typo1>
+          <Spacer size="xl" />
+        </div>
+      </Column>
+    </Modal>
+  );
+};
+
 const ManageDelegationModal: React.FC<any> = ({
   onDismiss,
   stakerId,
@@ -960,6 +1132,7 @@ const ManageDelegationModal: React.FC<any> = ({
   activeDelegations,
 }) => {
   const { txSFCContractMethod } = useFantomContract();
+  const { transaction } = useTransaction();
   const selectedDelegation = activeDelegations.find(
     (activeDelegation: any) =>
       activeDelegation.delegation.toStakerId === stakerId
@@ -971,7 +1144,7 @@ const ManageDelegationModal: React.FC<any> = ({
   const pendingRewards = hexToUnit(
     selectedDelegation.delegation.pendingRewards.amount
   );
-  const daysLocked = daysLockedLeft(selectedDelegation.delegation);
+  const daysLocked = delegationDaysLockedLeft(selectedDelegation.delegation);
   const delegationDate = new Date(
     formatHexToInt(selectedDelegation.delegation.createdTime) * 1000
   );
@@ -1001,15 +1174,29 @@ const ManageDelegationModal: React.FC<any> = ({
     return () => setActiveStakerId(null);
   }, []);
 
+  const [txHash, setTxHash] = useState({} as any);
+  const claimRewardTx = transaction[txHash["claimRewardTx"]];
+  const isClaiming = claimRewardTx && claimRewardTx.status === "pending";
+  const claimed = claimRewardTx && claimRewardTx.status === "completed";
+
   const handleClaimReward = async () => {
     try {
-      return txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
+      const hash = await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
         selectedDelegation.delegation.toStakerId,
       ]);
+      setTxHash({ ...txHash, claimRewardTx: hash });
     } catch (error) {
       console.error(error);
     }
   };
+
+  const [onPresentUndelegateModal] = useModal(
+    <UndelegateModal
+      stakerId={selectedDelegation.delegation.toStakerId}
+      delegatedAmount={delegatedAmount}
+    />,
+    "undelegate-modal"
+  );
 
   return (
     <Modal onDismiss={onDismiss}>
@@ -1119,7 +1306,7 @@ const ManageDelegationModal: React.FC<any> = ({
       <Spacer size="xl" />
       <Row style={{ width: "100%" }}>
         <Button
-          onClick={() => console.log}
+          onClick={() => onPresentUndelegateModal()}
           style={{ flex: 1, backgroundColor: "red" }}
           variant="primary"
         >
@@ -1127,11 +1314,12 @@ const ManageDelegationModal: React.FC<any> = ({
         </Button>
         <Spacer />
         <Button
+          disabled={claimed || isClaiming || pendingRewards < 0.01}
           onClick={() => handleClaimReward()}
           style={{ flex: 1 }}
           variant="primary"
         >
-          Claim rewards
+          {claimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim rewards"}
         </Button>
       </Row>
       <Spacer />
@@ -1181,18 +1369,22 @@ const ActiveDelegationsContent: React.FC<any> = ({
         </Typo2>
       </Row>
       <Spacer size="lg" />
-      {activeDelegations.map((delegation: ActiveDelegation) => {
-        return (
-          <StyledActiveDelegationRow
-            onClick={() => {
-              setActiveStakerId(delegation.delegation.toStakerId);
-            }}
-            key={delegation.delegation.toStakerId}
-          >
-            <DelegationBalance activeDelegation={delegation} />
-          </StyledActiveDelegationRow>
-        );
-      })}
+      {activeDelegations.length ? (
+        activeDelegations.map((delegation: ActiveDelegation) => {
+          return (
+            <StyledActiveDelegationRow
+              onClick={() => {
+                setActiveStakerId(delegation.delegation.toStakerId);
+              }}
+              key={delegation.delegation.toStakerId}
+            >
+              <DelegationBalance activeDelegation={delegation} />
+            </StyledActiveDelegationRow>
+          );
+        })
+      ) : (
+        <Heading3>No active delegations</Heading3>
+      )}
     </div>
   );
 };
@@ -1219,6 +1411,144 @@ const ActiveDelegations: React.FC<any> = ({
           <div>Loading...</div>
         ) : (
           <ActiveDelegationsContent
+            accountDelegationsData={accountDelegations.data}
+            delegationsData={delegations.data}
+          />
+        )}
+        <Spacer />
+      </Column>
+    </ContentBox>
+  );
+};
+
+const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
+  const { color } = useContext(ThemeContext);
+  const { txSFCContractMethod } = useFantomContract();
+  const { transaction } = useTransaction();
+  const accountDelegations = getAccountDelegations(accountDelegationsData);
+  // TODO fix typecasting of AccountDelegation
+  const withdrawRequests = accountDelegations.reduce((accumulator, current) => {
+    if ((current as any).delegation.withdrawRequests?.length) {
+      (current as any).delegation.withdrawRequests.forEach((wr: any) => {
+        accumulator.push({
+          toStakerId: (current as any).delegation.toStakerId,
+          ...wr,
+        });
+      });
+    }
+    return accumulator;
+  }, []);
+
+  const unlocksIn = (wr: any) => {
+    return withdrawDaysLockedLeft(formatHexToInt(wr.createdTime));
+  };
+
+  const [txHash, setTxHash] = useState(null);
+  const claimRewardTx = transaction[txHash];
+  const isPending = claimRewardTx && claimRewardTx.status === "pending";
+  const isCompleted = claimRewardTx && claimRewardTx.status === "completed";
+
+  const handleWithdrawStake = async (wr: any) => {
+    console.log(wr);
+    console.log(
+      formatHexToInt(wr.toStakerId),
+      BigNumber.from(wr.withdrawRequestID).toString()
+    );
+    try {
+      const hash = await txSFCContractMethod(SFC_TX_METHODS.WITHDRAW, [
+        formatHexToInt(wr.toStakerId),
+        BigNumber.from(wr.withdrawRequestID).toString(),
+      ]);
+      setTxHash({ ...txHash, claimRewardTx: hash });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div>
+      {" "}
+      <Row style={{ justifyContent: "space-between" }}>
+        <Typo2
+          style={{
+            width: "10rem",
+            fontWeight: "bold",
+            color: color.greys.grey(),
+          }}
+        >
+          Unlocks in
+        </Typo2>
+        <Typo2
+          style={{ flex: 2, fontWeight: "bold", color: color.greys.grey() }}
+        >
+          Amount
+        </Typo2>
+        <div style={{ flex: 1 }} />
+      </Row>
+      <Spacer size="xl" />
+      {withdrawRequests.length ? (
+        withdrawRequests.map((wr) => {
+          return (
+            <Row
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                paddingBottom: "1rem",
+              }}
+            >
+              <Column style={{ width: "10rem" }}>
+                <Typo2 style={{ fontWeight: "bold" }}>
+                  {unlocksIn(wr) > 0 ? `${unlocksIn(wr)} days` : `Unlocked`}
+                </Typo2>
+                <Typo3>
+                  (
+                  {formatDate(
+                    new Date(
+                      (formatHexToInt(wr.createdTime) + 7 * 24 * 60 * 60) * 1000
+                    )
+                  )}
+                  )
+                </Typo3>
+              </Column>
+              <Typo2 style={{ flex: 2, fontWeight: "bold" }}>
+                {hexToUnit(wr.amount)} FTM
+              </Typo2>
+              <Button
+                disabled={unlocksIn(wr) > 0 || isPending || isCompleted}
+                style={{ flex: 1, padding: ".4rem 1.5rem" }}
+                variant="primary"
+                onClick={() => handleWithdrawStake(wr)}
+              >
+                {isPending
+                  ? "Withdrawing..."
+                  : isCompleted
+                  ? "Succes"
+                  : "Withdraw"}
+              </Button>
+            </Row>
+          );
+        })
+      ) : (
+        <Heading3>No pending withdraw requests</Heading3>
+      )}
+    </div>
+  );
+};
+
+const WithdrawRequests: React.FC<any> = ({
+  loading,
+  accountDelegations,
+  delegations,
+}) => {
+  return (
+    <ContentBox>
+      <Column style={{ width: "100%" }}>
+        <Heading1>Withdraw Requests</Heading1>
+        <Spacer />
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <WithdrawRequestsContent
             accountDelegationsData={accountDelegations.data}
             delegationsData={delegations.data}
           />
@@ -1311,6 +1641,12 @@ const Staking: React.FC<any> = () => {
       <Spacer />
       <Column style={{ flex: 5 }}>
         <ActiveDelegations
+          loading={!activeDelegationsIsDoneLoading}
+          accountDelegations={accountDelegations}
+          delegations={delegations}
+        />
+        <Spacer />
+        <WithdrawRequests
           loading={!activeDelegationsIsDoneLoading}
           accountDelegations={accountDelegations}
           delegations={delegations}

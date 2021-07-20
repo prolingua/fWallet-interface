@@ -9,7 +9,7 @@ import Row from "../Row";
 import { Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
-import { daysLockedLeft } from "../../utils/delegations";
+import { delegationDaysLockedLeft } from "../../utils/delegations";
 
 export const DelegationNameInfo: React.FC<any> = ({
   imageSize,
@@ -52,7 +52,7 @@ export const DelegationBalance: React.FC<any> = ({
   const formattedBalance = toFormattedBalance(
     hexToUnit(activeDelegation.delegation.amountDelegated)
   );
-  const daysLocked = daysLockedLeft(activeDelegation.delegation);
+  const daysLocked = delegationDaysLockedLeft(activeDelegation.delegation);
 
   return (
     <Row style={{ justifyContent: "space-between" }}>

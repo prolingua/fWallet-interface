@@ -92,6 +92,12 @@ export const DELEGATIONS_BY_ADDRESS = gql`
           outstandingSFTM
           createdTime
           amount
+          withdrawRequests {
+            withdrawRequestID
+            amount
+            createdTime
+            withdrawTime
+          }
           claimedReward
           pendingRewards {
             amount

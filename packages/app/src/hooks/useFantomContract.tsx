@@ -19,6 +19,8 @@ export enum SFC_TX_METHODS {
   CLAIM_REWARDS = "claimRewards",
   RESTAKE_REWARDS = "restakeRewards",
   DELEGATE = "delegate",
+  UNDELEGATE = "undelegate",
+  WITHDRAW = "withdraw",
 }
 
 const sfcContractCall: { [key in SFC_CALL_METHODS]: any } = {
@@ -45,6 +47,21 @@ const sfcContractTx: { [key in SFC_TX_METHODS]: any } = {
     amount: number
   ) => {
     return contract.delegate(toStakedID, { value: amount });
+  },
+  [SFC_TX_METHODS.UNDELEGATE]: async (
+    contract: Contract,
+    toStakerID: number,
+    wrId: string,
+    amount: number
+  ) => {
+    return contract.undelegate(toStakerID, wrId, amount);
+  },
+  [SFC_TX_METHODS.WITHDRAW]: async (
+    contract: Contract,
+    toStakerID: number,
+    wrId: string
+  ) => {
+    return contract.withdraw(toStakerID, wrId);
   },
 };
 

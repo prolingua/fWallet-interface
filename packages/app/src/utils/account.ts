@@ -1,5 +1,6 @@
 import { formatHexToBN } from "./conversion";
 import { Token } from "../shared/types";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface Account {
   account: {
@@ -30,6 +31,9 @@ export interface ERC20Assets {
 }
 
 export const getAccountBalance = (accountData: Account) => {
+  if (!accountData?.account?.balance) {
+    return BigNumber.from(0);
+  }
   return formatHexToBN(accountData.account.balance);
 };
 
@@ -43,7 +47,7 @@ export const getAccountTransactions = (accountData: Account) => {
 
 export const getAccountAssets = (assetList: ERC20Assets) => {
   if (!assetList?.erc20Assets) {
-    return;
+    return [];
   }
 
   return assetList.erc20Assets;
