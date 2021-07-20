@@ -89,7 +89,6 @@ const stakeTokenizerTx: { [key in STAKE_TOKENIZER_TX_METHODS]: any } = {
 const useFantomContract = () => {
   const { walletContext } = useWalletProvider();
   const { dispatchTx } = useTransaction();
-  const [isPending, setIsPending] = useState(null);
 
   const contractIsLoaded = (contract: any) => {
     if (
@@ -169,7 +168,6 @@ const useFantomContract = () => {
   };
 
   return {
-    isPending,
     callSFCContractMethod: async (method: SFC_CALL_METHODS, args: any[]) =>
       callFantomContractMethod(FANTOM_CONTRACTS.SFC, method, args),
     txSFCContractMethod: async (method: SFC_TX_METHODS, args: any[]) =>
