@@ -893,26 +893,31 @@ const RepaySFTMModal: React.FC<any> = ({
           <div style={{ width: "5rem" }} />
         </Row>
         <Spacer size="sm" />
-        {activeDelegations.map((activeDelegation, index) => {
-          const isLastRow = activeDelegation.length === index + 1;
-          return (
-            <div
-              key={`mint-sftm-row-${activeDelegation.delegation.toStakerId}`}
-              style={{
-                borderBottom: !isLastRow && "2px solid #202F49",
-              }}
-            >
-              <RepaySFTMRow
-                activeDelegation={activeDelegation}
-                approveSpending={handleApprove}
-                isApproving={isApproving}
-                hasAllowance={allowance.gt(
-                  BigNumber.from(unitToWei(mintedSFTM.toString()))
-                )}
-              />
-            </div>
-          );
-        })}
+        {activeDelegations
+          .filter(
+            (activeDelegation) =>
+              parseInt(activeDelegation.delegation.outstandingSFTM) > 0
+          )
+          .map((activeDelegationWithLoan, index) => {
+            const isLastRow = activeDelegationWithLoan.length === index + 1;
+            return (
+              <div
+                key={`mint-sftm-row-${activeDelegationWithLoan.delegation.toStakerId}`}
+                style={{
+                  borderBottom: !isLastRow && "2px solid #202F49",
+                }}
+              >
+                <RepaySFTMRow
+                  activeDelegation={activeDelegationWithLoan}
+                  approveSpending={handleApprove}
+                  isApproving={isApproving}
+                  hasAllowance={allowance.gt(
+                    BigNumber.from(unitToWei(mintedSFTM.toString()))
+                  )}
+                />
+              </div>
+            );
+          })}
         <Spacer size="sm" />
       </ModalContent>
     </Modal>
@@ -989,6 +994,9 @@ const UndelegateModal: React.FC<any> = ({
   const isPending = tx && tx.status === "pending";
   const isCompleted = tx && tx.status === "completed";
 
+  const handleSetMax = () => {
+    setUndelegateAmount(delegatedAmount);
+  };
   const handleUnstake = async () => {
     const wrId = generateWithdrawalRequestId().toString();
     const hash = await txSFCContractMethod(SFC_TX_METHODS.UNDELEGATE, [
@@ -1029,13 +1037,28 @@ const UndelegateModal: React.FC<any> = ({
             borderRadius: "8px",
           }}
         >
-          <Column
-            style={{ padding: "2rem", alignItems: "center", width: "100%" }}
+          <Row
+            style={{
+              padding: "2rem",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <Heading1 style={{ color: color.white }}>
               {undelegateAmount} FTM
             </Heading1>
-          </Column>
+            <Spacer />
+            <Button
+              fontSize="14px"
+              color={color.greys.grey()}
+              padding="8px"
+              variant="tertiary"
+              onClick={handleSetMax}
+            >
+              MAX
+            </Button>
+          </Row>
         </Row>
         <Spacer size="xl" />
         <div style={{ width: "98%" }}>
@@ -1043,7 +1066,7 @@ const UndelegateModal: React.FC<any> = ({
             onChange={(value) => setUndelegateAmount(value)}
             value={undelegateAmount}
             min={0}
-            max={parseInt(delegatedAmount.toString())}
+            max={parseFloat(delegatedAmount.toString())}
             step={0.1}
             marks={{
               [0]: {
@@ -1516,7 +1539,7 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
               <Button
                 disabled={unlocksIn(wr) > 0 || isPending || isCompleted}
                 style={{ flex: 1, padding: ".4rem 1.5rem" }}
-                variant="primary"
+                variant="secondary"
                 onClick={() => handleWithdrawStake(wr)}
               >
                 {isPending
