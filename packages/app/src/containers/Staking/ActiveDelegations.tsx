@@ -32,7 +32,6 @@ import {
   Typo2,
 } from "../../components";
 import Spacer from "../../components/Spacer";
-import Slider from "rc-slider";
 import useModal from "../../hooks/useModal";
 import StatPair from "../../components/StatPair";
 import { formatDate } from "../../utils/common";
@@ -114,7 +113,7 @@ const UndelegateModal: React.FC<any> = ({
             }}
           >
             <Heading1 style={{ color: color.white }}>
-              {undelegateAmount} FTM
+              {parseFloat(undelegateAmount.toFixed(2)).toString()} FTM
             </Heading1>
             <Spacer />
             <Button

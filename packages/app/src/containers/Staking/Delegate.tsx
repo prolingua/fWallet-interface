@@ -114,6 +114,10 @@ const DelegateModal: React.FC<any> = ({
     return setDelegateAmount(value);
   };
 
+  const handleSliderSetDelegateAmount = (value: number) => {
+    return setDelegateAmount(parseFloat(value.toFixed(2)).toString());
+  };
+
   const [txHash, setTxHash] = useState(null);
   const { transaction } = useTransaction();
   const tx = transaction[txHash];
@@ -157,8 +161,8 @@ const DelegateModal: React.FC<any> = ({
       <div style={{ width: "98%" }}>
         <SliderWithMarks
           value={parseFloat(delegateAmount)}
-          setValue={setDelegateAmount}
-          max={parseInt(balance.toString())}
+          setValue={handleSliderSetDelegateAmount}
+          max={parseFloat(balance.toString())}
           steps={0.1}
         />
         <Spacer size="xl" />
@@ -196,6 +200,7 @@ const DelegateModal: React.FC<any> = ({
             const isLastRow = delegations.length === index + 1;
             const isActive = delegation.id === selectedDelegation;
             const isValid =
+              parseInt(delegateAmount) > 0 &&
               hexToUnit(delegation.delegatedLimit) >= parseInt(delegateAmount);
             return (
               <StyledDelegationSelectRow

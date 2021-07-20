@@ -24,10 +24,12 @@ import Column from "./components/Column";
 import Spacer from "./components/Spacer";
 import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 import Scrollbar from "./components/Scrollbar";
+import Governance from "./containers/Governance";
 
 const HomeWithWallet = withConnectedWallet(Home);
 const SendWithWallet = withConnectedWallet(Send);
 const StakingWithWallet = withConnectedWallet(Staking);
+const GovernanceWithWallet = withConnectedWallet(Governance);
 
 function App() {
   const resolutionType = useDetectResolutionType();
@@ -76,8 +78,11 @@ function App() {
                     <Route path="/staking" component={StakingWithWallet} />
                     <Route path="/test" component={Test} />
                     <Route path="/defi" component={Test} />
-                    <Route path="/governance" component={Test} />
-                    <Route path="/" exact component={Test} />
+                    <Route
+                      path="/governance"
+                      component={GovernanceWithWallet}
+                    />
+                    <Route path="/" component={Test} />
                   </Switch>
                 </div>
               </Scrollbar>

@@ -11,8 +11,8 @@ import sendSymbolImg from "../../assets/img/symbols/Send.svg";
 import sendActiveSymbolImg from "../../assets/img/symbols/Send_active.svg";
 import stakingSymbolImg from "../../assets/img/symbols/Staking.svg";
 import stakingActiveSymbolImg from "../../assets/img/symbols/Staking_active.svg";
-// import defiSymbolImg from "../../assets/img/symbols/DeFi.svg";
-// import defiActiveSymbolImg from "../../assets/img/symbols/DeFi_active.svg";
+import defiSymbolImg from "../../assets/img/symbols/DeFi.svg";
+import defiActiveSymbolImg from "../../assets/img/symbols/DeFi_active.svg";
 import governanceSymbolImg from "../../assets/img/symbols/Governance.svg";
 import governanceActiveSymbolImg from "../../assets/img/symbols/Governance_active.svg";
 
@@ -96,6 +96,14 @@ const SideBar: React.FC<any> = () => {
       <SideBarLink
         img={governanceSymbolImg}
         activeImg={governanceActiveSymbolImg}
+        name="Governance"
+        path="/governance"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={defiSymbolImg}
+        activeImg={defiActiveSymbolImg}
         name="Test"
         path="/test"
         currentPath={currentPath}
@@ -106,14 +114,6 @@ const SideBar: React.FC<any> = () => {
       {/*  activeImg={defiActiveSymbolImg}*/}
       {/*  name="Defi"*/}
       {/*  path="/defi"*/}
-      {/*  currentPath={currentPath}*/}
-      {/*  setCurrentPath={setCurrentPath}*/}
-      {/*/>*/}
-      {/*<SideBarLink*/}
-      {/*  img={governanceSymbolImg}*/}
-      {/*  activeImg={governanceActiveSymbolImg}*/}
-      {/*  name="Governance"*/}
-      {/*  path="/governance"*/}
       {/*  currentPath={currentPath}*/}
       {/*  setCurrentPath={setCurrentPath}*/}
       {/*/>*/}

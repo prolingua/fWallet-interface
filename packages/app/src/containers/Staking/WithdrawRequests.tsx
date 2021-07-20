@@ -92,6 +92,7 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
         withdrawRequests.map((wr) => {
           return (
             <Row
+              key={wr.withdrawRequestID}
               style={{
                 justifyContent: "center",
                 alignItems: "center",

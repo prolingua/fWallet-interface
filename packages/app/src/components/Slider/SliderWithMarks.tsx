@@ -2,7 +2,13 @@ import React from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
-const SliderWithMarks: React.FC<any> = ({ value, setValue, max, steps }) => {
+const SliderWithMarks: React.FC<any> = ({
+  value,
+  setValue,
+  min = 0,
+  max,
+  steps,
+}) => {
   const markStyle = (first = false) => {
     return {
       color: "white",
@@ -16,23 +22,23 @@ const SliderWithMarks: React.FC<any> = ({ value, setValue, max, steps }) => {
     <Slider
       onChange={(val) => setValue(val)}
       value={value}
-      min={0}
+      min={min}
       max={max}
       step={steps}
       marks={{
-        [0]: {
+        [min]: {
           style: markStyle(true),
           label: "0%",
         },
-        [(max * 0.25).toFixed(2)]: {
+        [parseFloat(max) * 0.25]: {
           style: markStyle(),
           label: "25%",
         },
-        [(max * 0.5).toFixed(1)]: {
+        [parseFloat(max) * 0.5]: {
           style: markStyle(),
           label: "50%",
         },
-        [(max * 0.75).toFixed(2)]: {
+        [parseFloat(max) * 0.75]: {
           style: markStyle(),
           label: "75%",
         },
