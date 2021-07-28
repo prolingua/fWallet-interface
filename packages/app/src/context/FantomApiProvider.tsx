@@ -10,6 +10,8 @@ const initial: any = {
   getDelegations: null,
   getTokenListForAccount: new Map([]),
   getAssetsListForAccount: new Map([]),
+  getGovernanceContracts: null,
+  getGovernanceProposals: null,
 };
 export const FantomApiContext = React.createContext(null);
 

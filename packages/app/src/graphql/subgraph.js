@@ -87,6 +87,7 @@ export const DELEGATIONS_BY_ADDRESS = gql`
       totalCount
       edges {
         delegation {
+          address
           toStakerId
           amountDelegated
           outstandingSFTM
@@ -212,3 +213,128 @@ export const ERC20_ASSETS = gql`
 //     }
 //   }
 // `;
+
+export const GOVERNANCE_CONTRACTS = gql`
+  query GovernanceContracts {
+    govContracts {
+      name
+      address
+      totalProposals
+    }
+  }
+`;
+
+export const GOVERNANCE_PROPOSALS = gql`
+  query GovernanceProposals(
+    $cursor: Cursor
+    $count: Int!
+    $activeOnly: Boolean!
+    $address: Address!
+    $delegatedTo: Address
+  ) {
+    govProposals(cursor: $cursor, count: $count, activeOnly: $activeOnly) {
+      totalCount
+      pageInfo {
+        first
+        last
+        hasNext
+        hasPrevious
+      }
+      edges {
+        proposal {
+          id
+          name
+          description
+          contract
+          governanceId
+          options
+          state {
+            isResolved
+            status
+            winnerId
+          }
+          minVotes
+          minAgreement
+          votingStarts
+          votingMayEnd
+          votingMustEnd
+          votedWeightRatio
+          vote: vote(from: $address, delegatedTo: $delegatedTo) {
+            from
+            delegatedTo
+            weight
+            choices
+          }
+        }
+        cursor
+      }
+    }
+  }
+`;
+
+export const GOVERNANCE_PROPOSAL = (address = null, delegatedToList = []) => {
+  console.log("GOO!");
+  const generateVotesFragment = (address, delegatedTo) => {
+    const votes = delegatedTo.map(
+      (
+        delegate
+      ) => `vote_${delegate[0]}: vote(from: "${address}", delegatedTo: "${delegate[1]}") {
+            from
+            delegatedTo
+            weight
+            choices
+          }`
+    );
+    return votes.join(" ");
+  };
+  const votes =
+    address && delegatedToList?.length
+      ? generateVotesFragment(address, delegatedToList)
+      : ``;
+  const template =
+    `
+    query GovernanceProposals(
+    $cursor: Cursor
+    $count: Int!
+    $activeOnly: Boolean!
+  ) {
+    govProposals(cursor: $cursor, count: $count, activeOnly: $activeOnly) {
+      totalCount
+      pageInfo {
+        first
+        last
+        hasNext
+        hasPrevious
+      }
+  edges {
+        proposal {
+          id
+          name
+          description
+          contract
+          governanceId
+          options
+          state {
+            isResolved
+            status
+            winnerId
+          }
+          minVotes
+          minAgreement
+          votingStarts
+          votingMayEnd
+          votingMustEnd
+          votedWeightRatio
+          ` +
+    votes +
+    `      
+        }
+        cursor
+      }
+    }
+  }
+`;
+  return gql`
+    ${template}
+  `;
+};
