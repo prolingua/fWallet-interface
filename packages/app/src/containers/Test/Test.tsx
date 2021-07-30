@@ -13,7 +13,7 @@ import { Signer } from "@ethersproject/abstract-signer";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 import useFantomApiData from "../../hooks/useFantomApiData";
 // import { useQuery } from "@apollo/client";
-// import { GET_TOKEN_PRICE } from "../../graphql/subgraph";
+// import { FETCH_TOKEN_PRICE } from "../../graphql/subgraph";
 
 const getNativeBalance = async (provider: Provider, account: string) => {
   const balance = await provider.getBalance(account);
@@ -55,13 +55,13 @@ const Test: React.FC<any> = () => {
   //   loading: GET_GAS_PRICE_loading,
   //   error: GET_GAS_PRICE_error,
   //   data: GET_GAS_PRICE_data,
-  // } = useQuery(GET_GAS_PRICE);
+  // } = useQuery(FETCH_GAS_PRICE);
   // const {
   //   loading: GET_TOKEN_PRICE_loading,
   //   error: GET_TOKEN_PRICE_error,
   //   data: GET_TOKEN_PRICE_data,
   //   refetch: DO_REFETCH,
-  // } = useQuery(GET_TOKEN_PRICE, { variables: { to: "USD" } });
+  // } = useQuery(FETCH_TOKEN_PRICE, { variables: { to: "USD" } });
 
   const [loading, setLoading] = useState([]);
   const [notConnectedNativeBalance, setNotConnectedNativeBalance] = useState(

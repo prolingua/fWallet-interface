@@ -135,10 +135,10 @@ export const Container = styled.div<{ padding?: string }>`
   border-radius: 8px;
 `;
 
-export const ContentBox = styled.div<any>`
+export const ContentBox = styled.div<{ padding?: string }>`
   background-color: ${(props) => props.theme.color.secondary.navy()};
-  display: flex;
-  padding: 2rem;
+  display: inline-flex;
+  padding: ${(props) => (props.padding ? props.padding : "2rem")};
   border-radius: 8px;
 `;
 

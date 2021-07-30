@@ -38,6 +38,8 @@ export interface AccountDelegation {
   lockedUntil: string;
   toStakerId: string;
   withdrawRequest: any[];
+  // TODO clean up circular
+  delegation: AccountDelegation;
 }
 
 export interface AccountDelegationSummary {
@@ -136,4 +138,34 @@ export const generateWithdrawalRequestId = () => {
 
   const randomBigInt = BigInt(`0x${hexString}`);
   return BigNumber.from(randomBigInt);
+};
+
+export const enrichAccountDelegationsWithStakerInfo = (
+  accountDelegations: AccountDelegation[],
+  delegations: Delegation[]
+) => {
+  return accountDelegations.map((accountDelegation: any) => ({
+    ...accountDelegation,
+    delegationInfo: delegations.find((delegation) => {
+      return delegation.id === accountDelegation.delegation.toStakerId;
+    }),
+  }));
+};
+
+export const delegatedToAddressesList = (
+  accountDelegations: any,
+  delegations: any
+) => {
+  if (!accountDelegations?.data || !delegations?.data) {
+    return;
+  }
+  return accountDelegations?.data?.delegationsByAddress?.edges.map(
+    (edge: any) => [
+      parseInt(edge.delegation.toStakerId),
+      delegations.data.stakers.find(
+        (delegationInfo: any) =>
+          delegationInfo.id === edge.delegation.toStakerId
+      ).stakerAddress,
+    ]
+  );
 };

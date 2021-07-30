@@ -12,6 +12,7 @@ const initial: any = {
   getAssetsListForAccount: new Map([]),
   getGovernanceContracts: null,
   getGovernanceProposals: null,
+  getGovernanceProposal: null,
 };
 export const FantomApiContext = React.createContext(null);
 

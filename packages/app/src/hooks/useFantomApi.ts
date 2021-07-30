@@ -1,16 +1,16 @@
 import {
-  GET_ACCOUNT_TRANSACTION_HISTORY,
-  DELEGATIONS_BY_ADDRESS,
-  ERC20_ASSETS,
-  ERC20_TOKEN_LIST_AND_BALANCE,
-  FMINT_ACCOUNT_BY_ADDRESS,
-  GET_GAS_PRICE,
-  GET_TOKEN_PRICE,
-  GET_ACCOUNT_BALANCE,
-  GET_DELEGATIONS,
-  GOVERNANCE_CONTRACTS,
-  GOVERNANCE_PROPOSALS,
-  GOVERNANCE_PROPOSAL,
+  FETCH_ACCOUNT_TRANSACTION_HISTORY,
+  FETCH_DELEGATIONS_BY_ADDRESS,
+  FETCH_ERC20_ASSETS,
+  FETCH_ERC20_TOKEN_LIST_AND_BALANCE,
+  FETCH_FMINT_ACCOUNT_BY_ADDRESS,
+  FETCH_GAS_PRICE,
+  FETCH_TOKEN_PRICE,
+  FETCH_ACCOUNT_BALANCE,
+  FETCH_STAKERS,
+  FETCH_GOVERNANCE_CONTRACTS,
+  FETCH_GOVERNANCE_PROPOSAL,
+  FETCH_GOVERNANCE_PROPOSALS,
 } from "../graphql/subgraph";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
@@ -28,21 +28,27 @@ export enum FantomApiMethods {
   getAssetsListForAccount = "getAssetsListForAccount",
   getDelegations = "getDelegations",
   getGovernanceContracts = "getGovernanceContracts",
+  getGovernanceProposal = "getGovernanceProposal",
   getGovernanceProposals = "getGovernanceProposals",
 }
 const methods: { [key in FantomApiMethods]: any } = {
-  [FantomApiMethods.getAccountBalance]: GET_ACCOUNT_BALANCE,
-  [FantomApiMethods.getAccountTransactionHistory]: GET_ACCOUNT_TRANSACTION_HISTORY,
-  [FantomApiMethods.getTokenPrice]: GET_TOKEN_PRICE,
-  [FantomApiMethods.getGasPrice]: GET_GAS_PRICE,
-  [FantomApiMethods.getDelegationsForAccount]: DELEGATIONS_BY_ADDRESS,
-  [FantomApiMethods.getDelegations]: GET_DELEGATIONS,
-  [FantomApiMethods.getFMintForAccount]: FMINT_ACCOUNT_BY_ADDRESS,
-  [FantomApiMethods.getTokenListForAccount]: ERC20_TOKEN_LIST_AND_BALANCE,
-  [FantomApiMethods.getAssetsListForAccount]: ERC20_ASSETS,
-  [FantomApiMethods.getGovernanceContracts]: GOVERNANCE_CONTRACTS,
+  [FantomApiMethods.getAccountBalance]: () => FETCH_ACCOUNT_BALANCE,
+  [FantomApiMethods.getAccountTransactionHistory]: () =>
+    FETCH_ACCOUNT_TRANSACTION_HISTORY,
+  [FantomApiMethods.getTokenPrice]: () => FETCH_TOKEN_PRICE,
+  [FantomApiMethods.getGasPrice]: () => FETCH_GAS_PRICE,
+  [FantomApiMethods.getDelegationsForAccount]: () =>
+    FETCH_DELEGATIONS_BY_ADDRESS,
+  [FantomApiMethods.getDelegations]: () => FETCH_STAKERS,
+  [FantomApiMethods.getFMintForAccount]: () => FETCH_FMINT_ACCOUNT_BY_ADDRESS,
+  [FantomApiMethods.getTokenListForAccount]: () =>
+    FETCH_ERC20_TOKEN_LIST_AND_BALANCE,
+  [FantomApiMethods.getAssetsListForAccount]: () => FETCH_ERC20_ASSETS,
+  [FantomApiMethods.getGovernanceContracts]: () => FETCH_GOVERNANCE_CONTRACTS,
   [FantomApiMethods.getGovernanceProposals]: (args: any[]) =>
-    GOVERNANCE_PROPOSAL(...args),
+    FETCH_GOVERNANCE_PROPOSALS(...args),
+  [FantomApiMethods.getGovernanceProposal]: (args: any[]) =>
+    FETCH_GOVERNANCE_PROPOSAL(...args),
 };
 
 const useFantomApi = (
@@ -69,7 +75,7 @@ const useFantomApi = (
   };
 
   const { loading, error, data, refetch } = useQuery(
-    args ? methods[request](args) : methods[request],
+    args ? methods[request](args) : methods[request](),
     createOptions()
   );
 

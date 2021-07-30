@@ -29,6 +29,6 @@ export const getTokenPrice = (tokenPrice: any) => {
   return tokenPrice.price.price;
 };
 
-export const formatDate = (date: Date) => {
-  return format(date, "LLL d, yyy, HH:mm");
+export const formatDate = (date: Date, toFormat = "LLL d, yyy, HH:mm") => {
+  return format(date, toFormat);
 };
