@@ -5,6 +5,7 @@ import router01 from "./abis/router01.json";
 import router02 from "./abis/router02.json";
 import sfc from "./abis/fantom/sfc-3.0.1.json";
 import stakeTokenizer from "./abis/fantom/stake-tokenizer.json";
+import gov from "./abis/fantom/gov-abi-0.0.1-rc2.json";
 
 export default {
   erc20,
@@ -14,4 +15,5 @@ export default {
   router02,
   sfc,
   stakeTokenizer,
+  gov,
 };

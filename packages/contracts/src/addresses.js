@@ -16,7 +16,7 @@ const commonContracts = {
   router01: "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a",
   router02: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
 };
-const fantomContracts = {
+const commonFantomContracts = {
   sfc: "0xfc00face00000000000000000000000000000000",
 };
 
@@ -31,15 +31,17 @@ export default {
       SFTM: "",
     },
     ...commonContracts,
-    ...fantomContracts,
+    ...commonFantomContracts,
     stakeTokenizer: "",
+    gov: "",
   },
   [FANTOM_TEST_ID]: {
     tokens: {
       SFTM: "0x3b28f151899bd945ac1559a3540b5741c7d2bd55",
     },
     ...commonContracts,
-    ...fantomContracts,
+    ...commonFantomContracts,
     stakeTokenizer: "0xea285cffa1defe82d34639d275d444785e05a128",
+    gov: "0xaa3a160e91f63f1db959640e0a7b8911b6bd5b95",
   },
 };

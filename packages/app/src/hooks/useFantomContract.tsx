@@ -2,15 +2,11 @@ import { Contract } from "@ethersproject/contracts";
 import useWalletProvider from "./useWalletProvider";
 import { send } from "../utils/transactions";
 import useTransaction from "./useTransaction";
-import { useState } from "react";
-
-// SFC_CLAIM_MAX_EPOCHS represents the max number of epochs
-// available for withdraw per single request.
-export const SFC_CLAIM_MAX_EPOCHS = 300;
 
 export enum FANTOM_CONTRACTS {
   SFC = "sfc",
   STAKE_TOKENIZER = "stakeTokenizer",
+  GOV = "gov",
 }
 export enum SFC_CALL_METHODS {
   URI = "uri",
@@ -86,6 +82,21 @@ const stakeTokenizerTx: { [key in STAKE_TOKENIZER_TX_METHODS]: any } = {
   },
 };
 
+export enum GOV_TX_METHODS {
+  vote = "vote",
+}
+
+const govTx: { [key in GOV_TX_METHODS]: any } = {
+  [GOV_TX_METHODS.vote]: async (
+    contract: Contract,
+    delegatedToAddress: string,
+    proposalId: number,
+    choices: number[]
+  ) => {
+    return contract.vote(delegatedToAddress, proposalId, choices);
+  },
+};
+
 const useFantomContract = () => {
   const { walletContext } = useWalletProvider();
   const { dispatchTx } = useTransaction();
@@ -125,7 +136,7 @@ const useFantomContract = () => {
 
   const txFantomContractMethod = async (
     contract: FANTOM_CONTRACTS,
-    method: SFC_TX_METHODS | STAKE_TOKENIZER_TX_METHODS,
+    method: SFC_TX_METHODS | STAKE_TOKENIZER_TX_METHODS | GOV_TX_METHODS,
     args: any
   ) => {
     if (!contractIsLoaded(contract)) {
@@ -165,6 +176,19 @@ const useFantomContract = () => {
         )
       );
     }
+
+    if (contract === FANTOM_CONTRACTS.GOV) {
+      if (!govTx[method as GOV_TX_METHODS]) {
+        console.error(`[stakeTokenizerContractTx] method: ${method} not found`);
+      }
+
+      return sendTx(() =>
+        govTx[method as GOV_TX_METHODS](
+          walletContext.activeWallet.contracts.get(contract),
+          ...args
+        )
+      );
+    }
   };
 
   return {
@@ -176,6 +200,8 @@ const useFantomContract = () => {
       method: STAKE_TOKENIZER_TX_METHODS,
       args: any[]
     ) => txFantomContractMethod(FANTOM_CONTRACTS.STAKE_TOKENIZER, method, args),
+    txGovContractMethod: async (method: GOV_TX_METHODS, args: any[]) =>
+      txFantomContractMethod(FANTOM_CONTRACTS.GOV, method, args),
   };
 };
 

@@ -129,12 +129,14 @@ const ProposalOverview: React.FC<any> = ({ proposal }) => {
           }
           variant="primary"
           style={{
-            backgroundColor: !isActiveProposal && color.greys.darkGrey(),
+            backgroundColor:
+              !isActiveProposal ||
+              (delegationsToVoteWith[0] === 0 && color.greys.darkGrey()),
           }}
         >
-          {isActiveProposal
+          {isActiveProposal && delegationsToVoteWith[0] > 0
             ? `Vote now (${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left)`
-            : "Details"}
+            : `Details (${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left)`}
         </Button>
       </Column>
     </ContentBox>

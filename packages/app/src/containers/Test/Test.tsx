@@ -71,7 +71,6 @@ const Test: React.FC<any> = () => {
   const [tokenBalance, setTokenBalance] = useState(null);
 
   useFantomApi(FantomApiMethods.getGasPrice, null);
-  console.log(apiData[FantomApiMethods.getGasPrice]);
 
   useFantomApi(FantomApiMethods.getTokenPrice, { to: "USD" });
   // useEffect(() => {
@@ -116,7 +115,6 @@ const Test: React.FC<any> = () => {
         onClick={() => {
           // console.log(DO_REFETCH);
           // DO_REFETCH();
-          console.log(apiData);
           apiData[FantomApiMethods.getGasPrice].refetch();
         }}
       >

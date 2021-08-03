@@ -280,6 +280,7 @@ export const FETCH_GOVERNANCE_PROPOSAL = (
               delegationsBy(from: $from)
               proposal(id: $id) {
                   name
+                  id
                   description
                   contract
                   opinionScales

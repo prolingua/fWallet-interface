@@ -18,7 +18,7 @@ import {
   Typo3,
 } from "../../components";
 import DropDownButton from "../../components/DropDownButton";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import Spacer from "../../components/Spacer";
 import {
   delegatedToAddressesList,
@@ -31,14 +31,21 @@ import {
   formatHexToInt,
   hexToUnit,
   toFormattedBalance,
+  unitToWei,
 } from "../../utils/conversion";
 import vShape from "../../assets/img/shapes/vShape.png";
 import SliderWithMarks from "../../components/Slider";
-import { getProposalStatus } from "../../utils/governance";
+import { getProposalStatus, isProposalActive } from "../../utils/governance";
 import { formatDate } from "../../utils/common";
+import useTransaction from "../../hooks/useTransaction";
+import useFantomContract, {
+  GOV_TX_METHODS,
+  SFC_TX_METHODS,
+} from "../../hooks/useFantomContract";
 
 const DelegationSelectRow: React.FC<any> = ({
   activeDelegation,
+  proposal,
   isSelected,
 }) => {
   const { color } = useContext(ThemeContext);
@@ -46,6 +53,14 @@ const DelegationSelectRow: React.FC<any> = ({
     activeDelegation && hexToUnit(activeDelegation.delegation.amount);
   const formattedAmountStaked =
     amountStaked && toFormattedBalance(amountStaked);
+  const delegationVoteKey = `vote_${parseInt(
+    activeDelegation?.delegation.toStakerId
+  )}`;
+  const hasVoted =
+    proposal &&
+    activeDelegation &&
+    proposal[delegationVoteKey].weight !== "0x0";
+
   return (
     <Row
       style={{
@@ -55,7 +70,13 @@ const DelegationSelectRow: React.FC<any> = ({
       }}
     >
       <DelegationNameInfo delegationInfo={activeDelegation.delegationInfo} />
-      <Row>
+      <Row style={{ alignItems: "center" }}>
+        {hasVoted && (
+          <Row style={{ alignItems: "center" }}>
+            <Typo3>Voted!</Typo3>
+            <Spacer />
+          </Row>
+        )}
         <Typo3
           style={{ color: color.greys.grey() }}
         >{`${formattedAmountStaked[0]} votes`}</Typo3>
@@ -74,6 +95,7 @@ const DelegationSelect: React.FC<any> = ({
   activeDelegations,
   selectedDelegation,
   setSelectedDelegation,
+  proposal,
   handleClose,
 }) => {
   const unselectedDelegations = activeDelegations.filter(
@@ -95,7 +117,10 @@ const DelegationSelect: React.FC<any> = ({
               key={`delegation-select-${index}`}
               onClick={() => setSelectedDelegation(activeDelegation)}
             >
-              <DelegationSelectRow activeDelegation={activeDelegation} />
+              <DelegationSelectRow
+                activeDelegation={activeDelegation}
+                proposal={proposal}
+              />
             </OverlayButton>
           );
         })}
@@ -107,6 +132,7 @@ const DelegationSelector: React.FC<any> = ({
   activeDelegations,
   selectedDelegation,
   setSelectedDelegation,
+  proposal,
 }) => {
   return (
     <DropDownButton
@@ -116,6 +142,7 @@ const DelegationSelector: React.FC<any> = ({
           activeDelegations,
           selectedDelegation,
           setSelectedDelegation,
+          proposal,
         })
       }
       dropdownWidth={400}
@@ -136,6 +163,7 @@ const DelegationSelector: React.FC<any> = ({
         ) : (
           <DelegationSelectRow
             activeDelegation={selectedDelegation}
+            proposal={proposal}
             isSelected
           />
         )}
@@ -144,9 +172,17 @@ const DelegationSelector: React.FC<any> = ({
   );
 };
 
-const ProposalVote: React.FC<any> = ({ hasVoted, options, opinionScales }) => {
+const ProposalVote: React.FC<any> = ({
+  selectedDelegation,
+  proposalId,
+  hasVoted,
+  options,
+  opinionScales,
+  isOpen,
+}) => {
   const [voteState, setVoteState] = useState([]);
   const { color } = useContext(ThemeContext);
+  const { apiData } = useFantomApiData();
 
   const setVoteValue = (value: number, index: number) => {
     const newState = [...voteState];
@@ -155,22 +191,51 @@ const ProposalVote: React.FC<any> = ({ hasVoted, options, opinionScales }) => {
     setVoteState(newState);
   };
 
+  const { txGovContractMethod } = useFantomContract();
+  const [txHash, setTxHash] = useState(null);
+  const { transaction } = useTransaction();
+  const tx = transaction[txHash];
+  const isVotePending = tx && tx.status === "pending";
+  const isVoteCompleted = tx && tx.status === "completed";
+
+  const handleVote = async () => {
+    try {
+      const hash = await txGovContractMethod(GOV_TX_METHODS.vote, [
+        selectedDelegation.delegationInfo.stakerAddress,
+        parseInt(proposalId),
+        voteState,
+      ]);
+      setTxHash(hash);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     if (options?.length && opinionScales?.length) {
-      setVoteState(
+      if (hasVoted?.length) {
+        return setVoteState(hasVoted.map((vote: string) => parseInt(vote)));
+      }
+      return setVoteState(
         Array(options.length).fill(
           parseInt(opinionScales[Math.floor(opinionScales.length / 2)])
         )
       );
     }
-  }, [options, opinionScales]);
+  }, [options, opinionScales, hasVoted]);
+
+  useEffect(() => {
+    if (isVoteCompleted) {
+      apiData[FantomApiMethods.getGovernanceProposal].refetch();
+    }
+  }, [transaction]);
   return (
     <ContentBox style={{ flex: 3 }}>
       <Column style={{ width: "100%", gap: "2rem" }}>
         {options &&
           options.map((option: any, index: number) => {
             return (
-              <Column>
+              <Column key={`option-vote-${option}`}>
                 <Typo1
                   style={{ color: color.greys.grey(), fontWeight: "bold" }}
                 >
@@ -178,17 +243,24 @@ const ProposalVote: React.FC<any> = ({ hasVoted, options, opinionScales }) => {
                 </Typo1>
                 <Spacer />
                 {opinionScales && (
-                  <SliderWithMarks
-                    value={voteState[index]}
-                    setValue={(value: number) => setVoteValue(value, index)}
-                    max={parseInt(opinionScales[opinionScales.length - 1])}
-                    markInPercentage={false}
-                    markLabels={opinionScales.map((scale: string) =>
-                      parseInt(scale)
-                    )}
-                    color="white"
-                    secondaryColor={color.greys.grey(0.5)}
-                  />
+                  <StyledSliderWrapper>
+                    <SliderWithMarks
+                      disabled={hasVoted?.length || !isOpen}
+                      value={voteState[index]}
+                      setValue={(value: number) => setVoteValue(value, index)}
+                      max={parseInt(opinionScales[opinionScales.length - 1])}
+                      markInPercentage={false}
+                      markLabels={opinionScales.map((scale: string) =>
+                        parseInt(scale)
+                      )}
+                      color={
+                        hasVoted?.length || !isOpen
+                          ? color.greys.grey(0.9)
+                          : "white"
+                      }
+                      secondaryColor={color.greys.grey(0.5)}
+                    />
+                  </StyledSliderWrapper>
                 )}
                 <Spacer size="xxl" />
               </Column>
@@ -196,17 +268,30 @@ const ProposalVote: React.FC<any> = ({ hasVoted, options, opinionScales }) => {
           })}
         <Button
           style={{ marginTop: "auto" }}
-          disabled={hasVoted}
+          disabled={hasVoted?.length || !isOpen}
           variant="primary"
+          onClick={handleVote}
         >
-          {hasVoted ? "Already voted" : "Vote"}
+          {hasVoted?.length || isVoteCompleted
+            ? "Already voted"
+            : !isOpen
+            ? "Voting ended"
+            : isVotePending
+            ? "Voting..."
+            : "Vote"}
         </Button>
       </Column>
     </ContentBox>
   );
 };
 
-const ProposalResult: React.FC<any> = ({ proposal }) => {
+const StyledSliderWrapper = styled.div`
+  .rc-slider-disabled {
+    background-color: transparent !important;
+  }
+`;
+
+const ProposalResult: React.FC<any> = ({ proposal, isOpen }) => {
   const { color } = useContext(ThemeContext);
   const minVotes = proposal && hexToUnit(proposal.minVotes, 16);
   const minAgreement = proposal && hexToUnit(proposal.minAgreement, 16);
@@ -243,7 +328,6 @@ const ProposalResult: React.FC<any> = ({ proposal }) => {
             <Row
               style={{
                 justifyContent: "space-between",
-                paddingBottom: "1rem",
                 borderBottom: "2px solid #202F49",
               }}
             >
@@ -259,8 +343,10 @@ const ProposalResult: React.FC<any> = ({ proposal }) => {
               optionStates.map((optionState: any) => {
                 return (
                   <Row
+                    key={`option-result-${optionState.optionId}`}
                     style={{
                       justifyContent: "space-between",
+                      paddingTop: "1rem",
                     }}
                   >
                     <Typo2 style={{ fontWeight: "bold" }}>
@@ -278,11 +364,11 @@ const ProposalResult: React.FC<any> = ({ proposal }) => {
         <Heading2
           style={{
             marginTop: "auto",
-            marginBottom: "1rem",
+            marginBottom: ".6rem",
             textAlign: "center",
           }}
         >
-          {getProposalStatus(proposal?.state.status)}
+          {isOpen ? getProposalStatus(proposal?.state.status) : "Voting closed"}
         </Heading2>
       </Column>
     </ContentBox>
@@ -294,9 +380,11 @@ const ProposalOverview: React.FC<any> = ({ proposal, selectedDelegation }) => {
     selectedDelegation?.delegation.toStakerId
   )}`;
   const hasVoted =
-    proposal &&
-    selectedDelegation &&
-    proposal[delegationVoteKey].weight !== "0x0";
+    proposal && selectedDelegation && proposal[delegationVoteKey].choices;
+  const proposalStatus = proposal && getProposalStatus(proposal.state.status);
+  const isActive = proposal && isProposalActive(proposal);
+  const isOpen = proposalStatus === "In progress" && isActive;
+
   return (
     <>
       <Row>
@@ -312,11 +400,14 @@ const ProposalOverview: React.FC<any> = ({ proposal, selectedDelegation }) => {
       <Spacer />
       <Row style={{ width: "100%", gap: "1rem" }}>
         <ProposalVote
+          selectedDelegation={selectedDelegation}
           hasVoted={hasVoted}
           options={proposal?.options}
           opinionScales={proposal?.opinionScales}
+          proposalId={proposal?.id}
+          isOpen={isOpen}
         />
-        <ProposalResult proposal={proposal} />
+        <ProposalResult proposal={proposal} isOpen={isOpen} />
         <ContentBox style={{ flex: 2 }}>
           {proposal && (
             <Column>
@@ -433,6 +524,7 @@ const Proposal: React.FC<any> = () => {
             activeDelegations={activeDelegations}
             selectedDelegation={selectedDelegation}
             setSelectedDelegation={setSelectedDelegation}
+            proposal={proposalResponse?.data?.govContract.proposal}
           />
         </Column>
       </Row>

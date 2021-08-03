@@ -64,6 +64,7 @@ export const loadContracts = async (signer: Signer, chainId: number) => {
         signer
       ),
     ],
+    ["gov", new Contract(addresses[chainId]["gov"], abis.gov, signer)],
   ]);
 };
 
