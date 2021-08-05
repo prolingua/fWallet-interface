@@ -427,6 +427,7 @@ const StyledActiveDelegationRow = styled.div`
   cursor: pointer;
   :hover {
     background-color: ${(props) => props.theme.color.primary.semiWhite(0.1)};
+    cursor: pointer;
   }
 `;
 

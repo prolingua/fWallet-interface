@@ -10,15 +10,18 @@ import { Button, ContentBox, Heading1, Typo1, Typo2 } from "../../components";
 import {
   getGovernanceProposals,
   getInactiveGovernanceProposals,
+  getProposalStatus,
   isProposalActive,
   votesLeftForProposal,
 } from "../../utils/governance";
 import Spacer from "../../components/Spacer";
 import SliderWithMarks from "../../components/Slider";
 import { formatHexToBN, formatHexToInt } from "../../utils/conversion";
-import { BigNumber } from "@ethersproject/bignumber";
 import { formatDate } from "../../utils/common";
 import { delegatedToAddressesList } from "../../utils/delegations";
+import CheckMarkImg from "../../assets/img/symbols/CheckMark.svg";
+import CrossMarkImg from "../../assets/img/symbols/CrossMark.svg";
+import StopMarkImg from "../../assets/img/symbols/StopMark.svg";
 
 const CategorySwitch: React.FC<any> = ({
   categories,
@@ -55,25 +58,14 @@ const StyledCategorySelector = styled.div<{ isActive: boolean }>`
   cursor: ${(props) => (props.isActive ? "default" : "pointer")};
 `;
 
-const ProposalOverview: React.FC<any> = ({ proposal }) => {
+const ProposalBox: React.FC<any> = ({ proposal }) => {
   const history = useHistory();
   const { color } = useContext(ThemeContext);
-  // const minVotes = formatHexToBN(proposal.proposal.minVotes);
-  // const votedWeightRatio = proposal.proposal.votedWeightRatio;
-  // const totalWeight = formatHexToBN(proposal.proposal.totalWeight);
   const currentVoted =
     proposal.proposal &&
     proposal.proposal.votedWeightRatio &&
     proposal.proposal.votedWeightRatio / 10;
 
-  // const votesCast =
-  //   votedWeightRatio === 0
-  //     ? BigNumber.from(0)
-  //     : totalWeight
-  //         .mul(BigNumber.from(votedWeightRatio))
-  //         .div(BigNumber.from(1000));
-  //
-  // const votesPercentageToMinimum = votesCast.div(minVotes).toNumber() * 100;
   const delegationsToVoteWith = votesLeftForProposal(proposal.proposal);
   const isActiveProposal = isProposalActive(proposal.proposal);
 
@@ -122,6 +114,15 @@ const ProposalOverview: React.FC<any> = ({ proposal }) => {
             )}
           </Typo1>
         </Row>
+        <Spacer size="sm" />
+        <Row style={{ justifyContent: "space-between" }}>
+          <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+            Votes
+          </Typo2>
+          <Typo1 style={{ color: "white" }}>
+            {`${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left`}
+          </Typo1>
+        </Row>
         <Spacer size="xl" />
         <Button
           onClick={() =>
@@ -135,8 +136,8 @@ const ProposalOverview: React.FC<any> = ({ proposal }) => {
           }}
         >
           {isActiveProposal && delegationsToVoteWith[0] > 0
-            ? `Vote now (${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left)`
-            : `Details (${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left)`}
+            ? `Vote now`
+            : `Details`}
         </Button>
       </Column>
     </ContentBox>
@@ -169,14 +170,111 @@ const StyledSliderWrapper = styled.div<{ value: number }>`
   }
 `;
 
+const ProposalTable: React.FC<any> = ({ proposals }) => {
+  const history = useHistory();
+  const statusMark = (status: string) => {
+    if (status === "Resolved") {
+      return CheckMarkImg;
+    }
+    if (status === "Failed") {
+      return CrossMarkImg;
+    }
+    return StopMarkImg;
+  };
+  return (
+    <Column style={{ marginTop: "1rem", width: "100%" }}>
+      <Row style={{ width: "100%", textAlign: "center" }}>
+        <Typo1 style={{ flex: 4, textAlign: "start", fontWeight: "bold" }}>
+          Name
+        </Typo1>
+        <Typo1 style={{ flex: 1, fontWeight: "bold" }}>Status</Typo1>
+        <Typo1 style={{ flex: 2, fontWeight: "bold" }}>Winner</Typo1>
+        <Typo1 style={{ flex: 2, fontWeight: "bold" }}>Total votes</Typo1>
+        <Typo1 style={{ flex: 2, fontWeight: "bold" }}>Ending date</Typo1>
+        <Typo1 style={{ flex: 2, textAlign: "end", fontWeight: "bold" }}>
+          Voted
+        </Typo1>
+      </Row>
+      <Spacer size="xs" />
+      {proposals &&
+        proposals.length &&
+        proposals.map((proposal: any) => {
+          const delegationsToVoteWith = votesLeftForProposal(proposal.proposal);
+          return (
+            <StyledProposalRow
+              key={`proposal-row-${proposal.proposal.id}`}
+              onClick={() =>
+                history.push(`governance/proposal/${proposal.proposal.id}`)
+              }
+            >
+              <Row
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Typo1 style={{ flex: 4, textAlign: "start" }}>
+                  {proposal.proposal.name}
+                </Typo1>
+                <Typo1 style={{ flex: 1 }}>
+                  <img
+                    style={{ paddingTop: ".15rem" }}
+                    src={statusMark(
+                      getProposalStatus(proposal.proposal.state.status)
+                    )}
+                  />
+                </Typo1>
+                <Typo1 style={{ flex: 2 }}>
+                  {getProposalStatus(proposal.proposal.state.status) ===
+                  "Resolved"
+                    ? proposal.proposal.options[
+                        parseInt(proposal.proposal.state.winnerId)
+                      ]
+                    : "-"}
+                </Typo1>
+                <Typo1 style={{ flex: 2 }}>
+                  {proposal.proposal.votedWeightRatio / 10}%
+                </Typo1>
+                <Typo1 style={{ flex: 2 }}>
+                  {formatDate(
+                    new Date(parseInt(proposal.proposal.votingMustEnd) * 1000),
+                    "LLLL d, yyy"
+                  )}
+                </Typo1>
+                <Typo1 style={{ flex: 2, textAlign: "end" }}>
+                  {delegationsToVoteWith[1] === delegationsToVoteWith[0]
+                    ? "-"
+                    : `${
+                        delegationsToVoteWith[1] - delegationsToVoteWith[0]
+                      } / ${delegationsToVoteWith[1]}`}
+                </Typo1>
+              </Row>
+            </StyledProposalRow>
+          );
+        })}
+    </Column>
+  );
+};
+
+const StyledProposalRow = styled(Row)`
+  :hover {
+    background-color: ${(props) => props.theme.color.primary.semiWhite(0.1)};
+    cursor: pointer;
+  }
+  padding: 0.3rem 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+`;
+
 const GovernanceProposalsList: React.FC<any> = ({
   loading,
   governanceProposalsData,
-  filterNotActive,
+  filterInactive,
 }) => {
   const governanceProposals = getGovernanceProposals(governanceProposalsData);
   const filteredProposals =
-    governanceProposals && filterNotActive
+    governanceProposals && filterInactive
       ? getInactiveGovernanceProposals(governanceProposals)
       : governanceProposals;
 
@@ -184,11 +282,11 @@ const GovernanceProposalsList: React.FC<any> = ({
     <Row style={{ flexWrap: "wrap", gap: "1rem" }}>
       {loading ? (
         <div>Loading...</div>
+      ) : filterInactive ? (
+        <ProposalTable proposals={filteredProposals} />
       ) : filteredProposals && filteredProposals.length ? (
         filteredProposals.map((proposal: any) => {
-          return (
-            <ProposalOverview key={proposal.proposal.id} proposal={proposal} />
-          );
+          return <ProposalBox key={proposal.proposal.id} proposal={proposal} />;
         })
       ) : (
         <div> No proposals found! </div>
@@ -280,7 +378,7 @@ const Governance: React.FC<any> = () => {
       <GovernanceProposalsList
         loading={!governanceProposals?.data}
         governanceProposalsData={governanceProposals?.data}
-        filterNotActive={activeCategory === "Past proposals"}
+        filterInactive={activeCategory === "Past proposals"}
       />
     </Column>
   );

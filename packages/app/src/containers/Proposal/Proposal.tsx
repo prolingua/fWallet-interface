@@ -183,6 +183,32 @@ const ProposalVote: React.FC<any> = ({
   const [voteState, setVoteState] = useState([]);
   const { color } = useContext(ThemeContext);
   const { apiData } = useFantomApiData();
+  const { txGovContractMethod } = useFantomContract();
+  const { transaction } = useTransaction();
+  const [voteTxHash, setVoteTxHash] = useState(null);
+  const [cancelVoteTxHash, setCancelVoteTxHash] = useState(null);
+  const voteTx = transaction[voteTxHash];
+  const cancelVoteTx = transaction[cancelVoteTxHash];
+  const isVotePending = voteTx && voteTx.status === "pending";
+  const isVoteCompleted = voteTx && voteTx.status === "completed";
+  const isCancelVotePending = cancelVoteTx && cancelVoteTx.status === "pending";
+  const isCancelVoteCompleted =
+    cancelVoteTx && cancelVoteTx.status === "completed";
+
+  // const isUnchangedVote = () => {
+  //   if (hasVoted?.length === voteState.length) {
+  //     let isEqual = true;
+  //     const result = hasVoted.forEach((vote: string, index: number) => {
+  //       if (parseInt(vote) === voteState[index]) {
+  //         return;
+  //       }
+  //       isEqual = false;
+  //     });
+  //
+  //     return isEqual;
+  //   }
+  //   return true;
+  // };
 
   const setVoteValue = (value: number, index: number) => {
     const newState = [...voteState];
@@ -191,13 +217,6 @@ const ProposalVote: React.FC<any> = ({
     setVoteState(newState);
   };
 
-  const { txGovContractMethod } = useFantomContract();
-  const [txHash, setTxHash] = useState(null);
-  const { transaction } = useTransaction();
-  const tx = transaction[txHash];
-  const isVotePending = tx && tx.status === "pending";
-  const isVoteCompleted = tx && tx.status === "completed";
-
   const handleVote = async () => {
     try {
       const hash = await txGovContractMethod(GOV_TX_METHODS.vote, [
@@ -205,7 +224,19 @@ const ProposalVote: React.FC<any> = ({
         parseInt(proposalId),
         voteState,
       ]);
-      setTxHash(hash);
+      setVoteTxHash(hash);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCancelVote = async () => {
+    try {
+      const hash = await txGovContractMethod(GOV_TX_METHODS.cancelVote, [
+        selectedDelegation.delegationInfo.stakerAddress,
+        parseInt(proposalId),
+      ]);
+      setCancelVoteTxHash(hash);
     } catch (err) {
       console.error(err);
     }
@@ -225,10 +256,10 @@ const ProposalVote: React.FC<any> = ({
   }, [options, opinionScales, hasVoted]);
 
   useEffect(() => {
-    if (isVoteCompleted) {
+    if (isVoteCompleted || isCancelVoteCompleted) {
       apiData[FantomApiMethods.getGovernanceProposal].refetch();
     }
-  }, [transaction]);
+  }, [isVoteCompleted, isCancelVoteCompleted]);
   return (
     <ContentBox style={{ flex: 3 }}>
       <Column style={{ width: "100%", gap: "2rem" }}>
@@ -245,7 +276,7 @@ const ProposalVote: React.FC<any> = ({
                 {opinionScales && (
                   <StyledSliderWrapper>
                     <SliderWithMarks
-                      disabled={hasVoted?.length || !isOpen}
+                      disabled={!isOpen || hasVoted?.length || isVotePending}
                       value={voteState[index]}
                       setValue={(value: number) => setVoteValue(value, index)}
                       max={parseInt(opinionScales[opinionScales.length - 1])}
@@ -254,7 +285,7 @@ const ProposalVote: React.FC<any> = ({
                         parseInt(scale)
                       )}
                       color={
-                        hasVoted?.length || !isOpen
+                        !isOpen || hasVoted?.length
                           ? color.greys.grey(0.9)
                           : "white"
                       }
@@ -266,20 +297,25 @@ const ProposalVote: React.FC<any> = ({
               </Column>
             );
           })}
-        <Button
-          style={{ marginTop: "auto" }}
-          disabled={hasVoted?.length || !isOpen}
-          variant="primary"
-          onClick={handleVote}
-        >
-          {hasVoted?.length || isVoteCompleted
-            ? "Already voted"
-            : !isOpen
-            ? "Voting ended"
-            : isVotePending
-            ? "Voting..."
-            : "Vote"}
-        </Button>
+        {hasVoted?.length && isOpen ? (
+          <Button
+            style={{ marginTop: "auto" }}
+            disabled={!hasVoted?.length || isCancelVotePending}
+            variant="primary"
+            onClick={handleCancelVote}
+          >
+            {isCancelVotePending ? "Cancelling..." : "Cancel vote"}
+          </Button>
+        ) : (
+          <Button
+            style={{ marginTop: "auto" }}
+            disabled={!isOpen || isVotePending}
+            variant="primary"
+            onClick={handleVote}
+          >
+            {!isOpen ? "Voting ended" : isVotePending ? "Voting..." : "Vote"}
+          </Button>
+        )}
       </Column>
     </ContentBox>
   );

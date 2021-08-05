@@ -84,6 +84,7 @@ const stakeTokenizerTx: { [key in STAKE_TOKENIZER_TX_METHODS]: any } = {
 
 export enum GOV_TX_METHODS {
   vote = "vote",
+  cancelVote = "cancelVote",
 }
 
 const govTx: { [key in GOV_TX_METHODS]: any } = {
@@ -94,6 +95,13 @@ const govTx: { [key in GOV_TX_METHODS]: any } = {
     choices: number[]
   ) => {
     return contract.vote(delegatedToAddress, proposalId, choices);
+  },
+  [GOV_TX_METHODS.cancelVote]: async (
+    contract: Contract,
+    delegatedToAddress: string,
+    proposalId: number
+  ) => {
+    return contract.cancelVote(delegatedToAddress, proposalId);
   },
 };
 
