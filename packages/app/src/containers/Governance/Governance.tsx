@@ -78,17 +78,16 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
           Voting progress
         </Typo1>
         <Spacer />
-        <StyledSliderWrapper value={currentVoted || 0}>
-          <SliderWithMarks
-            value={currentVoted || 0}
-            max={100}
-            steps={1}
-            markPoints={[0, 33, 66, 100]}
-            disabled
-            tooltip
-            color="#FFA319"
-          />
-        </StyledSliderWrapper>
+        <SliderWithMarks
+          value={currentVoted || 0}
+          max={100}
+          steps={1}
+          markPoints={[0, 33, 66, 100]}
+          disabled
+          tooltip
+          color="#FFA319"
+          tooltipTextColor="#ffa319"
+        />
         <Spacer size="xl" />
         <Spacer size="xl" />
         <Row style={{ justifyContent: "space-between" }}>
@@ -143,32 +142,6 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
     </ContentBox>
   );
 };
-
-const StyledSliderWrapper = styled.div<{ value: number }>`
-  margin: 0 0.5rem;
-  .rc-slider-disabled {
-    background-color: transparent !important;
-  }
-
-  .rc-slider-handle {
-    z-index: 10;
-  }
-
-  .rc-slider-handle::after {
-    position: absolute;
-    width: 2.6rem;
-    text-align: center;
-    top: 24px;
-    left: -1.3rem;
-    font-size: 16px;
-    font-weight: bold;
-    color: #ffa319;
-    padding: 0.2rem 0.5rem;
-    background-color: white;
-    border-radius: 3px;
-    content: "${(props) => `${props.value}%`}";
-  }
-`;
 
 const ProposalTable: React.FC<any> = ({ proposals }) => {
   const history = useHistory();
@@ -296,6 +269,7 @@ const GovernanceProposalsList: React.FC<any> = ({
 };
 
 const Governance: React.FC<any> = () => {
+  const history = useHistory();
   const { breakpoints } = useContext(ThemeContext);
   const { apiData } = useFantomApiData();
   const { walletContext } = useWalletProvider();
@@ -372,7 +346,12 @@ const Governance: React.FC<any> = () => {
           setActiveCategory={setActiveCategory}
           activeCategory={activeCategory}
         />
-        <Button variant="primary">Create new proposal</Button>
+        <Button
+          variant="primary"
+          onClick={() => history.push(`governance/proposal/create`)}
+        >
+          Create new proposal
+        </Button>
       </ResponsiveRow>
       <Spacer />
       <GovernanceProposalsList

@@ -34,6 +34,8 @@ export default {
     ...commonFantomContracts,
     stakeTokenizer: "",
     gov: "",
+    govProposal: "0x7403b7d2d0645f576ef5f702736390ad9fb6f6b0",
+    govProposalPlaintext: "0xc9f5aa2c93ae9e89a77dc60e7e3cfff1234e4287",
   },
   [FANTOM_TEST_ID]: {
     tokens: {
@@ -43,5 +45,7 @@ export default {
     ...commonFantomContracts,
     stakeTokenizer: "0xea285cffa1defe82d34639d275d444785e05a128",
     gov: "0xaa3a160e91f63f1db959640e0a7b8911b6bd5b95",
+    govProposal: "0xf843e0625e4975e7e654b2f1b374818ba2b4ffbf",
+    govProposalPlaintext: "0xb4673f085ae472c2974febfed3a41bb73aeb172e",
   },
 };

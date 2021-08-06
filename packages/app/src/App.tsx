@@ -26,12 +26,14 @@ import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 import Scrollbar from "./components/Scrollbar";
 import Governance from "./containers/Governance";
 import Proposal from "./containers/Proposal";
+import CreateProposal from "./containers/Proposal/CreateProposal";
 
 const HomeWithWallet = withConnectedWallet(Home);
 const SendWithWallet = withConnectedWallet(Send);
 const StakingWithWallet = withConnectedWallet(Staking);
 const GovernanceWithWallet = withConnectedWallet(Governance);
 const ProposalWithWallet = withConnectedWallet(Proposal);
+const CreateProposalWithWallet = withConnectedWallet(CreateProposal);
 
 function App() {
   const resolutionType = useDetectResolutionType();
@@ -83,6 +85,11 @@ function App() {
                     <Route
                       path="/governance"
                       component={GovernanceWithWallet}
+                      exact
+                    />
+                    <Route
+                      path="/governance/proposal/create"
+                      component={CreateProposalWithWallet}
                       exact
                     />
                     <Route

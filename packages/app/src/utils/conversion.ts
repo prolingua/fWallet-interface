@@ -1,4 +1,9 @@
 import { BigNumber, parseFixed } from "@ethersproject/bignumber";
+import { formatBytes32String } from "@ethersproject/strings";
+
+export const formatStringToBytes32 = (value: string) => {
+  return formatBytes32String(value);
+};
 
 export const formatHexToBN = (value: string) => {
   return BigNumber.from(value);

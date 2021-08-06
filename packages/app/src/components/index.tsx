@@ -148,7 +148,33 @@ export const Input = styled.input`
   border: none;
   color: white;
   font-size: 20px;
-  font-weight: bold;
+
+  :focus {
+    outline: none;
+  }
+
+  ::-webkit-outer-spin-button,
+  ::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  [type="number"] {
+    -moz-appearance: textfield;
+  }
+`;
+
+export const TextArea = styled.textarea`
+  font-family: "proxima-nova", sans-serif;
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  padding-top: 1.5rem;
+  height: 170px;
+  resize: none;
+  line-height: 24px;
 
   :focus {
     outline: none;
