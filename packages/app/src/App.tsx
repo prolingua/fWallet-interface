@@ -26,7 +26,7 @@ import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
 import Scrollbar from "./components/Scrollbar";
 import Governance from "./containers/Governance";
 import Proposal from "./containers/Proposal";
-import CreateProposal from "./containers/Proposal/CreateProposal";
+import CreateProposal from "./containers/CreateProposal";
 
 const HomeWithWallet = withConnectedWallet(Home);
 const SendWithWallet = withConnectedWallet(Send);
