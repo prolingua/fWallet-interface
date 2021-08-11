@@ -27,7 +27,9 @@ import {
   Button,
   ContentBox,
   Heading1,
+  Heading2,
   Heading3,
+  OverlayButton,
   Typo1,
   Typo2,
 } from "../../components";
@@ -39,6 +41,7 @@ import DelegationBalance, {
   DelegationNameInfo,
 } from "../../components/DelegationBalance/DelegationBalance";
 import SliderWithMarks from "../../components/Slider";
+import CircularRatioBar from "../../components/CircularRatioBar";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -162,6 +165,7 @@ const ManageDelegationModal: React.FC<any> = ({
   setActiveStakerId,
   activeDelegations,
 }) => {
+  const { color } = useContext(ThemeContext);
   const { txSFCContractMethod } = useFantomContract();
   const { transaction } = useTransaction();
   const selectedDelegation = activeDelegations.find(
@@ -186,7 +190,6 @@ const ManageDelegationModal: React.FC<any> = ({
   const formattedPendingRewards = toFormattedBalance(pendingRewards);
   const formattedLockedAmount = toFormattedBalance(lockedAmount);
 
-  const uptime = nodeUptime(selectedDelegation.delegationInfo);
   const selfStaked = hexToUnit(selectedDelegation.delegationInfo.stake);
   const totalStaked = hexToUnit(selectedDelegation.delegationInfo.totalStake);
   const delegations = formatHexToInt(
@@ -200,10 +203,7 @@ const ManageDelegationModal: React.FC<any> = ({
   const formattedSelfStaked = toFormattedBalance(selfStaked);
   const formattedTotalStaked = toFormattedBalance(totalStaked);
   const formattedFreeSpace = toFormattedBalance(freeSpace);
-
-  useEffect(() => {
-    return () => setActiveStakerId(null);
-  }, []);
+  const [activeTab, setActiveTab] = useState("Overview");
 
   const [txHash, setTxHash] = useState({} as any);
   const claimRewardTx = transaction[txHash["claimRewardTx"]];
@@ -229,17 +229,49 @@ const ManageDelegationModal: React.FC<any> = ({
     "undelegate-modal"
   );
 
+  useEffect(() => {
+    return () => setActiveStakerId(null);
+  }, []);
+
   return (
-    <Modal onDismiss={onDismiss}>
-      <ModalTitle text="Delegation details" />
-      <ContentBox
-        style={{
-          width: "92%",
-          border: "1px solid #707B8F",
-          borderRadius: "8px",
-        }}
-      >
-        <Column>
+    <Modal
+      onDismiss={onDismiss}
+      style={{
+        padding: "0",
+        backgroundColor: color.primary.black(),
+        minWidth: "45rem",
+      }}
+    >
+      <Row style={{ alignSelf: "flex-start" }}>
+        <Row style={{ height: "4rem" }}>
+          <OverlayButton
+            style={{
+              backgroundColor:
+                activeTab === "Overview"
+                  ? color.secondary.navy()
+                  : "transparent",
+              padding: "0 2rem",
+            }}
+            onClick={() => setActiveTab("Overview")}
+          >
+            <Heading3>Overview</Heading3>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              backgroundColor:
+                activeTab === "Pending undelegations"
+                  ? color.secondary.navy()
+                  : "transparent",
+              padding: "0 2rem",
+            }}
+            onClick={() => setActiveTab("Pending undelegations")}
+          >
+            <Heading3>Pending undelegations</Heading3>
+          </OverlayButton>
+        </Row>
+      </Row>
+      <ContentBox style={{ width: "100%", padding: 0 }}>
+        <Column style={{ padding: "2rem", width: "100%" }}>
           <Row
             style={{ alignItems: "center", justifyContent: "space-between" }}
           >
@@ -248,9 +280,39 @@ const ManageDelegationModal: React.FC<any> = ({
               value1={formattedDelegatedAmount[0]}
               value2={formattedDelegatedAmount[1]}
               suffix="FTM"
+              width="12rem"
             />
-
             <Spacer size="xxl" />
+            <StatPair
+              title="Delegation date"
+              value2={formatDate(delegationDate)}
+              width="12rem"
+            />
+            <Spacer size="xxl" />
+            <Row>
+              <StatPair
+                title="Pending rewards"
+                value1={formattedPendingRewards[0]}
+                value2={formattedPendingRewards[1]}
+                suffix="FTM"
+              />
+              <Spacer />
+              <Button
+                disabled={claimed || isClaiming || pendingRewards < 0.01}
+                onClick={() => handleClaimReward()}
+                style={{
+                  flex: 1,
+                  padding: ".5rem 1.5rem",
+                  alignSelf: "center",
+                }}
+                variant="primary"
+              >
+                {claimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim"}
+              </Button>
+            </Row>
+          </Row>
+          <Spacer size="xxl" />
+          <Row style={{ alignItems: "center" }}>
             <StatPair
               title="Locked amount"
               value1={formattedLockedAmount[0]}
@@ -259,100 +321,93 @@ const ManageDelegationModal: React.FC<any> = ({
               width="12rem"
             />
             <Spacer size="xxl" />
-
-            <StatPair
-              title="Pending rewards"
-              value1={formattedPendingRewards[0]}
-              value2={formattedPendingRewards[1]}
-              suffix="FTM"
-            />
-          </Row>
-          <Spacer />
-          <Row
-            style={{ alignItems: "center", justifyContent: "space-between" }}
-          >
             <StatPair
               title="Unlocks in"
               value1={daysLocked > 0 ? `${daysLocked} days` : "-"}
-              value2={daysLocked > 0 && `(${formatDate(unlockDate)})`}
-            />
-            <Spacer size="xxl" />
-            <StatPair
-              title="Delegation date"
-              value2={formatDate(delegationDate)}
-              width="12rem"
+              value2={daysLocked > 0 && `\u00A0\u00A0${formatDate(unlockDate)}`}
             />
           </Row>
         </Column>
       </ContentBox>
       <Spacer />
       <ContentBox
-        style={{
-          width: "92%",
-          border: "1px solid #707B8F",
-          borderRadius: "8px",
-          backgroundColor: "#09172E",
-        }}
+        style={{ backgroundColor: "transparent", width: "100%", padding: 0 }}
       >
-        <Column style={{ width: "100%" }}>
-          <DelegationNameInfo
-            delegationInfo={selectedDelegation.delegationInfo}
-          />
-          <Spacer />
-          <Row
-            style={{
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+        <Row
+          style={{
+            width: "100%",
+            padding: "2rem",
+            justifyContent: "space-between",
+          }}
+        >
+          <Column>
             <StatPair
-              title="Node ID"
-              value1={parseInt(selectedDelegation.delegation.toStakerId)}
+              title="Lock-up"
+              value1="343 days"
+              value1FontSize="20px"
               width="12rem"
             />
-            <StatPair title="Uptime" value1={`${uptime}%`} width="12rem" />
-            <StatPair title="Delegators" value1={delegations} width="12rem" />
-          </Row>
-          <Spacer />
-          <Row
+            <Spacer />
+            <StatPair
+              title="Delegators"
+              value1={delegations}
+              value1FontSize="20px"
+              width="12rem"
+            />
+            <Spacer />
+            <div>Icons</div>
+          </Column>
+          <Column>
+            <div style={{ height: "5rem" }}>
+              <CircularRatioBar
+                ratios={[70, 80]}
+                ratioColors={["#3F69D4", "#2BBEBE"]}
+              >
+                <DelegationNameInfo
+                  delegationInfo={selectedDelegation.delegationInfo}
+                  imageSize="35px"
+                  flexColumn
+                />
+              </CircularRatioBar>
+            </div>
+          </Column>
+          <Column
             style={{ alignItems: "center", justifyContent: "space-between" }}
           >
             <StatPair
-              title="Total staked"
-              value1={formattedTotalStaked[0]}
-              width="12rem"
-            />
-            <StatPair
               title="Self staked"
+              titleColor="#3F69D4"
               value1={formattedSelfStaked[0]}
+              value1FontSize="20px"
               width="12rem"
             />
+            <Spacer />
+            <StatPair
+              title="Total staked"
+              titleColor="#2BBEBE"
+              value1={formattedTotalStaked[0]}
+              value1FontSize="20px"
+              width="12rem"
+            />
+            <Spacer />
             <StatPair
               title="Free space"
               value1={formattedFreeSpace[0]}
+              value1FontSize="20px"
               value2={`(${freeSpacePercentage.toFixed(0)}%)`}
               width="12rem"
             />
-          </Row>
-        </Column>
+          </Column>
+        </Row>
       </ContentBox>
       <Spacer size="xl" />
-      <Row style={{ width: "100%" }}>
+      <Row style={{ width: "90%" }}>
         <Button
           onClick={() => onPresentUndelegateModal()}
-          style={{ flex: 1, backgroundColor: "red" }}
-          variant="primary"
+          style={{ flex: 1, border: "1px solid red" }}
+          variant="secondary"
         >
           Undelegate
-        </Button>
-        <Spacer />
-        <Button
-          disabled={claimed || isClaiming || pendingRewards < 0.01}
-          onClick={() => handleClaimReward()}
-          style={{ flex: 1 }}
-          variant="primary"
-        >
-          {claimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim rewards"}
         </Button>
       </Row>
       <Spacer />

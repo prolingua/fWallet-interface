@@ -166,6 +166,9 @@ export const FETCH_STAKERS = gql`
       delegatedLimit
       createdTime
       downtime
+      lockedUntil
+      isStakeLocked
+      lockedFromEpoch
       stakerInfo {
         name
         website

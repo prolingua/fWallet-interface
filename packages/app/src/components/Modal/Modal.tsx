@@ -9,7 +9,7 @@ export interface ModalProps {
 const Modal: React.FC<any> = ({ children, style, onDismiss }) => {
   return (
     <StyledResponsiveWrapper>
-      <StyledModal padding={style?.padding && style.padding}>
+      <StyledModal style={{ ...style }}>
         {onDismiss && <ModalClose onDismiss={onDismiss} />}
         {children}
       </StyledModal>

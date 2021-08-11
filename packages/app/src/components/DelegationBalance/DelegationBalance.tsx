@@ -15,17 +15,19 @@ export const DelegationNameInfo: React.FC<any> = ({
   imageSize,
   delegationInfo,
   daysLocked,
+  flexColumn,
 }) => {
   const { color } = useContext(ThemeContext);
-  return (
-    <Row style={{ alignItems: "center" }}>
+  const content = (
+    <>
       <img
         alt=""
         style={{
           borderRadius: "50%",
           width: imageSize,
           height: imageSize,
-          marginRight: ".6rem",
+          marginRight: !flexColumn && ".6rem",
+          marginBottom: flexColumn && ".2rem",
         }}
         src={delegationInfo?.logoURL || delegationFallbackImg}
       />
@@ -39,7 +41,16 @@ export const DelegationNameInfo: React.FC<any> = ({
           </Typo3>
         )}
       </Column>
-    </Row>
+    </>
+  );
+  return (
+    <>
+      {flexColumn ? (
+        <Column style={{ alignItems: "center" }}>{content}</Column>
+      ) : (
+        <Row style={{ alignItems: "center" }}>{content}</Row>
+      )}
+    </>
   );
 };
 

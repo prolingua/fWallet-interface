@@ -114,7 +114,7 @@ export const Button = styled.button<{
   font-weight: bold;
   text-align: center;
   text-decoration: none;
-  padding: ${(props) => (props.padding ? props.padding : "12px 24px")};
+  padding: ${(props) => (props.padding ? props.padding : "14px 24px")};
   transition: 0.2s all;
   width: ${(props) => props.width && props.width};
 

@@ -7,27 +7,36 @@ import Column from "../Column";
 
 const StatPair: React.FC<any> = ({
   title,
+  titleFontSize,
+  titleColor,
   value1,
+  value1FontSize,
   value2,
+  value2FontSize,
   suffix,
   spacer = "xxs",
-  titleColor,
   width,
 }) => {
   const { color } = useContext(ThemeContext);
   return (
     <Column style={{ width: width && width }}>
       <Typo1
-        style={{ fontWeight: "bold", color: titleColor || color.greys.grey() }}
+        style={{
+          fontSize: titleFontSize && titleFontSize,
+          fontWeight: "bold",
+          color: titleColor || color.greys.grey(),
+        }}
       >
         {title}
       </Typo1>
       <Spacer size={spacer} />
       <Row style={{ alignItems: "flex-end" }}>
-        <div style={{ fontSize: "24px", fontWeight: "bold" }}>{value1}</div>
+        <div style={{ fontSize: value1FontSize || "24px", fontWeight: "bold" }}>
+          {value1}
+        </div>
         <div
           style={{
-            fontSize: "18px",
+            fontSize: value2FontSize || "18px",
             fontWeight: "bold",
             color: color.greys.darkGrey(),
             paddingBottom: ".1rem",
@@ -38,7 +47,7 @@ const StatPair: React.FC<any> = ({
         <Spacer size="xxs" />
         <div
           style={{
-            fontSize: "18px",
+            fontSize: value2FontSize || "18px",
             fontWeight: "bold",
             color: color.greys.darkGrey(),
             paddingBottom: ".1rem",
