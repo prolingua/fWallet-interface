@@ -1,5 +1,5 @@
 import React from "react";
-import { getAccountDelegationSummary } from "../../utils/delegations";
+import { getAccountDelegationSummary } from "../../utils/delegation";
 import { toFormattedBalance, weiToUnit } from "../../utils/conversion";
 import Row from "../../components/Row";
 import StatPair from "../../components/StatPair";

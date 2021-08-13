@@ -8,7 +8,7 @@ import {
   weiToUnit,
 } from "../../utils/conversion";
 import StatPair from "../../components/StatPair";
-import { getDelegations, nodeUptime } from "../../utils/delegations";
+import { getValidators, validatorNodeUptime } from "../../utils/delegation";
 import Row from "../../components/Row";
 import { DelegationNameInfo } from "../../components/DelegationBalance/DelegationBalance";
 import {
@@ -56,7 +56,7 @@ const DelegationSelectRow: React.FC<any> = ({ delegation }) => {
   const formattedLimit = toFormattedBalance(
     hexToUnit(delegation.delegatedLimit)
   );
-  const uptime = nodeUptime(delegation);
+  const uptime = validatorNodeUptime(delegation);
 
   return (
     <Row
@@ -105,7 +105,7 @@ const DelegateModal: React.FC<any> = ({
   const { txSFCContractMethod } = useFantomContract();
   const balanceInWei = getAccountBalance(accountBalanceData);
   const balance = weiToMaxUnit(balanceInWei.toString());
-  const delegations = getDelegations(delegationsData);
+  const delegations = getValidators(delegationsData);
 
   const handleSetDelegateAmount = (value: string) => {
     if (parseFloat(value) > balance) {

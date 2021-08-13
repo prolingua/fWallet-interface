@@ -1,12 +1,16 @@
 import {
   AccountDelegation,
-  Delegation,
+  Validator,
   delegationDaysLockedLeft,
   generateWithdrawalRequestId,
   getAccountDelegations,
-  getDelegations,
-  nodeUptime,
-} from "../../utils/delegations";
+  getValidators,
+  canLockDelegation,
+  maxLockDays,
+  minLockDays,
+  withdrawDaysLockedLeft,
+  withdrawLockTimeLeft,
+} from "../../utils/delegation";
 import React, { useContext, useEffect, useState } from "react";
 import styled, { ThemeContext } from "styled-components";
 import useFantomContract, {
@@ -32,6 +36,7 @@ import {
   OverlayButton,
   Typo1,
   Typo2,
+  Typo3,
 } from "../../components";
 import Spacer from "../../components/Spacer";
 import useModal from "../../hooks/useModal";
@@ -42,10 +47,16 @@ import DelegationBalance, {
 } from "../../components/DelegationBalance/DelegationBalance";
 import SliderWithMarks from "../../components/Slider";
 import CircularRatioBar from "../../components/CircularRatioBar";
+import WithdrawRequests from "./WithdrawRequests";
+import { BigNumber } from "@ethersproject/bignumber";
+import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import WithdrawRequestRow from "../../components/WithdrawRequestRow";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
-  delegationInfo: Delegation;
+  delegationInfo: Validator;
 }
 
 const UndelegateModal: React.FC<any> = ({
@@ -159,61 +170,56 @@ const UndelegateModal: React.FC<any> = ({
   );
 };
 
-const ManageDelegationModal: React.FC<any> = ({
-  onDismiss,
-  stakerId,
-  setActiveStakerId,
-  activeDelegations,
-}) => {
-  const { color } = useContext(ThemeContext);
+const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const { txSFCContractMethod } = useFantomContract();
   const { transaction } = useTransaction();
-  const selectedDelegation = activeDelegations.find(
-    (activeDelegation: any) =>
-      activeDelegation.delegation.toStakerId === stakerId
-  );
+  const [txHash, setTxHash] = useState({} as any);
+
   const delegatedAmount = hexToUnit(
-    selectedDelegation.delegation.amountDelegated
+    activeDelegation.delegation.amountDelegated
   );
-  const lockedAmount = hexToUnit(selectedDelegation.delegation.lockedAmount);
+  const lockedAmount = hexToUnit(activeDelegation.delegation.lockedAmount);
   const pendingRewards = hexToUnit(
-    selectedDelegation.delegation.pendingRewards.amount
+    activeDelegation.delegation.pendingRewards.amount
   );
-  const daysLocked = delegationDaysLockedLeft(selectedDelegation.delegation);
+  const daysLocked = delegationDaysLockedLeft(activeDelegation.delegation);
   const delegationDate = new Date(
-    formatHexToInt(selectedDelegation.delegation.createdTime) * 1000
+    formatHexToInt(activeDelegation.delegation.createdTime) * 1000
   );
   const unlockDate = new Date(
-    formatHexToInt(selectedDelegation.delegation.lockedUntil) * 1000
+    formatHexToInt(activeDelegation.delegation.lockedUntil) * 1000
   );
+  const selfStaked = hexToUnit(activeDelegation.delegationInfo.stake);
+  const totalStaked = hexToUnit(activeDelegation.delegationInfo.totalStake);
+  const delegations = formatHexToInt(
+    activeDelegation.delegationInfo.delegations.totalCount
+  );
+  const freeSpace = hexToUnit(activeDelegation.delegationInfo.delegatedLimit);
+  const freeSpacePercentage =
+    100 -
+    freeSpace / hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit);
+
   const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
   const formattedPendingRewards = toFormattedBalance(pendingRewards);
   const formattedLockedAmount = toFormattedBalance(lockedAmount);
-
-  const selfStaked = hexToUnit(selectedDelegation.delegationInfo.stake);
-  const totalStaked = hexToUnit(selectedDelegation.delegationInfo.totalStake);
-  const delegations = formatHexToInt(
-    selectedDelegation.delegationInfo.delegations.totalCount
-  );
-  const freeSpace = hexToUnit(selectedDelegation.delegationInfo.delegatedLimit);
-  const freeSpacePercentage =
-    100 -
-    freeSpace /
-      hexToUnit(selectedDelegation.delegationInfo.totalDelegatedLimit);
   const formattedSelfStaked = toFormattedBalance(selfStaked);
   const formattedTotalStaked = toFormattedBalance(totalStaked);
   const formattedFreeSpace = toFormattedBalance(freeSpace);
-  const [activeTab, setActiveTab] = useState("Overview");
 
-  const [txHash, setTxHash] = useState({} as any);
   const claimRewardTx = transaction[txHash["claimRewardTx"]];
   const isClaiming = claimRewardTx && claimRewardTx.status === "pending";
   const claimed = claimRewardTx && claimRewardTx.status === "completed";
 
+  const maxDelegationLockUp =
+    canLockDelegation(
+      activeDelegation.delegation,
+      activeDelegation.delegationInfo
+    ) && maxLockDays(activeDelegation.delegationInfo);
+
   const handleClaimReward = async () => {
     try {
       const hash = await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
-        selectedDelegation.delegation.toStakerId,
+        activeDelegation.delegation.toStakerId,
       ]);
       setTxHash({ ...txHash, claimRewardTx: hash });
     } catch (error) {
@@ -223,53 +229,13 @@ const ManageDelegationModal: React.FC<any> = ({
 
   const [onPresentUndelegateModal] = useModal(
     <UndelegateModal
-      stakerId={selectedDelegation.delegation.toStakerId}
+      stakerId={activeDelegation.delegation.toStakerId}
       delegatedAmount={delegatedAmount}
     />,
     "undelegate-modal"
   );
-
-  useEffect(() => {
-    return () => setActiveStakerId(null);
-  }, []);
-
   return (
-    <Modal
-      onDismiss={onDismiss}
-      style={{
-        padding: "0",
-        backgroundColor: color.primary.black(),
-        minWidth: "45rem",
-      }}
-    >
-      <Row style={{ alignSelf: "flex-start" }}>
-        <Row style={{ height: "4rem" }}>
-          <OverlayButton
-            style={{
-              backgroundColor:
-                activeTab === "Overview"
-                  ? color.secondary.navy()
-                  : "transparent",
-              padding: "0 2rem",
-            }}
-            onClick={() => setActiveTab("Overview")}
-          >
-            <Heading3>Overview</Heading3>
-          </OverlayButton>
-          <OverlayButton
-            style={{
-              backgroundColor:
-                activeTab === "Pending undelegations"
-                  ? color.secondary.navy()
-                  : "transparent",
-              padding: "0 2rem",
-            }}
-            onClick={() => setActiveTab("Pending undelegations")}
-          >
-            <Heading3>Pending undelegations</Heading3>
-          </OverlayButton>
-        </Row>
-      </Row>
+    <>
       <ContentBox style={{ width: "100%", padding: 0 }}>
         <Column style={{ padding: "2rem", width: "100%" }}>
           <Row
@@ -343,7 +309,7 @@ const ManageDelegationModal: React.FC<any> = ({
           <Column>
             <StatPair
               title="Lock-up"
-              value1="343 days"
+              value1={maxDelegationLockUp ? `${maxDelegationLockUp} days` : "-"}
               value1FontSize="20px"
               width="12rem"
             />
@@ -355,7 +321,6 @@ const ManageDelegationModal: React.FC<any> = ({
               width="12rem"
             />
             <Spacer />
-            <div>Icons</div>
           </Column>
           <Column>
             <div style={{ height: "5rem" }}>
@@ -364,7 +329,7 @@ const ManageDelegationModal: React.FC<any> = ({
                 ratioColors={["#3F69D4", "#2BBEBE"]}
               >
                 <DelegationNameInfo
-                  delegationInfo={selectedDelegation.delegationInfo}
+                  delegationInfo={activeDelegation.delegationInfo}
                   imageSize="35px"
                   flexColumn
                 />
@@ -401,7 +366,7 @@ const ManageDelegationModal: React.FC<any> = ({
         </Row>
       </ContentBox>
       <Spacer size="xl" />
-      <Row style={{ width: "90%" }}>
+      <Row style={{ padding: "0rem 2rem" }}>
         <Button
           onClick={() => onPresentUndelegateModal()}
           style={{ flex: 1, border: "1px solid red" }}
@@ -411,6 +376,132 @@ const ManageDelegationModal: React.FC<any> = ({
         </Button>
       </Row>
       <Spacer />
+    </>
+  );
+};
+
+const WithdrawRequestsTab: React.FC<any> = ({ activeDelegation }) => {
+  const { color } = useContext(ThemeContext);
+  const withdrawRequests = activeDelegation.delegation.withdrawRequests
+    .filter((wr: any) => wr.withdrawTime === null)
+    .sort((a: any, b: any) => a.createdTime - b.createdTime)
+    .map((activeWr: any) => ({
+      toStakerId: activeDelegation.delegation.toStakerId,
+      ...activeWr,
+    }));
+
+  const totalAmountToWithdraw = withdrawRequests.reduce(
+    (accumulator: number, current: any) =>
+      accumulator + hexToUnit(current.amount),
+    0
+  );
+  const formattedTotalAmountToWithdraw = toFormattedBalance(
+    totalAmountToWithdraw
+  );
+
+  return (
+    <ContentBox style={{ width: "100%", height: "100%", padding: 0 }}>
+      <Column style={{ padding: "2rem", width: "100%" }}>
+        <StatPair
+          title="Total undelegations"
+          value1={formattedTotalAmountToWithdraw[0]}
+          value2={formattedTotalAmountToWithdraw[1]}
+          suffix="FTM"
+        />
+        <Spacer size="xl" />
+        <Row style={{ justifyContent: "space-between" }}>
+          <Typo1
+            style={{ flex: 2, fontWeight: "bold", color: color.greys.grey() }}
+          >
+            Amount
+          </Typo1>
+          <Typo1
+            style={{
+              fontWeight: "bold",
+              color: color.greys.grey(),
+              alignSelf: "flex-end",
+            }}
+          >
+            Unlocking in
+          </Typo1>
+        </Row>
+        <Spacer size="sm" />
+        <Column style={{ gap: "1rem" }}>
+          {withdrawRequests.length ? (
+            withdrawRequests.map((wr: any) => {
+              return <WithdrawRequestRow withdrawRequest={wr} />;
+            })
+          ) : (
+            <Heading3>No pending withdraw requests</Heading3>
+          )}
+        </Column>
+      </Column>
+    </ContentBox>
+  );
+};
+
+const ManageDelegationModal: React.FC<any> = ({
+  onDismiss,
+  stakerId,
+  setActiveStakerId,
+  activeDelegations,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const [activeTab, setActiveTab] = useState("Overview");
+
+  const selectedDelegation = activeDelegations.find(
+    (activeDelegation: any) =>
+      activeDelegation.delegation.toStakerId === stakerId
+  );
+
+  useEffect(() => {
+    return () => setActiveStakerId(null);
+  }, []);
+
+  return (
+    <Modal
+      onDismiss={onDismiss}
+      style={{
+        padding: "0",
+        backgroundColor: color.primary.black(),
+        minWidth: "50rem",
+      }}
+    >
+      <Row style={{ alignSelf: "flex-start" }}>
+        <Row style={{ height: "4rem" }}>
+          <OverlayButton
+            style={{
+              backgroundColor:
+                activeTab === "Overview"
+                  ? color.secondary.navy()
+                  : "transparent",
+              padding: "0 2rem",
+            }}
+            onClick={() => setActiveTab("Overview")}
+          >
+            <Heading3>Overview</Heading3>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              backgroundColor:
+                activeTab === "Pending undelegations"
+                  ? color.secondary.navy()
+                  : "transparent",
+              padding: "0 2rem",
+            }}
+            onClick={() => setActiveTab("Pending undelegations")}
+          >
+            <Heading3>Pending undelegations</Heading3>
+          </OverlayButton>
+        </Row>
+      </Row>
+      <div style={{ height: "625px", width: "100%" }}>
+        {activeTab === "Overview" ? (
+          <DelegationOverviewTab activeDelegation={selectedDelegation} />
+        ) : (
+          <WithdrawRequestsTab activeDelegation={selectedDelegation} />
+        )}
+      </div>
     </Modal>
   );
 };
@@ -422,7 +513,7 @@ const ActiveDelegationsContent: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [activeStakerId, setActiveStakerId] = useState(null);
   const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getDelegations(delegationsData);
+  const delegations = getValidators(delegationsData);
   const activeDelegations = accountDelegations.map(
     (accountDelegation: any) => ({
       ...accountDelegation,

@@ -18,7 +18,7 @@ import Spacer from "../../components/Spacer";
 import SliderWithMarks from "../../components/Slider";
 import { formatHexToBN, formatHexToInt } from "../../utils/conversion";
 import { formatDate } from "../../utils/common";
-import { delegatedToAddressesList } from "../../utils/delegations";
+import { delegatedToAddressesList } from "../../utils/delegation";
 import CheckMarkImg from "../../assets/img/symbols/CheckMark.svg";
 import CrossMarkImg from "../../assets/img/symbols/CrossMark.svg";
 import StopMarkImg from "../../assets/img/symbols/StopMark.svg";

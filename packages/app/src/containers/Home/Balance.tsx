@@ -11,7 +11,7 @@ import {
   toFormattedBalance,
   weiToUnit,
 } from "../../utils/conversion";
-import { getAccountDelegationSummary } from "../../utils/delegations";
+import { getAccountDelegationSummary } from "../../utils/delegation";
 import { getCurrentCRatio, getLockedCollateral } from "../../utils/fMint";
 import { getAccountBalance } from "../../utils/account";
 import { getTotalFTMBalanceForAccount } from "../../utils/common";

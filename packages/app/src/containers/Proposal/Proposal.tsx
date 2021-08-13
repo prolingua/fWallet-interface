@@ -8,8 +8,8 @@ import {
   delegatedToAddressesList,
   enrichAccountDelegationsWithStakerInfo,
   getAccountDelegations,
-  getDelegations,
-} from "../../utils/delegations";
+  getValidators,
+} from "../../utils/delegation";
 import { Typo1 } from "../../components";
 import Column from "../../components/Column";
 import Row from "../../components/Row";
@@ -61,7 +61,7 @@ const Proposal: React.FC<any> = () => {
       const accountDelegations = getAccountDelegations(
         accountDelegationsResponse.data
       );
-      const delegations = getDelegations(delegationsResponse.data);
+      const delegations = getValidators(delegationsResponse.data);
       const enrichedDelegations = enrichAccountDelegationsWithStakerInfo(
         accountDelegations,
         delegations

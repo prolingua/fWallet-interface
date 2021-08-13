@@ -5,8 +5,8 @@ import { ThemeContext } from "styled-components";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
-  getDelegations,
-} from "../../utils/delegations";
+  getValidators,
+} from "../../utils/delegation";
 import {
   formatHexToBN,
   hexToUnit,
@@ -147,7 +147,7 @@ const MintSFTMModal: React.FC<any> = ({
 }) => {
   const { color } = useContext(ThemeContext);
   const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getDelegations(delegationsData);
+  const delegations = getValidators(delegationsData);
   const activeDelegations = !(delegations && accountDelegations)
     ? []
     : accountDelegations.map((accountDelegation: any) => ({
@@ -303,7 +303,7 @@ const RepaySFTMModal: React.FC<any> = ({
   const [allowance, setAllowance] = useState(BigNumber.from(0));
   const [isApproving, setIsApproving] = useState(false);
   const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getDelegations(delegationsData);
+  const delegations = getValidators(delegationsData);
   const activeDelegations = !(delegations && accountDelegations)
     ? []
     : accountDelegations.map((accountDelegation: any) => ({

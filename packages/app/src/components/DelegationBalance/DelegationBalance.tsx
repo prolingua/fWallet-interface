@@ -9,7 +9,7 @@ import Row from "../Row";
 import { Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
-import { delegationDaysLockedLeft } from "../../utils/delegations";
+import { delegationDaysLockedLeft } from "../../utils/delegation";
 
 export const DelegationNameInfo: React.FC<any> = ({
   imageSize,

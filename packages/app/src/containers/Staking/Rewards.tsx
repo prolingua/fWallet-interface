@@ -2,8 +2,8 @@ import React, { useContext, useState } from "react";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
-  getDelegations,
-} from "../../utils/delegations";
+  getValidators,
+} from "../../utils/delegation";
 import {
   hexToUnit,
   toFormattedBalance,
@@ -128,7 +128,7 @@ const ClaimRewardsModal: React.FC<any> = ({
 }) => {
   const { color } = useContext(ThemeContext);
   const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getDelegations(delegationsData);
+  const delegations = getValidators(delegationsData);
   const activeDelegations = !(delegations && accountDelegations)
     ? []
     : accountDelegations.map((accountDelegation: any) => ({

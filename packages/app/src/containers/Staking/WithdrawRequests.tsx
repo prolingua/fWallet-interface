@@ -7,7 +7,7 @@ import useTransaction from "../../hooks/useTransaction";
 import {
   getAccountDelegations,
   withdrawDaysLockedLeft,
-} from "../../utils/delegations";
+} from "../../utils/delegation";
 import { formatHexToInt, hexToUnit } from "../../utils/conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 import Row from "../../components/Row";
@@ -22,11 +22,10 @@ import {
 import Spacer from "../../components/Spacer";
 import Column from "../../components/Column";
 import { formatDate } from "../../utils/common";
+import WithdrawRequestRow from "../../components/WithdrawRequestRow";
 
 const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
   const { color } = useContext(ThemeContext);
-  const { txSFCContractMethod } = useFantomContract();
-  const { transaction } = useTransaction();
   const accountDelegations = getAccountDelegations(accountDelegationsData);
   // TODO fix typecasting of AccountDelegation
   const withdrawRequests = accountDelegations.reduce((accumulator, current) => {
@@ -41,32 +40,6 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
     return accumulator;
   }, []);
 
-  const unlocksIn = (wr: any) => {
-    return withdrawDaysLockedLeft(formatHexToInt(wr.createdTime));
-  };
-
-  const [txHash, setTxHash] = useState(null);
-  const claimRewardTx = transaction[txHash];
-  const isPending = claimRewardTx && claimRewardTx.status === "pending";
-  const isCompleted = claimRewardTx && claimRewardTx.status === "completed";
-
-  const handleWithdrawStake = async (wr: any) => {
-    console.log(wr);
-    console.log(
-      formatHexToInt(wr.toStakerId),
-      BigNumber.from(wr.withdrawRequestID).toString()
-    );
-    try {
-      const hash = await txSFCContractMethod(SFC_TX_METHODS.WITHDRAW, [
-        formatHexToInt(wr.toStakerId),
-        BigNumber.from(wr.withdrawRequestID).toString(),
-      ]);
-      setTxHash({ ...txHash, claimRewardTx: hash });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <div>
       {" "}
@@ -78,62 +51,32 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
             color: color.greys.grey(),
           }}
         >
-          Unlocks in
-        </Typo2>
-        <Typo2
-          style={{ flex: 2, fontWeight: "bold", color: color.greys.grey() }}
-        >
           Amount
         </Typo2>
-        <div style={{ flex: 1 }} />
+        <Typo2
+          style={{
+            flex: 2,
+            fontWeight: "bold",
+            color: color.greys.grey(),
+            textAlign: "end",
+          }}
+        >
+          Unlocking in
+        </Typo2>
       </Row>
-      <Spacer size="xl" />
-      {withdrawRequests.length ? (
-        withdrawRequests.map((wr) => {
-          return (
-            <Row
-              key={wr.withdrawRequestID}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                paddingBottom: "1rem",
-              }}
-            >
-              <Column style={{ width: "10rem" }}>
-                <Typo2 style={{ fontWeight: "bold" }}>
-                  {unlocksIn(wr) > 0 ? `${unlocksIn(wr)} days` : `Unlocked`}
-                </Typo2>
-                <Typo3>
-                  (
-                  {formatDate(
-                    new Date(
-                      (formatHexToInt(wr.createdTime) + 7 * 24 * 60 * 60) * 1000
-                    )
-                  )}
-                  )
-                </Typo3>
-              </Column>
-              <Typo2 style={{ flex: 2, fontWeight: "bold" }}>
-                {hexToUnit(wr.amount)} FTM
-              </Typo2>
-              <Button
-                disabled={unlocksIn(wr) > 0 || isPending || isCompleted}
-                style={{ flex: 1, padding: ".4rem 1.5rem" }}
-                variant="secondary"
-                onClick={() => handleWithdrawStake(wr)}
-              >
-                {isPending
-                  ? "Withdrawing..."
-                  : isCompleted
-                  ? "Succes"
-                  : "Withdraw"}
-              </Button>
-            </Row>
-          );
-        })
-      ) : (
-        <Heading3>No pending withdraw requests</Heading3>
-      )}
+      <Spacer size="lg" />
+      <Column style={{ gap: ".5rem" }}>
+        {withdrawRequests.length ? (
+          withdrawRequests
+            .filter((wr: any) => wr.withdrawTime === null)
+            .sort((a, b) => a.createdTime - b.createdTime)
+            .map((wr) => {
+              return <WithdrawRequestRow withdrawRequest={wr} size="sm" />;
+            })
+        ) : (
+          <Heading3>No pending withdraw requests</Heading3>
+        )}
+      </Column>
     </div>
   );
 };

@@ -20,16 +20,20 @@ const StatPair: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   return (
     <Column style={{ width: width && width }}>
-      <Typo1
-        style={{
-          fontSize: titleFontSize && titleFontSize,
-          fontWeight: "bold",
-          color: titleColor || color.greys.grey(),
-        }}
-      >
-        {title}
-      </Typo1>
-      <Spacer size={spacer} />
+      {title && (
+        <>
+          <Typo1
+            style={{
+              fontSize: titleFontSize && titleFontSize,
+              fontWeight: "bold",
+              color: titleColor || color.greys.grey(),
+            }}
+          >
+            {title}
+          </Typo1>
+          <Spacer size={spacer} />
+        </>
+      )}
       <Row style={{ alignItems: "flex-end" }}>
         <div style={{ fontSize: value1FontSize || "24px", fontWeight: "bold" }}>
           {value1}
