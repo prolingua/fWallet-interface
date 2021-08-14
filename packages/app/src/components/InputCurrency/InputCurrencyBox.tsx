@@ -6,7 +6,12 @@ import InputCurrency from "./InputCurrency";
 import { FANTOM_NATIVE } from "../../utils/common";
 import { Button } from "../index";
 
-const InputCurrencyBox: React.FC<any> = ({ value, max, setValue }) => {
+const InputCurrencyBox: React.FC<any> = ({
+  value,
+  max,
+  setValue,
+  disabled,
+}) => {
   const { color } = useContext(ThemeContext);
   const [error, setError] = useState(null);
   const handleSetMax = () => {
@@ -26,6 +31,7 @@ const InputCurrencyBox: React.FC<any> = ({ value, max, setValue }) => {
     >
       <Spacer />
       <InputCurrency
+        disabled={disabled}
         value={value}
         max={max}
         handleValue={setValue}

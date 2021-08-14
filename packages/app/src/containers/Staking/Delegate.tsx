@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { getAccountBalance } from "../../utils/account";
 import {
+  formatHexToInt,
   hexToUnit,
   toFormattedBalance,
   unitToWei,
@@ -8,24 +9,30 @@ import {
   weiToUnit,
 } from "../../utils/conversion";
 import StatPair from "../../components/StatPair";
-import { getValidators, validatorNodeUptime } from "../../utils/delegation";
+import {
+  getAccountDelegations,
+  getValidators,
+  maxLockDays,
+  maxLockSeconds,
+} from "../../utils/delegation";
 import Row from "../../components/Row";
 import { DelegationNameInfo } from "../../components/DelegationBalance/DelegationBalance";
 import {
   Button,
   ContentBox,
   Heading1,
+  Heading2,
   Heading3,
+  OverlayButton,
   Typo2,
+  Typo3,
 } from "../../components";
 import styled, { ThemeContext } from "styled-components";
 import useFantomContract, {
   SFC_TX_METHODS,
 } from "../../hooks/useFantomContract";
 import Modal from "../../components/Modal";
-import ModalTitle from "../../components/ModalTitle";
 import Spacer from "../../components/Spacer";
-import Slider from "rc-slider";
 import ModalContent from "../../components/ModalContent";
 import Scrollbar from "../../components/Scrollbar";
 import useModal from "../../hooks/useModal";
@@ -33,6 +40,8 @@ import Column from "../../components/Column";
 import InputCurrencyBox from "../../components/InputCurrency/InputCurrencyBox";
 import useTransaction from "../../hooks/useTransaction";
 import SliderWithMarks from "../../components/Slider";
+import { BigNumber } from "@ethersproject/bignumber";
+import checkmarkShapeImg from "../../assets/img/shapes/chechmarkShape.png";
 
 const DelegateContent: React.FC<any> = ({ accountBalanceData }) => {
   const accountBalance = getAccountBalance(accountBalanceData);
@@ -50,14 +59,12 @@ const DelegateContent: React.FC<any> = ({ accountBalanceData }) => {
 };
 
 const DelegationSelectRow: React.FC<any> = ({ delegation }) => {
-  const formattedTotalStake = toFormattedBalance(
-    hexToUnit(delegation.totalStake)
-  );
-  const formattedLimit = toFormattedBalance(
+  const maxDelegationLockUp = maxLockDays(delegation);
+  const formattedFreeSpace = toFormattedBalance(
     hexToUnit(delegation.delegatedLimit)
   );
-  const uptime = validatorNodeUptime(delegation);
-
+  const noOfDelegations = formatHexToInt(delegation.delegations.totalCount);
+  const maxApr = "11.32%";
   return (
     <Row
       style={{
@@ -80,33 +87,98 @@ const DelegationSelectRow: React.FC<any> = ({ delegation }) => {
       <Typo2 style={{ width: "5rem", fontWeight: "bold" }}>
         {parseInt(delegation.id)}
       </Typo2>
-      <Typo2 style={{ width: "10rem", fontWeight: "bold" }}>
-        {formattedTotalStake[0]}
+      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
+        {maxDelegationLockUp <= 0 ? "-" : `${maxDelegationLockUp} days`}
+      </Typo2>
+      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>{maxApr}</Typo2>
+      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
+        {noOfDelegations}
       </Typo2>
       <Typo2 style={{ width: "10rem", fontWeight: "bold" }}>
-        {formattedLimit[0]}
-      </Typo2>
-      <Typo2 style={{ width: "5rem", fontWeight: "bold" }}>
-        {" "}
-        {parseFloat(uptime.toFixed(2)).toString()}%
+        {formattedFreeSpace[0]}
       </Typo2>
     </Row>
   );
 };
 
-const DelegateModal: React.FC<any> = ({
-  onDismiss,
+const Stepper: React.FC<any> = ({ activeStep, steps }) => {
+  const { color } = useContext(ThemeContext);
+  return (
+    <Row style={{ alignItems: "center", paddingTop: "2px" }}>
+      {steps.map((step: string, index: number) => {
+        return (
+          <Row>
+            <Row
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                boxSizing: "border-box",
+                height: "1.5rem",
+                width: "1.5rem",
+                fontWeight: "bold",
+                color: activeStep === step ? "white" : color.greys.grey(),
+                backgroundColor:
+                  activeStep === step
+                    ? color.primary.fantomBlue()
+                    : "transparent",
+                border:
+                  !(activeStep === step) &&
+                  `1px solid ${color.greys.darkGrey()}`,
+                borderRadius: "8px",
+              }}
+            >
+              {index + 1}
+            </Row>
+            <Spacer size="sm" />
+            <Row
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                color: activeStep === step ? "white" : color.greys.darkGrey(),
+              }}
+            >
+              {step}
+            </Row>
+            <Spacer size="sm" />
+            {index + 1 < steps.length && (
+              <>
+                <Row style={{ alignItems: "center" }}>
+                  <div
+                    style={{
+                      height: "1px",
+                      width: "3rem",
+                      borderBottom: `1px solid ${color.greys.darkGrey()}`,
+                    }}
+                  />
+                </Row>
+                <Spacer />
+              </>
+            )}
+          </Row>
+        );
+      })}
+    </Row>
+  );
+};
+
+const DelegateStep: React.FC<any> = ({
   delegationsData,
   accountBalanceData,
+  accountDelegationsData,
+  setCompletedDelegation,
+  setActiveStep,
 }) => {
   const { color } = useContext(ThemeContext);
   const [delegateAmount, setDelegateAmount] = useState("");
   const [selectedDelegation, setSelectedDelegation] = useState(null);
   const { txSFCContractMethod } = useFantomContract();
   const balanceInWei = getAccountBalance(accountBalanceData);
-  const balance = weiToMaxUnit(balanceInWei.toString());
+  const balance = weiToMaxUnit(
+    balanceInWei.sub(BigNumber.from(unitToWei("1"))).toString()
+  );
   const delegations = getValidators(delegationsData);
-
+  const accountDelegation = getAccountDelegations(accountDelegationsData);
   const handleSetDelegateAmount = (value: string) => {
     if (parseFloat(value) > balance) {
       return setDelegateAmount(balance.toString());
@@ -139,20 +211,24 @@ const DelegateModal: React.FC<any> = ({
     let timeout: any;
     if (isDelegateCompleted) {
       timeout = setTimeout(() => {
-        onDismiss();
-      }, 2000);
+        setCompletedDelegation({
+          selectedDelegation: selectedDelegation,
+          delegatedAmount: delegateAmount,
+        });
+        setActiveStep("Lockup");
+      }, 500);
     }
     return () => clearTimeout(timeout);
   }, [isDelegateCompleted]);
 
   return (
-    <Modal onDismiss={onDismiss}>
-      <ModalTitle text="Delegation" />
+    <>
       <Heading3 style={{ color: color.greys.grey() }}>
         How much would you like to delegate?
       </Heading3>
       <Spacer />
       <InputCurrencyBox
+        disabled={isDelegateCompleted || isDelegatePending}
         value={delegateAmount}
         setValue={handleSetDelegateAmount}
         max={balance}
@@ -160,6 +236,7 @@ const DelegateModal: React.FC<any> = ({
       <Spacer size="sm" />
       <div style={{ width: "98%" }}>
         <SliderWithMarks
+          disabled={isDelegateCompleted || isDelegatePending}
           value={parseFloat(delegateAmount)}
           setValue={handleSliderSetDelegateAmount}
           max={parseFloat(balance.toString())}
@@ -183,14 +260,17 @@ const DelegateModal: React.FC<any> = ({
             Name
           </Typo2>
           <Typo2 style={{ width: "5rem", color: color.greys.grey() }}>ID</Typo2>
-          <Typo2 style={{ width: "10rem", color: color.greys.grey() }}>
-            Total delegated
+          <Typo2 style={{ width: "8rem", color: color.greys.grey() }}>
+            Max lock
+          </Typo2>
+          <Typo2 style={{ width: "8rem", color: color.greys.grey() }}>
+            Max apr
+          </Typo2>
+          <Typo2 style={{ width: "8rem", color: color.greys.grey() }}>
+            Delegations
           </Typo2>
           <Typo2 style={{ width: "10rem", color: color.greys.grey() }}>
             Free space
-          </Typo2>
-          <Typo2 style={{ width: "5rem", color: color.greys.grey() }}>
-            Uptime
           </Typo2>
         </Row>
         <Spacer size="sm" />
@@ -211,13 +291,26 @@ const DelegateModal: React.FC<any> = ({
                   backgroundColor:
                     isActive && isValid && color.primary.semiWhite(0.3),
                   borderRadius: "8px",
-                  cursor: isValid ? "pointer" : "default",
-                  opacity: !isValid && "0.4",
+                  cursor:
+                    !isValid || isDelegatePending || isDelegateCompleted
+                      ? "default"
+                      : "pointer",
+                  opacity:
+                    (!isValid || isDelegatePending || isDelegateCompleted) &&
+                    "0.4",
                 }}
-                onClick={() => isValid && setSelectedDelegation(delegation.id)}
-                disabled={!isValid}
+                onClick={() =>
+                  isValid &&
+                  !isDelegatePending &&
+                  !isDelegateCompleted &&
+                  setSelectedDelegation(delegation.id)
+                }
+                disabled={!isValid || isDelegatePending || isDelegateCompleted}
               >
-                <DelegationSelectRow delegation={delegation} />
+                <DelegationSelectRow
+                  delegation={delegation}
+                  accountDelegation={accountDelegation}
+                />
               </StyledDelegationSelectRow>
             );
           })}
@@ -240,9 +333,334 @@ const DelegateModal: React.FC<any> = ({
         {isDelegateCompleted
           ? "Success"
           : isDelegatePending
-          ? "Delegating..."
-          : "Delegate"}
+          ? "Staking..."
+          : "Stake and continue to lockup"}
       </Button>
+    </>
+  );
+};
+
+const LockupStep: React.FC<any> = ({
+  delegationsData,
+  completedDelegation,
+  setActiveStep,
+  setCompletedLockup,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const { txSFCContractMethod } = useFantomContract();
+  const { transaction } = useTransaction();
+  const [txHash, setTxHash] = useState(null);
+  const [useLockup, setUseLockup] = useState(null);
+  const [lockupDays, setLockupDays] = useState(14);
+  const [apr, setApr] = useState(3.41);
+  const [lockupApr, setLockUpApr] = useState(9.31);
+
+  const delegation = getValidators(delegationsData).find(
+    (delegation) => delegation.id === completedDelegation.selectedDelegation
+  );
+  const maxLockup = maxLockDays(delegation);
+  const formattedDelegatedAmount = toFormattedBalance(
+    completedDelegation.delegatedAmount
+  );
+  const formattedYearlyReward = toFormattedBalance(
+    completedDelegation.delegatedAmount * (apr / 100)
+  );
+  const formattedMonthlyReward = toFormattedBalance(
+    (completedDelegation.delegatedAmount * (apr / 100)) / 12
+  );
+  const formattedWeeklyReward = toFormattedBalance(
+    (completedDelegation.delegatedAmount * (apr / 100)) / 52
+  );
+
+  const tx = transaction[txHash];
+  const isLockupPending = tx && tx.status === "pending";
+  const isLockupCompleted = tx && tx.status === "completed";
+  const handleLockup = async () => {
+    try {
+      const hash = await txSFCContractMethod(SFC_TX_METHODS.RELOCK_STAKE, [
+        parseInt(completedDelegation.selectedDelegation),
+        lockupDays * 24 * 60 * 60 > maxLockSeconds(delegation)
+          ? maxLockSeconds(delegation)
+          : lockupDays * 24 * 60 * 60,
+        unitToWei(completedDelegation.delegatedAmount),
+      ]);
+      setTxHash(hash);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    let timeout: any;
+    if (isLockupCompleted) {
+      timeout = setTimeout(() => {
+        setCompletedLockup({
+          daysLocked: lockupDays,
+          apr: apr,
+        });
+        setActiveStep("Confirmation");
+      }, 500);
+    }
+    return () => clearTimeout(timeout);
+  }, [isLockupCompleted]);
+
+  return (
+    <>
+      <Heading3 style={{ color: color.greys.grey() }}>
+        Would you like to lock your delegation for extra rewards?
+      </Heading3>
+      <Spacer />
+      <Column>
+        <OverlayButton
+          style={{ textAlign: "unset" }}
+          onClick={() => {
+            setUseLockup(false);
+            setApr(3.41);
+          }}
+        >
+          <Row
+            style={{
+              width: "100%",
+              backgroundColor: useLockup
+                ? "#202F49"
+                : color.primary.fantomBlue(0.2),
+              borderLeft: `4px solid ${
+                useLockup ? color.greys.grey() : color.primary.fantomBlue()
+              }`,
+            }}
+          >
+            <Row style={{ justifyContent: "center", alignItems: "center" }}>
+              <Row
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  margin: "2rem",
+                  height: "2rem",
+                  width: "2rem",
+                  backgroundColor: useLockup
+                    ? color.primary.black()
+                    : color.primary.fantomBlue(),
+                  borderRadius: "50%",
+                }}
+              >
+                {!useLockup && <img src={checkmarkShapeImg} />}
+              </Row>
+            </Row>
+            <Column style={{ justifyContent: "center", margin: "2rem 0" }}>
+              <Heading2>Stake-as-you-go</Heading2>
+              <Spacer size="xs" />
+              <Typo2 style={{ color: color.greys.grey() }}>
+                No time lock. You can undelegate at any time with no penalty.
+              </Typo2>
+            </Column>
+            <Spacer size="xl" />
+            <Row
+              style={{
+                marginLeft: "auto",
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
+              <Heading1>~3.41% APR</Heading1>
+              <Spacer size="xl" />
+            </Row>
+          </Row>
+        </OverlayButton>
+        <Spacer />
+        <OverlayButton
+          style={{ textAlign: "unset" }}
+          onClick={() => {
+            setUseLockup(true);
+            setApr(lockupApr);
+          }}
+          disabled={maxLockup <= 14}
+        >
+          <Row
+            style={{
+              backgroundColor: !useLockup
+                ? "#202F49"
+                : color.primary.fantomBlue(0.2),
+              borderLeft: `4px solid ${
+                !useLockup ? color.greys.grey() : color.primary.fantomBlue()
+              }`,
+              opacity: maxLockup <= 14 && 0.2,
+            }}
+          >
+            <Row
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                margin: "2rem",
+                height: "2rem",
+                width: "2rem",
+                backgroundColor: !useLockup
+                  ? color.primary.black()
+                  : color.primary.fantomBlue(),
+                borderRadius: "50%",
+              }}
+            >
+              {useLockup && <img src={checkmarkShapeImg} />}
+            </Row>
+            <Column>
+              <Row>
+                <Column
+                  style={{
+                    justifyContent: "center",
+                    width: "30rem",
+                    margin: "2rem 0",
+                  }}
+                >
+                  <Heading2>Fluid rewards</Heading2>
+                  <Spacer size="xs" />
+                  <Typo2 style={{ color: color.greys.grey() }}>
+                    You can lock your delegation for a period of time and earn
+                    more rewards. You can undelegate prematurely, but you get to
+                    keep only half of the base rewards.
+                  </Typo2>
+                </Column>
+                <Spacer size="xl" />
+                <Row
+                  style={{
+                    marginLeft: "auto",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                  }}
+                >
+                  <Heading1>~{lockupApr}% APR</Heading1>
+                  <Spacer size="xl" />
+                </Row>
+              </Row>
+              {maxLockup > 14 && (
+                <>
+                  <Typo2 style={{ fontWeight: "bold" }}>
+                    Choose lock up period:
+                  </Typo2>
+
+                  <Spacer size="xxl" />
+                  <div style={{ marginLeft: "1rem", width: "92%" }}>
+                    <SliderWithMarks
+                      disabled={!useLockup}
+                      value={lockupDays}
+                      setValue={(value: number) => setLockupDays(value)}
+                      min={14}
+                      max={maxLockup}
+                      markPoints={[14, maxLockup]}
+                      markPointsAbsolute
+                      markLabels={["2 weeks", `${maxLockup} days`]}
+                      tooltip={useLockup}
+                      tooltipPlacement="top"
+                      tooltipSuffix="days"
+                    />
+                  </div>
+                  <Spacer size="xxl" />
+                </>
+              )}
+            </Column>
+          </Row>
+        </OverlayButton>
+        <Spacer size="xxl" />
+        <ContentBox style={{ backgroundColor: color.primary.black() }}>
+          <Column style={{ width: "100%" }}>
+            <Row style={{ justifyContent: "space-between" }}>
+              <StatPair
+                title="Delegation amount"
+                value1={formattedDelegatedAmount[0]}
+                value2={formattedDelegatedAmount[1]}
+                suffix="FTM"
+              />
+              <StatPair
+                title="Est. weekly rewards"
+                value1={formattedWeeklyReward[0]}
+                value2={formattedWeeklyReward[1]}
+                suffix="FTM"
+                valueFlex="flex-end"
+              />
+              <StatPair
+                title="Est. monthly rewards"
+                value1={formattedMonthlyReward[0]}
+                value2={formattedMonthlyReward[1]}
+                suffix="FTM"
+                valueFlex="flex-end"
+              />
+              <StatPair
+                title="Est. yearly rewards"
+                value1={formattedYearlyReward[0]}
+                value2={formattedYearlyReward[1]}
+                suffix="FTM"
+                valueFlex="flex-end"
+              />
+            </Row>
+            <Spacer />
+            <Row style={{ justifyContent: "flex-end" }}>
+              <Typo3
+                style={{
+                  fontSize: "12px",
+                  color: color.greys.grey(),
+                  marginBottom: "-1rem",
+                }}
+              >
+                *This is an estimation. Rewards vary depending on the total
+                staked amount.
+              </Typo3>
+            </Row>
+          </Column>
+        </ContentBox>
+        <Spacer size="xxl" />
+        {useLockup ? (
+          <Button onClick={handleLockup} variant="primary">
+            {isLockupCompleted
+              ? "Lockup success"
+              : isLockupPending
+              ? "Locking..."
+              : "Lockup"}
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setActiveStep("Confirmation")}
+            variant="primary"
+          >
+            {"Review"}
+          </Button>
+        )}
+      </Column>
+    </>
+  );
+};
+
+const DelegateModal: React.FC<any> = ({
+  onDismiss,
+  delegationsData,
+  accountBalanceData,
+  accountDelegationsData,
+}) => {
+  const [activeStep, setActiveStep] = useState("Delegate");
+  const [completedDelegation, setCompletedDelegation] = useState(null);
+  const [completedLockup, setCompletedLockup] = useState(null);
+
+  return (
+    <Modal style={{ minWidth: "50rem" }} onDismiss={onDismiss}>
+      <Stepper
+        activeStep={activeStep}
+        steps={["Delegate", "Lockup", "Confirmation"]}
+      />
+      <Spacer size="xl" />
+      {activeStep === "Delegate" && (
+        <DelegateStep
+          delegationsData={delegationsData}
+          accountDelegationsData={accountDelegationsData}
+          accountBalanceData={accountBalanceData}
+          setActiveStep={setActiveStep}
+          setCompletedDelegation={setCompletedDelegation}
+        />
+      )}
+      {activeStep === "Lockup" && (
+        <LockupStep
+          delegationsData={delegationsData}
+          completedDelegation={completedDelegation}
+          setActiveStep={setActiveStep}
+          setCompletedLockup={setCompletedLockup}
+        />
+      )}
     </Modal>
   );
 };
@@ -254,10 +672,16 @@ const StyledDelegationSelectRow = styled.div<{ disabled: boolean }>`
   }
 `;
 
-const Delegate: React.FC<any> = ({ loading, accountBalance, delegations }) => {
+const Delegate: React.FC<any> = ({
+  loading,
+  accountBalance,
+  delegations,
+  accountDelegations,
+}) => {
   const [onPresentDelegateModal] = useModal(
     <DelegateModal
       delegationsData={delegations?.data}
+      accountDelegationsData={accountDelegations?.data}
       accountBalanceData={accountBalance?.data}
     />,
     "delegate-modal"

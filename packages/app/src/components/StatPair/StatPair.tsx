@@ -14,6 +14,7 @@ const StatPair: React.FC<any> = ({
   value2,
   value2FontSize,
   suffix,
+  valueFlex = "flex-start",
   spacer = "xxs",
   width,
 }) => {
@@ -34,7 +35,7 @@ const StatPair: React.FC<any> = ({
           <Spacer size={spacer} />
         </>
       )}
-      <Row style={{ alignItems: "flex-end" }}>
+      <Row style={{ alignItems: "flex-end", justifyContent: valueFlex }}>
         <div style={{ fontSize: value1FontSize || "24px", fontWeight: "bold" }}>
           {value1}
         </div>

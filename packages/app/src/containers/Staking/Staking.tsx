@@ -74,6 +74,7 @@ const Staking: React.FC<any> = () => {
             loading={!delegateIsDoneLoading}
             accountBalance={accountBalance}
             delegations={delegations}
+            accountDelegations={accountDelegations}
           />
           <Spacer />
           <Rewards

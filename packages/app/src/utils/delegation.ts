@@ -211,8 +211,12 @@ export const minLockDays = (accountDelegation: AccountDelegation) => {
 
 export const maxLockDays = (validator: Validator) => {
   const now = Date.now() / 1000;
-  console.log(parseInt(validator.lockedUntil));
   return Math.floor((parseInt(validator.lockedUntil) - now) / DAY_IN_SECONDS);
+};
+
+export const maxLockSeconds = (validator: Validator) => {
+  const now = Date.now() / 1000;
+  return Math.floor(parseInt(validator.lockedUntil) - now);
 };
 
 export const canLockDelegation = (

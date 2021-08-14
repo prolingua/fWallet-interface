@@ -50,6 +50,7 @@ const CreateProposal: React.FC<any> = () => {
   };
 
   const handleProposalTimeErrors = (error: string, index: number) => {
+    console.log(index, error);
     const updatedErrors = proposalTimeErrors;
     updatedErrors[index] = error;
     setProposalTimeErrors([...updatedErrors]);
@@ -97,9 +98,12 @@ const CreateProposal: React.FC<any> = () => {
   };
 
   useEffect(() => {
-    if (endMinimumInDays > endMaximumInDays) {
+    if (
+      parseInt(endMinimumInDays.toString(), 10) >
+      parseInt(endMaximumInDays.toString(), 10)
+    ) {
       return handleProposalTimeErrors(
-        "'Ending in maximum' must be equal or greater than 'Ending in minimum'",
+        "[Ending in maximum] must be equal or greater than [Ending in minimum]",
         3
       );
     }
@@ -179,9 +183,10 @@ const CreateProposal: React.FC<any> = () => {
             value={minParticipation}
             setValue={setMinParticipation}
             min={55}
-            max={100}
+            max={90}
             steps={1}
-            markPoints={[55, 100]}
+            markPoints={[55, 90]}
+            markPointsAbsolute
             railColor="#202F49"
             tooltip
             tooltipColor={color.primary.fantomBlue()}
@@ -199,9 +204,10 @@ const CreateProposal: React.FC<any> = () => {
             value={minAgreement}
             setValue={setMinAgreement}
             min={55}
-            max={100}
+            max={90}
             steps={1}
-            markPoints={[55, 100]}
+            markPoints={[55, 90]}
+            markPointsAbsolute
             railColor="#202F49"
             tooltip
             tooltipColor={color.primary.fantomBlue()}

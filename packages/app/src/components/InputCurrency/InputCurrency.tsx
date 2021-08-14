@@ -7,6 +7,7 @@ const InputCurrency: React.FC<any> = ({
   handleValue,
   handleError,
   token,
+  disabled,
 }) => {
   const handleChange = (value: string) => {
     handleError(null);
@@ -46,6 +47,7 @@ const InputCurrency: React.FC<any> = ({
 
   return (
     <Input
+      disabled={disabled}
       type="text"
       value={value}
       onChange={(event) => handleChange(event.target.value)}

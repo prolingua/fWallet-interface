@@ -19,6 +19,9 @@ export enum SFC_TX_METHODS {
   DELEGATE = "delegate",
   UNDELEGATE = "undelegate",
   WITHDRAW = "withdraw",
+  LOCK_STAKE = "lockStake",
+  RELOCK_STAKE = "relockStake",
+  UNLOCK_STAKE = "unlockStake",
 }
 
 const sfcContractCall: { [key in SFC_CALL_METHODS]: any } = {
@@ -60,6 +63,29 @@ const sfcContractTx: { [key in SFC_TX_METHODS]: any } = {
     wrId: string
   ) => {
     return contract.withdraw(toStakerID, wrId);
+  },
+  [SFC_TX_METHODS.LOCK_STAKE]: async (
+    contract: Contract,
+    toStakerId: number,
+    lockupDurationInSeconds: number,
+    amount: number
+  ) => {
+    return contract.lockStake(toStakerId, lockupDurationInSeconds, amount);
+  },
+  [SFC_TX_METHODS.RELOCK_STAKE]: async (
+    contract: Contract,
+    toStakerId: number,
+    lockupDurationInSeconds: number,
+    amount: number
+  ) => {
+    return contract.relockStake(toStakerId, lockupDurationInSeconds, amount);
+  },
+  [SFC_TX_METHODS.UNLOCK_STAKE]: async (
+    contract: Contract,
+    toStakerId: number,
+    amount: number
+  ) => {
+    return contract.unlockStake(toStakerId, amount);
   },
 };
 

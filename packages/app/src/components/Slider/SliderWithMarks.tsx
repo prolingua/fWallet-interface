@@ -13,13 +13,17 @@ const SliderWithMarks: React.FC<any> = ({
   steps,
   disabled = false,
   markPoints = [0, 25, 50, 75, 100],
+  markPointsAbsolute = false,
   markLabels = null,
   color = "#1969FF",
   secondaryColor = "white",
   railColor = "#0A162E",
   tooltip = false,
+  tooltipOnDrag = false,
   tooltipColor,
   tooltipTextColor,
+  tooltipSuffix = "%",
+  tooltipPlacement = "bottom",
 }) => {
   const markStyle = (value: number, mark: number) => {
     return {
@@ -34,8 +38,10 @@ const SliderWithMarks: React.FC<any> = ({
     (accumulator: any, current: number, index: number) => {
       return {
         ...accumulator,
-        [parseFloat(max) * (current === 0 ? current : current / 100)]: {
-          style: markStyle(value, (parseFloat(max) * current) / 100),
+        [markPointsAbsolute
+          ? current
+          : parseFloat(max) * (current === 0 ? current : current / 100)]: {
+          style: markStyle(value, (Math.ceil(parseInt(max)) * current) / 100),
           label: markLabels ? markLabels[index] : `${current}%`,
         },
       };
@@ -53,10 +59,10 @@ const SliderWithMarks: React.FC<any> = ({
           <SliderWithTooltip
             tipProps={{
               prefixCls: "rc-slider-tooltip",
-              placement: "bottom",
-              visible: true,
+              placement: `${tooltipPlacement}`,
+              visible: !tooltipOnDrag,
             }}
-            tipFormatter={(value) => `${value}%`}
+            tipFormatter={(value) => `${value} ${tooltipSuffix}`}
             disabled={disabled}
             onChange={(val) => setValue(val)}
             value={value}
@@ -108,6 +114,9 @@ export const StyledSlider = styled.div`
   .rc-slider-disabled {
     background-color: transparent !important;
   }
+  .rc-slider-mark-text {
+    white-space: nowrap;
+  }
 `;
 
 export const StyledSliderTooltip = styled.div<{
@@ -121,6 +130,7 @@ export const StyledSliderTooltip = styled.div<{
     color: ${(props) => props.tooltipTextColor};
     padding: 0.25rem 0.5rem;
     background-color: ${(props) => props.tooltipColor};
+    white-space: nowrap;
   }
   .rc-slider-tooltip-arrow {
     margin-top: -0.3rem;

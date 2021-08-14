@@ -29,13 +29,15 @@ const InputInteger: React.FC<any> = ({
 
   const onHandleBlur = (value: string) => {
     if (value === "") {
-      return setError(`Please enter a valid '${title}' value`);
+      return setError(`Please enter a valid value for [${title}].`);
     }
     if (parseInt(value) < min) {
-      return setError(`'${title}' value must be greater than ${min}`);
+      return setError(
+        `[${title}] is incorrect, value must be at least ${min}.`
+      );
     }
     if (parseInt(value) > max) {
-      return setError(`'${title}' value must be smaller than ${min}`);
+      return setError(`[${title}] is incorrect, value must be at most ${max}.`);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import Column from "../Column";
 import Row from "../Row";
@@ -24,6 +24,11 @@ const InputTextBox: React.FC<any> = ({
       setText(value);
     }
   };
+
+  useEffect(() => {
+    setInternalError(null);
+    return () => setInternalError(null);
+  }, [text]);
 
   return (
     <Column>
