@@ -7,7 +7,6 @@ import {
   getValidators,
   canLockDelegation,
   maxLockDays,
-  minLockDays,
   withdrawDaysLockedLeft,
   withdrawLockTimeLeft,
 } from "../../utils/delegation";
@@ -210,11 +209,7 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const isClaiming = claimRewardTx && claimRewardTx.status === "pending";
   const claimed = claimRewardTx && claimRewardTx.status === "completed";
 
-  const maxDelegationLockUp =
-    canLockDelegation(
-      activeDelegation.delegation,
-      activeDelegation.delegationInfo
-    ) && maxLockDays(activeDelegation.delegationInfo);
+  const maxDelegationLockUp = maxLockDays(activeDelegation.delegationInfo);
 
   const handleClaimReward = async () => {
     try {
@@ -309,7 +304,9 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
           <Column>
             <StatPair
               title="Lock-up"
-              value1={maxDelegationLockUp ? `${maxDelegationLockUp} days` : "-"}
+              value1={
+                maxDelegationLockUp > 0 ? `${maxDelegationLockUp} days` : "-"
+              }
               value1FontSize="20px"
               width="12rem"
             />

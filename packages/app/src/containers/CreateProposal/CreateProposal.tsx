@@ -15,9 +15,11 @@ import useFantomContract, {
 } from "../../hooks/useFantomContract";
 import useTransaction from "../../hooks/useTransaction";
 import { formatBytes32String } from "@ethersproject/strings";
+import { useHistory } from "react-router-dom";
 
 const CreateProposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
+  const history = useHistory();
   const { txGovProposalPlaintextContractMethod } = useFantomContract();
   const [proposalName, setProposalName] = useState("");
   const [proposalDescription, setProposalDescription] = useState("");
@@ -50,7 +52,6 @@ const CreateProposal: React.FC<any> = () => {
   };
 
   const handleProposalTimeErrors = (error: string, index: number) => {
-    console.log(index, error);
     const updatedErrors = proposalTimeErrors;
     updatedErrors[index] = error;
     setProposalTimeErrors([...updatedErrors]);
@@ -109,6 +110,15 @@ const CreateProposal: React.FC<any> = () => {
     }
     return handleProposalTimeErrors(null, 3);
   }, [endMinimumInDays, endMaximumInDays]);
+
+  useEffect(() => {
+    let timeout: any;
+    if (isProposalCompleted) {
+      timeout = setTimeout(() => history.push("governance"), 1000);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [isProposalCompleted]);
 
   return (
     <Row style={{ columnGap: "5rem", marginTop: "3rem" }}>

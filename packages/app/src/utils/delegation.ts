@@ -199,15 +199,15 @@ export const delegatedToAddressesList = (
   );
 };
 
-export const minLockDays = (accountDelegation: AccountDelegation) => {
-  const now = Date.now() / 1000;
-  return Math.max(
-    MIN_LOCKUP_DAYS,
-    Math.floor(
-      (parseInt(accountDelegation.lockedUntil) - now) / DAY_IN_SECONDS
-    ) + 1
-  );
-};
+// export const minLockDays = (accountDelegation: AccountDelegation) => {
+//   const now = Date.now() / 1000;
+//   return Math.max(
+//     MIN_LOCKUP_DAYS,
+//     Math.floor(
+//       (parseInt(accountDelegation.lockedUntil) - now) / DAY_IN_SECONDS
+//     ) + 1
+//   );
+// };
 
 export const maxLockDays = (validator: Validator) => {
   const now = Date.now() / 1000;
@@ -224,8 +224,9 @@ export const canLockDelegation = (
   validator: Validator
 ) => {
   const now = Date.now() / 1000;
+
   return (
     parseInt(validator.lockedUntil) - now > MIN_LOCKUP_DAYS &&
-    minLockDays(accountDelegation) < maxLockDays(validator)
+    !accountDelegation.delegation.isDelegationLocked
   );
 };

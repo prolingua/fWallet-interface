@@ -53,6 +53,7 @@ const SliderWithMarks: React.FC<any> = ({
     <StyledSlider>
       {tooltip ? (
         <StyledSliderTooltip
+          placement={tooltipPlacement}
           tooltipColor={tooltipColor || "white"}
           tooltipTextColor={tooltipTextColor || color}
         >
@@ -122,6 +123,7 @@ export const StyledSlider = styled.div`
 export const StyledSliderTooltip = styled.div<{
   tooltipColor: string;
   tooltipTextColor: string;
+  placement: "top" | "bottom";
 }>`
   .rc-slider-tooltip-inner {
     margin-top: 0.3rem;
@@ -138,6 +140,7 @@ export const StyledSliderTooltip = styled.div<{
     margin-left: -6px;
     border-width: 0 6px 8px;
     border-bottom-color: ${(props) => props.tooltipColor};
+    transform: ${(props) => props.placement === "top" && "rotate(180deg)"};
   }
 `;
 

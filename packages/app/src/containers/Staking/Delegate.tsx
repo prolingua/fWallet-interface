@@ -10,6 +10,7 @@ import {
 } from "../../utils/conversion";
 import StatPair from "../../components/StatPair";
 import {
+  canLockDelegation,
   getAccountDelegations,
   getValidators,
   maxLockDays,
@@ -58,8 +59,14 @@ const DelegateContent: React.FC<any> = ({ accountBalanceData }) => {
   );
 };
 
-const DelegationSelectRow: React.FC<any> = ({ delegation }) => {
-  const maxDelegationLockUp = maxLockDays(delegation);
+const DelegationSelectRow: React.FC<any> = ({
+  delegation,
+  accountDelegation,
+}) => {
+  const isEligibleForLockup = accountDelegation
+    ? canLockDelegation(accountDelegation, delegation)
+    : true;
+  const maxDelegationLockUp = isEligibleForLockup ? maxLockDays(delegation) : 0;
   const formattedFreeSpace = toFormattedBalance(
     hexToUnit(delegation.delegatedLimit)
   );
@@ -168,17 +175,22 @@ const DelegateStep: React.FC<any> = ({
   accountDelegationsData,
   setCompletedDelegation,
   setActiveStep,
+  setSteps,
 }) => {
   const { color } = useContext(ThemeContext);
   const [delegateAmount, setDelegateAmount] = useState("");
   const [selectedDelegation, setSelectedDelegation] = useState(null);
+  const [
+    selectedDelegationEligibleForLockup,
+    setSelectedDelegationEligibleForLockup,
+  ] = useState(true);
   const { txSFCContractMethod } = useFantomContract();
   const balanceInWei = getAccountBalance(accountBalanceData);
   const balance = weiToMaxUnit(
     balanceInWei.sub(BigNumber.from(unitToWei("1"))).toString()
   );
   const delegations = getValidators(delegationsData);
-  const accountDelegation = getAccountDelegations(accountDelegationsData);
+  const accountDelegations = getAccountDelegations(accountDelegationsData);
   const handleSetDelegateAmount = (value: string) => {
     if (parseFloat(value) > balance) {
       return setDelegateAmount(balance.toString());
@@ -220,6 +232,29 @@ const DelegateStep: React.FC<any> = ({
     }
     return () => clearTimeout(timeout);
   }, [isDelegateCompleted]);
+
+  useEffect(() => {
+    if (selectedDelegation) {
+      const accountDelegation = accountDelegations.find(
+        (accountDelegation: any) =>
+          accountDelegation.delegation.toStakerId === selectedDelegation
+      );
+      const delegation = delegations.find(
+        (delegation) => delegation.id === selectedDelegation
+      );
+
+      const canLock =
+        canLockDelegation(accountDelegation, delegation) &&
+        maxLockDays(delegation);
+
+      setSteps(
+        canLock
+          ? ["Delegate", "Lockup", "Confirmation"]
+          : ["Delegate", "Confirmation"]
+      );
+      setSelectedDelegationEligibleForLockup(!!canLock);
+    }
+  }, [selectedDelegation]);
 
   return (
     <>
@@ -277,6 +312,10 @@ const DelegateStep: React.FC<any> = ({
 
         <Scrollbar style={{ width: "100%", height: "40vh" }}>
           {delegations.map((delegation, index) => {
+            const accountDelegation = accountDelegations.find(
+              (accountDelegation: any) =>
+                accountDelegation.delegation.toStakerId === delegation.id
+            );
             const isLastRow = delegations.length === index + 1;
             const isActive = delegation.id === selectedDelegation;
             const isValid =
@@ -334,7 +373,9 @@ const DelegateStep: React.FC<any> = ({
           ? "Success"
           : isDelegatePending
           ? "Staking..."
-          : "Stake and continue to lockup"}
+          : selectedDelegationEligibleForLockup
+          ? "Stake and continue to lockup"
+          : "Stake and continue"}
       </Button>
     </>
   );
@@ -612,14 +653,14 @@ const LockupStep: React.FC<any> = ({
               ? "Lockup success"
               : isLockupPending
               ? "Locking..."
-              : "Lockup"}
+              : "Lockup and continue"}
           </Button>
         ) : (
           <Button
             onClick={() => setActiveStep("Confirmation")}
             variant="primary"
           >
-            {"Review"}
+            {"Continue to confirmation"}
           </Button>
         )}
       </Column>
@@ -636,13 +677,11 @@ const DelegateModal: React.FC<any> = ({
   const [activeStep, setActiveStep] = useState("Delegate");
   const [completedDelegation, setCompletedDelegation] = useState(null);
   const [completedLockup, setCompletedLockup] = useState(null);
+  const [steps, setSteps] = useState(["Delegate", "Lockup", "Confirmation"]);
 
   return (
     <Modal style={{ minWidth: "50rem" }} onDismiss={onDismiss}>
-      <Stepper
-        activeStep={activeStep}
-        steps={["Delegate", "Lockup", "Confirmation"]}
-      />
+      <Stepper activeStep={activeStep} steps={steps} />
       <Spacer size="xl" />
       {activeStep === "Delegate" && (
         <DelegateStep
@@ -651,6 +690,7 @@ const DelegateModal: React.FC<any> = ({
           accountBalanceData={accountBalanceData}
           setActiveStep={setActiveStep}
           setCompletedDelegation={setCompletedDelegation}
+          setSteps={setSteps}
         />
       )}
       {activeStep === "Lockup" && (
