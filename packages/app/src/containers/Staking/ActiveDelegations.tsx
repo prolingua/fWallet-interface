@@ -5,10 +5,7 @@ import {
   generateWithdrawalRequestId,
   getAccountDelegations,
   getValidators,
-  canLockDelegation,
   maxLockDays,
-  withdrawDaysLockedLeft,
-  withdrawLockTimeLeft,
 } from "../../utils/delegation";
 import React, { useContext, useEffect, useState } from "react";
 import styled, { ThemeContext } from "styled-components";
@@ -30,12 +27,10 @@ import {
   Button,
   ContentBox,
   Heading1,
-  Heading2,
   Heading3,
   OverlayButton,
   Typo1,
   Typo2,
-  Typo3,
 } from "../../components";
 import Spacer from "../../components/Spacer";
 import useModal from "../../hooks/useModal";
@@ -46,11 +41,6 @@ import DelegationBalance, {
 } from "../../components/DelegationBalance/DelegationBalance";
 import SliderWithMarks from "../../components/Slider";
 import CircularRatioBar from "../../components/CircularRatioBar";
-import WithdrawRequests from "./WithdrawRequests";
-import { BigNumber } from "@ethersproject/bignumber";
-import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
-import useFantomApiData from "../../hooks/useFantomApiData";
-import useWalletProvider from "../../hooks/useWalletProvider";
 import WithdrawRequestRow from "../../components/WithdrawRequestRow";
 
 export interface ActiveDelegation {

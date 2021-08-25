@@ -317,3 +317,11 @@ export const FETCH_GOVERNANCE_PROPOSAL = (
     ${query}
   `;
 };
+
+export const FETCH_ESTIMATED_REWARDS = gql`
+  query estimateRewards($address: Address!) {
+    estimateRewards(address: $address) {
+      currentRewardRateYearly
+    }
+  }
+`;

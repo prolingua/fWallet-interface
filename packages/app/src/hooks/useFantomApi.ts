@@ -11,6 +11,7 @@ import {
   FETCH_GOVERNANCE_CONTRACTS,
   FETCH_GOVERNANCE_PROPOSAL,
   FETCH_GOVERNANCE_PROPOSALS,
+  FETCH_ESTIMATED_REWARDS,
 } from "../graphql/subgraph";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
@@ -30,6 +31,7 @@ export enum FantomApiMethods {
   getGovernanceContracts = "getGovernanceContracts",
   getGovernanceProposal = "getGovernanceProposal",
   getGovernanceProposals = "getGovernanceProposals",
+  getEstimatedRewards = "getEstimatedRewards",
 }
 const methods: { [key in FantomApiMethods]: any } = {
   [FantomApiMethods.getAccountBalance]: () => FETCH_ACCOUNT_BALANCE,
@@ -49,6 +51,7 @@ const methods: { [key in FantomApiMethods]: any } = {
     FETCH_GOVERNANCE_PROPOSALS(...args),
   [FantomApiMethods.getGovernanceProposal]: (args: any[]) =>
     FETCH_GOVERNANCE_PROPOSAL(...args),
+  [FantomApiMethods.getEstimatedRewards]: () => FETCH_ESTIMATED_REWARDS,
 };
 
 const useFantomApi = (

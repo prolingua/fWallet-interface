@@ -13,6 +13,7 @@ const initial: any = {
   getGovernanceContracts: null,
   getGovernanceProposals: null,
   getGovernanceProposal: null,
+  getEstimatedRewards: null,
 };
 export const FantomApiContext = React.createContext(null);
 

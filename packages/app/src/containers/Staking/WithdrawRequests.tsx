@@ -71,7 +71,13 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
             .filter((wr: any) => wr.withdrawTime === null)
             .sort((a, b) => a.createdTime - b.createdTime)
             .map((wr) => {
-              return <WithdrawRequestRow withdrawRequest={wr} size="sm" />;
+              return (
+                <WithdrawRequestRow
+                  key={`wr-rq-row-${wr.withdrawRequestID}`}
+                  withdrawRequest={wr}
+                  size="sm"
+                />
+              );
             })
         ) : (
           <Heading3>No pending withdraw requests</Heading3>

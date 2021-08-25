@@ -13,6 +13,7 @@ import Rewards from "./Rewards";
 import LiquidStaking from "./LiquidStaking";
 import ActiveDelegations from "./ActiveDelegations";
 import WithdrawRequests from "./WithdrawRequests";
+import FluidRewards from "./FluidRewards";
 
 const Staking: React.FC<any> = () => {
   const { breakpoints } = useContext(ThemeContext);
@@ -58,6 +59,12 @@ const Staking: React.FC<any> = () => {
     2000
   );
 
+  // useFantomApi(FantomApiMethods.getEstimatedRewards, {
+  //   address: "0x567b6f3d4ba1f55652cf90df6db90ad6d8f9abc1",
+  // });
+  //
+  // console.log(apiData[FantomApiMethods.getEstimatedRewards]);
+  console.log(delegations);
   return (
     <ResponsiveRow
       breakpoint={breakpoints.ultra}
@@ -85,13 +92,17 @@ const Staking: React.FC<any> = () => {
         </Row>
         <Spacer />
         <Row>
+          <FluidRewards
+            loading={!activeDelegationsIsDoneLoading}
+            accountDelegations={accountDelegations?.data}
+            delegations={delegations?.data}
+          />
+          <Spacer />
           <LiquidStaking
             loading={!activeDelegationsIsDoneLoading}
             accountDelegations={accountDelegations}
             delegations={delegations}
           />
-          <Spacer />
-          <ContentBox style={{ flex: 1, backgroundColor: "transparent" }} />
         </Row>
       </Column>
       <Spacer />

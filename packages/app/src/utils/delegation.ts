@@ -1,4 +1,4 @@
-import { formatHexToBN } from "./conversion";
+import { formatHexToBN, formatHexToInt, hexToUnit } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export const MIN_LOCKUP_DAYS = 14;
@@ -65,6 +65,15 @@ export const validatorNodeUptime = (delegation: Validator) => {
     100 -
     parseInt(delegation.downtime) /
       (Date.now() - parseInt(delegation.createdTime))
+  );
+};
+
+export const getValidatorsWithLockup = (validators: Validators) => {
+  const now = Date.now() / 1000;
+  return validators.stakers.filter(
+    (validator) =>
+      formatHexToInt(validator.lockedUntil) - now >
+      MIN_LOCKUP_DAYS * DAY_IN_SECONDS
   );
 };
 
@@ -226,7 +235,7 @@ export const canLockDelegation = (
   const now = Date.now() / 1000;
 
   return (
-    parseInt(validator.lockedUntil) - now > MIN_LOCKUP_DAYS &&
-    !accountDelegation.delegation.isDelegationLocked
+    parseInt(validator.lockedUntil) - now > MIN_LOCKUP_DAYS * DAY_IN_SECONDS &&
+    !accountDelegation?.delegation?.isDelegationLocked
   );
 };
