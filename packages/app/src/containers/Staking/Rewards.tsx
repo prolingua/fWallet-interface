@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
@@ -14,7 +14,6 @@ import { ThemeContext } from "styled-components";
 import useFantomContract, {
   SFC_TX_METHODS,
 } from "../../hooks/useFantomContract";
-import useTransaction from "../../hooks/useTransaction";
 import Row from "../../components/Row";
 import { DelegationNameInfo } from "../../components/DelegationBalance/DelegationBalance";
 import {
@@ -35,9 +34,9 @@ import Column from "../../components/Column";
 import { FantomApiMethods } from "../../hooks/useFantomApi";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
-import useFantomNative from "../../hooks/useFantomNative";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import useSendTransaction from "../../hooks/useSendTransaction";
+import useSendBatchTransactions from "../../hooks/useSendBatchTransactions";
 
 const RewardsContent: React.FC<any> = ({ accountDelegationsData }) => {
   const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
@@ -157,38 +156,41 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
   );
 
   const { txSFCContractMethod } = useFantomContract();
+
+  const claimAllBatch = activeDelegationWithPendingRewards.map(
+    (activeDelegation) => {
+      return [
+        activeDelegation.delegation.toStakerId,
+        () =>
+          txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
+            activeDelegation.delegation.toStakerId,
+          ]),
+      ];
+    }
+  );
+
   // TODO remove -> just for testing batching
   // const { sendTokens } = useFantomERC20();
-  const [txHashes, setTxHashes] = useState({} as any);
-  const { transaction } = useTransaction();
-  const txs =
-    transaction &&
-    [...Object.values(txHashes)].map((tx: any) => transaction[tx]);
+  // const testBatch = activeDelegations.map((activeDelegation) => {
+  //   return [
+  //     activeDelegation.delegation.toStakerId,
+  //     () =>
+  //       sendTokens(
+  //         "0x866510264b9e950a7fd2c0f12f6cd63891aab436",
+  //         "0xDbA4392F0fC03B4FFF1b42861ad733FcfA812da7",
+  //         "1000000000000000000"
+  //       ),
+  //   ];
+  // });
 
-  const pendingTxs = txs.filter((tx) => tx.status === "pending");
-  const successfulTxs = txs.filter((tx) => tx.status === "completed");
-  const failedTxs = txs.filter((tx) => tx.status === "failed");
-
-  const handleClaimAllRewards = async (activeDelegations: any) => {
-    const hashes = {} as any;
-    try {
-      await activeDelegations.map(async (activeDelegation: any) => {
-        hashes[
-          activeDelegation.delegation.toStakerId
-        ] = await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
-          activeDelegation.delegation.toStakerId,
-        ]);
-        // hashes[activeDelegation.delegation.toStakerId] = await sendTokens(
-        //   "0x866510264b9e950a7fd2c0f12f6cd63891aab436",
-        //   "0xDbA4392F0fC03B4FFF1b42861ad733FcfA812da7",
-        //   "1000000000000000000"
-        // );
-      });
-      setTxHashes(hashes);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const {
+    sendBatch: handleClaimAllRewards,
+    hashes: txHashes,
+    txs,
+    pendingTxs,
+    successfulTxs,
+    failedTxs,
+  } = useSendBatchTransactions(claimAllBatch);
 
   return (
     <Modal onDismiss={onDismiss}>
@@ -234,9 +236,7 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
           successfulTxs.length > 0 ||
           failedTxs.length > 0
         }
-        onClick={() =>
-          handleClaimAllRewards(activeDelegationWithPendingRewards)
-        }
+        onClick={() => handleClaimAllRewards()}
         style={{ width: "105%" }}
         variant="primary"
       >
