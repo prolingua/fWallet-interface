@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
@@ -32,6 +32,12 @@ import ModalContent from "../../components/ModalContent";
 import Spacer from "../../components/Spacer";
 import useModal from "../../hooks/useModal";
 import Column from "../../components/Column";
+import { FantomApiMethods } from "../../hooks/useFantomApi";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import useFantomNative from "../../hooks/useFantomNative";
+import useFantomERC20 from "../../hooks/useFantomERC20";
+import useSendTransaction from "../../hooks/useSendTransaction";
 
 const RewardsContent: React.FC<any> = ({ accountDelegationsData }) => {
   const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
@@ -50,7 +56,10 @@ const RewardsContent: React.FC<any> = ({ accountDelegationsData }) => {
   );
 };
 
-const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
+const ClaimDelegationRewardRow: React.FC<any> = ({
+  activeDelegation,
+  claimTx,
+}) => {
   const { color } = useContext(ThemeContext);
   const { txSFCContractMethod } = useFantomContract();
   const pendingReward = hexToUnit(
@@ -60,22 +69,18 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
     hexToUnit(activeDelegation.delegation.pendingRewards.amount)
   );
 
-  const [txHash, setTxHash] = useState(null);
-  const { transaction } = useTransaction();
-  const tx = transaction[txHash];
-  const isClaiming = tx && tx.status === "pending";
-  const claimed = tx && tx.status === "completed";
+  const {
+    sendTx: handleClaimReward,
+    isPending,
+    isCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
+      activeDelegation.delegation.toStakerId,
+    ])
+  );
 
-  const handleClaimReward = async () => {
-    try {
-      const hash = await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
-        activeDelegation.delegation.toStakerId,
-      ]);
-      setTxHash(hash);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const isClaiming = isPending || claimTx?.status === "pending";
+  const isClaimed = isCompleted || claimTx?.status === "completed";
 
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
@@ -87,7 +92,7 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
       </Row>
       <Row style={{ width: "12rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>
-          {claimed
+          {isClaimed
             ? "0.00"
             : `${formattedPendingReward[0]}${formattedPendingReward[1]}`}{" "}
           FTM
@@ -101,19 +106,19 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
         }}
       >
         <OverlayButton
-          disabled={claimed || isClaiming || pendingReward < 0.01}
+          disabled={isClaimed || isClaiming || pendingReward < 0.01}
           onClick={() => handleClaimReward()}
         >
           <Typo1
             style={{
               fontWeight: "bold",
               color:
-                claimed || pendingReward < 0.01
+                isClaimed || pendingReward < 0.01
                   ? color.primary.cyan(0.5)
                   : color.primary.cyan(),
             }}
           >
-            {claimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim now"}
+            {isClaimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim now"}
           </Typo1>
         </OverlayButton>
       </Row>
@@ -121,14 +126,23 @@ const ClaimDelegationRewardRow: React.FC<any> = ({ activeDelegation }) => {
   );
 };
 
-const ClaimRewardsModal: React.FC<any> = ({
-  onDismiss,
-  accountDelegationsData,
-  delegationsData,
-}) => {
+const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
   const { color } = useContext(ThemeContext);
-  const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getValidators(delegationsData);
+  const { apiData } = useFantomApiData();
+  const { walletContext } = useWalletProvider();
+  const activeAddress = walletContext.activeWallet.address
+    ? walletContext.activeWallet.address.toLowerCase()
+    : null;
+
+  const delegationsResponse = apiData[FantomApiMethods.getDelegations];
+  const accountDelegationsResponse = apiData[
+    FantomApiMethods.getDelegationsForAccount
+  ].get(activeAddress);
+
+  const accountDelegations = getAccountDelegations(
+    accountDelegationsResponse.data
+  );
+  const delegations = getValidators(delegationsResponse.data);
   const activeDelegations = !(delegations && accountDelegations)
     ? []
     : accountDelegations.map((accountDelegation: any) => ({
@@ -137,6 +151,44 @@ const ClaimRewardsModal: React.FC<any> = ({
           return delegation.id === accountDelegation.delegation.toStakerId;
         }),
       }));
+  const activeDelegationWithPendingRewards = activeDelegations.filter(
+    (delegation) =>
+      hexToUnit(delegation.delegation.pendingRewards.amount) > 0.0099
+  );
+
+  const { txSFCContractMethod } = useFantomContract();
+  // TODO remove -> just for testing batching
+  // const { sendTokens } = useFantomERC20();
+  const [txHashes, setTxHashes] = useState({} as any);
+  const { transaction } = useTransaction();
+  const txs =
+    transaction &&
+    [...Object.values(txHashes)].map((tx: any) => transaction[tx]);
+
+  const pendingTxs = txs.filter((tx) => tx.status === "pending");
+  const successfulTxs = txs.filter((tx) => tx.status === "completed");
+  const failedTxs = txs.filter((tx) => tx.status === "failed");
+
+  const handleClaimAllRewards = async (activeDelegations: any) => {
+    const hashes = {} as any;
+    try {
+      await activeDelegations.map(async (activeDelegation: any) => {
+        hashes[
+          activeDelegation.delegation.toStakerId
+        ] = await txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [
+          activeDelegation.delegation.toStakerId,
+        ]);
+        // hashes[activeDelegation.delegation.toStakerId] = await sendTokens(
+        //   "0x866510264b9e950a7fd2c0f12f6cd63891aab436",
+        //   "0xDbA4392F0fC03B4FFF1b42861ad733FcfA812da7",
+        //   "1000000000000000000"
+        // );
+      });
+      setTxHashes(hashes);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <Modal onDismiss={onDismiss}>
@@ -166,25 +218,55 @@ const ClaimRewardsModal: React.FC<any> = ({
                 borderBottom: !isLastRow && "2px solid #202F49",
               }}
             >
-              <ClaimDelegationRewardRow activeDelegation={delegation} />
+              <ClaimDelegationRewardRow
+                activeDelegation={delegation}
+                claimTx={txHashes[delegation.delegation.toStakerId]}
+              />
             </div>
           );
         })}
       </ModalContent>
+      <Spacer />
+      <Button
+        disabled={
+          !activeDelegationWithPendingRewards.length ||
+          pendingTxs.length > 0 ||
+          successfulTxs.length > 0 ||
+          failedTxs.length > 0
+        }
+        onClick={() =>
+          handleClaimAllRewards(activeDelegationWithPendingRewards)
+        }
+        style={{ width: "105%" }}
+        variant="primary"
+      >
+        {txs.length ? (
+          <Column>
+            {pendingTxs.length
+              ? `Pending: ${pendingTxs.length} / ${txs.length} ${
+                  successfulTxs.length ? " - " : ""
+                }`
+              : ""}{" "}
+            {successfulTxs.length
+              ? `Completed: ${successfulTxs.length} / ${txs.length} ${
+                  failedTxs.length ? " - " : ""
+                }`
+              : ""}
+            {failedTxs.length
+              ? `Failed: ${failedTxs.length} / ${txs.length}`
+              : ""}
+          </Column>
+        ) : (
+          "Claim all"
+        )}
+      </Button>
     </Modal>
   );
 };
 
-const Rewards: React.FC<any> = ({
-  loading,
-  accountDelegations,
-  delegations,
-}) => {
+const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
   const [onPresentClaimRewardsModal] = useModal(
-    <ClaimRewardsModal
-      accountDelegationsData={accountDelegations?.data}
-      delegationsData={delegations?.data}
-    />,
+    <ClaimRewardsModal />,
     "staking-claim-rewards-modal"
   );
   return (

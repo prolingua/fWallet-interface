@@ -10,6 +10,7 @@ import {
   getValidatorsWithLockup,
   maxLockDays,
   maxLockSeconds,
+  Validator,
 } from "../../utils/delegation";
 import {
   formatHexToBN,
@@ -31,6 +32,7 @@ import {
   ContentBox,
   Heading1,
   Heading2,
+  Heading3,
   OverlayButton,
   Typo1,
   Typo2,
@@ -40,15 +42,19 @@ import Modal from "../../components/Modal";
 import ModalTitle from "../../components/ModalTitle";
 import ModalContent from "../../components/ModalContent";
 import Spacer from "../../components/Spacer";
-import useFantomERC20 from "../../hooks/useFantomERC20";
-import { BigNumber } from "@ethersproject/bignumber";
-import config from "../../config/config.test";
 import useModal from "../../hooks/useModal";
 import Column from "../../components/Column";
-import ModalClose from "../../components/ModalClose";
 import SliderWithMarks from "../../components/Slider";
+import vShapeImg from "../../assets/img/shapes/vShapeBack.svg";
+import ConfirmationStep from "./Delegate/ConfirmationStep";
 
-const LockupSelect: React.FC<any> = ({ validator, accountDelegation }) => {
+const LockupSelect: React.FC<any> = ({
+  validator,
+  accountDelegation,
+  setCompletedDelegation,
+  setCompletedLockup,
+  setStep,
+}) => {
   const { color } = useContext(ThemeContext);
   const { txSFCContractMethod } = useFantomContract();
   const { transaction } = useTransaction();
@@ -56,6 +62,20 @@ const LockupSelect: React.FC<any> = ({ validator, accountDelegation }) => {
   const [lockupDays, setLockupDays] = useState(14);
   const [lockupApr, setLockUpApr] = useState(9.31);
   const maxLockup = maxLockDays(validator);
+
+  const delegatedAmount = hexToUnit(
+    accountDelegation.delegation.amountDelegated
+  );
+  const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
+  const formattedYearlyReward = toFormattedBalance(
+    delegatedAmount * (lockupApr / 100)
+  );
+  const formattedMonthlyReward = toFormattedBalance(
+    (delegatedAmount * (lockupApr / 100)) / 12
+  );
+  const formattedWeeklyReward = toFormattedBalance(
+    (delegatedAmount * (lockupApr / 100)) / 52
+  );
 
   const tx = transaction[txHash];
   const isLockupPending = tx && tx.status === "pending";
@@ -67,7 +87,7 @@ const LockupSelect: React.FC<any> = ({ validator, accountDelegation }) => {
         lockupDays * 24 * 60 * 60 > maxLockSeconds(validator)
           ? maxLockSeconds(validator)
           : lockupDays * 24 * 60 * 60,
-        unitToWei(accountDelegation.delegation.delegatedAmount),
+        formatHexToBN(accountDelegation.delegation.amountDelegated).toString(),
       ]);
       setTxHash(hash);
     } catch (err) {
@@ -75,13 +95,31 @@ const LockupSelect: React.FC<any> = ({ validator, accountDelegation }) => {
     }
   };
 
+  useEffect(() => {
+    let timeout: any;
+    if (isLockupCompleted) {
+      timeout = setTimeout(() => {
+        setCompletedDelegation({
+          delegatedAmount: delegatedAmount,
+          selectedDelegation: validator,
+        });
+        setCompletedLockup({
+          daysLocked: lockupDays,
+          apr: lockupApr,
+        });
+        setStep("Confirmation");
+      }, 250);
+    }
+    return () => clearTimeout(timeout);
+  }, [isLockupCompleted]);
+
   return (
     <Column>
       <Row>
         <Column
           style={{
             justifyContent: "center",
-            width: "30rem",
+            width: "40rem",
             margin: "2rem 0",
           }}
         >
@@ -101,8 +139,8 @@ const LockupSelect: React.FC<any> = ({ validator, accountDelegation }) => {
             alignItems: "center",
           }}
         >
-          <Heading1>~{lockupApr}% APR</Heading1>
-          <Spacer size="xl" />
+          <Heading3>~{lockupApr}% APR</Heading3>
+          <Spacer size="sm" />
         </Row>
       </Row>
       {maxLockup > 14 && (
@@ -128,6 +166,65 @@ const LockupSelect: React.FC<any> = ({ validator, accountDelegation }) => {
           <Spacer size="xxl" />
         </>
       )}
+      <Spacer size="xxl" />
+      <ContentBox style={{ backgroundColor: color.primary.black() }}>
+        <Column style={{ width: "100%" }}>
+          <Row style={{ justifyContent: "space-between" }}>
+            <StatPair
+              title="Delegation amount"
+              value1={formattedDelegatedAmount[0]}
+              value2={formattedDelegatedAmount[1]}
+              suffix="FTM"
+            />
+            <StatPair
+              title="Est. weekly rewards"
+              value1={formattedWeeklyReward[0]}
+              value2={formattedWeeklyReward[1]}
+              suffix="FTM"
+              valueFlex="flex-end"
+            />
+            <StatPair
+              title="Est. monthly rewards"
+              value1={formattedMonthlyReward[0]}
+              value2={formattedMonthlyReward[1]}
+              suffix="FTM"
+              valueFlex="flex-end"
+            />
+            <StatPair
+              title="Est. yearly rewards"
+              value1={formattedYearlyReward[0]}
+              value2={formattedYearlyReward[1]}
+              suffix="FTM"
+              valueFlex="flex-end"
+            />
+          </Row>
+          <Spacer />
+          <Row style={{ justifyContent: "flex-end" }}>
+            <Typo3
+              style={{
+                fontSize: "12px",
+                color: color.greys.grey(),
+                marginBottom: "-1rem",
+              }}
+            >
+              *This is an estimation. Rewards vary depending on the total staked
+              amount.
+            </Typo3>
+          </Row>
+        </Column>
+      </ContentBox>
+      <Spacer size="xxl" />
+      <Button
+        disabled={isLockupCompleted || isLockupPending}
+        onClick={handleLockup}
+        variant="primary"
+      >
+        {isLockupCompleted
+          ? "Lockup success"
+          : isLockupPending
+          ? "Locking..."
+          : "Lockup now"}
+      </Button>
     </Column>
   );
 };
@@ -139,49 +236,27 @@ const LockupFTMRow: React.FC<any> = ({
   setSelectedValidator,
 }) => {
   const { color } = useContext(ThemeContext);
-
   const availableFTMToLockup = hexToUnit(
     accountDelegation.delegation.amountDelegated
   );
   const maxLockup = maxLockDays(validator);
   const maxApr = "11.12";
 
-  // const { txSFCContractMethod } = useFantomContract();
-  // const { transaction } = useTransaction();
-  // const [txHash, setTxHash] = useState(null);
-  // const tx = transaction[txHash];
-  // const isLockupPending = tx && tx.status === "pending";
-  // const isLockupCompleted = tx && tx.status === "completed";
-  // const handleLockup = async () => {
-  //   try {
-  //     const hash = await txSFCContractMethod(SFC_TX_METHODS.RELOCK_STAKE, [
-  //       parseInt(completedDelegation.selectedDelegation.id),
-  //       lockupDays * 24 * 60 * 60 > maxLockSeconds(delegation)
-  //         ? maxLockSeconds(delegation)
-  //         : lockupDays * 24 * 60 * 60,
-  //       unitToWei(completedDelegation.delegatedAmount),
-  //     ]);
-  //     setTxHash(hash);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
-
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
-      <Row style={{ width: "18rem", alignItems: "center" }}>
+      <Row style={{ width: "16rem", alignItems: "center" }}>
         <DelegationNameInfo
           delegationInfo={validator.delegationInfo}
           imageSize="32px"
         />
       </Row>
-      <Row style={{ width: "15rem", alignItems: "center" }}>
+      <Row style={{ width: "12rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>{availableFTMToLockup} FTM</Typo1>
       </Row>
-      <Row style={{ width: "12rem", alignItems: "center" }}>
+      <Row style={{ width: "8rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>{maxLockup} days</Typo1>
       </Row>
-      <Row style={{ width: "12rem", alignItems: "center" }}>
+      <Row style={{ width: "8rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>{maxApr}%</Typo1>
       </Row>
 
@@ -212,7 +287,7 @@ const LockupFTMRow: React.FC<any> = ({
   );
 };
 
-const LockupFTMModal: React.FC<any> = ({
+export const LockupFTMModal: React.FC<any> = ({
   onDismiss,
   accountDelegations,
   validatorsWithLockup,
@@ -220,9 +295,21 @@ const LockupFTMModal: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [step, setStep] = useState("Select");
   const [selectedValidator, setSelectedValidator] = useState(null);
-  console.log(step);
+  const [completedDelegation, setCompletedDelegation] = useState(null);
+  const [completedLockup, setCompletedLockup] = useState(null);
+
+  const validatorsEligibleToLock = validatorsWithLockup.filter(
+    (validator: Validator) => {
+      const stakedDelegation = accountDelegations.find(
+        (accountDelegation: any) =>
+          accountDelegation.delegation.toStakerId === validator.id
+      );
+      return canLockDelegation(stakedDelegation, validator);
+    }
+  );
+
   return (
-    <Modal padding={step === "Lockup" && "0"} onDismiss={onDismiss}>
+    <Modal style={{ width: "52rem" }} onDismiss={onDismiss}>
       {step === "Select" && (
         <>
           <ModalTitle text="Fluid rewards" />
@@ -244,45 +331,53 @@ const LockupFTMModal: React.FC<any> = ({
             <Row style={{ textAlign: "left" }}>
               <Typo3
                 style={{
-                  width: "18rem",
+                  width: "16rem",
                   color: color.greys.grey(),
                 }}
               >
                 Validator
               </Typo3>
-              <Typo3 style={{ width: "15rem", color: color.greys.grey() }}>
+              <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
                 Available FTM to lockup
               </Typo3>
-              <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
+              <Typo3 style={{ width: "8rem", color: color.greys.grey() }}>
                 Max lockup
               </Typo3>
-              <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
+              <Typo3 style={{ width: "8rem", color: color.greys.grey() }}>
                 Max apr
               </Typo3>
               <div style={{ width: "8rem" }} />
             </Row>
             <Spacer size="sm" />
-            {validatorsWithLockup.map((validator: any, index: number) => {
-              const isLastRow = validatorsWithLockup.length === index + 1;
-              return (
-                <div
-                  key={`lockup-ftm-row-${validator.id}`}
-                  style={{
-                    borderBottom: !isLastRow && "2px solid #202F49",
-                  }}
-                >
-                  <LockupFTMRow
-                    validator={validator}
-                    accountDelegation={accountDelegations.find(
-                      (accountDelegation: any) =>
-                        accountDelegation.delegation.toStakerId === validator.id
-                    )}
-                    setStep={setStep}
-                    setSelectedValidator={setSelectedValidator}
-                  />
-                </div>
-              );
-            })}
+            {accountDelegations?.length && validatorsEligibleToLock?.length ? (
+              validatorsEligibleToLock.map((validator: any, index: number) => {
+                const isLastRow = validatorsWithLockup.length === index + 1;
+                return (
+                  <div
+                    key={`lockup-ftm-row-${validator.id}`}
+                    style={{
+                      borderBottom: !isLastRow && "2px solid #202F49",
+                    }}
+                  >
+                    <LockupFTMRow
+                      validator={validator}
+                      accountDelegation={accountDelegations.find(
+                        (accountDelegation: any) =>
+                          accountDelegation.delegation.toStakerId ===
+                          validator.id
+                      )}
+                      setStep={setStep}
+                      setSelectedValidator={setSelectedValidator}
+                    />
+                  </div>
+                );
+              })
+            ) : (
+              <Heading2 style={{ padding: "3rem 0" }}>
+                No available delegations eligible for lockup
+              </Heading2>
+            )}
+
             <Spacer size="sm" />
           </ModalContent>
         </>
@@ -293,12 +388,17 @@ const LockupFTMModal: React.FC<any> = ({
             style={{ position: "absolute", top: ".3rem" }}
             onClick={() => setStep("Select")}
           >
-            BACK
+            <img style={{ height: "18px" }} src={vShapeImg} />
           </OverlayButton>
           <Row style={{ alignItems: "center", justifyContent: "center" }}>
-            <Column>
-              <Typo1>Choose a lockup period</Typo1>
-              <Typo2>Description goes here</Typo2>
+            <Column style={{ alignItems: "center" }}>
+              <Typo1 style={{ fontWeight: "bold", color: color.greys.grey() }}>
+                Choose a lockup period
+              </Typo1>
+              <Spacer size="xs" />
+              <Typo3 style={{ color: color.greys.grey() }}>
+                Description goes here
+              </Typo3>
             </Column>
           </Row>
           <Spacer />
@@ -308,8 +408,18 @@ const LockupFTMModal: React.FC<any> = ({
               (accountDelegation: any) =>
                 accountDelegation.delegation.toStakerId === selectedValidator.id
             )}
+            setCompletedDelegation={setCompletedDelegation}
+            setCompletedLockup={setCompletedLockup}
+            setStep={setStep}
           />
         </Column>
+      )}
+      {step === "Confirmation" && (
+        <ConfirmationStep
+          completedDelegation={completedDelegation}
+          completedLockup={completedLockup}
+          onDismiss={onDismiss}
+        />
       )}
     </Modal>
   );
@@ -378,7 +488,11 @@ const FluidRewards: React.FC<any> = ({
             <FluidRewardsContent availableToLockup={availableToLockup} />
           )}
           <Spacer size="sm" />
-          <Button onClick={() => onPresentLockupFTMModal()} variant="primary">
+          <Button
+            disabled={availableToLockup <= 0}
+            onClick={() => onPresentLockupFTMModal()}
+            variant="primary"
+          >
             Lockup FTM
           </Button>
         </Column>

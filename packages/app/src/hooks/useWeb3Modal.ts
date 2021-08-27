@@ -68,7 +68,6 @@ function useWeb3Modal(config = {}) {
     }
 
     provider.removeAllListeners();
-
     provider.on("chainChanged", async (chainId: string) => {
       console.info("[PROVIDER] chain changed to ", chainId);
       const web3Provider = createWeb3Provider(provider);

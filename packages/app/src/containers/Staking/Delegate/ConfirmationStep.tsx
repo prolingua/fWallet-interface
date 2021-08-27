@@ -11,7 +11,6 @@ const ConfirmationStep: React.FC<any> = ({
   completedLockup,
   onDismiss,
 }) => {
-  console.log({ completedDelegation, completedLockup });
   const formattedAmountStaked = toFormattedBalance(
     completedDelegation.delegatedAmount
   );

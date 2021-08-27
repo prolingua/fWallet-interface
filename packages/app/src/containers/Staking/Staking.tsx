@@ -59,12 +59,6 @@ const Staking: React.FC<any> = () => {
     2000
   );
 
-  // useFantomApi(FantomApiMethods.getEstimatedRewards, {
-  //   address: "0x567b6f3d4ba1f55652cf90df6db90ad6d8f9abc1",
-  // });
-  //
-  // console.log(apiData[FantomApiMethods.getEstimatedRewards]);
-  console.log(delegations);
   return (
     <ResponsiveRow
       breakpoint={breakpoints.ultra}

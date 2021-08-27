@@ -49,6 +49,8 @@ export interface AccountDelegationSummary {
   totalStaked: BigNumber;
   totalPendingRewards: BigNumber;
   totalMintedSFTM: BigNumber;
+  totalLocked: BigNumber;
+  totalAvailableSFTM: BigNumber;
 }
 
 // Validator functions
@@ -93,8 +95,10 @@ export const getAccountDelegationSummary = (
 ): AccountDelegationSummary => {
   const initial = {
     totalStaked: BigNumber.from(0),
+    totalLocked: BigNumber.from(0),
     totalPendingRewards: BigNumber.from(0),
     totalMintedSFTM: BigNumber.from(0),
+    totalAvailableSFTM: BigNumber.from(0),
   };
 
   if (!delegations || !delegations.delegationsByAddress) {
@@ -109,11 +113,15 @@ export const getAccountDelegationSummary = (
       const stake = formatHexToBN(current.delegation.amountDelegated);
       const reward = formatHexToBN(current.delegation.pendingRewards.amount);
       const minted = formatHexToBN(current.delegation.outstandingSFTM);
+      const locked = formatHexToBN(current.delegation.lockedAmount);
+      const availableToMint = locked.sub(minted);
 
       return {
         totalStaked: stake.add(accumulated.totalStaked),
+        totalLocked: locked.add(accumulated.totalLocked),
         totalPendingRewards: reward.add(accumulated.totalPendingRewards),
         totalMintedSFTM: minted.add(accumulated.totalMintedSFTM),
+        totalAvailableSFTM: availableToMint.add(accumulated.totalAvailableSFTM),
       };
     },
     initial

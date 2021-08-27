@@ -6,6 +6,7 @@ import {
   getAccountDelegations,
   getAccountDelegationSummary,
   getValidators,
+  getValidatorsWithLockup,
 } from "../../utils/delegation";
 import {
   formatHexToBN,
@@ -25,6 +26,8 @@ import {
   Button,
   ContentBox,
   Heading1,
+  Heading2,
+  Heading3,
   OverlayButton,
   Typo1,
   Typo2,
@@ -39,6 +42,10 @@ import { BigNumber } from "@ethersproject/bignumber";
 import config from "../../config/config.test";
 import useModal from "../../hooks/useModal";
 import Column from "../../components/Column";
+import { LockupFTMModal } from "./FluidRewards";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import { FantomApiMethods } from "../../hooks/useFantomApi";
 
 const LiquidStakingContent: React.FC<any> = ({ accountDelegationsData }) => {
   const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
@@ -60,10 +67,6 @@ const LiquidStakingContent: React.FC<any> = ({ accountDelegationsData }) => {
 const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
   const { color } = useContext(ThemeContext);
   const { txStakeTokenizerContractMethod } = useFantomContract();
-  const lockedFTM = activeDelegation.delegation.isDelegationLocked
-    ? hexToUnit(activeDelegation.delegation.lockedAmount)
-    : 0;
-  const formattedLockedFTM = toFormattedBalance(lockedFTM);
   const mintableSFTM = activeDelegation.delegation.isDelegationLocked
     ? weiToUnit(
         formatHexToBN(activeDelegation.delegation.lockedAmount).sub(
@@ -93,16 +96,11 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
 
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
-      <Row style={{ width: "18rem", alignItems: "center" }}>
+      <Row style={{ width: "15rem", alignItems: "center" }}>
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo}
           imageSize="32px"
         />
-      </Row>
-      <Row style={{ width: "12rem", alignItems: "center" }}>
-        <Typo1 style={{ fontWeight: "bold" }}>
-          {`${formattedLockedFTM[0]}${formattedLockedFTM[1]}`} FTM
-        </Typo1>
       </Row>
       <Row style={{ width: "10rem", alignItems: "center" }}>
         <Typo1 style={{ fontWeight: "bold" }}>
@@ -140,14 +138,198 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
   );
 };
 
-const MintSFTMModal: React.FC<any> = ({
-  onDismiss,
+const ManageSFTMOverview: React.FC<any> = ({
+  activeDelegations,
   accountDelegationsData,
-  delegationsData,
 }) => {
   const { color } = useContext(ThemeContext);
-  const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getValidators(delegationsData);
+  const [activeTab, setActiveTab] = useState(null);
+  const { getAllowance, approve } = useFantomERC20();
+  const [allowance, setAllowance] = useState(BigNumber.from(0));
+  const [isApproving, setIsApproving] = useState(false);
+  const mintableDelegations = activeDelegations.filter(
+    (activeDelegation: any) =>
+      activeDelegation.delegation.lockedAmount >
+      activeDelegation.delegation.outstandingSFTM
+  );
+  const repayableDelegations = activeDelegations.filter(
+    (activeDelegation: any) =>
+      activeDelegation.delegation.outstandingSFTM !== "0x0"
+  );
+  const accountDelegationSummary = getAccountDelegationSummary(
+    accountDelegationsData
+  );
+
+  const handleApprove = async () => {
+    setIsApproving(true);
+    await approve(
+      addresses[parseInt(config.chainId)].tokens.SFTM,
+      addresses[parseInt(config.chainId)]["stakeTokenizer"]
+    );
+    setIsApproving(false);
+  };
+
+  const formattedMintedSFTM = toFormattedBalance(
+    weiToUnit(accountDelegationSummary.totalMintedSFTM)
+  );
+  const formattedMintableSFTM = toFormattedBalance(
+    weiToUnit(accountDelegationSummary.totalAvailableSFTM)
+  );
+
+  useEffect(() => {
+    if (mintableDelegations?.lenght) {
+      return setActiveTab("Mint");
+    }
+    return setActiveTab("Repay");
+  }, []);
+
+  useEffect(() => {
+    getAllowance(
+      addresses[parseInt(config.chainId)].tokens.SFTM,
+      addresses[parseInt(config.chainId)]["stakeTokenizer"]
+    ).then((result) => {
+      setAllowance(result);
+    });
+  }, [accountDelegationsData, isApproving]);
+
+  return (
+    <Column style={{ width: "80%" }}>
+      <Spacer size="lg" />
+      <Row style={{ justifyContent: "space-between" }}>
+        <StatPair
+          title="Minted sFTM"
+          value1={formattedMintedSFTM[0]}
+          value2={formattedMintedSFTM[1]}
+          suffix="sFTM"
+        />
+        <StatPair title="Available sFTM" value1="1" value2="2" suffix="sFTM" />
+        <StatPair
+          title="Mintable sFTM"
+          value1={formattedMintableSFTM[0]}
+          value2={formattedMintableSFTM[1]}
+          suffix="sFTM"
+        />
+      </Row>
+      <Spacer size="xl" />
+      <Row>
+        <OverlayButton
+          style={{ padding: 0, width: "12rem" }}
+          onClick={() => setActiveTab("Mint")}
+        >
+          <Heading3
+            style={{
+              backgroundColor:
+                activeTab === "Mint" ? "#172641" : color.primary.black(),
+              opacity: activeTab !== "Mint" && ".5",
+              padding: "1rem 2rem",
+            }}
+          >
+            Mint sFTM
+          </Heading3>
+        </OverlayButton>
+        <OverlayButton
+          style={{ padding: 0, width: "12rem" }}
+          onClick={() => setActiveTab("Repay")}
+        >
+          <Heading3
+            style={{
+              backgroundColor:
+                activeTab === "Repay" ? "#172641" : color.primary.black(),
+              opacity: activeTab !== "Repay" && ".5",
+              padding: "1rem 2rem",
+            }}
+          >
+            Repay sFTM
+          </Heading3>
+        </OverlayButton>
+      </Row>
+      <ModalContent style={{ width: "unset", borderTopLeftRadius: "0" }}>
+        <Row style={{ textAlign: "left" }}>
+          <Typo3
+            style={{
+              width: "15rem",
+              color: color.greys.grey(),
+            }}
+          >
+            Validator
+          </Typo3>
+          <Typo3 style={{ width: "10rem", color: color.greys.grey() }}>
+            {activeTab === "Mint" ? "Available sFTM to mint" : "Minted sFTM"}
+          </Typo3>
+          <div style={{ width: "5rem" }} />
+        </Row>
+        <Spacer size="sm" />
+        {activeTab === "Mint" &&
+          (mintableDelegations?.length ? (
+            mintableDelegations.map((activeDelegation: any, index: number) => {
+              const isLastRow = mintableDelegations.length === index + 1;
+              return (
+                <div
+                  key={`mint-sftm-row-${activeDelegation.delegation.toStakerId}`}
+                  style={{
+                    borderBottom: !isLastRow && "2px solid #202F49",
+                  }}
+                >
+                  <MintSFTMRow activeDelegation={activeDelegation} />
+                </div>
+              );
+            })
+          ) : (
+            <Heading3 style={{ padding: "2rem" }}>
+              No eligible delegations
+            </Heading3>
+          ))}
+        {activeTab === "Repay" &&
+          (repayableDelegations?.length ? (
+            repayableDelegations.map(
+              (activeDelegationWithLoan: any, index: number) => {
+                const isLastRow = repayableDelegations.length === index + 1;
+                return (
+                  <div
+                    key={`mint-sftm-row-${activeDelegationWithLoan.delegation.toStakerId}`}
+                    style={{
+                      borderBottom: !isLastRow && "2px solid #202F49",
+                    }}
+                  >
+                    <RepaySFTMRow
+                      activeDelegation={activeDelegationWithLoan}
+                      approveSpending={handleApprove}
+                      isApproving={isApproving}
+                      hasAllowance={allowance.gt(
+                        BigNumber.from(accountDelegationSummary.totalMintedSFTM)
+                      )}
+                    />
+                  </div>
+                );
+              }
+            )
+          ) : (
+            <Heading3 style={{ padding: "2rem" }}>No borrow positions</Heading3>
+          ))}
+      </ModalContent>
+    </Column>
+  );
+};
+
+const ManageSFTMModal: React.FC<any> = ({ onDismiss }) => {
+  const [step, setStep] = useState(null);
+  const { apiData } = useFantomApiData();
+  const { walletContext } = useWalletProvider();
+
+  const activeAddress = walletContext.activeWallet.address
+    ? walletContext.activeWallet.address.toLowerCase()
+    : null;
+  const delegationsResponse = apiData[FantomApiMethods.getDelegations];
+  const accountDelegationsResponse = apiData[
+    FantomApiMethods.getDelegationsForAccount
+  ].get(activeAddress);
+
+  const accountDelegations = getAccountDelegations(
+    accountDelegationsResponse.data
+  );
+  const delegations = getValidators(delegationsResponse.data);
+  const validatorsWithActiveLockup =
+    delegations && getValidatorsWithLockup(delegationsResponse.data);
   const activeDelegations = !(delegations && accountDelegations)
     ? []
     : accountDelegations.map((accountDelegation: any) => ({
@@ -156,44 +338,59 @@ const MintSFTMModal: React.FC<any> = ({
           return delegation.id === accountDelegation.delegation.toStakerId;
         }),
       }));
+  const lockedDelegations = activeDelegations.filter((delegation) => {
+    return delegation.delegation.lockedAmount !== "0x0";
+  });
+  const borrowedDelegations = activeDelegations.filter((delegation) => {
+    return delegation.delegation.outstandingSFTM !== "0x0";
+  });
+
+  const [onPresentLockupFTMModal] = useModal(
+    <LockupFTMModal
+      validatorsWithLockup={validatorsWithActiveLockup}
+      accountDelegations={accountDelegations}
+    />,
+    "lockup-ftm-modal"
+  );
+
+  useEffect(() => {
+    if (borrowedDelegations?.length || lockedDelegations?.length) {
+      return setStep("Overview");
+    }
+    return setStep("Lock");
+  }, [lockedDelegations, borrowedDelegations]);
 
   return (
-    <Modal onDismiss={onDismiss}>
-      <ModalTitle text="Mint sFTM" />
-      <ModalContent>
-        <Row style={{ textAlign: "left" }}>
-          <Typo3
-            style={{
-              width: "18rem",
-              color: color.greys.grey(),
-            }}
-          >
-            Validator
-          </Typo3>
-          <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
-            Locked FTM
-          </Typo3>
-          <Typo3 style={{ width: "10rem", color: color.greys.grey() }}>
-            Mintable sFTM
-          </Typo3>
-          <div style={{ width: "5rem" }} />
-        </Row>
-        <Spacer size="sm" />
-        {activeDelegations.map((activeDelegation, index) => {
-          const isLastRow = activeDelegation.length === index + 1;
-          return (
-            <div
-              key={`mint-sftm-row-${activeDelegation.delegation.toStakerId}`}
-              style={{
-                borderBottom: !isLastRow && "2px solid #202F49",
+    <Modal style={{ width: "50rem", minHeight: "80vh" }} onDismiss={onDismiss}>
+      <ModalTitle text="Liquid staking" />
+      {step === "Lock" && (
+        <ModalContent style={{ height: "100%" }}>
+          <Column>
+            <Spacer size="xl" />
+            <Spacer size="xl" />
+            <Typo2 style={{ alignSelf: "flex-start" }}>
+              You can only mint sFTM if you lock your FTM delegation.
+            </Typo2>
+            <Spacer size="xl" />
+            <Button
+              onClick={() => {
+                onDismiss();
+                onPresentLockupFTMModal();
               }}
+              variant="primary"
             >
-              <MintSFTMRow activeDelegation={activeDelegation} />
-            </div>
-          );
-        })}
-        <Spacer size="sm" />
-      </ModalContent>
+              {" "}
+              Lock your delegation{" "}
+            </Button>
+          </Column>
+        </ModalContent>
+      )}
+      {step === "Overview" && (
+        <ManageSFTMOverview
+          activeDelegations={activeDelegations}
+          accountDelegationsData={accountDelegationsResponse.data}
+        />
+      )}
     </Modal>
   );
 };
@@ -293,113 +490,9 @@ const RepaySFTMRow: React.FC<any> = ({
   );
 };
 
-const RepaySFTMModal: React.FC<any> = ({
-  onDismiss,
-  accountDelegationsData,
-  delegationsData,
-}) => {
-  const { color } = useContext(ThemeContext);
-  const { getAllowance, approve } = useFantomERC20();
-  const [allowance, setAllowance] = useState(BigNumber.from(0));
-  const [isApproving, setIsApproving] = useState(false);
-  const accountDelegations = getAccountDelegations(accountDelegationsData);
-  const delegations = getValidators(delegationsData);
-  const activeDelegations = !(delegations && accountDelegations)
-    ? []
-    : accountDelegations.map((accountDelegation: any) => ({
-        ...accountDelegation,
-        delegationInfo: delegations.find((delegation: any) => {
-          return delegation.id === accountDelegation.delegation.toStakerId;
-        }),
-      }));
-  const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
-  const mintedSFTM = weiToUnit(totalDelegated.totalMintedSFTM);
-
-  const handleApprove = async () => {
-    setIsApproving(true);
-    await approve(
-      addresses[parseInt(config.chainId)].tokens.SFTM,
-      addresses[parseInt(config.chainId)]["stakeTokenizer"]
-    );
-    setIsApproving(false);
-  };
-
-  useEffect(() => {
-    getAllowance(
-      addresses[parseInt(config.chainId)].tokens.SFTM,
-      addresses[parseInt(config.chainId)]["stakeTokenizer"]
-    ).then((result) => {
-      setAllowance(result);
-    });
-  }, [accountDelegationsData, isApproving]);
-
-  return (
-    <Modal onDismiss={onDismiss}>
-      <ModalTitle text="Repay sFTM" />
-      <ModalContent>
-        <Row style={{ textAlign: "left" }}>
-          <Typo3
-            style={{
-              width: "18rem",
-              color: color.greys.grey(),
-            }}
-          >
-            Validator
-          </Typo3>
-          <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
-            Minted sFTM
-          </Typo3>
-          <div style={{ width: "5rem" }} />
-        </Row>
-        <Spacer size="sm" />
-        {activeDelegations
-          .filter(
-            (activeDelegation) =>
-              parseInt(activeDelegation.delegation.outstandingSFTM) > 0
-          )
-          .map((activeDelegationWithLoan, index) => {
-            const isLastRow = activeDelegationWithLoan.length === index + 1;
-            return (
-              <div
-                key={`mint-sftm-row-${activeDelegationWithLoan.delegation.toStakerId}`}
-                style={{
-                  borderBottom: !isLastRow && "2px solid #202F49",
-                }}
-              >
-                <RepaySFTMRow
-                  activeDelegation={activeDelegationWithLoan}
-                  approveSpending={handleApprove}
-                  isApproving={isApproving}
-                  hasAllowance={allowance.gt(
-                    BigNumber.from(unitToWei(mintedSFTM.toString()))
-                  )}
-                />
-              </div>
-            );
-          })}
-        <Spacer size="sm" />
-      </ModalContent>
-    </Modal>
-  );
-};
-
-const LiquidStaking: React.FC<any> = ({
-  loading,
-  accountDelegations,
-  delegations,
-}) => {
+const LiquidStaking: React.FC<any> = ({ loading, accountDelegations }) => {
   const [onPresentMintSFTMModal] = useModal(
-    <MintSFTMModal
-      accountDelegationsData={accountDelegations?.data}
-      delegationsData={delegations?.data}
-    />,
-    "mint-sFTM-modal"
-  );
-  const [onPresentRepaySFTMModal] = useModal(
-    <RepaySFTMModal
-      accountDelegationsData={accountDelegations?.data}
-      delegationsData={delegations?.data}
-    />,
+    <ManageSFTMModal />,
     "mint-sFTM-modal"
   );
   return (
@@ -421,15 +514,7 @@ const LiquidStaking: React.FC<any> = ({
           )}
           <Spacer />
           <Button onClick={() => onPresentMintSFTMModal()} variant="primary">
-            Mint sFTM
-          </Button>
-          <Spacer size="sm" />
-          <Button
-            onClick={() => onPresentRepaySFTMModal()}
-            style={{ backgroundColor: "#202F49" }}
-            variant="primary"
-          >
-            Repay sFTM
+            Manage sFTM
           </Button>
         </Column>
       </Column>
