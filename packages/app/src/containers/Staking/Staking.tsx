@@ -59,6 +59,15 @@ const Staking: React.FC<any> = () => {
     2000
   );
 
+  useFantomApi(
+    FantomApiMethods.getAssetsListForAccount,
+    {
+      owner: activeAddress,
+    },
+    activeAddress,
+    2000
+  );
+
   return (
     <ResponsiveRow
       breakpoint={breakpoints.ultra}

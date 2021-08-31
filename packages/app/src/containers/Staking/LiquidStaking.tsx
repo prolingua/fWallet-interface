@@ -16,6 +16,7 @@ import {
   weiToUnit,
 } from "../../utils/conversion";
 import useFantomContract, {
+  SFC_TX_METHODS,
   STAKE_TOKENIZER_TX_METHODS,
 } from "../../hooks/useFantomContract";
 import StatPair from "../../components/StatPair";
@@ -46,6 +47,8 @@ import { LockupFTMModal } from "./FluidRewards";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import { FantomApiMethods } from "../../hooks/useFantomApi";
+import { getAccountAssets } from "../../utils/account";
+import useSendTransaction from "../../hooks/useSendTransaction";
 
 const LiquidStakingContent: React.FC<any> = ({ accountDelegationsData }) => {
   const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
@@ -141,12 +144,12 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
 const ManageSFTMOverview: React.FC<any> = ({
   activeDelegations,
   accountDelegationsData,
+  assetListData,
 }) => {
   const { color } = useContext(ThemeContext);
   const [activeTab, setActiveTab] = useState(null);
   const { getAllowance, approve } = useFantomERC20();
   const [allowance, setAllowance] = useState(BigNumber.from(0));
-  const [isApproving, setIsApproving] = useState(false);
   const mintableDelegations = activeDelegations.filter(
     (activeDelegation: any) =>
       activeDelegation.delegation.lockedAmount >
@@ -159,15 +162,22 @@ const ManageSFTMOverview: React.FC<any> = ({
   const accountDelegationSummary = getAccountDelegationSummary(
     accountDelegationsData
   );
+  const assetList = getAccountAssets(assetListData);
+  const sFTMBalance = assetList.find((asset) => asset.symbol === "SFTM")
+    ?.balanceOf;
+  const formattedSFTMBalance = sFTMBalance
+    ? toFormattedBalance(hexToUnit(sFTMBalance))
+    : ["0", ".0"];
 
-  const handleApprove = async () => {
-    setIsApproving(true);
-    await approve(
+  const {
+    sendTx: handleApprove,
+    isPending: isApproving,
+  } = useSendTransaction(() =>
+    approve(
       addresses[parseInt(config.chainId)].tokens.SFTM,
       addresses[parseInt(config.chainId)]["stakeTokenizer"]
-    );
-    setIsApproving(false);
-  };
+    )
+  );
 
   const formattedMintedSFTM = toFormattedBalance(
     weiToUnit(accountDelegationSummary.totalMintedSFTM)
@@ -177,7 +187,7 @@ const ManageSFTMOverview: React.FC<any> = ({
   );
 
   useEffect(() => {
-    if (mintableDelegations?.lenght) {
+    if (mintableDelegations?.length) {
       return setActiveTab("Mint");
     }
     return setActiveTab("Repay");
@@ -202,7 +212,12 @@ const ManageSFTMOverview: React.FC<any> = ({
           value2={formattedMintedSFTM[1]}
           suffix="sFTM"
         />
-        <StatPair title="Available sFTM" value1="1" value2="2" suffix="sFTM" />
+        <StatPair
+          title="Available sFTM"
+          value1={formattedSFTMBalance[0]}
+          value2={formattedSFTMBalance[1]}
+          suffix="sFTM"
+        />
         <StatPair
           title="Mintable sFTM"
           value1={formattedMintableSFTM[0]}
@@ -311,7 +326,7 @@ const ManageSFTMOverview: React.FC<any> = ({
   );
 };
 
-const ManageSFTMModal: React.FC<any> = ({ onDismiss }) => {
+export const ManageSFTMModal: React.FC<any> = ({ onDismiss }) => {
   const [step, setStep] = useState(null);
   const { apiData } = useFantomApiData();
   const { walletContext } = useWalletProvider();
@@ -323,6 +338,9 @@ const ManageSFTMModal: React.FC<any> = ({ onDismiss }) => {
   const accountDelegationsResponse = apiData[
     FantomApiMethods.getDelegationsForAccount
   ].get(activeAddress);
+  const assetsListResponse = apiData[
+    FantomApiMethods.getAssetsListForAccount
+  ].get(activeAddress);
 
   const accountDelegations = getAccountDelegations(
     accountDelegationsResponse.data
@@ -330,6 +348,7 @@ const ManageSFTMModal: React.FC<any> = ({ onDismiss }) => {
   const delegations = getValidators(delegationsResponse.data);
   const validatorsWithActiveLockup =
     delegations && getValidatorsWithLockup(delegationsResponse.data);
+
   const activeDelegations = !(delegations && accountDelegations)
     ? []
     : accountDelegations.map((accountDelegation: any) => ({
@@ -389,6 +408,7 @@ const ManageSFTMModal: React.FC<any> = ({ onDismiss }) => {
         <ManageSFTMOverview
           activeDelegations={activeDelegations}
           accountDelegationsData={accountDelegationsResponse.data}
+          assetListData={assetsListResponse.data}
         />
       )}
     </Modal>
@@ -410,27 +430,20 @@ const RepaySFTMRow: React.FC<any> = ({
   const mintedSFTM = weiToUnit(mintedSFTMinWei);
   const formattedMintedSFTM = toFormattedBalance(mintedSFTM);
 
-  const [txHash, setTxHash] = useState(null);
-  const { transaction } = useTransaction();
-  const tx = transaction[txHash];
-  const isRepaid = tx && tx.status === "completed";
-  const isRepaying = tx && tx.status === "pending";
-
-  const handleRepaySFTM = async () => {
-    try {
-      const hash = await txStakeTokenizerContractMethod(
-        STAKE_TOKENIZER_TX_METHODS.redeemSFTM,
-        [activeDelegation.delegation.toStakerId, mintedSFTMinWei]
-      );
-      setTxHash(hash);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const {
+    sendTx: handleRepaySFTM,
+    isPending: isRepaying,
+    isCompleted: isRepaid,
+  } = useSendTransaction(() =>
+    txStakeTokenizerContractMethod(STAKE_TOKENIZER_TX_METHODS.redeemSFTM, [
+      activeDelegation.delegation.toStakerId,
+      mintedSFTMinWei,
+    ])
+  );
 
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
-      <Row style={{ width: "18rem", alignItems: "center" }}>
+      <Row style={{ width: "15rem", alignItems: "center" }}>
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo}
           imageSize="32px"
@@ -441,7 +454,7 @@ const RepaySFTMRow: React.FC<any> = ({
           {isRepaid
             ? "0.00"
             : `${formattedMintedSFTM[0]}${formattedMintedSFTM[1]}`}{" "}
-          FTM
+          sFTM
         </Typo1>
       </Row>
       <Row

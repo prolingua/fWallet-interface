@@ -54,7 +54,9 @@ const ConfirmationStep: React.FC<any> = ({
             <Typo1 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
               Current estimated APR
             </Typo1>
-            <Typo1 style={{ fontWeight: "bold" }}>~6.72%</Typo1>
+            <Typo1 style={{ fontWeight: "bold" }}>
+              {completedLockup.apr.toFixed(2)}%
+            </Typo1>
           </Row>
           <Spacer />
           <Row style={{ justifyContent: "space-between" }}>

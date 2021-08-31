@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { addresses } from "@f-wallet/contracts";
 import { ThemeContext } from "styled-components";
 import {
+  calculateDelegationApr,
   canLockDelegation,
   getAccountDelegations,
   getAccountDelegationSummary,
@@ -60,7 +61,9 @@ const LockupSelect: React.FC<any> = ({
   const { transaction } = useTransaction();
   const [txHash, setTxHash] = useState(null);
   const [lockupDays, setLockupDays] = useState(14);
-  const [lockupApr, setLockUpApr] = useState(9.31);
+  const [lockupApr, setLockUpApr] = useState(
+    calculateDelegationApr(lockupDays) * 100
+  );
   const maxLockup = maxLockDays(validator);
 
   const delegatedAmount = hexToUnit(
@@ -139,7 +142,7 @@ const LockupSelect: React.FC<any> = ({
             alignItems: "center",
           }}
         >
-          <Heading3>~{lockupApr}% APR</Heading3>
+          <Heading3>~{lockupApr.toFixed(2)}% APR</Heading3>
           <Spacer size="sm" />
         </Row>
       </Row>
@@ -152,12 +155,15 @@ const LockupSelect: React.FC<any> = ({
             <SliderWithMarks
               disabled={isLockupPending || isLockupCompleted}
               value={lockupDays}
-              setValue={(value: number) => setLockupDays(value)}
+              setValue={(value: number) => {
+                setLockupDays(value);
+                setLockUpApr(calculateDelegationApr(value) * 100);
+              }}
               min={14}
               max={maxLockup}
               markPoints={[14, maxLockup]}
               markPointsAbsolute
-              markLabels={["2 weeks", `${maxLockup} days`]}
+              markLabels={["14 days", `${maxLockup} days`]}
               tooltip
               tooltipPlacement="top"
               tooltipSuffix="days"
@@ -240,7 +246,7 @@ const LockupFTMRow: React.FC<any> = ({
     accountDelegation.delegation.amountDelegated
   );
   const maxLockup = maxLockDays(validator);
-  const maxApr = "11.12";
+  const maxApr = calculateDelegationApr(maxLockup <= 0 ? 0 : maxLockup) * 100;
 
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
@@ -257,7 +263,7 @@ const LockupFTMRow: React.FC<any> = ({
         <Typo1 style={{ fontWeight: "bold" }}>{maxLockup} days</Typo1>
       </Row>
       <Row style={{ width: "8rem", alignItems: "center" }}>
-        <Typo1 style={{ fontWeight: "bold" }}>{maxApr}%</Typo1>
+        <Typo1 style={{ fontWeight: "bold" }}>{maxApr.toFixed(2)}%</Typo1>
       </Row>
 
       <Row

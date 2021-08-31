@@ -5,11 +5,17 @@ import useFantomContract, {
 } from "../../../hooks/useFantomContract";
 import useTransaction from "../../../hooks/useTransaction";
 import {
+  calculateDelegationApr,
   getValidators,
   maxLockDays,
   maxLockSeconds,
 } from "../../../utils/delegation";
-import { toFormattedBalance, unitToWei } from "../../../utils/conversion";
+import {
+  formatHexToInt,
+  hexToUnit,
+  toFormattedBalance,
+  unitToWei,
+} from "../../../utils/conversion";
 import {
   Button,
   ContentBox,
@@ -26,10 +32,12 @@ import Row from "../../../components/Row";
 import checkmarkShapeImg from "../../../assets/img/shapes/chechmarkShape.png";
 import SliderWithMarks from "../../../components/Slider";
 import StatPair from "../../../components/StatPair";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const LockupStep: React.FC<any> = ({
   delegationsData,
   completedDelegation,
+  accountDelegation,
   setActiveStep,
   setCompletedLockup,
 }) => {
@@ -39,15 +47,21 @@ const LockupStep: React.FC<any> = ({
   const [txHash, setTxHash] = useState(null);
   const [useLockup, setUseLockup] = useState(null);
   const [lockupDays, setLockupDays] = useState(14);
-  const [apr, setApr] = useState(3.41);
-  const [lockupApr, setLockUpApr] = useState(9.31);
+  const [apr, setApr] = useState(calculateDelegationApr() * 100);
 
   const delegation = getValidators(delegationsData).find(
     (delegation) => delegation.id === completedDelegation.selectedDelegation.id
   );
   const maxLockup = maxLockDays(delegation);
+  const [lockupApr, setLockUpApr] = useState(
+    calculateDelegationApr(maxLockup) * 100
+  );
+
   const formattedDelegatedAmount = toFormattedBalance(
-    completedDelegation.delegatedAmount
+    accountDelegation
+      ? hexToUnit(accountDelegation.delegation.amountDelegated) +
+          parseInt(completedDelegation.delegatedAmount)
+      : completedDelegation.delegatedAmount
   );
   const formattedYearlyReward = toFormattedBalance(
     completedDelegation.delegatedAmount * (apr / 100)
@@ -69,7 +83,13 @@ const LockupStep: React.FC<any> = ({
         lockupDays * 24 * 60 * 60 > maxLockSeconds(delegation)
           ? maxLockSeconds(delegation)
           : lockupDays * 24 * 60 * 60,
-        unitToWei(completedDelegation.delegatedAmount),
+        accountDelegation
+          ? BigNumber.from(accountDelegation.delegation.amountDelegated)
+              .add(
+                BigNumber.from(unitToWei(completedDelegation.delegatedAmount))
+              )
+              .toString()
+          : unitToWei(completedDelegation.delegatedAmount),
       ]);
       setTxHash(hash);
     } catch (err) {
@@ -83,7 +103,7 @@ const LockupStep: React.FC<any> = ({
       timeout = setTimeout(() => {
         setCompletedLockup({
           daysLocked: lockupDays,
-          apr: apr,
+          apr: useLockup ? lockupApr : apr,
         });
         setActiveStep("Confirmation");
       }, 250);
@@ -102,7 +122,7 @@ const LockupStep: React.FC<any> = ({
           style={{ textAlign: "unset" }}
           onClick={() => {
             setUseLockup(false);
-            setApr(3.41);
+            setApr(calculateDelegationApr() * 100);
           }}
         >
           <Row
@@ -148,7 +168,7 @@ const LockupStep: React.FC<any> = ({
                 alignItems: "center",
               }}
             >
-              <Heading1>~3.41% APR</Heading1>
+              <Heading1>~{calculateDelegationApr() * 100}% APR</Heading1>
               <Spacer size="xl" />
             </Row>
           </Row>
@@ -213,7 +233,9 @@ const LockupStep: React.FC<any> = ({
                     alignItems: "center",
                   }}
                 >
-                  <Heading1>~{lockupApr}% APR</Heading1>
+                  <Heading1 style={{ minWidth: "12rem" }}>
+                    ~{lockupApr.toFixed(2)}% APR
+                  </Heading1>
                   <Spacer size="xl" />
                 </Row>
               </Row>
@@ -230,12 +252,15 @@ const LockupStep: React.FC<any> = ({
                         !useLockup || isLockupPending || isLockupCompleted
                       }
                       value={lockupDays}
-                      setValue={(value: number) => setLockupDays(value)}
+                      setValue={(value: number) => {
+                        setLockupDays(value);
+                        setLockUpApr(calculateDelegationApr(value) * 100);
+                      }}
                       min={14}
                       max={maxLockup}
                       markPoints={[14, maxLockup]}
                       markPointsAbsolute
-                      markLabels={["2 weeks", `${maxLockup} days`]}
+                      markLabels={["14 days", `${maxLockup} days`]}
                       tooltip={useLockup}
                       tooltipPlacement="top"
                       tooltipSuffix="days"
@@ -252,7 +277,7 @@ const LockupStep: React.FC<any> = ({
           <Column style={{ width: "100%" }}>
             <Row style={{ justifyContent: "space-between" }}>
               <StatPair
-                title="Delegation amount"
+                title="Total delegated"
                 value1={formattedDelegatedAmount[0]}
                 value2={formattedDelegatedAmount[1]}
                 suffix="FTM"

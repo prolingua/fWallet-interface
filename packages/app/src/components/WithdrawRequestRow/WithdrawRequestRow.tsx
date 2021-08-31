@@ -15,21 +15,23 @@ import {
   toFormattedBalance,
 } from "../../utils/conversion";
 import { BigNumber } from "@ethersproject/bignumber";
-import { FantomApiMethods } from "../../hooks/useFantomApi";
 import Row from "../Row";
 import StatPair from "../StatPair";
 import { Button, Typo1 } from "../index";
+import useSendTransaction from "../../hooks/useSendTransaction";
 
 const WithdrawRequestRow: React.FC<any> = ({ withdrawRequest, size }) => {
   const { txSFCContractMethod } = useFantomContract();
-  const { transaction } = useTransaction();
-  const { apiData } = useFantomApiData();
-  const { walletContext } = useWalletProvider();
-
-  const [txHash, setTxHash] = useState(null);
-  const claimRewardTx = transaction[txHash];
-  const isPending = claimRewardTx && claimRewardTx.status === "pending";
-  const isCompleted = claimRewardTx && claimRewardTx.status === "completed";
+  const {
+    sendTx: handleWithdrawStake,
+    isPending,
+    isCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.WITHDRAW, [
+      formatHexToInt(withdrawRequest.toStakerId),
+      BigNumber.from(withdrawRequest.withdrawRequestID).toString(),
+    ])
+  );
 
   const unlocksIn = withdrawLockTimeLeft(
     formatHexToInt(withdrawRequest.createdTime)
@@ -39,26 +41,6 @@ const WithdrawRequestRow: React.FC<any> = ({ withdrawRequest, size }) => {
   const formattedAmountToWithdraw = toFormattedBalance(
     hexToUnit(withdrawRequest.amount)
   );
-
-  const handleWithdrawStake = async (wr: any) => {
-    try {
-      const hash = await txSFCContractMethod(SFC_TX_METHODS.WITHDRAW, [
-        formatHexToInt(wr.toStakerId),
-        BigNumber.from(wr.withdrawRequestID).toString(),
-      ]);
-      setTxHash(hash);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (isCompleted) {
-      apiData[FantomApiMethods.getDelegationsForAccount]
-        .get(walletContext.activeWallet.address.toLowerCase())
-        .refetch();
-    }
-  }, [isCompleted]);
 
   return (
     <Row
@@ -86,7 +68,7 @@ const WithdrawRequestRow: React.FC<any> = ({ withdrawRequest, size }) => {
             fontSize: size === "sm" && "16px",
           }}
           variant="secondary"
-          onClick={() => handleWithdrawStake(withdrawRequest)}
+          onClick={() => handleWithdrawStake()}
         >
           {isPending ? "Withdrawing..." : isCompleted ? "Succes" : "Withdraw"}
         </Button>

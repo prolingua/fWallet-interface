@@ -1,5 +1,9 @@
 import React from "react";
-import { canLockDelegation, maxLockDays } from "../../../utils/delegation";
+import {
+  calculateDelegationApr,
+  canLockDelegation,
+  maxLockDays,
+} from "../../../utils/delegation";
 import {
   formatHexToInt,
   hexToUnit,
@@ -21,7 +25,9 @@ const DelegationSelectRow: React.FC<any> = ({
     hexToUnit(delegation.delegatedLimit)
   );
   const noOfDelegations = formatHexToInt(delegation.delegations.totalCount);
-  const maxApr = "11.32%";
+  const maxApr =
+    calculateDelegationApr(maxDelegationLockUp <= 0 ? 0 : maxDelegationLockUp) *
+    100;
   return (
     <Row
       style={{
@@ -47,7 +53,9 @@ const DelegationSelectRow: React.FC<any> = ({
       <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
         {maxDelegationLockUp <= 0 ? "-" : `${maxDelegationLockUp} days`}
       </Typo2>
-      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>{maxApr}</Typo2>
+      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
+        {maxApr.toFixed(2)}%
+      </Typo2>
       <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
         {noOfDelegations}
       </Typo2>

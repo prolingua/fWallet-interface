@@ -18,6 +18,8 @@ import {
   hexToUnit,
   toFormattedBalance,
   unitToWei,
+  weiToMaxUnit,
+  weiToUnit,
 } from "../../utils/conversion";
 import Modal from "../../components/Modal";
 import ModalTitle from "../../components/ModalTitle";
@@ -35,13 +37,20 @@ import {
 import Spacer from "../../components/Spacer";
 import useModal from "../../hooks/useModal";
 import StatPair from "../../components/StatPair";
-import { formatDate } from "../../utils/common";
+import { FANTOM_NATIVE, formatDate } from "../../utils/common";
 import DelegationBalance, {
   DelegationNameInfo,
 } from "../../components/DelegationBalance/DelegationBalance";
 import SliderWithMarks from "../../components/Slider";
 import CircularRatioBar from "../../components/CircularRatioBar";
 import WithdrawRequestRow from "../../components/WithdrawRequestRow";
+import { FantomApiMethods } from "../../hooks/useFantomApi";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import { ManageSFTMModal } from "./LiquidStaking";
+import useSendTransaction from "../../hooks/useSendTransaction";
+import InputCurrency from "../../components/InputCurrency";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -52,109 +61,198 @@ const UndelegateModal: React.FC<any> = ({
   onDismiss,
   stakerId,
   delegatedAmount,
+  isLocked,
+  lockedAmount,
+  hasDebt,
 }) => {
   const { color } = useContext(ThemeContext);
   const { txSFCContractMethod } = useFantomContract();
-  const { transaction } = useTransaction();
-  const [undelegateAmount, setUndelegateAmount] = useState(0);
-  const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
+  const [acceptLossOfRewards, setAcceptLossOfRewards] = useState(false);
+  const [undelegateAmount, setUndelegateAmount] = useState("0");
+  const formattedDelegatedAmount = toFormattedBalance(
+    hexToUnit(delegatedAmount)
+  );
 
-  const [txHash, setTxHash] = useState(null);
-  const tx = transaction[txHash];
-  const isPending = tx && tx.status === "pending";
-  const isCompleted = tx && tx.status === "completed";
+  const {
+    sendTx: handleUnstake,
+    isPending: isUnstakePending,
+    isCompleted: isUnstakeCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.UNDELEGATE, [
+      stakerId,
+      generateWithdrawalRequestId().toString(),
+      unitToWei(undelegateAmount).gte(BigNumber.from(delegatedAmount))
+        ? BigNumber.from(delegatedAmount).toString()
+        : unitToWei(parseFloat(undelegateAmount).toString()).toString(),
+    ])
+  );
+
+  const {
+    sendTx: handleUnlock,
+    isPending: isUnlockPending,
+    isCompleted: isUnlockCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.UNLOCK_STAKE, [
+      stakerId,
+      BigNumber.from(lockedAmount).toString(),
+    ])
+  );
+
+  const [onPresentMintSFTMModal] = useModal(
+    <ManageSFTMModal />,
+    "mint-sFTM-modal"
+  );
 
   const handleSetMax = () => {
-    setUndelegateAmount(delegatedAmount);
-  };
-  const handleUnstake = async () => {
-    const wrId = generateWithdrawalRequestId().toString();
-    const hash = await txSFCContractMethod(SFC_TX_METHODS.UNDELEGATE, [
-      stakerId,
-      wrId,
-      unitToWei(undelegateAmount.toString()),
-    ]);
-    setTxHash(hash);
+    setUndelegateAmount(
+      weiToMaxUnit(BigNumber.from(delegatedAmount).toString()).toString()
+    );
   };
 
   useEffect(() => {
-    if (isCompleted) {
+    if (isUnstakeCompleted) {
       setTimeout(() => {
         onDismiss();
-      }, 1000);
+      }, 500);
     }
-  }, [tx]);
+    if (isUnlockCompleted) {
+      setAcceptLossOfRewards(true);
+    }
+  }, [isUnlockCompleted, isUnstakeCompleted]);
 
   return (
     <Modal style={{ padding: "2rem 6rem" }} onDismiss={onDismiss}>
-      <ModalTitle text="How much FTM would you like to unstake?" />
-      <Column style={{ width: "100%", alignItems: "center" }}>
-        <Row>
-          <Typo1 style={{ color: color.greys.grey() }}>
-            Staking position size:{" "}
-          </Typo1>
-          <Spacer size="xs" />
-          <Typo1 style={{ fontWeight: "bold" }}>
-            {" "}
-            {`${formattedDelegatedAmount[0]}${formattedDelegatedAmount[1]}`} FTM
-          </Typo1>
-        </Row>
-        <Spacer size="xl" />
-        <Row
-          style={{
-            width: "100%",
-            backgroundColor: color.primary.black(),
-            borderRadius: "8px",
-          }}
-        >
-          <Row
-            style={{
-              padding: "2rem",
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Heading1 style={{ color: color.white }}>
-              {parseFloat(undelegateAmount.toFixed(2)).toString()} FTM
-            </Heading1>
+      {hasDebt ? (
+        <>
+          {" "}
+          <ModalTitle text="You have an outstanding sFTM debt?" />
+          <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
+            You need to repay your sFTM debt before being allowed to unstake.
+          </Typo2>
+          <Spacer size="xl" />
+          <Button variant="primary" onClick={() => onPresentMintSFTMModal()}>
+            Go to debt overview
+          </Button>
+        </>
+      ) : isLocked && !acceptLossOfRewards ? (
+        <>
+          <ModalTitle text="Unlock first?" />
+          <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
+            Your stake is locked. You have to unlock you stake first before you
+            can undelegate. <br />
+            Early unlocking will cause you to lose a part of the rewards.
+          </Typo2>
+          <Spacer size="xl" />
+          <Row style={{ width: "100%" }}>
+            <Button
+              style={{ flex: 1, border: "1px solid red" }}
+              disabled={isUnlockCompleted || isUnlockPending}
+              variant="secondary"
+              onClick={() => handleUnlock()}
+            >
+              {isUnlockCompleted
+                ? "Unlocked"
+                : isUnlockPending
+                ? "Unlocking..."
+                : "Unlock and Continue"}
+            </Button>
             <Spacer />
             <Button
-              fontSize="14px"
-              color={color.greys.grey()}
-              padding="8px"
-              variant="tertiary"
-              onClick={handleSetMax}
+              style={{ flex: 1 }}
+              disabled={isUnlockCompleted || isUnlockPending}
+              variant="primary"
+              onClick={() => onDismiss()}
             >
-              MAX
+              Never mind
             </Button>
           </Row>
-        </Row>
-        <Spacer size="xl" />
-        <div style={{ width: "98%" }}>
-          <SliderWithMarks
-            value={undelegateAmount}
-            setValue={setUndelegateAmount}
-            max={parseFloat(delegatedAmount.toString())}
-            steps={0.1}
-          />
-          <Spacer size="xxl" />
-          <Spacer size="xxl" />
-          <Button
-            disabled={isPending || isCompleted || undelegateAmount < 0.01}
-            style={{ padding: "1rem", width: "100%" }}
-            variant="primary"
-            onClick={handleUnstake}
-          >
-            {isCompleted ? "Success" : isPending ? "Unstaking..." : "Unstake"}
-          </Button>
-          <Spacer size="sm" />
-          <Typo1 style={{ textAlign: "center", color: color.greys.grey() }}>
-            *as a security measure, unstaking takes 7 days.
-          </Typo1>
-          <Spacer size="xl" />
-        </div>
-      </Column>
+        </>
+      ) : (
+        <>
+          <ModalTitle text="How much FTM would you like to unstake?" />
+          <Column style={{ width: "100%", alignItems: "center" }}>
+            <Row>
+              <Typo1 style={{ color: color.greys.grey() }}>
+                Staking position size:{" "}
+              </Typo1>
+              <Spacer size="xs" />
+              <Typo1 style={{ fontWeight: "bold" }}>
+                {" "}
+                {`${formattedDelegatedAmount[0]}${formattedDelegatedAmount[1]}`}{" "}
+                FTM
+              </Typo1>
+            </Row>
+            <Spacer size="xl" />
+            <Row
+              style={{
+                width: "100%",
+                backgroundColor: color.primary.black(),
+                borderRadius: "8px",
+              }}
+            >
+              <Row
+                style={{
+                  padding: "2rem",
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{ fontWeight: "bold" }}>
+                  <InputCurrency
+                    disabled={isUnstakePending}
+                    value={undelegateAmount}
+                    handleValue={(value: any) => setUndelegateAmount(value)}
+                    handleError={(err: any) => console.log(err)}
+                    max={parseFloat(
+                      weiToUnit(BigNumber.from(delegatedAmount)).toString()
+                    )}
+                    token={FANTOM_NATIVE}
+                  />
+                </div>
+                <Spacer />
+                <Button
+                  fontSize="14px"
+                  color={color.greys.grey()}
+                  padding="8px"
+                  variant="tertiary"
+                  onClick={handleSetMax}
+                >
+                  MAX
+                </Button>
+              </Row>
+            </Row>
+            <Spacer size="xl" />
+            <div style={{ width: "98%" }}>
+              <SliderWithMarks
+                value={undelegateAmount}
+                setValue={setUndelegateAmount}
+                max={weiToMaxUnit(BigNumber.from(delegatedAmount).toString())}
+                steps={0.1}
+              />
+              <Spacer size="xxl" />
+              <Spacer size="xxl" />
+              <Button
+                disabled={isUnstakePending || isUnstakeCompleted}
+                style={{ padding: "1rem", width: "100%" }}
+                variant="primary"
+                onClick={handleUnstake}
+              >
+                {isUnstakeCompleted
+                  ? "Success"
+                  : isUnstakePending
+                  ? "Unstaking..."
+                  : "Unstake"}
+              </Button>
+              <Spacer size="sm" />
+              <Typo1 style={{ textAlign: "center", color: color.greys.grey() }}>
+                *as a security measure, unstaking takes 7 days.
+              </Typo1>
+              <Spacer size="xl" />
+            </div>
+          </Column>
+        </>
+      )}
     </Modal>
   );
 };
@@ -215,7 +313,10 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const [onPresentUndelegateModal] = useModal(
     <UndelegateModal
       stakerId={activeDelegation.delegation.toStakerId}
-      delegatedAmount={delegatedAmount}
+      delegatedAmount={activeDelegation.delegation.amountDelegated}
+      hasDebt={activeDelegation.delegation.outstandingSFTM !== "0x0"}
+      isLocked={activeDelegation.delegation.lockedAmount !== "0x0"}
+      lockedAmount={activeDelegation.delegation.lockedAmount}
     />,
     "undelegate-modal"
   );
@@ -416,7 +517,12 @@ const WithdrawRequestsTab: React.FC<any> = ({ activeDelegation }) => {
         <Column style={{ gap: "1rem" }}>
           {withdrawRequests.length ? (
             withdrawRequests.map((wr: any) => {
-              return <WithdrawRequestRow withdrawRequest={wr} />;
+              return (
+                <WithdrawRequestRow
+                  key={`wr-row-${wr.withdrawRequestID}`}
+                  withdrawRequest={wr}
+                />
+              );
             })
           ) : (
             <Heading3>No pending withdraw requests</Heading3>
@@ -431,10 +537,29 @@ const ManageDelegationModal: React.FC<any> = ({
   onDismiss,
   stakerId,
   setActiveStakerId,
-  activeDelegations,
 }) => {
   const { color } = useContext(ThemeContext);
+  const { walletContext } = useWalletProvider();
+  const { apiData } = useFantomApiData();
   const [activeTab, setActiveTab] = useState("Overview");
+
+  const activeAddress = walletContext.activeWallet.address.toLowerCase();
+  const delegationsResponse = apiData[FantomApiMethods.getDelegations];
+  const accountDelegationsResponse = apiData[
+    FantomApiMethods.getDelegationsForAccount
+  ].get(activeAddress);
+  const accountDelegations = getAccountDelegations(
+    accountDelegationsResponse.data
+  );
+  const delegations = getValidators(delegationsResponse.data);
+  const activeDelegations = accountDelegations.map(
+    (accountDelegation: any) => ({
+      ...accountDelegation,
+      delegationInfo: delegations.find((delegation) => {
+        return delegation.id === accountDelegation.delegation.toStakerId;
+      }),
+    })
+  );
 
   const selectedDelegation = activeDelegations.find(
     (activeDelegation: any) =>
@@ -514,7 +639,6 @@ const ActiveDelegationsContent: React.FC<any> = ({
     <ManageDelegationModal
       stakerId={activeStakerId}
       setActiveStakerId={setActiveStakerId}
-      activeDelegations={activeDelegations}
     />,
     "manage-delegation-modal"
   );

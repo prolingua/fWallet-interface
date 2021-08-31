@@ -11,7 +11,6 @@ export interface Validators {
 export interface Validator {
   id: string;
   address: string;
-  toStakerId?: string;
   createdTime?: string;
   downtime?: string;
   stakerInfo?: {
@@ -22,6 +21,7 @@ export interface Validator {
   };
   delegatedLimit: string;
   lockedUntil: string;
+  isActive: boolean;
 }
 
 export interface AccountDelegations {
@@ -41,6 +41,7 @@ export interface AccountDelegation {
   lockedUntil: string;
   toStakerId: string;
   withdrawRequest: any[];
+  lockedAmount: string;
   // TODO clean up circular
   delegation: AccountDelegation;
 }
@@ -129,9 +130,7 @@ export const getAccountDelegationSummary = (
 };
 
 export const delegationDaysLockedLeft = (delegation: AccountDelegation) => {
-  const lockedUntil =
-    delegation.isDelegationLocked &&
-    formatHexToBN(delegation.lockedUntil).toString();
+  const lockedUntil = formatHexToBN(delegation.lockedUntil).toString();
   return lockedUntil
     ? parseInt(
         (
@@ -244,6 +243,14 @@ export const canLockDelegation = (
 
   return (
     parseInt(validator.lockedUntil) - now > MIN_LOCKUP_DAYS * DAY_IN_SECONDS &&
-    !accountDelegation?.delegation?.isDelegationLocked
+    accountDelegation?.delegation?.lockedUntil === "0x0"
   );
+};
+
+export const calculateDelegationApr = (lockedDays = 0) => {
+  const calculateWithLockedDays = lockedDays >= 365 ? 365 : lockedDays;
+  const paBase = 0.042;
+  const paLock = 0.0981;
+
+  return paBase + calculateWithLockedDays * (paLock / 365);
 };

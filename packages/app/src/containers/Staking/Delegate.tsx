@@ -11,6 +11,7 @@ import Stepper from "../../components/Stepper";
 import DelegateStep from "./Delegate/DelegateStep";
 import LockupStep from "./Delegate/LockupStep";
 import ConfirmationStep from "./Delegate/ConfirmationStep";
+import { getAccountDelegations } from "../../utils/delegation";
 
 const DelegateModal: React.FC<any> = ({
   onDismiss,
@@ -40,6 +41,15 @@ const DelegateModal: React.FC<any> = ({
       {activeStep === "Lockup" && (
         <LockupStep
           delegationsData={delegationsData}
+          accountDelegation={
+            accountDelegationsData &&
+            completedDelegation &&
+            getAccountDelegations(accountDelegationsData).find(
+              (accountDelegation: any) =>
+                accountDelegation.delegation.toStakerId ===
+                completedDelegation.selectedDelegation.id
+            )
+          }
           completedDelegation={completedDelegation}
           setActiveStep={setActiveStep}
           setCompletedLockup={setCompletedLockup}

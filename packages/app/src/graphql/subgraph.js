@@ -168,6 +168,7 @@ export const FETCH_STAKERS = gql`
       downtime
       lockedUntil
       isStakeLocked
+      isActive
       lockedFromEpoch
       stakerInfo {
         name

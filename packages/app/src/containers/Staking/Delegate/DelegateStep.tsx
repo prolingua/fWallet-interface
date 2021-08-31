@@ -21,6 +21,7 @@ import ModalContent from "../../../components/ModalContent";
 import Row from "../../../components/Row";
 import Scrollbar from "../../../components/Scrollbar";
 import DelegationSelectRow from "./DelegationSelectRow";
+import useSendTransaction from "../../../hooks/useSendTransaction";
 
 const DelegateStep: React.FC<any> = ({
   delegationsData,
@@ -50,27 +51,20 @@ const DelegateStep: React.FC<any> = ({
     }
     return setDelegateAmount(value);
   };
-
   const handleSliderSetDelegateAmount = (value: number) => {
     return setDelegateAmount(parseFloat(value.toFixed(2)).toString());
   };
 
-  const [txHash, setTxHash] = useState(null);
-  const { transaction } = useTransaction();
-  const tx = transaction[txHash];
-  const isDelegatePending = tx && tx.status === "pending";
-  const isDelegateCompleted = tx && tx.status === "completed";
-  const handleDelegate = async () => {
-    try {
-      const hash = await txSFCContractMethod(SFC_TX_METHODS.DELEGATE, [
-        selectedDelegation,
-        unitToWei(parseFloat(delegateAmount).toString()),
-      ]);
-      setTxHash(hash);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const {
+    sendTx: handleDelegate,
+    isPending: isDelegatePending,
+    isCompleted: isDelegateCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.DELEGATE, [
+      selectedDelegation,
+      unitToWei(parseFloat(delegateAmount).toString()),
+    ])
+  );
 
   useEffect(() => {
     let timeout: any;
@@ -177,9 +171,15 @@ const DelegateStep: React.FC<any> = ({
             const isLastRow = delegations.length === index + 1;
             const isActive = delegation.id === selectedDelegation;
             const isValid =
+              delegation.isActive &&
               parseFloat(delegateAmount) > 0 &&
               hexToUnit(delegation.delegatedLimit) >=
                 parseFloat(delegateAmount);
+
+            const isLocked =
+              accountDelegation &&
+              accountDelegation.delegation.lockedAmount !== "0x0";
+
             return (
               <StyledDelegationSelectRow
                 key={`delegation-select-row-${delegation.id}-${index}`}
@@ -190,20 +190,32 @@ const DelegateStep: React.FC<any> = ({
                     isActive && isValid && color.primary.semiWhite(0.3),
                   borderRadius: "8px",
                   cursor:
-                    !isValid || isDelegatePending || isDelegateCompleted
+                    !isValid ||
+                    isLocked ||
+                    isDelegatePending ||
+                    isDelegateCompleted
                       ? "default"
                       : "pointer",
                   opacity:
-                    (!isValid || isDelegatePending || isDelegateCompleted) &&
+                    (!isValid ||
+                      isLocked ||
+                      isDelegatePending ||
+                      isDelegateCompleted) &&
                     "0.4",
                 }}
                 onClick={() =>
                   isValid &&
+                  !isLocked &&
                   !isDelegatePending &&
                   !isDelegateCompleted &&
                   setSelectedDelegation(delegation.id)
                 }
-                disabled={!isValid || isDelegatePending || isDelegateCompleted}
+                disabled={
+                  !isValid ||
+                  isLocked ||
+                  isDelegatePending ||
+                  isDelegateCompleted
+                }
               >
                 <DelegationSelectRow
                   delegation={delegation}
