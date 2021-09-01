@@ -261,7 +261,6 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const { txSFCContractMethod } = useFantomContract();
   const { transaction } = useTransaction();
   const [txHash, setTxHash] = useState({} as any);
-
   const delegatedAmount = hexToUnit(
     activeDelegation.delegation.amountDelegated
   );
@@ -453,16 +452,20 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
           </Column>
         </Row>
       </ContentBox>
+
       <Spacer size="xl" />
-      <Row style={{ padding: "0rem 2rem" }}>
-        <Button
-          onClick={() => onPresentUndelegateModal()}
-          style={{ flex: 1, border: "1px solid red" }}
-          variant="secondary"
-        >
-          Undelegate
-        </Button>
-      </Row>
+      {delegatedAmount > 0 && (
+        <Row style={{ padding: "0rem 2rem" }}>
+          <Button
+            disabled={delegatedAmount <= 0}
+            onClick={() => onPresentUndelegateModal()}
+            style={{ flex: 1, border: "1px solid red" }}
+            variant="secondary"
+          >
+            Undelegate
+          </Button>
+        </Row>
+      )}
       <Spacer />
     </>
   );

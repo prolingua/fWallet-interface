@@ -46,13 +46,13 @@ const LockupStep: React.FC<any> = ({
   const { transaction } = useTransaction();
   const [txHash, setTxHash] = useState(null);
   const [useLockup, setUseLockup] = useState(null);
-  const [lockupDays, setLockupDays] = useState(14);
   const [apr, setApr] = useState(calculateDelegationApr() * 100);
-
   const delegation = getValidators(delegationsData).find(
     (delegation) => delegation.id === completedDelegation.selectedDelegation.id
   );
+
   const maxLockup = maxLockDays(delegation);
+  const [lockupDays, setLockupDays] = useState(maxLockup);
   const [lockupApr, setLockUpApr] = useState(
     calculateDelegationApr(maxLockup) * 100
   );

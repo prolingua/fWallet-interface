@@ -37,12 +37,11 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import useSendTransaction from "../../hooks/useSendTransaction";
 import useSendBatchTransactions from "../../hooks/useSendBatchTransactions";
+import { BigNumber } from "@ethersproject/bignumber";
 
-const RewardsContent: React.FC<any> = ({ accountDelegationsData }) => {
-  const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
-  const rewardsFTM = toFormattedBalance(
-    weiToUnit(totalDelegated.totalPendingRewards)
-  );
+const RewardsContent: React.FC<any> = ({ totalPendingRewards }) => {
+  const rewardsFTM =
+    totalPendingRewards && toFormattedBalance(weiToUnit(totalPendingRewards));
   return (
     <StatPair
       title="Pending rewards"
@@ -265,6 +264,10 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
 };
 
 const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
+  const totalDelegated =
+    accountDelegations?.data &&
+    getAccountDelegationSummary(accountDelegations.data);
+
   const [onPresentClaimRewardsModal] = useModal(
     <ClaimRewardsModal />,
     "staking-claim-rewards-modal"
@@ -282,10 +285,15 @@ const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
           {loading ? (
             <div>Loading...</div>
           ) : (
-            <RewardsContent accountDelegationsData={accountDelegations.data} />
+            <RewardsContent
+              totalPendingRewards={totalDelegated?.totalPendingRewards}
+            />
           )}
           <Spacer />
           <Button
+            disabled={totalDelegated?.totalPendingRewards.lte(
+              BigNumber.from(0)
+            )}
             variant="primary"
             onClick={() => onPresentClaimRewardsModal()}
           >

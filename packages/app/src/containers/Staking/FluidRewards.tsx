@@ -310,7 +310,11 @@ export const LockupFTMModal: React.FC<any> = ({
         (accountDelegation: any) =>
           accountDelegation.delegation.toStakerId === validator.id
       );
-      return canLockDelegation(stakedDelegation, validator);
+
+      return (
+        canLockDelegation(stakedDelegation, validator) &&
+        stakedDelegation.delegation.amountDelegated !== "0x0"
+      );
     }
   );
 
@@ -380,7 +384,7 @@ export const LockupFTMModal: React.FC<any> = ({
               })
             ) : (
               <Heading2 style={{ padding: "3rem 0" }}>
-                No available delegations eligible for lockup
+                No active delegations eligible for lockup
               </Heading2>
             )}
 

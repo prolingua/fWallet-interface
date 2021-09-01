@@ -2,9 +2,13 @@ import React, { useContext } from "react";
 import { ThemeContext } from "styled-components";
 import Row from "../Row";
 import Spacer from "../Spacer";
+import checkMarkShapeImg from "../../assets/img/shapes/chechmarkShape.png";
 
 const Stepper: React.FC<any> = ({ activeStep, steps }) => {
   const { color } = useContext(ThemeContext);
+  const stepIndex = steps.findIndex(
+    (indexStep: any) => indexStep === activeStep
+  );
   return (
     <Row style={{ alignItems: "center", paddingTop: "2px" }}>
       {steps.map((step: string, index: number) => {
@@ -22,6 +26,8 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
                 backgroundColor:
                   activeStep === step
                     ? color.primary.fantomBlue()
+                    : stepIndex > index
+                    ? "#27B44F"
                     : "transparent",
                 border:
                   !(activeStep === step) &&
@@ -29,7 +35,11 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
                 borderRadius: "8px",
               }}
             >
-              {index + 1}
+              {stepIndex > index ? (
+                <img src={checkMarkShapeImg} />
+              ) : (
+                <div>{index + 1}</div>
+              )}
             </Row>
             <Spacer size="sm" />
             <Row

@@ -5,6 +5,7 @@ import Column from "../../../components/Column";
 import Spacer from "../../../components/Spacer";
 import { Button, Heading2, Typo1 } from "../../../components";
 import Row from "../../../components/Row";
+import { BASE_APR } from "../../../utils/delegation";
 
 const ConfirmationStep: React.FC<any> = ({
   completedDelegation,
@@ -55,7 +56,10 @@ const ConfirmationStep: React.FC<any> = ({
               Current estimated APR
             </Typo1>
             <Typo1 style={{ fontWeight: "bold" }}>
-              {completedLockup.apr.toFixed(2)}%
+              {completedLockup?.apr
+                ? completedLockup.apr.toFixed(2)
+                : BASE_APR * 100}
+              %
             </Typo1>
           </Row>
           <Spacer />

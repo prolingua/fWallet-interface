@@ -13,6 +13,10 @@ export const formatHexToInt = (value: string) => {
 };
 
 export const weiToUnit = (value: BigNumber, decimals = 18) => {
+  if (!value?._isBigNumber) {
+    console.warn(`[weiToUnit] ${value} is not of type BigNumber`);
+    return;
+  }
   const result = value.mul(10000).div(BigNumber.from(10).pow(decimals));
   return result.toNumber() / 10000;
 };
