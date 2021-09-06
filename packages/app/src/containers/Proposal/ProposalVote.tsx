@@ -132,7 +132,7 @@ const ProposalVote: React.FC<any> = ({
                     />
                   </StyledSliderWrapper>
                 )}
-                <Spacer size="xxl" />
+                <Spacer size="xl" />
               </Column>
             );
           })}

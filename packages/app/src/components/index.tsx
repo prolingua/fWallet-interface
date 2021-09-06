@@ -88,6 +88,11 @@ export const OverlayButton = styled.button<{ disabled?: boolean }>`
   cursor: ${(props) => !props.disabled && "pointer"};
   color: inherit;
   font-family: "proxima-nova", sans-serif;
+  transition: 0.2s all;
+
+  :active {
+    transform: scale(0.98);
+  }
 `;
 
 export const Button = styled.button<{

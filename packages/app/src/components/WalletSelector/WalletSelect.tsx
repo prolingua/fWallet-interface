@@ -111,16 +111,6 @@ const WalletSelect: React.FC<any> = ({
                     justifyContent: "flex-end",
                   }}
                 >
-                  {/*<OverlayButton>*/}
-                  {/*  <img*/}
-                  {/*    style={{*/}
-                  {/*      height: "16px",*/}
-                  {/*      width: "16px",*/}
-                  {/*      marginRight: "1.5rem",*/}
-                  {/*    }}*/}
-                  {/*    src={editSymbol}*/}
-                  {/*  />*/}
-                  {/*</OverlayButton>*/}
                   <OverlayButton onClick={() => handleCopy(wallet.address)}>
                     <div style={{ position: "relative" }}>
                       <img

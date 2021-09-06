@@ -1,26 +1,16 @@
 import React from "react";
 
 import useWalletProvider from "../hooks/useWalletProvider";
-import Column from "../components/Column";
+import Onboarding from "../containers/Onboarding";
 
 function withConnectedWallet(WrappedComponent: React.FC) {
   return function WithConnectedWalletComponent({ ...props }) {
     const { walletContext } = useWalletProvider();
 
+    console.log(walletContext.activeWallet);
+
     if (!walletContext.activeWallet.address) {
-      return (
-        <Column
-          style={{
-            alignItems: "center",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <div style={{ marginTop: "5rem", marginBottom: "1rem" }}>
-            No WALLET connected
-          </div>
-        </Column>
-      );
+      return <Onboarding />;
     }
 
     return <WrappedComponent {...props} />;

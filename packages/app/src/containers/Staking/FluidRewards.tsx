@@ -150,7 +150,7 @@ const LockupSelect: React.FC<any> = ({
         <>
           <Typo2 style={{ fontWeight: "bold" }}>Choose lock up period:</Typo2>
 
-          <Spacer size="xxl" />
+          <Spacer size="xl" />
           <div style={{ marginLeft: "1rem", width: "92%" }}>
             <SliderWithMarks
               disabled={isLockupPending || isLockupCompleted}
@@ -169,10 +169,10 @@ const LockupSelect: React.FC<any> = ({
               tooltipSuffix="days"
             />
           </div>
-          <Spacer size="xxl" />
+          <Spacer size="xl" />
         </>
       )}
-      <Spacer size="xxl" />
+      <Spacer size="xl" />
       <ContentBox style={{ backgroundColor: color.primary.black() }}>
         <Column style={{ width: "100%" }}>
           <Row style={{ justifyContent: "space-between" }}>
@@ -219,7 +219,7 @@ const LockupSelect: React.FC<any> = ({
           </Row>
         </Column>
       </ContentBox>
-      <Spacer size="xxl" />
+      <Spacer size="xl" />
       <Button
         disabled={isLockupCompleted || isLockupPending}
         onClick={handleLockup}

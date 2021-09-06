@@ -13,8 +13,11 @@ const InputTextBox: React.FC<any> = ({
   placeholder,
   maxLength = 120,
   error,
+  setError,
   valueName = "value",
   textArea = false,
+  style = {},
+  alignText = "unset",
 }) => {
   const { color } = useContext(ThemeContext);
   const [internalError, setInternalError] = useState(error);
@@ -26,12 +29,21 @@ const InputTextBox: React.FC<any> = ({
   };
 
   useEffect(() => {
+    if (setError) {
+      setError(null);
+    }
     setInternalError(null);
     return () => setInternalError(null);
   }, [text]);
 
+  useEffect(() => {
+    if (error) {
+      return setInternalError(error);
+    }
+  }, [error]);
+
   return (
-    <Column>
+    <Column style={{ ...style }}>
       {title && (
         <Row style={{ justifyContent: "space-between" }}>
           <Typo2 style={{ fontWeight: "bold", color: color.greys.grey() }}>
@@ -74,6 +86,7 @@ const InputTextBox: React.FC<any> = ({
         >
           <Spacer />
           <Input
+            style={{ textAlign: alignText }}
             type="text"
             value={text}
             onChange={(event) => {

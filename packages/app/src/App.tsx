@@ -28,12 +28,49 @@ import Governance from "./containers/Governance";
 import Proposal from "./containers/Proposal";
 import CreateProposal from "./containers/CreateProposal";
 
-const HomeWithWallet = withConnectedWallet(Home);
-const SendWithWallet = withConnectedWallet(Send);
-const StakingWithWallet = withConnectedWallet(Staking);
-const GovernanceWithWallet = withConnectedWallet(Governance);
-const ProposalWithWallet = withConnectedWallet(Proposal);
-const CreateProposalWithWallet = withConnectedWallet(CreateProposal);
+const AppContent: React.FC<any> = () => {
+  return (
+    <>
+      <SideBar />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Suspense fallback="Loading">
+          <TopBar />
+        </Suspense>
+        <Scrollbar style={{ width: "100%", height: "100%" }}>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "stretch",
+              padding: "0 4rem 0 2rem",
+              backgroundColor: "rgba(10, 22, 46, 1)",
+            }}
+          >
+            <Switch>
+              <Route path="/otherRoute" component={Test} />
+              <Route path="/home" component={Home} />
+              <Route path="/send" component={Send} />
+              <Route path="/staking" component={Staking} />
+              <Route path="/test" component={Test} />
+              <Route path="/defi" component={Test} />
+              <Route path="/governance" component={Governance} exact />
+              <Route
+                path="/governance/proposal/create"
+                component={CreateProposal}
+                exact
+              />
+              <Route path="/governance/proposal/:id" component={Proposal} />
+              <Route path="/" component={Test} />
+            </Switch>
+          </div>
+        </Scrollbar>
+      </div>
+    </>
+  );
+};
+
+const AppContentWithWallet = withConnectedWallet(AppContent);
 
 function App() {
   const resolutionType = useDetectResolutionType();
@@ -58,50 +95,8 @@ function App() {
             <Heading3>Mobile is coming soon!</Heading3>
           </Column>
         ) : (
-          <>
-            <SideBar />
-            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <Suspense fallback="Loading">
-                <TopBar />
-              </Suspense>
-              <Scrollbar style={{ width: "100%", height: "100%" }}>
-                <div
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "stretch",
-                    padding: "0 4rem 0 2rem",
-                    backgroundColor: "rgba(10, 22, 46, 1)",
-                  }}
-                >
-                  <Switch>
-                    <Route path="/otherRoute" component={Test} />
-                    <Route path="/home" component={HomeWithWallet} />
-                    <Route path="/send" component={SendWithWallet} />
-                    <Route path="/staking" component={StakingWithWallet} />
-                    <Route path="/test" component={Test} />
-                    <Route path="/defi" component={Test} />
-                    <Route
-                      path="/governance"
-                      component={GovernanceWithWallet}
-                      exact
-                    />
-                    <Route
-                      path="/governance/proposal/create"
-                      component={CreateProposalWithWallet}
-                      exact
-                    />
-                    <Route
-                      path="/governance/proposal/:id"
-                      component={ProposalWithWallet}
-                    />
-                    <Route path="/" component={Test} />
-                  </Switch>
-                </div>
-              </Scrollbar>
-            </div>
-          </>
+          <AppContentWithWallet />
+          // <AppContent />
         )}
       </Body>
     </Providers>

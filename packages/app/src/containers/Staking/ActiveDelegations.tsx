@@ -203,7 +203,6 @@ const UndelegateModal: React.FC<any> = ({
                     disabled={isUnstakePending}
                     value={undelegateAmount}
                     handleValue={(value: any) => setUndelegateAmount(value)}
-                    handleError={(err: any) => console.log(err)}
                     max={parseFloat(
                       weiToUnit(BigNumber.from(delegatedAmount)).toString()
                     )}
@@ -230,8 +229,8 @@ const UndelegateModal: React.FC<any> = ({
                 max={weiToMaxUnit(BigNumber.from(delegatedAmount).toString())}
                 steps={0.1}
               />
-              <Spacer size="xxl" />
-              <Spacer size="xxl" />
+              <Spacer size="xl" />
+              <Spacer size="xl" />
               <Button
                 disabled={isUnstakePending || isUnstakeCompleted}
                 style={{ padding: "1rem", width: "100%" }}
@@ -333,13 +332,13 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
               suffix="FTM"
               width="12rem"
             />
-            <Spacer size="xxl" />
+            <Spacer size="xl" />
             <StatPair
               title="Delegation date"
               value2={formatDate(delegationDate)}
               width="12rem"
             />
-            <Spacer size="xxl" />
+            <Spacer size="xl" />
             <Row>
               <StatPair
                 title="Pending rewards"
@@ -362,7 +361,7 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
               </Button>
             </Row>
           </Row>
-          <Spacer size="xxl" />
+          <Spacer size="xl" />
           <Row style={{ alignItems: "center" }}>
             <StatPair
               title="Locked amount"
@@ -371,7 +370,7 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
               suffix="FTM"
               width="12rem"
             />
-            <Spacer size="xxl" />
+            <Spacer size="xl" />
             <StatPair
               title="Unlocks in"
               value1={daysLocked > 0 ? `${daysLocked} days` : "-"}
