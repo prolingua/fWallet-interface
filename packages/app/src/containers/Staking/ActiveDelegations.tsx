@@ -60,7 +60,6 @@ export interface ActiveDelegation {
 const UndelegateModal: React.FC<any> = ({
   onDismiss,
   stakerId,
-  delegatedAmount,
   isLocked,
   lockedAmount,
   hasDebt,
@@ -69,9 +68,6 @@ const UndelegateModal: React.FC<any> = ({
   const { txSFCContractMethod } = useFantomContract();
   const [acceptLossOfRewards, setAcceptLossOfRewards] = useState(false);
   const [undelegateAmount, setUndelegateAmount] = useState("0");
-  const formattedDelegatedAmount = toFormattedBalance(
-    hexToUnit(delegatedAmount)
-  );
 
   const { walletContext } = useWalletProvider();
   const { apiData } = useFantomApiData();
@@ -83,6 +79,11 @@ const UndelegateModal: React.FC<any> = ({
   );
   const selectedDelegation = accountDelegations.find(
     (accountDelegation) => accountDelegation.delegation.toStakerId === stakerId
+  );
+  const pendingRewards = selectedDelegation.delegation.pendingRewards.amount;
+  const delegatedAmount = selectedDelegation.delegation.amountDelegated;
+  const formattedDelegatedAmount = toFormattedBalance(
+    hexToUnit(delegatedAmount)
   );
 
   const {
@@ -120,6 +121,9 @@ const UndelegateModal: React.FC<any> = ({
 
   const handleUnlockAndClaim = () => {
     try {
+      if (pendingRewards === "0x0") {
+        return handleUnlock();
+      }
       if (isUnlockCompleted) {
         return handleClaimRewards();
       }
@@ -149,6 +153,9 @@ const UndelegateModal: React.FC<any> = ({
     if (isUnlockCompleted && isClaimRewardsCompleted) {
       setAcceptLossOfRewards(true);
     }
+    if (isUnlockCompleted && pendingRewards === "0x0") {
+      setAcceptLossOfRewards(true);
+    }
   }, [isUnlockCompleted, isClaimRewardsCompleted, isUnstakeCompleted]);
 
   return (
@@ -156,7 +163,7 @@ const UndelegateModal: React.FC<any> = ({
       {hasDebt ? (
         <>
           {" "}
-          <ModalTitle text="You have an outstanding sFTM debt?" />
+          <ModalTitle text="You have an outstanding sFTM debt" />
           <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
             You need to repay your sFTM debt before being allowed to unstake.
           </Typo2>
@@ -167,10 +174,10 @@ const UndelegateModal: React.FC<any> = ({
         </>
       ) : isLocked && !acceptLossOfRewards ? (
         <>
-          <ModalTitle text="Unlock & Claim pending rewards first." />
+          <ModalTitle text="Unlock & Claim pending rewards first" />
           <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
             Your stake is locked. You need to unlock your stake and claim your
-            pending rewards before your able to undelegate. <br />
+            pending rewards before you are eligible to undelegate. <br />
             Early unlocking will cause you to lose a part of the rewards.
           </Typo2>
           <Spacer size="xl" />
@@ -193,9 +200,11 @@ const UndelegateModal: React.FC<any> = ({
                 ? "Unlocking..."
                 : isClaimRewardsPending
                 ? "Claiming rewards..."
+                : pendingRewards === "0x0"
+                ? "Unlock and continue"
                 : isUnlockCompleted
                 ? "Claim rewards and continue"
-                : "Unlock, Claim and continue"}
+                : "Unlock & Claim and continue"}
             </Button>
             <Spacer />
             <Button
@@ -278,7 +287,11 @@ const UndelegateModal: React.FC<any> = ({
               <Spacer size="xl" />
               <Spacer size="xl" />
               <Button
-                disabled={isUnstakePending || isUnstakeCompleted}
+                disabled={
+                  parseInt(undelegateAmount) <= 0 ||
+                  isUnstakePending ||
+                  isUnstakeCompleted
+                }
                 style={{ padding: "1rem", width: "100%" }}
                 variant="primary"
                 onClick={handleUnstake}
