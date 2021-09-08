@@ -28,10 +28,13 @@ import keystoreFileImg from "../../assets/img/icons/keystoreFileIcon.svg";
 import mnemonicImg from "../../assets/img/icons/mnemonicIcon.svg";
 import pkeyImg from "../../assets/img/icons/privatekeyIcon.svg";
 import InputTextBox from "../../components/InputText/InputTextBox";
-import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
+import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
+import { useDropzone } from "react-dropzone";
+import fileIcon from "../../assets/img/icons/fileWhite.svg";
+import crossIcon from "../../assets/img/symbols/Cross.svg";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
-  const { restoreWalletFromPrivateKey } = useKeyStoreWallet();
+  const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const [text, setText] = useState("");
   const [error, setError] = useState(null);
 
@@ -60,7 +63,7 @@ const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
           maxLength={66}
           text={text}
           setText={setText}
-          placeholder="input your private key here"
+          placeholder="Enter your private key"
           alignText="center"
         />
       </Row>
@@ -75,6 +78,288 @@ const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
         Access wallet
       </Button>
       <Spacer />
+    </Column>
+  );
+};
+
+const ConnectMnemonic: React.FC<any> = ({ onDismiss }) => {
+  const { color } = useContext(ThemeContext);
+  const { restoreWalletFromMnemonic } = useSoftwareWallet();
+  const [numOfWords, setNumOfWords] = useState(12);
+  const [error, setError] = useState(null);
+  const [text, setText] = useState("");
+
+  const handleSetText = (value: string) => {
+    const textArray = value.split(" ");
+    if (textArray.length > 12) {
+      setNumOfWords(24);
+    }
+    if (numOfWords === 24 && textArray.length < 13) {
+      setNumOfWords(12);
+    }
+
+    return setText(value);
+  };
+
+  const handleConnect = async () => {
+    try {
+      await restoreWalletFromMnemonic(text);
+      onDismiss();
+    } catch (err) {
+      console.error(err);
+      setError("Invalid value");
+    }
+  };
+
+  return (
+    <Column style={{ width: "100%", alignItems: "center" }}>
+      <Heading1>Enter your mnemonic phrase</Heading1>
+      <Spacer size="xs" />
+      <Typo2 style={{ color: color.greys.grey() }}>
+        Hit "SPACE" after every successful word entry
+      </Typo2>
+      <Spacer />
+      <InputTextBox
+        error={error}
+        setError={setError}
+        style={{ width: "100%" }}
+        text={text}
+        setText={handleSetText}
+        placeholder="Enter your phrase"
+        textArea
+        maxLength={false}
+      />
+      <Row style={{ flexWrap: "wrap", gap: ".5rem", width: "100%" }}>
+        {Array(numOfWords)
+          .fill("")
+          .map((fill, index) => {
+            const textArray = text.split(" ");
+            return (
+              <Row
+                key={`mnemonic-input-${index}`}
+                style={{
+                  width: "24%",
+                  height: "4rem",
+                  backgroundColor: "#1B283E",
+                  borderRadius: "8px",
+                  alignItems: "center",
+                }}
+              >
+                <Spacer />
+                <Typo2 style={{ color: color.greys.darkGrey() }}>
+                  {index + 1}.
+                </Typo2>
+                <Spacer size="sm" />
+                <Typo2 style={{ color: color.white, fontWeight: "bold" }}>
+                  {textArray[index] || ""}
+                </Typo2>
+              </Row>
+            );
+          })}
+      </Row>
+      <Spacer size="xl" />
+      <Button
+        style={{ width: "100%" }}
+        variant="primary"
+        onClick={() => handleConnect()}
+      >
+        Access wallet
+      </Button>
+    </Column>
+  );
+};
+
+const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
+  const { color } = useContext(ThemeContext);
+  const { restoreWalletFromKeystoreFile } = useSoftwareWallet();
+  const [fileName, setFileName] = useState(null);
+  const [fileContent, setFileContent] = useState(null);
+  const [acceptedFiles, setAcceptedFiles] = useState([]);
+  const [fileError, setFileError] = useState(null);
+  const [error, setError] = useState(null);
+  const [text, setText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    acceptedFiles: dropzoneAccepted,
+    getRootProps: getDropzoneRootProps,
+  } = useDropzone({ maxFiles: 1 });
+
+  const {
+    acceptedFiles: buttonAccepted,
+    getRootProps: getButtonRootProps,
+    getInputProps,
+  } = useDropzone({ noDrag: true, maxFiles: 1 });
+
+  let reader: any;
+
+  const handleFileRead = (e: any) => {
+    try {
+      const content = reader.result;
+      const json = JSON.parse(content);
+      if (json && json?.address && json?.crypto) {
+        return setFileContent(content);
+      }
+      setFileError("Invalid keystore file");
+    } catch (err) {
+      console.error(err);
+      setFileError("Invalid file-type");
+    }
+  };
+
+  const handleConnect = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      await restoreWalletFromKeystoreFile(fileContent, text);
+      onDismiss();
+    } catch (err) {
+      setError(
+        err.message
+          ? `${err.message[0].toUpperCase()}${err.message.slice(1)}`
+          : "Failed to connect"
+      );
+    } finally {
+      setIsLoading(false);
+      setText("");
+    }
+  };
+
+  useEffect(() => {
+    setAcceptedFiles([...acceptedFiles, ...dropzoneAccepted]);
+  }, [dropzoneAccepted]);
+  useEffect(() => {
+    setAcceptedFiles([...acceptedFiles, ...buttonAccepted]);
+  }, [buttonAccepted]);
+  useEffect(() => {
+    if (acceptedFiles.length) {
+      const file = acceptedFiles[acceptedFiles.length - 1];
+      reader = new FileReader();
+      reader.onloadend = handleFileRead;
+      reader.readAsText(file);
+      setFileName(file.path);
+    }
+  }, [acceptedFiles]);
+
+  return (
+    <Column style={{ width: "100%", alignItems: "center" }}>
+      <Spacer />
+      <img style={{ height: "8rem", width: "8rem" }} src={keystoreFileImg} />
+      <Spacer />
+      <Heading1>Keystore file</Heading1>
+      <Spacer size="xl" />
+      {fileContent ? (
+        <>
+          <ContentBox
+            style={{
+              padding: "1.5rem 0rem",
+              width: "50%",
+              backgroundColor: color.primary.black(),
+            }}
+          >
+            <Row
+              style={{ width: "100%", alignItems: "center", padding: "0 2rem" }}
+            >
+              <img src={fileIcon} />
+              <Spacer />
+              <Typo1 style={{ fontWeight: "bold" }}> {fileName}</Typo1>
+              <OverlayButton
+                style={{ marginLeft: "auto" }}
+                onClick={() => setFileContent(null)}
+              >
+                <img src={crossIcon} />
+              </OverlayButton>
+            </Row>
+          </ContentBox>
+          <Spacer />
+          <Row style={{ width: "50%" }}>
+            <InputTextBox
+              disabled={isLoading}
+              style={{ width: "100%" }}
+              text={text}
+              setText={setText}
+              maxLength={null}
+              placeholder="Enter password"
+              password
+            />
+          </Row>
+          <Spacer size="sm" />
+          <Button
+            style={{ width: "50%" }}
+            disabled={isLoading || !text}
+            variant="primary"
+            onClick={handleConnect}
+          >
+            {isLoading ? "Loading wallet..." : "Access wallet"}
+          </Button>
+          <Spacer size="xs" />
+          {error ? (
+            <Typo1 style={{ width: "50%", color: "red" }}>{error}</Typo1>
+          ) : (
+            <Spacer size="sm" />
+          )}
+        </>
+      ) : (
+        <>
+          <Row
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              width: "80%",
+              height: "8em",
+              border: "3px dashed #3A4861",
+              borderRadius: "8px",
+              fontWeight: "bold",
+            }}
+            {...getDropzoneRootProps({ className: "dropzone" })}
+          >
+            <Typo1 style={{ color: color.greys.darkGrey() }}>
+              Drop file here
+            </Typo1>
+          </Row>
+          <Spacer />
+          <Row
+            style={{
+              width: "80%",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div
+              style={{
+                width: "47%",
+                height: "2px",
+                backgroundColor: "#202F49",
+              }}
+            />
+            <Typo1 style={{ fontWeight: "bold", paddingBottom: "2px" }}>
+              or
+            </Typo1>
+            <div
+              style={{
+                width: "47%",
+                height: "2px",
+                backgroundColor: "#202F49",
+              }}
+            />
+          </Row>
+          <Spacer />
+          <Button
+            {...getButtonRootProps({ className: "dropzone" })}
+            style={{ width: "80%" }}
+            variant="primary"
+          >
+            <input {...getInputProps()} />
+            Select file
+          </Button>
+          <Spacer size="xs" />
+          {fileError ? (
+            <Typo1 style={{ width: "80%", color: "red" }}>{fileError}</Typo1>
+          ) : (
+            <Spacer size="sm" />
+          )}
+        </>
+      )}
     </Column>
   );
 };
@@ -208,6 +493,12 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
       {!selectedSoftware && SelectSoftware}
       {selectedSoftware === "pkey" && (
         <ConnectPrivateKey onDismiss={onDismiss} />
+      )}
+      {selectedSoftware === "mnemonic" && (
+        <ConnectMnemonic onDismiss={onDismiss} />
+      )}
+      {selectedSoftware === "keystore" && (
+        <ConnectKeystoreFile onDismiss={onDismiss} />
       )}
     </Modal>
   );
@@ -432,13 +723,23 @@ const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
 };
 
 const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
+  const { createNewWallet } = useSoftwareWallet();
   return (
     <Column>
       {!contentFlow && <CreateOrAccessWallet setFlow={setContentFlow} />}
       {contentFlow === "accessWallet" && (
         <AccessWallet setFlow={setContentFlow} />
       )}
-      {contentFlow === "newWallet" && <Row>NEW WALLET</Row>}
+      {contentFlow === "newWallet" && (
+        <Row>
+          <Column>
+            <Heading2>NEW WALLET</Heading2>
+            <Button onClick={createNewWallet} variant="primary">
+              Create wallet
+            </Button>
+          </Column>
+        </Row>
+      )}
     </Column>
   );
 };

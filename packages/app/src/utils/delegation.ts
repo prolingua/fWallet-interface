@@ -34,6 +34,7 @@ export interface AccountDelegations {
 }
 
 export interface AccountDelegation {
+  amount: string;
   amountDelegated: string;
   outstandingSFTM: string;
   pendingRewards: {

@@ -73,6 +73,18 @@ const UndelegateModal: React.FC<any> = ({
     hexToUnit(delegatedAmount)
   );
 
+  const { walletContext } = useWalletProvider();
+  const { apiData } = useFantomApiData();
+  const accountDelegationsResponse = apiData[
+    FantomApiMethods.getDelegationsForAccount
+  ].get(walletContext.activeWallet.address.toLowerCase());
+  const accountDelegations = getAccountDelegations(
+    accountDelegationsResponse.data
+  );
+  const selectedDelegation = accountDelegations.find(
+    (accountDelegation) => accountDelegation.delegation.toStakerId === stakerId
+  );
+
   const {
     sendTx: handleUnstake,
     isPending: isUnstakePending,
@@ -98,6 +110,25 @@ const UndelegateModal: React.FC<any> = ({
     ])
   );
 
+  const {
+    sendTx: handleClaimRewards,
+    isPending: isClaimRewardsPending,
+    isCompleted: isClaimRewardsCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.CLAIM_REWARDS, [stakerId])
+  );
+
+  const handleUnlockAndClaim = () => {
+    try {
+      if (isUnlockCompleted) {
+        return handleClaimRewards();
+      }
+      return handleUnlock().then(() => handleClaimRewards());
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const [onPresentMintSFTMModal] = useModal(
     <ManageSFTMModal />,
     "mint-sFTM-modal"
@@ -115,10 +146,10 @@ const UndelegateModal: React.FC<any> = ({
         onDismiss();
       }, 500);
     }
-    if (isUnlockCompleted) {
+    if (isUnlockCompleted && isClaimRewardsCompleted) {
       setAcceptLossOfRewards(true);
     }
-  }, [isUnlockCompleted, isUnstakeCompleted]);
+  }, [isUnlockCompleted, isClaimRewardsCompleted, isUnstakeCompleted]);
 
   return (
     <Modal style={{ padding: "2rem 6rem" }} onDismiss={onDismiss}>
@@ -136,30 +167,45 @@ const UndelegateModal: React.FC<any> = ({
         </>
       ) : isLocked && !acceptLossOfRewards ? (
         <>
-          <ModalTitle text="Unlock first?" />
+          <ModalTitle text="Unlock & Claim pending rewards first." />
           <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
-            Your stake is locked. You have to unlock you stake first before you
-            can undelegate. <br />
+            Your stake is locked. You need to unlock your stake and claim your
+            pending rewards before your able to undelegate. <br />
             Early unlocking will cause you to lose a part of the rewards.
           </Typo2>
           <Spacer size="xl" />
           <Row style={{ width: "100%" }}>
             <Button
               style={{ flex: 1, border: "1px solid red" }}
-              disabled={isUnlockCompleted || isUnlockPending}
+              disabled={
+                isUnlockPending ||
+                isClaimRewardsPending ||
+                (isClaimRewardsCompleted && isUnlockCompleted)
+              }
               variant="secondary"
-              onClick={() => handleUnlock()}
+              onClick={() => handleUnlockAndClaim()}
             >
-              {isUnlockCompleted
+              {isUnlockCompleted && isClaimRewardsCompleted
                 ? "Unlocked"
+                : isUnlockPending && isClaimRewardsPending
+                ? "Unlocking & Claiming rewards..."
                 : isUnlockPending
                 ? "Unlocking..."
-                : "Unlock and Continue"}
+                : isClaimRewardsPending
+                ? "Claiming rewards..."
+                : isUnlockCompleted
+                ? "Claim rewards and continue"
+                : "Unlock, Claim and continue"}
             </Button>
             <Spacer />
             <Button
               style={{ flex: 1 }}
-              disabled={isUnlockCompleted || isUnlockPending}
+              disabled={
+                isUnlockPending ||
+                isUnlockCompleted ||
+                isClaimRewardsPending ||
+                isClaimRewardsCompleted
+              }
               variant="primary"
               onClick={() => onDismiss()}
             >

@@ -1,27 +1,10 @@
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "styled-components";
-import useFantomContract, {
-  SFC_TX_METHODS,
-} from "../../hooks/useFantomContract";
-import useTransaction from "../../hooks/useTransaction";
-import {
-  getAccountDelegations,
-  withdrawDaysLockedLeft,
-} from "../../utils/delegation";
-import { formatHexToInt, hexToUnit } from "../../utils/conversion";
-import { BigNumber } from "@ethersproject/bignumber";
+import { getAccountDelegations } from "../../utils/delegation";
 import Row from "../../components/Row";
-import {
-  Button,
-  ContentBox,
-  Heading1,
-  Heading3,
-  Typo2,
-  Typo3,
-} from "../../components";
+import { ContentBox, Heading1, Heading3, Typo2 } from "../../components";
 import Spacer from "../../components/Spacer";
 import Column from "../../components/Column";
-import { formatDate } from "../../utils/common";
 import WithdrawRequestRow from "../../components/WithdrawRequestRow";
 
 const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
@@ -39,6 +22,9 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
     }
     return accumulator;
   }, []);
+  const activeWithdrawRequests = withdrawRequests.filter(
+    (wr: any) => wr.withdrawTime === null
+  );
 
   return (
     <div>
@@ -66,9 +52,8 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
       </Row>
       <Spacer size="lg" />
       <Column style={{ gap: ".5rem" }}>
-        {withdrawRequests.length ? (
-          withdrawRequests
-            .filter((wr: any) => wr.withdrawTime === null)
+        {activeWithdrawRequests.length ? (
+          activeWithdrawRequests
             .sort((a, b) => a.createdTime - b.createdTime)
             .map((wr) => {
               return (

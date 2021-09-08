@@ -1,6 +1,6 @@
 import React, { useReducer } from "react";
 
-export type ProviderType = "metamask" | "keyStore";
+export type ProviderType = "metamask" | "software";
 export interface Wallet {
   address: string;
   providerType: ProviderType;

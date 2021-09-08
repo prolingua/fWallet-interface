@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import useWeb3Modal from "../../hooks/useWeb3Modal";
-import { useKeyStoreWallet } from "../../hooks/useKeyStoreWallet";
+import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import useAccounts from "../../hooks/useAccount";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import { ThemeContext } from "styled-components";
@@ -22,7 +22,7 @@ const WalletSelect: React.FC<any> = ({
   setRequiredAccount,
 }) => {
   const [loadWeb3Modal] = useWeb3Modal();
-  const { restoreWalletFromPrivateKey } = useKeyStoreWallet();
+  const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const { account, dispatchAccount } = useAccounts();
   const { dispatchWalletContext } = useWalletProvider();
   const { color } = useContext(ThemeContext);

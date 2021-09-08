@@ -18,12 +18,14 @@ const InputTextBox: React.FC<any> = ({
   textArea = false,
   style = {},
   alignText = "unset",
+  password = false,
+  disabled = false,
 }) => {
   const { color } = useContext(ThemeContext);
   const [internalError, setInternalError] = useState(error);
 
   const onHandleChange = (value: string) => {
-    if (value.length <= maxLength) {
+    if (!maxLength || value.length <= maxLength) {
       setText(value);
     }
   };
@@ -86,8 +88,9 @@ const InputTextBox: React.FC<any> = ({
         >
           <Spacer />
           <Input
+            disabled={disabled}
             style={{ textAlign: alignText }}
-            type="text"
+            type={password ? "password" : "text"}
             value={text}
             onChange={(event) => {
               onHandleChange(event.target.value);
@@ -117,9 +120,11 @@ const InputTextBox: React.FC<any> = ({
         ) : (
           <Spacer size="lg" />
         )}
-        <Typo2>
-          {text.length}/{maxLength}
-        </Typo2>
+        {maxLength && (
+          <Typo2>
+            {text.length}/{maxLength}
+          </Typo2>
+        )}
       </Row>
     </Column>
   );
