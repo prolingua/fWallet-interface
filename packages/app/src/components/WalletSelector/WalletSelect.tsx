@@ -1,5 +1,4 @@
 import React, { useContext, useState } from "react";
-import useWeb3Modal from "../../hooks/useWeb3Modal";
 import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import useAccounts from "../../hooks/useAccount";
 import useWalletProvider from "../../hooks/useWalletProvider";
@@ -14,6 +13,10 @@ import crossSymbol from "../../assets/img/symbols/Cross.svg";
 import Spacer from "../Spacer";
 import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import WalletSelectView from "./WalletSelectView";
+import { useWeb3React } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
+import useAccount from "../../hooks/useAccount";
+import { useInjectedWallet } from "../../hooks/useConnectWallet";
 
 const WalletSelect: React.FC<any> = ({
   handleClose,
@@ -21,12 +24,14 @@ const WalletSelect: React.FC<any> = ({
   setWarning,
   setRequiredAccount,
 }) => {
-  const [loadWeb3Modal] = useWeb3Modal();
+  const context = useWeb3React<Web3Provider>();
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const { account, dispatchAccount } = useAccounts();
   const { dispatchWalletContext } = useWalletProvider();
   const { color } = useContext(ThemeContext);
   const [copied, setCopied] = useState(null);
+
+  const { activateInjected } = useInjectedWallet();
 
   const handleSwitchWallet = async (wallet: Wallet) => {
     if (
@@ -47,7 +52,11 @@ const WalletSelect: React.FC<any> = ({
         setRequiredAccount(wallet.address);
         return;
       }
-      return loadWeb3Modal();
+      return activateInjected();
+    }
+
+    if (context?.active) {
+      context.deactivate();
     }
 
     return dispatchWalletContext({
@@ -69,6 +78,8 @@ const WalletSelect: React.FC<any> = ({
   };
 
   const handleDelete = (address: string) => {
+    const { deactivate } = context;
+
     dispatchAccount({
       type: "removeWallet",
       address,
@@ -79,6 +90,8 @@ const WalletSelect: React.FC<any> = ({
         type: "reset",
       });
     }
+
+    return deactivate();
   };
 
   return (
@@ -97,7 +110,6 @@ const WalletSelect: React.FC<any> = ({
               <Row key={wallet.address}>
                 <OverlayButton
                   style={{ marginTop: ".8rem" }}
-                  key={wallet.address}
                   onClick={() => {
                     handleSwitchWallet(wallet).then(handleClose());
                   }}
@@ -198,7 +210,8 @@ const WalletSelect: React.FC<any> = ({
         <OverlayButton
           style={{ color: "white " }}
           onClick={() => {
-            loadWeb3Modal();
+            // loadWeb3Modal();
+            activateInjected();
             handleClose();
           }}
         >

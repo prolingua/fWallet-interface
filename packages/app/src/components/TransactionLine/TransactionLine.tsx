@@ -10,7 +10,7 @@ import {
 import Row from "../Row";
 import { LinkExt, OverlayButton, Typo1 } from "../index";
 import Spacer from "../Spacer";
-import config from "../../config/config.test";
+import config from "../../config/config";
 import { StyledPair, StyledPairHeader, StyledPairValue } from "./styled";
 
 const TransactionLine: React.FC<any> = ({

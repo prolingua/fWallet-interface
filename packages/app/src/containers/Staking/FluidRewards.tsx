@@ -254,6 +254,7 @@ const LockupFTMRow: React.FC<any> = ({
         <DelegationNameInfo
           delegationInfo={validator.delegationInfo}
           imageSize="32px"
+          id={validator.id}
         />
       </Row>
       <Row style={{ width: "12rem", alignItems: "center" }}>

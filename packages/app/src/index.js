@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import "./index.css";
 import App from "./App";
-import config from "./config/config.test";
+import config from "./config/config";
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),

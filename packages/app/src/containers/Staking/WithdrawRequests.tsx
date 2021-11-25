@@ -32,6 +32,15 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
       <Row style={{ justifyContent: "space-between" }}>
         <Typo2
           style={{
+            width: "3rem",
+            fontWeight: "bold",
+            color: color.greys.grey(),
+          }}
+        >
+          ID
+        </Typo2>
+        <Typo2
+          style={{
             width: "10rem",
             fontWeight: "bold",
             color: color.greys.grey(),
@@ -61,6 +70,7 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
                   key={`wr-rq-row-${wr.withdrawRequestID}`}
                   withdrawRequest={wr}
                   size="sm"
+                  withId
                 />
               );
             })

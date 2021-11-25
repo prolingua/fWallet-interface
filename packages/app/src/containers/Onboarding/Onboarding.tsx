@@ -20,7 +20,6 @@ import checkmarkBlueImg from "../../assets/img/shapes/checkmarkBlue.svg";
 import ledgerImg from "../../assets/img/icons/ledgerBlue.svg";
 import metamaskImg from "../../assets/img/icons/metamaskBlue.svg";
 import keystoreImg from "../../assets/img/icons/keystoreBlue.svg";
-import useWeb3Modal from "../../hooks/useWeb3Modal";
 import useModal from "../../hooks/useModal";
 import ModalTitle from "../../components/ModalTitle";
 import Modal from "../../components/Modal";
@@ -32,6 +31,15 @@ import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import { useDropzone } from "react-dropzone";
 import fileIcon from "../../assets/img/icons/fileWhite.svg";
 import crossIcon from "../../assets/img/symbols/Cross.svg";
+import {
+  useInjectedWallet,
+  useLedger,
+  useWalletLink,
+} from "../../hooks/useConnectWallet";
+import { useWeb3React } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import useAccount from "../../hooks/useAccount";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -506,18 +514,35 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
 
 const AccessWallet: React.FC<any> = ({ setFlow }) => {
   const { color } = useContext(ThemeContext);
-  const [loadWeb3Modal] = useWeb3Modal();
+  const { activateInjected } = useInjectedWallet();
+  const { activateWalletLink } = useWalletLink();
+  const { activateLedger } = useLedger();
   const [tool, setTool] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
+  const context = useWeb3React<Web3Provider>();
+  const { error } = context;
 
   const [onPresentAccessByKeystoreModal] = useModal(
     <AccessBySoftwareModal setFlow={setFlow} />,
     "access-by-software-modal"
   );
 
+  const handleSetTool = (tool: string) => {
+    setSelectedTool(null);
+    setTool(tool);
+  };
+
   useEffect(() => {
+    if (selectedTool === "ledger") {
+      activateLedger();
+    }
     if (selectedTool === "metamask") {
-      loadWeb3Modal();
+      // loadWeb3Modal();
+      activateInjected();
+    }
+    if (selectedTool === "coinbase") {
+      // loadWeb3Modal();
+      activateWalletLink();
     }
     if (selectedTool === "keystore") {
       onPresentAccessByKeystoreModal();
@@ -526,7 +551,7 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
 
   return (
     <Column>
-      {!selectedTool && (
+      {selectedTool !== "keystore" && (
         <Column>
           <Spacer size="xxl" />
           <Heading1 style={{ textAlign: "center" }}>
@@ -534,7 +559,7 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
           </Heading1>
           <Spacer />
           <Row style={{ gap: "1rem" }}>
-            <OverlayButton onClick={() => setTool("ledger")}>
+            <OverlayButton onClick={() => handleSetTool("ledger")}>
               <ContentBox
                 style={{
                   width: "16rem",
@@ -555,7 +580,7 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
                 </Column>
               </ContentBox>
             </OverlayButton>
-            <OverlayButton onClick={() => setTool("metamask")}>
+            <OverlayButton onClick={() => handleSetTool("metamask")}>
               <ContentBox
                 style={{
                   width: "16rem",
@@ -576,7 +601,28 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
                 </Column>
               </ContentBox>
             </OverlayButton>
-            <OverlayButton onClick={() => setTool("keystore")}>
+            <OverlayButton onClick={() => handleSetTool("coinbase")}>
+              <ContentBox
+                style={{
+                  width: "16rem",
+                  height: "16rem",
+                  boxSizing: "border-box",
+                  border: tool === "coinbase" && "2px solid #1969FF",
+                }}
+              >
+                <Column
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <img src={metamaskImg} />
+                  <Heading2>Coinbase</Heading2>
+                </Column>
+              </ContentBox>
+            </OverlayButton>
+            <OverlayButton onClick={() => handleSetTool("keystore")}>
               <ContentBox
                 style={{
                   width: "16rem",
@@ -599,7 +645,7 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
             </OverlayButton>
           </Row>
           <Spacer size="xl" />
-          <Column style={{ alignSelf: "center" }}>
+          <Column style={{ alignSelf: "center", alignItems: "center" }}>
             <Button
               disabled={!tool}
               onClick={() => setSelectedTool(tool)}
@@ -608,6 +654,14 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
             >
               Continue
             </Button>
+            {error && (
+              <Column style={{ maxWidth: "80%" }}>
+                <Spacer />
+                <Typo1 style={{ color: "red", textAlign: "center" }}>
+                  {error.message}
+                </Typo1>
+              </Column>
+            )}
             <Spacer size="lg" />
             <OverlayButton onClick={() => setFlow(null)}>
               <Typo1

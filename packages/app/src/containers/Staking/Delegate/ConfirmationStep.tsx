@@ -65,12 +65,22 @@ const ConfirmationStep: React.FC<any> = ({
           <Spacer />
           <Row style={{ justifyContent: "space-between" }}>
             <Typo1 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
-              Validator node
+              Validator name
             </Typo1>
             <Typo1 style={{ fontWeight: "bold" }}>
               {" "}
               {completedDelegation.selectedDelegation.stakerInfo?.name ||
                 "Unnamed"}
+            </Typo1>
+          </Row>
+          <Spacer />
+          <Row style={{ justifyContent: "space-between" }}>
+            <Typo1 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+              Validator id
+            </Typo1>
+            <Typo1 style={{ fontWeight: "bold" }}>
+              {" "}
+              {parseInt(completedDelegation.selectedDelegation.id)}
             </Typo1>
           </Row>
         </Column>

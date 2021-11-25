@@ -96,7 +96,7 @@ const UndelegateModal: React.FC<any> = ({
       generateWithdrawalRequestId().toString(),
       unitToWei(undelegateAmount).gte(BigNumber.from(delegatedAmount))
         ? BigNumber.from(delegatedAmount).toString()
-        : unitToWei(parseFloat(undelegateAmount).toString()).toString(),
+        : unitToWei(undelegateAmount).toString(),
     ])
   );
 
@@ -218,7 +218,7 @@ const UndelegateModal: React.FC<any> = ({
               variant="primary"
               onClick={() => onDismiss()}
             >
-              Never mind
+              Cancel
             </Button>
           </Row>
         </>
@@ -255,6 +255,7 @@ const UndelegateModal: React.FC<any> = ({
               >
                 <div style={{ fontWeight: "bold" }}>
                   <InputCurrency
+                    handleError={(err: any) => console.error(err)}
                     disabled={isUnstakePending}
                     value={undelegateAmount}
                     handleValue={(value: any) => setUndelegateAmount(value)}
@@ -280,7 +281,9 @@ const UndelegateModal: React.FC<any> = ({
             <div style={{ width: "98%" }}>
               <SliderWithMarks
                 value={undelegateAmount}
-                setValue={setUndelegateAmount}
+                setValue={(value: number) =>
+                  setUndelegateAmount(value.toString())
+                }
                 max={weiToMaxUnit(BigNumber.from(delegatedAmount).toString())}
                 steps={0.1}
               />

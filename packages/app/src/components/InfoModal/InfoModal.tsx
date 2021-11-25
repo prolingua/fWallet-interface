@@ -2,39 +2,45 @@ import React from "react";
 import Modal from "../Modal";
 import ModalContent from "../ModalContent";
 import ModalTitle from "../ModalTitle";
-import { Button, Typo1 } from "../index";
-import ModalActions from "../ModalActions";
+import { Button, Heading3, OverlayButton, Typo1 } from "../index";
+import Spacer from "../Spacer";
+import Row from "../Row";
 
 const InfoModal: React.FC<any> = ({
+  title,
   message,
-  handleButton,
+  actionButtonText,
+  handleActionButton,
+  actionButtonNoDismiss,
   withCloseButton = true,
   onDismiss,
 }) => {
   return (
     <Modal>
-      <ModalTitle text="Warning" />
+      <ModalTitle text={title ? title : "Warning"} />
       <ModalContent>
         <Typo1>{message}</Typo1>
       </ModalContent>
-      <ModalActions>
-        {handleButton && (
+      <Spacer size="xs" />
+      <Row style={{ width: "100%", justifyContent: "center", gap: "1rem" }}>
+        {handleActionButton && actionButtonText && (
           <Button
+            style={{ flex: 1 }}
             onClick={() => {
-              handleButton();
-              onDismiss();
+              handleActionButton();
+              !actionButtonNoDismiss && onDismiss();
             }}
-            variant="secondary"
+            variant="primary"
           >
-            ADD
+            {actionButtonText}
           </Button>
         )}
         {withCloseButton && (
-          <Button onClick={() => onDismiss()} variant="secondary">
-            CLOSE
-          </Button>
+          <OverlayButton style={{ flex: 1 }} onClick={() => onDismiss()}>
+            <Heading3 style={{ color: "#765cde" }}>Close</Heading3>
+          </OverlayButton>
         )}
-      </ModalActions>
+      </Row>
     </Modal>
   );
 };

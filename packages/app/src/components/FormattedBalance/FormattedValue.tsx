@@ -3,6 +3,7 @@ import { FormattedValueType } from "../../shared/types";
 
 const FormattedValue: React.FC<{
   formattedValue: FormattedValueType;
+  decimals?: number;
   fontSize?: string;
   tokenSymbol?: string;
   currencySymbol?: string;

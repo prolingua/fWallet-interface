@@ -5,7 +5,7 @@ import { Contract } from "@ethersproject/contracts";
 
 // @ts-ignore
 import { addresses, abis } from "@f-wallet/contracts";
-import config from "../config/config.test";
+import config from "../config/config";
 
 export const isValidAddress = (address: string): boolean => {
   return isAddress(address);

@@ -16,6 +16,7 @@ export const DelegationNameInfo: React.FC<any> = ({
   delegationInfo,
   daysLocked,
   flexColumn,
+  id,
 }) => {
   const { color } = useContext(ThemeContext);
   const content = (
@@ -33,6 +34,7 @@ export const DelegationNameInfo: React.FC<any> = ({
       />
       <Column>
         <Typo1 style={{ fontWeight: "bold" }}>
+          {id ? `${parseInt(id)}. ` : ""}
           {delegationInfo?.name || "Unnamed"}
         </Typo1>
         {daysLocked > 0 && (
@@ -71,6 +73,7 @@ export const DelegationBalance: React.FC<any> = ({
         imageSize={imageSize}
         delegationInfo={activeDelegation.delegationInfo}
         daysLocked={daysLocked}
+        id={activeDelegation.delegation.toStakerId}
       />
       <Row style={{ alignItems: "center" }}>
         <Typo2

@@ -17,10 +17,14 @@ import {
 import { BigNumber } from "@ethersproject/bignumber";
 import Row from "../Row";
 import StatPair from "../StatPair";
-import { Button, Typo1 } from "../index";
+import { Button, Typo1, Typo2 } from "../index";
 import useSendTransaction from "../../hooks/useSendTransaction";
 
-const WithdrawRequestRow: React.FC<any> = ({ withdrawRequest, size }) => {
+const WithdrawRequestRow: React.FC<any> = ({
+  withdrawRequest,
+  size,
+  withId,
+}) => {
   const { txSFCContractMethod } = useFantomContract();
   const {
     sendTx: handleWithdrawStake,
@@ -50,7 +54,14 @@ const WithdrawRequestRow: React.FC<any> = ({ withdrawRequest, size }) => {
         alignItems: "center",
       }}
     >
-      <div style={{ flex: 1 }}>
+      {withId && (
+        <div style={{ width: "3rem" }}>
+          <Typo1 style={{ fontWeight: "bold" }}>
+            {parseInt(withdrawRequest.toStakerId)}
+          </Typo1>
+        </div>
+      )}
+      <div style={{ flex: 2 }}>
         <StatPair
           value1={formattedAmountToWithdraw[0]}
           value2={formattedAmountToWithdraw[1]}
@@ -63,7 +74,7 @@ const WithdrawRequestRow: React.FC<any> = ({ withdrawRequest, size }) => {
         <Button
           disabled={!isUnlocked || isPending || isCompleted}
           style={{
-            flex: 1,
+            flex: 3,
             padding: size === "sm" ? ".1rem 1rem" : ".4rem 1.5rem",
             fontSize: size === "sm" && "16px",
           }}

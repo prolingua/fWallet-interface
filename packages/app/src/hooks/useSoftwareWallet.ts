@@ -1,13 +1,15 @@
 import { Wallet } from "@ethersproject/wallet";
-import { JsonRpcProvider } from "@ethersproject/providers";
-import config from "../config/config.test";
+import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import config from "../config/config";
 import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
 import { loadContracts } from "../utils/wallet";
+import { useWeb3React } from "@web3-react/core";
 
 export const useSoftwareWallet = () => {
   const { dispatchWalletContext } = useWalletProvider();
   const { dispatchAccount } = useAccounts();
+  const context = useWeb3React<Web3Provider>();
 
   const addWalletToContext = async (wallet: Wallet, provider?: any) => {
     const walletProvider: any = {
@@ -38,12 +40,15 @@ export const useSoftwareWallet = () => {
 
   const handleCreateNewWallet = () => {
     const wallet = Wallet.createRandom();
-    console.log(wallet);
   };
 
   const handleRestoreWalletFromPrivateKey = async (pkey: string) => {
     const provider = new JsonRpcProvider(config.rpc);
     const wallet = new Wallet(pkey, provider);
+
+    if (context?.active) {
+      context.deactivate();
+    }
 
     return addWalletToContext(wallet);
   };
@@ -51,6 +56,10 @@ export const useSoftwareWallet = () => {
   const handleRestoreWalletFromMnemonic = async (mnemonic: string) => {
     const provider = new JsonRpcProvider(config.rpc);
     const wallet = Wallet.fromMnemonic(mnemonic);
+
+    if (context?.active) {
+      context.deactivate();
+    }
 
     return addWalletToContext(wallet, provider);
   };
@@ -61,6 +70,10 @@ export const useSoftwareWallet = () => {
   ) => {
     const provider = new JsonRpcProvider(config.rpc);
     const wallet = await Wallet.fromEncryptedJson(json, password);
+
+    if (context?.active) {
+      context.deactivate();
+    }
 
     return addWalletToContext(wallet, provider);
   };

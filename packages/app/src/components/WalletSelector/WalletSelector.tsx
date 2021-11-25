@@ -10,8 +10,9 @@ import Row from "../Row";
 import vShape from "../../assets/img/shapes/vShape.png";
 import WalletSelectView from "./WalletSelectView";
 import WalletSelect from "./WalletSelect";
-import config from "../../config/config.test";
+import config from "../../config/config";
 import { Context } from "../../context/ModalProvider";
+import { switchToChain } from "../../web3/events";
 
 const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const modalContext = useContext(Context);
@@ -27,8 +28,20 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   );
   const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
     <InfoModal
-      message={`Metamask: wrong network selected. Please change your network to Fantom Testnet to continue`}
+      message={`[Web3] wrong network selected. Please change your network to Fantom ${
+        parseInt(config.chainId) === 250 ? "Opera" : "Testnet"
+      } to continue`}
       withCloseButton={false}
+      handleActionButton={async () =>
+        await switchToChain(
+          walletContext.activeWallet.provider,
+          parseInt(config.chainId)
+        )
+      }
+      actionButtonText={`Switch to ${
+        parseInt(config.chainId) === 250 ? "Fantom Opera" : "Fantom Testnet"
+      }`}
+      actionButtonNoDismiss={true}
     />,
     "metamask-wrong-network-modal",
     true

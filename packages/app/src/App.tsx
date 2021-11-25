@@ -27,6 +27,8 @@ import Scrollbar from "./components/Scrollbar";
 import Governance from "./containers/Governance";
 import Proposal from "./containers/Proposal";
 import CreateProposal from "./containers/CreateProposal";
+import { Web3Provider } from "@ethersproject/providers";
+import { Web3ReactProvider } from "@web3-react/core";
 
 const AppContent: React.FC<any> = () => {
   return (
@@ -104,22 +106,29 @@ function App() {
 }
 
 const Providers: React.FC<any> = ({ children }) => {
+  function getLibrary(provider: any): Web3Provider {
+    const library = new Web3Provider(provider);
+    library.pollingInterval = 12000;
+    return library;
+  }
   return (
-    <I18nextProvider i18n={i18next}>
-      <ThemeProvider theme={theme}>
-        <SettingsProvider>
-          <FantomApiProvider>
-            <AccountProvider>
-              <ActiveWalletProvider>
-                <TransactionProvider>
-                  <ModalProvider>{children}</ModalProvider>
-                </TransactionProvider>
-              </ActiveWalletProvider>
-            </AccountProvider>
-          </FantomApiProvider>
-        </SettingsProvider>
-      </ThemeProvider>
-    </I18nextProvider>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <I18nextProvider i18n={i18next}>
+        <ThemeProvider theme={theme}>
+          <SettingsProvider>
+            <FantomApiProvider>
+              <AccountProvider>
+                <ActiveWalletProvider>
+                  <TransactionProvider>
+                    <ModalProvider>{children}</ModalProvider>
+                  </TransactionProvider>
+                </ActiveWalletProvider>
+              </AccountProvider>
+            </FantomApiProvider>
+          </SettingsProvider>
+        </ThemeProvider>
+      </I18nextProvider>
+    </Web3ReactProvider>
   );
 };
 

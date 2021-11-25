@@ -40,7 +40,7 @@ import ModalContent from "../../components/ModalContent";
 import Spacer from "../../components/Spacer";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import { BigNumber } from "@ethersproject/bignumber";
-import config from "../../config/config.test";
+import config from "../../config/config";
 import useModal from "../../hooks/useModal";
 import Column from "../../components/Column";
 import { LockupFTMModal } from "./FluidRewards";
@@ -103,6 +103,7 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo}
           imageSize="32px"
+          id={activeDelegation.delegation.toStakerId}
         />
       </Row>
       <Row style={{ width: "10rem", alignItems: "center" }}>
@@ -447,6 +448,7 @@ const RepaySFTMRow: React.FC<any> = ({
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo}
           imageSize="32px"
+          id={activeDelegation.delegation.toStakerId}
         />
       </Row>
       <Row style={{ width: "10rem", alignItems: "center" }}>
