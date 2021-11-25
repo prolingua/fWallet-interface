@@ -5,6 +5,9 @@ import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
 import { loadContracts } from "../utils/wallet";
 import { useWeb3React } from "@web3-react/core";
+import { wordlists } from "@ethersproject/wordlists";
+import { entropyToMnemonic } from "@ethersproject/hdnode";
+import { randomBytes } from "@ethersproject/random";
 
 export const useSoftwareWallet = () => {
   const { dispatchWalletContext } = useWalletProvider();
@@ -38,8 +41,17 @@ export const useSoftwareWallet = () => {
     });
   };
 
-  const handleCreateNewWallet = () => {
-    const wallet = Wallet.createRandom();
+  const generateMnemonic = () => {
+    let entropy: Uint8Array = randomBytes(32);
+    return entropyToMnemonic(entropy, wordlists.en);
+  };
+  const handleCreateNewWallet = (mnemonic: string) => {
+    const wallet = Wallet.fromMnemonic(
+      mnemonic,
+      "m/44'/60'/0'/0/0",
+      wordlists.en
+    );
+    return addWalletToContext(wallet);
   };
 
   const handleRestoreWalletFromPrivateKey = async (pkey: string) => {
@@ -79,7 +91,8 @@ export const useSoftwareWallet = () => {
   };
 
   return {
-    createNewWallet: () => handleCreateNewWallet(),
+    generateMnemonic: () => generateMnemonic(),
+    createNewWallet: (mnemonic: string) => handleCreateNewWallet(mnemonic),
     restoreWalletFromPrivateKey: (pkey: string) =>
       handleRestoreWalletFromPrivateKey(pkey),
     restoreWalletFromMnemonic: (mnemonic: string) =>

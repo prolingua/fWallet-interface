@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import Column from "../Column";
 import Row from "../Row";
-import { Input, TextArea, Typo2 } from "../index";
+import { Input, TextArea, Typo1, Typo2 } from "../index";
 import Spacer from "../Spacer";
 import InputError from "../InputError";
 
@@ -12,7 +12,7 @@ const InputTextBox: React.FC<any> = ({
   setText,
   placeholder,
   maxLength = 120,
-  error,
+  error = null,
   setError,
   valueName = "value",
   textArea = false,
@@ -20,6 +20,8 @@ const InputTextBox: React.FC<any> = ({
   alignText = "unset",
   password = false,
   disabled = false,
+  small = false,
+  pre = null,
 }) => {
   const { color } = useContext(ThemeContext);
   const [internalError, setInternalError] = useState(error);
@@ -82,14 +84,22 @@ const InputTextBox: React.FC<any> = ({
           style={{
             backgroundColor: "#202F49",
             borderRadius: "8px",
-            height: "64px",
+            height: small ? "48px" : "64px",
             alignItems: "center",
           }}
         >
-          <Spacer />
+          {pre && (
+            <>
+              <Spacer size="sm" />
+              <Typo2>{pre}</Typo2>
+            </>
+          )}
+          <Spacer size="sm" />
           <Input
+            fontSize={small && "16px"}
+            fontWeight={small && "bold"}
             disabled={disabled}
-            style={{ textAlign: alignText }}
+            style={{ width: "100%", textAlign: alignText }}
             type={password ? "password" : "text"}
             value={text}
             onChange={(event) => {
@@ -108,24 +118,28 @@ const InputTextBox: React.FC<any> = ({
           />
         </Row>
       )}
-      <Spacer size="xs" />
-      <Row
-        style={{
-          justifyContent: "space-between",
-          color: color.greys.darkGrey(),
-        }}
-      >
-        {internalError ? (
-          <InputError fontSize="18px" error={internalError} />
-        ) : (
-          <Spacer size="lg" />
-        )}
-        {maxLength && (
-          <Typo2>
-            {text.length}/{maxLength}
-          </Typo2>
-        )}
-      </Row>
+      {!small && (
+        <>
+          <Spacer size="xs" />
+          <Row
+            style={{
+              justifyContent: "space-between",
+              color: color.greys.darkGrey(),
+            }}
+          >
+            {internalError ? (
+              <InputError fontSize="18px" error={internalError} />
+            ) : (
+              <Spacer size="lg" />
+            )}
+            {maxLength && (
+              <Typo2>
+                {text.length}/{maxLength}
+              </Typo2>
+            )}
+          </Row>
+        </>
+      )}
     </Column>
   );
 };

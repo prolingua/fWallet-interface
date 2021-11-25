@@ -148,12 +148,13 @@ export const ContentBox = styled.div<{ padding?: string }>`
   border-radius: 8px;
 `;
 
-export const Input = styled.input`
+export const Input = styled.input<{ fontSize?: string; fontWeight?: string }>`
   flex: 1;
   background-color: transparent;
   border: none;
   color: white;
-  font-size: 20px;
+  font-size: ${(props) => props.fontSize || "20px"};
+  font-weight: ${(props) => props.fontWeight && props.fontWeight};
 
   :focus {
     outline: none;

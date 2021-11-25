@@ -1,6 +1,6 @@
 import Column from "../../components/Column";
 import React, { useContext, useEffect, useState } from "react";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import OnboardingTopBar from "./OnboardingTopBar";
 import Row from "../../components/Row";
 import {
@@ -12,11 +12,13 @@ import {
   OverlayButton,
   Typo1,
   Typo2,
+  Typo3,
 } from "../../components";
 import Spacer from "../../components/Spacer";
 import walletSymbolImg from "../../assets/img/symbols/WalletBlue.svg";
 import keysSymbolImg from "../../assets/img/symbols/Keys.svg";
 import checkmarkBlueImg from "../../assets/img/shapes/checkmarkBlue.svg";
+import checkmarkGreenImg from "../../assets/img/symbols/GreenCheckMark.svg";
 import ledgerImg from "../../assets/img/icons/ledgerBlue.svg";
 import metamaskImg from "../../assets/img/icons/metamaskBlue.svg";
 import keystoreImg from "../../assets/img/icons/keystoreBlue.svg";
@@ -38,8 +40,7 @@ import {
 } from "../../hooks/useConnectWallet";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
-import useWalletProvider from "../../hooks/useWalletProvider";
-import useAccount from "../../hooks/useAccount";
+import refreshImg from "../../assets/img/symbols/Refresh.svg";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -557,7 +558,7 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
           <Heading1 style={{ textAlign: "center" }}>
             How do you want to access your wallet?
           </Heading1>
-          <Spacer />
+          <Spacer size="xl" />
           <Row style={{ gap: "1rem" }}>
             <OverlayButton onClick={() => handleSetTool("ledger")}>
               <ContentBox
@@ -776,23 +777,322 @@ const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
   );
 };
 
-const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
-  const { createNewWallet } = useSoftwareWallet();
+const VerifyMnemonicModal: React.FC<any> = ({
+  onDismiss,
+  mnemonic,
+  setIsVerified,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const [words, setWords] = useState(Array(24).fill(""));
+  const [error, setError] = useState(null);
+  const handleWordInput = (value: string, index: number) => {
+    const updatedWords = [...words];
+    updatedWords[index] = value.toLowerCase();
+
+    setWords(updatedWords);
+    setError(null);
+  };
+
+  const handleVerify = () => {
+    if (words.join(" ") === mnemonic) {
+      setIsVerified(true);
+      return onDismiss();
+    }
+    setError("Failed to verify mnemonic");
+  };
+
   return (
-    <Column>
+    <Modal style={{ maxWidth: "760px" }} onDismiss={onDismiss}>
+      <ModalTitle text="Verify mnemonic" />
+      <Typo2 style={{ color: color.greys.grey() }}>
+        Fill in mnemonic phrase below
+      </Typo2>
+      <Spacer />
+      <Column style={{ padding: "0 2rem" }}>
+        <Row style={{ flexWrap: "wrap", gap: ".5rem" }}>
+          {mnemonic.split(" ").map((mnemonicWord: string, index: number) => {
+            return (
+              <div key={`mnemnic-${index}`} style={{ width: "24%" }}>
+                <InputTextBox
+                  text={words[index]}
+                  setText={(value: string) => handleWordInput(value, index)}
+                  maxLength={null}
+                  small={true}
+                  pre={`${index + 1}.`}
+                />
+              </div>
+            );
+          })}
+        </Row>
+        <Spacer size="xl" />
+        <Button
+          disabled={words.findIndex((word) => word === "") !== -1 || error}
+          variant="primary"
+          onClick={() => handleVerify()}
+        >
+          Verify
+        </Button>
+        {error && (
+          <>
+            <Spacer size="xs" />
+            <Typo1
+              style={{ color: "red", textAlign: "center", fontWeight: "bold" }}
+            >
+              {error}
+            </Typo1>
+          </>
+        )}
+        <Spacer />
+      </Column>
+    </Modal>
+  );
+};
+
+const WalletCreatedModal: React.FC<any> = ({ onDismiss, mnemonic }) => {
+  const { createNewWallet } = useSoftwareWallet();
+  const handleCreateWallet = () => {
+    createNewWallet(mnemonic).then(() => {
+      onDismiss();
+    });
+  };
+  const { color } = useContext(ThemeContext);
+  return (
+    <Modal>
+      <Spacer />
+      <img src={checkmarkGreenImg} />
+      <Spacer />
+      <Heading1>Congratulations</Heading1>
+      <Spacer size="xs" />
+      <Typo2 style={{ color: color.greys.grey() }}>
+        It's time to access your fWallet
+      </Typo2>
+      <Spacer size="xl" />
+      <Button
+        style={{ width: "100%" }}
+        variant="primary"
+        onClick={() => handleCreateWallet()}
+      >
+        Access wallet
+      </Button>
+      <Spacer size="xl" />
+      <Row style={{ flexWrap: "wrap", maxWidth: "70%" }}>
+        <Typo3 style={{ color: color.greys.darkGrey(), textAlign: "center" }}>
+          By using this application you agree to the{" "}
+          <span style={{ color: "white" }}>Terms of Use.</span>
+        </Typo3>
+      </Row>
+    </Modal>
+  );
+};
+
+const NewWalletWizard: React.FC<any> = () => {
+  const { color } = useContext(ThemeContext);
+  const { generateMnemonic, createNewWallet } = useSoftwareWallet();
+  const [mnemonic, setMnemonic] = useState(generateMnemonic());
+  const [acceptRisk, setAcceptRisk] = useState(false);
+  const [verified, setIsVerified] = useState(false);
+  const [onPresentVerifyModal, setOnPresentVerifyModal] = useModal(
+    <VerifyMnemonicModal mnemonic={mnemonic} setIsVerified={setIsVerified} />,
+    "verify-mnemonic-modal"
+  );
+  const [onPresentWalletCreatedModal] = useModal(
+    <WalletCreatedModal mnemonic={mnemonic} />,
+    "wallet-created-modal"
+  );
+
+  useEffect(() => {
+    if (verified) {
+      onPresentWalletCreatedModal();
+    }
+  }, [verified]);
+
+  return (
+    <Row style={{ gap: "3rem", justifyContent: "center" }}>
+      <Column style={{ flex: 2, maxWidth: "644px" }}>
+        <ContentBox>
+          <Row style={{ flexWrap: "wrap", gap: ".5rem", width: "100%" }}>
+            {mnemonic.split(" ").map((fill, index) => {
+              const textArray = mnemonic.split(" ");
+              return (
+                <Row
+                  key={`mnemonic-input-${index}`}
+                  style={{
+                    width: "23.5%",
+                    height: "3rem",
+                    backgroundColor: "#1B283E",
+                    borderRadius: "8px",
+                    alignItems: "center",
+                  }}
+                >
+                  <Spacer />
+                  <Typo2 style={{ color: color.greys.darkGrey() }}>
+                    {index + 1}.
+                  </Typo2>
+                  <Spacer size="sm" />
+                  <Typo2 style={{ color: color.white, fontWeight: "bold" }}>
+                    {textArray[index] || ""}
+                  </Typo2>
+                </Row>
+              );
+            })}
+          </Row>
+        </ContentBox>
+        <Spacer />
+        <ContentBox>
+          <Typo2 style={{ color: color.greys.grey() }}>{mnemonic}</Typo2>
+        </ContentBox>
+        <Spacer />
+        <OverlayButton
+          onClick={() => {
+            setMnemonic(generateMnemonic());
+            setAcceptRisk(false);
+          }}
+        >
+          <Row>
+            <img src={refreshImg} />
+            <Spacer size="xs" />
+            <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
+              Regenerate
+            </Typo1>
+          </Row>
+        </OverlayButton>
+      </Column>
+      <Column style={{ flex: 1, maxWidth: "536px" }}>
+        <ContentBox style={{ height: "456px" }}>
+          <Column>
+            <Heading1>This is your key phrase</Heading1>
+            <Spacer size="xs" />
+            <Typo2 style={{ color: color.greys.grey() }}>
+              Use these 24 words in sequential order to recover your fWallet.
+            </Typo2>
+            <Spacer size="xl" />
+            <Spacer size="xl" />
+            <Typo1 style={{ color: color.primary.fantomBlue() }}>
+              ATTENTION
+            </Typo1>
+            <Spacer />
+            <Typo2 style={{ color: color.greys.grey() }}>
+              Store this key phrase in a secure location. Anyone with this key
+              phrase can access your fWallet. There is no way to recover lost
+              key phrases
+            </Typo2>
+            <Spacer size="lg" />
+            <Row>
+              <StyledCheckbox
+                name="accept"
+                type="checkbox"
+                checked={acceptRisk}
+                onChange={() => setAcceptRisk(!acceptRisk)}
+              />
+              <Spacer size="xs" />
+              <Typo2 style={{ color: color.greys.grey() }}>
+                I wrote down my key phrase in a secure location
+              </Typo2>
+            </Row>
+            <Spacer size="lg" />
+            <Button
+              disabled={!acceptRisk}
+              variant="primary"
+              onClick={() => onPresentVerifyModal()}
+            >
+              Access wallet
+            </Button>
+          </Column>
+        </ContentBox>
+      </Column>
+    </Row>
+  );
+};
+
+const StyledCheckbox = styled.input`
+  -webkit-appearance: none;
+  background-color: transparent;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid ${(props) => props.theme.color.primary.cyan()};
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+
+  :checked {
+    background-color: ${(props) => props.theme.color.primary.cyan()};
+  }
+
+  :checked:after {
+    content: "\\2714";
+    font-size: 1.5rem;
+    position: absolute;
+    top: -4px;
+    left: 0px;
+    color: ${(props) => props.theme.color.secondary.navy()};
+  }
+`;
+
+const CreateNewWallet: React.FC<any> = ({ setFlow }) => {
+  const { color } = useContext(ThemeContext);
+  const [wizard, setWizard] = useState(false);
+
+  return (
+    <Row style={{ justifySelf: "flex-start" }}>
+      <Column>
+        {wizard ? (
+          <NewWalletWizard />
+        ) : (
+          <>
+            <Spacer size="xxl" />
+            <Heading1 style={{ textAlign: "center" }}>
+              Set up your wallet
+            </Heading1>
+            <Spacer size="xxl" />
+            <ContentBox style={{ width: "20rem" }}>
+              <Column>
+                <img
+                  style={{ alignSelf: "center", height: "78px", width: "84px" }}
+                  src={walletSymbolImg}
+                />
+                <Spacer size="xl" />
+                <Typo1
+                  style={{
+                    color: color.greys.grey(),
+                    fontWeight: "bold",
+                    padding: "0 3rem",
+                    textAlign: "center",
+                  }}
+                >
+                  Generate a new key phrase to setup your fWallet.
+                </Typo1>
+                <Spacer size="lg" />
+                <Button onClick={() => setWizard(true)} variant="primary">
+                  Generate key phrase
+                </Button>
+              </Column>
+            </ContentBox>
+            <Spacer size="xxl" />
+            <OverlayButton onClick={() => setFlow("accessWallet")}>
+              <Typo1
+                style={{ fontWeight: "bold", color: color.primary.cyan() }}
+              >
+                Already own a wallet?
+              </Typo1>
+            </OverlayButton>
+          </>
+        )}
+      </Column>
+    </Row>
+  );
+};
+
+const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
+  return (
+    <Column
+      style={{ height: "100%", alignItems: "center", justifyContent: "center" }}
+    >
       {!contentFlow && <CreateOrAccessWallet setFlow={setContentFlow} />}
       {contentFlow === "accessWallet" && (
         <AccessWallet setFlow={setContentFlow} />
       )}
       {contentFlow === "newWallet" && (
-        <Row>
-          <Column>
-            <Heading2>NEW WALLET</Heading2>
-            <Button onClick={createNewWallet} variant="primary">
-              Create wallet
-            </Button>
-          </Column>
-        </Row>
+        <CreateNewWallet setFlow={setContentFlow} />
       )}
     </Column>
   );
