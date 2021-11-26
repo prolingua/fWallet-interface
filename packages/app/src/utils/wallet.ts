@@ -45,6 +45,7 @@ export const createWalletContext = async (provider: Web3Provider) => {
 };
 
 export const loadContracts = async (signer: Signer, chainId: number) => {
+  console.log({ signer });
   if (!signer) {
     return;
   }

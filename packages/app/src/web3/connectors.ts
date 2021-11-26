@@ -2,7 +2,7 @@ import { InjectedConnector } from "@web3-react/injected-connector";
 // import { NetworkConnector } from "@web3-react/network-connector";
 // import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
-import { LedgerConnector } from "@web3-react/ledger-connector";
+// import { LedgerConnector } from "@web3-react/ledger-connector";
 // import { TrezorConnector } from "@web3-react/trezor-connector";
 // import { LatticeConnector } from "@web3-react/lattice-connector";
 // import { FrameConnector } from "@web3-react/frame-connector";
@@ -13,25 +13,25 @@ import { LedgerConnector } from "@web3-react/ledger-connector";
 // import { TorusConnector } from "@web3-react/torus-connector";
 import config from "../config/config";
 
-const POLLING_INTERVAL = 12000;
+// const POLLING_INTERVAL = 12000;
 
 export const injected = new InjectedConnector({});
 export const walletlink = new WalletLinkConnector({
   url: config.rpc,
   appName: "fWallet",
 });
-export const ledger = new LedgerConnector({
-  chainId: parseInt(config.chainId),
-  url: config.rpc,
-  pollingInterval: POLLING_INTERVAL,
-});
+// export const ledger = new LedgerConnector({
+//   chainId: parseInt(config.chainId),
+//   url: config.rpc,
+//   pollingInterval: POLLING_INTERVAL,
+// });
 
 enum ConnectorNames {
   Injected = "Injected",
   // Network = "Network",
   // WalletConnect = "WalletConnect",
   WalletLink = "WalletLink",
-  Ledger = "Ledger",
+  // Ledger = "Ledger",
   // Trezor = "Trezor",
   // Lattice = "Lattice",
   // Frame = "Frame",
@@ -46,7 +46,7 @@ export const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   // [ConnectorNames.Network]: network,
   // [ConnectorNames.WalletConnect]: walletconnect,
   [ConnectorNames.WalletLink]: walletlink,
-  [ConnectorNames.Ledger]: ledger,
+  // [ConnectorNames.Ledger]: ledger,
   // [ConnectorNames.Trezor]: trezor,
   // [ConnectorNames.Lattice]: lattice,
   // [ConnectorNames.Frame]: frame,

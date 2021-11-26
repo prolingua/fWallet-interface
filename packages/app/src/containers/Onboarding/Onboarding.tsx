@@ -33,14 +33,11 @@ import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import { useDropzone } from "react-dropzone";
 import fileIcon from "../../assets/img/icons/fileWhite.svg";
 import crossIcon from "../../assets/img/symbols/Cross.svg";
-import {
-  useInjectedWallet,
-  useLedger,
-  useWalletLink,
-} from "../../hooks/useConnectWallet";
+import { useInjectedWallet, useWalletLink } from "../../hooks/useConnectWallet";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import refreshImg from "../../assets/img/symbols/Refresh.svg";
+import { useHardwareWallet } from "../../hooks/useHardwareWallet";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -517,7 +514,8 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
   const { color } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
-  const { activateLedger } = useLedger();
+  // const { activateLedger } = useLedger();
+  const { connectLedger } = useHardwareWallet();
   const [tool, setTool] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
   const context = useWeb3React<Web3Provider>();
@@ -535,7 +533,7 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
 
   useEffect(() => {
     if (selectedTool === "ledger") {
-      activateLedger();
+      connectLedger();
     }
     if (selectedTool === "metamask") {
       // loadWeb3Modal();

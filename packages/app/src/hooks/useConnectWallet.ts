@@ -65,24 +65,24 @@ export function useWalletLink() {
   };
 }
 
-export function useLedger() {
-  const context = useWeb3React<Web3Provider>();
-  // const triedEager = useEagerConnect();
-  useInactiveListener();
-
-  const { active, activate, deactivate, error } = context;
-
-  useEffect(() => {}, [context]);
-
-  return {
-    activateLedger: () => {
-      if (active || error) {
-        deactivate();
-      }
-      return activate(connectorsByName.Ledger);
-    },
-  };
-}
+// export function useLedger() {
+//   const context = useWeb3React<Web3Provider>();
+//   // const triedEager = useEagerConnect();
+//   useInactiveListener();
+//
+//   const { active, activate, deactivate, error } = context;
+//
+//   useEffect(() => {}, [context]);
+//
+//   return {
+//     activateLedger: () => {
+//       if (active || error) {
+//         deactivate();
+//       }
+//       return activate(connectorsByName.Ledger);
+//     },
+//   };
+// }
 
 export function useEagerConnect() {
   const { activate, active } = useWeb3React();
