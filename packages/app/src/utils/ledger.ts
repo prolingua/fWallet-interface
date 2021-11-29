@@ -1,11 +1,14 @@
-import { ethers } from "ethers";
-import { Logger } from "@ethersproject/logger";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import { BigNumber } from "@ethersproject/bignumber";
 import FantomNano from "./ledger/fantom-nano";
-import { parseEther } from "@ethersproject/units";
-
-const logger = new Logger("hardware-wallets/5.5.0");
+import { Signer } from "@ethersproject/abstract-signer";
+import {
+  Deferrable,
+  defineReadOnly,
+  resolveProperties,
+} from "@ethersproject/properties";
+import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
+import { serialize } from "@ethersproject/transactions";
 
 // type TransportCreator = {
 //   // @ts-ignore
@@ -25,17 +28,13 @@ function waiter(duration: number): Promise<void> {
 }
 
 // @ts-ignore
-export class LedgerSigner extends ethers.Signer {
+export class LedgerSigner extends Signer {
   readonly type: string;
   readonly path: string;
 
-  readonly _ftm: Promise<any>;
+  readonly _eth: Promise<any>;
 
-  constructor(
-    provider?: ethers.providers.Provider,
-    type?: string,
-    path?: string
-  ) {
+  constructor(provider?: Provider, type?: string, path?: string) {
     super();
     if (path == null) {
       path = defaultPath;
@@ -44,17 +43,17 @@ export class LedgerSigner extends ethers.Signer {
       type = "default";
     }
 
-    ethers.utils.defineReadOnly(this, "path", path);
-    ethers.utils.defineReadOnly(this, "type", type);
-    ethers.utils.defineReadOnly(this, "provider", provider || null);
+    defineReadOnly(this, "path", path);
+    defineReadOnly(this, "type", type);
+    defineReadOnly(this, "provider", provider || null);
 
     // const transport = transports[type];
     // if (!transport) {
     //   logger.throwArgumentError("unknown or unsupported type", "type", type);
     // }
-    ethers.utils.defineReadOnly(
+    defineReadOnly(
       this,
-      "_ftm",
+      "_eth",
       TransportU2F.create().then(
         (transport) => {
           console.log(transport);
@@ -90,7 +89,7 @@ export class LedgerSigner extends ethers.Signer {
         }, timeout);
       }
 
-      const ftm = await this._ftm;
+      const ftm = await this._eth;
 
       // Wait up to 5 seconds
       for (let i = 0; i < 50; i++) {
@@ -130,10 +129,10 @@ export class LedgerSigner extends ethers.Signer {
   }
 
   async signTransaction(
-    transaction: ethers.providers.TransactionRequest
+    transaction: Deferrable<TransactionRequest>
   ): Promise<string> {
-    const tx = await ethers.utils.resolveProperties(transaction);
-    const baseTx: ethers.utils.UnsignedTransaction = {
+    const tx = await resolveProperties(transaction);
+    const baseTx: any = {
       chainId: tx.chainId || undefined,
       data: tx.data || undefined,
       gasLimit: tx.gasLimit || undefined,
@@ -143,34 +142,34 @@ export class LedgerSigner extends ethers.Signer {
       value: tx.value || undefined,
     };
 
-    const unsignedTx = ethers.utils.serializeTransaction(baseTx).substring(2);
+    // const unsignedTx = serialize(baseTx).substring(2);
     const sig: any = await this._retry((ftm) =>
-      ftm.signTransaction(0, 0, unsignedTx)
+      ftm.signTransaction(0, 0, baseTx)
     );
 
-    return ethers.utils.serializeTransaction(baseTx, {
+    return serialize(baseTx, {
       v: BigNumber.from("0x" + sig.v).toNumber(),
       r: "0x" + sig.r,
       s: "0x" + sig.s,
     });
   }
 
-  async sendTransaction(transaction: any) {
-    console.log("SEND TRANSACTION!", { transaction });
-    if ((await Promise.resolve(transaction.to)) === transaction.to) {
-      transaction.to = await transaction.to;
-    }
-
-    if (!transaction.value) {
-      transaction.value = parseEther("0.0");
-    }
-
-    let signedTx = await this.signTransaction(transaction);
-
-    return this.provider.sendTransaction(signedTx);
-  }
-
-  connect(provider: ethers.providers.Provider): ethers.Signer {
+  // async sendTransaction(transaction: any) {
+  //   console.log("SEND TRANSACTION!", { transaction });
+  //   if ((await Promise.resolve(transaction.to)) === transaction.to) {
+  //     transaction.to = await transaction.to;
+  //   }
+  //
+  //   if (!transaction.value) {
+  //     transaction.value = parseEther("0.0");
+  //   }
+  //
+  //   let signedTx = await this.signTransaction(transaction);
+  //
+  //   return this.provider.sendTransaction(signedTx);
+  // }
+  //
+  connect(provider: Provider): Signer {
     return new LedgerSigner(provider, this.type, this.path);
   }
 }
