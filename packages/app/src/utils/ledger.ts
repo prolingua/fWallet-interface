@@ -9,6 +9,7 @@ import {
 } from "@ethersproject/properties";
 import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
 import { serialize } from "@ethersproject/transactions";
+import BN from "bn.js";
 
 // type TransportCreator = {
 //   // @ts-ignore
@@ -131,15 +132,17 @@ export class LedgerSigner extends Signer {
   async signTransaction(
     transaction: Deferrable<TransactionRequest>
   ): Promise<string> {
+    console.log("signTr: ", { transaction });
     const tx = await resolveProperties(transaction);
+    console.log("signTr: ", { tx });
     const baseTx: any = {
-      chainId: tx.chainId || undefined,
+      // chainId: tx.chainId || undefined,
       data: tx.data || undefined,
-      gasLimit: tx.gasLimit || undefined,
-      gasPrice: tx.gasPrice || undefined,
-      nonce: tx.nonce ? BigNumber.from(tx.nonce).toNumber() : undefined,
+      gasLimit: tx.gasLimit ? new BN(tx.gasLimit.toString()) : undefined,
+      gasPrice: tx.gasPrice ? new BN(tx.gasPrice.toString()) : undefined,
+      nonce: tx.nonce === undefined ? undefined : new BN(tx.nonce.toString()),
       to: tx.to || undefined,
-      value: tx.value || undefined,
+      value: tx.value ? new BN(tx.value.toString()) : undefined,
     };
 
     // const unsignedTx = serialize(baseTx).substring(2);
@@ -147,10 +150,15 @@ export class LedgerSigner extends Signer {
       ftm.signTransaction(0, 0, baseTx)
     );
 
+    console.log(sig);
+    // return serialize(baseTx, {
     return serialize(baseTx, {
-      v: BigNumber.from("0x" + sig.v).toNumber(),
-      r: "0x" + sig.r,
-      s: "0x" + sig.s,
+      // v: BigNumber.from("0x" + sig.v).toNumber(),
+      // r: "0x" + sig.r,
+      // s: "0x" + sig.s,
+      v: sig.v,
+      r: sig.r,
+      s: sig.s,
     });
   }
 

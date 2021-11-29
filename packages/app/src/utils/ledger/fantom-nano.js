@@ -16,7 +16,7 @@ import {
 import { Transaction } from "ethereumjs-tx";
 import Common from "ethereumjs-common";
 import { encode } from "rlp";
-import { toBuffer, stripZeros } from "ethereumjs-util";
+import { toBuffer, unpadBuffer } from "ethereumjs-util";
 
 // FANTOM_CHAIN_ID represents the Fantom Opera main chain id.
 export const FANTOM_CHAIN_ID =
@@ -360,6 +360,7 @@ export default class FantomNano {
    */
   getRawTransaction(tx) {
     // prepare the transaction buffer for sending
+    console.log({ tx });
     const txRaw = new Transaction(tx, this.getTransactionSignatureOptions());
 
     // get the main set of data and add chain id
@@ -369,8 +370,8 @@ export default class FantomNano {
       .slice(0, 6)
       .concat([
         toBuffer(txRaw.getChainId()),
-        stripZeros(toBuffer(0)),
-        stripZeros(toBuffer(0)),
+        unpadBuffer(toBuffer(0)),
+        unpadBuffer(toBuffer(0)),
       ]);
 
     return encode(items);
