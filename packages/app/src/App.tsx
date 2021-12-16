@@ -29,6 +29,8 @@ import Proposal from "./containers/Proposal";
 import CreateProposal from "./containers/CreateProposal";
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
+import Swap from "./containers/Swap";
+import { ApiDataProvider } from "./context/ApiDataProvider";
 
 const AppContent: React.FC<any> = () => {
   return (
@@ -54,8 +56,7 @@ const AppContent: React.FC<any> = () => {
               <Route path="/home" component={Home} />
               <Route path="/send" component={Send} />
               <Route path="/staking" component={Staking} />
-              <Route path="/test" component={Test} />
-              <Route path="/defi" component={Test} />
+              <Route path="/defi" component={Swap} />
               <Route path="/governance" component={Governance} exact />
               <Route
                 path="/governance/proposal/create"
@@ -116,15 +117,17 @@ const Providers: React.FC<any> = ({ children }) => {
       <I18nextProvider i18n={i18next}>
         <ThemeProvider theme={theme}>
           <SettingsProvider>
-            <FantomApiProvider>
-              <AccountProvider>
-                <ActiveWalletProvider>
-                  <TransactionProvider>
-                    <ModalProvider>{children}</ModalProvider>
-                  </TransactionProvider>
-                </ActiveWalletProvider>
-              </AccountProvider>
-            </FantomApiProvider>
+            <ApiDataProvider>
+              <FantomApiProvider>
+                <AccountProvider>
+                  <ActiveWalletProvider>
+                    <TransactionProvider>
+                      <ModalProvider>{children}</ModalProvider>
+                    </TransactionProvider>
+                  </ActiveWalletProvider>
+                </AccountProvider>
+              </FantomApiProvider>
+            </ApiDataProvider>
           </SettingsProvider>
         </ThemeProvider>
       </I18nextProvider>

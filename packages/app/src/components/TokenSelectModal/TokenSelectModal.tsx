@@ -22,27 +22,30 @@ const TokenSelectModal: React.FC<any> = ({
   const allAssets = [{ ...FANTOM_NATIVE, balanceOf: ftmBalance }, ...assets];
 
   return (
-    <Modal style={{ padding: "20px 24px" }} onDismiss={onDismiss}>
+    <Modal
+      style={{ padding: "20px 24px", maxHeight: "80vh" }}
+      onDismiss={onDismiss}
+    >
       <ModalTitle text="Select token" />
-      <Row
-        style={{
-          padding: "0 2rem",
-          borderBottom: `1px solid ${color.greys.grey(".5")}`,
-          boxSizing: "border-box",
-          width: "95%",
-        }}
-      >
-        <Typo1
-          style={{
-            borderBottom: `2px solid ${color.primary.fantomBlue()}`,
-            boxSizing: "border-box",
-            fontWeight: "bold",
-            color: color.greys.grey(".8"),
-          }}
-        >
-          Your Tokens
-        </Typo1>
-      </Row>
+      {/*<Row*/}
+      {/*  style={{*/}
+      {/*    padding: "0 2rem",*/}
+      {/*    borderBottom: `1px solid ${color.greys.grey(".5")}`,*/}
+      {/*    boxSizing: "border-box",*/}
+      {/*    width: "95%",*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <Typo1*/}
+      {/*    style={{*/}
+      {/*      borderBottom: `2px solid ${color.primary.fantomBlue()}`,*/}
+      {/*      boxSizing: "border-box",*/}
+      {/*      fontWeight: "bold",*/}
+      {/*      color: color.greys.grey(".8"),*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    Your Tokens*/}
+      {/*  </Typo1>*/}
+      {/*</Row>*/}
       <ModalContent style={{ padding: "16px 0px" }}>
         <Column>
           <Row

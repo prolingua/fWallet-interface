@@ -2,7 +2,8 @@
 const config = {
   providers: [
     {
-      http: "https://xapi.fantom.network/api",
+      // http: "https://xapi.fantom.network/api",
+      http: "/api",
       // for subscriptions
       ws: "",
     },
@@ -22,7 +23,8 @@ if (process.env.REACT_APP_USE === "testnet") {
   console.warn("fWallet app is using TESTNET!");
   config.providers = [
     {
-      http: "https://xapi.testnet.fantom.network/api",
+      // http: "https://xapi.testnet.fantom.network/api",
+      http: "/api",
       // for subscriptions
       ws: "",
     },

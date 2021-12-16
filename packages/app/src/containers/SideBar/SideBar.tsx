@@ -101,22 +101,22 @@ const SideBar: React.FC<any> = () => {
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
-      <SideBarLink
-        img={defiSymbolImg}
-        activeImg={defiActiveSymbolImg}
-        name="Test"
-        path="/test"
-        currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
-      />
       {/*<SideBarLink*/}
       {/*  img={defiSymbolImg}*/}
       {/*  activeImg={defiActiveSymbolImg}*/}
-      {/*  name="Defi"*/}
-      {/*  path="/defi"*/}
+      {/*  name="Test"*/}
+      {/*  path="/test"*/}
       {/*  currentPath={currentPath}*/}
       {/*  setCurrentPath={setCurrentPath}*/}
       {/*/>*/}
+      <SideBarLink
+        img={defiSymbolImg}
+        activeImg={defiActiveSymbolImg}
+        name="Defi"
+        path="/defi"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
     </StyledSideBar>
   );
 };
