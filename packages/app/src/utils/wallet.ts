@@ -35,6 +35,10 @@ export const createWalletContext = async (provider: Web3Provider) => {
   const accounts = await provider.listAccounts();
   const signer = provider.getSigner();
   const contracts = await loadContracts(signer, chainId);
+
+  // TODO: remove
+  // @ts-ignore
+  window.fWallet = contracts;
   return {
     contracts,
     chainId,

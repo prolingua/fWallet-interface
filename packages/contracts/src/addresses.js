@@ -11,17 +11,12 @@ const commonFantomContracts = {
 
 export default {
   [FANTOM_MAIN_ID]: {
-    pairs: {
-      "DAI-WETH": "0x8F609d85ebC64316B0B2f9E53c11b4e48B7A06d2",
-    },
     tokens: {
-      DAI: "0x697Ed3E98aaeCFa3121F536251F9D500de159dBa",
-      WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-      SFTM: "",
+      SFTM: "0x69c744d3444202d35a2783929a0f930f2fbb05ad",
     },
     ...commonFantomContracts,
-    stakeTokenizer: "",
-    gov: "",
+    stakeTokenizer: "0xC3e8459464A0e8fd08d767a16b5C211b45AC961F",
+    gov: "0x7c3b85a71e4fce1209a81d67f1af46b5a068770e",
     govProposal: "0x7403b7d2d0645f576ef5f702736390ad9fb6f6b0",
     govProposalPlaintext: "0xc9f5aa2c93ae9e89a77dc60e7e3cfff1234e4287",
   },

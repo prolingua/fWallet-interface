@@ -23,7 +23,7 @@ export const getLockedCollateral = (fMint: FMint, tokenSymbol = "WFTM") => {
   return formatHexToBN(
     fMint.fMintAccount.collateral.find(
       (collateral: any) => collateral.token.symbol === "WFTM"
-    ).balance
+    )?.balance || "0x0"
   );
 };
 
