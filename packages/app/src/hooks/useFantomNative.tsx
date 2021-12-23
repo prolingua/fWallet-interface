@@ -1,6 +1,7 @@
 import useWalletProvider from "./useWalletProvider";
 import useTransaction from "./useTransaction";
 import { send } from "../utils/transactions";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const useFantomNative = () => {
   const { walletContext } = useWalletProvider();
@@ -27,9 +28,55 @@ const useFantomNative = () => {
     );
   };
 
+  const sendTx = (
+    to: string,
+    gasLimit: number,
+    gasPrice: number,
+    data: any,
+    value: string = null
+  ) => {
+    if (!walletContext.activeWallet.signer) {
+      console.error("[sendTransation] signer not found");
+      return;
+    }
+
+    const tx: any = {
+      to,
+      gasLimit,
+      gasPrice,
+      data,
+      from: walletContext.activeWallet.address,
+    };
+
+    if (value) {
+      tx.value = BigNumber.from(value);
+    }
+
+    return send(
+      walletContext.activeWallet.provider,
+      () =>
+        walletContext.activeWallet.signer.sendTransaction({
+          ...tx,
+        }),
+      dispatchTx
+    );
+  };
+
+  const getBalance = () => {
+    if (!walletContext.activeWallet.provider) {
+      console.error("[getBalance] provider not found");
+      return;
+    }
+    return walletContext.activeWallet.provider.getBalance(
+      walletContext.activeWallet.address
+    );
+  };
+
   return {
     sendNativeTokens: async (toAddress: string, amount: string) =>
       await sendNativeTokens(toAddress, amount),
+    sendTx,
+    getBalance,
   };
 };
 

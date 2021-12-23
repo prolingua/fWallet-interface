@@ -1,4 +1,5 @@
 import useRestApi from "./useRestApi";
+import { walletconnect } from "web3modal/dist/providers/connectors";
 
 export const OPENOCEAN_BASEURL = "https://open-api.openocean.finance/v1/cross";
 
@@ -42,7 +43,7 @@ const useOpenOceanApi = () => {
         ["amount", amount],
         ["gasPrice", 100],
         ["slippage", slippage],
-        ["exchange", "openoceanv2"],
+        ["exChange", "openoceanv2"],
         ["chainId", 250],
       ],
     });
@@ -52,10 +53,11 @@ const useOpenOceanApi = () => {
     inToken: OOToken,
     outToken: OOToken,
     amount: number,
-    slippage: number
+    slippage: number,
+    account: string
   ) => {
     return get({
-      path: OPENOCEAN_METHODS.GET_QUOTE,
+      path: OPENOCEAN_METHODS.GET_SWAP_QUOTE,
       queryParams: [
         ["inTokenSymbol", inToken.symbol],
         ["inTokenAddress", inToken.address],
@@ -66,8 +68,9 @@ const useOpenOceanApi = () => {
         ["amount", amount],
         ["gasPrice", 100],
         ["slippage", slippage],
-        ["exchange", "openoceanv2"],
+        ["exChange", "openoceanv2"],
         ["chainId", 250],
+        ["account", account],
       ],
     });
   };

@@ -12,12 +12,14 @@ const TokenSelectButton: React.FC<any> = ({
   ftmBalance,
   assets,
   setTokenSelected,
+  includeNative = true,
 }) => {
   const [onPresentSelectTokenModal] = useModal(
     <TokenSelectModal
       ftmBalance={ftmBalance}
       assets={assets}
       setTokenSelected={setTokenSelected}
+      includeNative={includeNative}
     />,
     "token-select-modal"
   );

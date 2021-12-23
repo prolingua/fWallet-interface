@@ -16,9 +16,7 @@ export const useHardwareWallet = () => {
   // const context = useWeb3React<Web3Provider>();
 
   const addWalletToContext = async (wallet: any) => {
-    console.log({ wallet });
     const address = await wallet.getAddress();
-    console.log({ address });
     const walletProvider: any = {
       contracts: loadContracts(wallet, parseInt(config.chainId)),
       chainId: parseInt(config.chainId),

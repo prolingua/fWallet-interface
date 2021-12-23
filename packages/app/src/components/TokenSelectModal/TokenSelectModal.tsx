@@ -5,21 +5,29 @@ import { Heading2, OverlayButton, Typo1, Typo3 } from "../index";
 import Row from "../Row";
 import Spacer from "../Spacer";
 import CrossSymbol from "../../assets/img/symbols/Cross.svg";
-import { FANTOM_NATIVE } from "../../utils/common";
+import { compare, FANTOM_NATIVE } from "../../utils/common";
 import Column from "../Column";
 import styled, { ThemeContext } from "styled-components";
 import TokenBalance from "../TokenBalance";
 import ModalTitle from "../ModalTitle";
 import ModalContent from "../ModalContent";
+import Scrollbar from "../Scrollbar";
 
 const TokenSelectModal: React.FC<any> = ({
   onDismiss,
   ftmBalance,
   assets = [],
   setTokenSelected,
+  includeNative,
 }) => {
   const { color } = useContext(ThemeContext);
-  const allAssets = [{ ...FANTOM_NATIVE, balanceOf: ftmBalance }, ...assets];
+  const allAssets = includeNative
+    ? [{ ...FANTOM_NATIVE, balanceOf: ftmBalance }, ...assets]
+    : assets;
+  const sortedAssets = allAssets.sort(
+    (a: any, b: any) =>
+      compare(b.balanceOf, a.balanceOf) || compare(a.symbol, b.symbol)
+  );
 
   return (
     <Modal
@@ -73,20 +81,24 @@ const TokenSelectModal: React.FC<any> = ({
               BALANCE
             </Typo3>
           </Row>
-          {allAssets.map((asset) => {
-            return (
-              <StyledOverlayButton
-                key={"token-select-" + asset.address}
-                onClick={() => {
-                  setTokenSelected(asset);
-                  onDismiss();
-                }}
-                style={{ padding: ".8rem" }}
-              >
-                <TokenBalance token={asset} imageSize="24px" />
-              </StyledOverlayButton>
-            );
-          })}
+          <Scrollbar style={{ height: "60vh" }}>
+            <Column>
+              {sortedAssets.map((asset: any) => {
+                return (
+                  <StyledOverlayButton
+                    key={"token-select-" + asset.address}
+                    onClick={() => {
+                      setTokenSelected(asset);
+                      onDismiss();
+                    }}
+                    style={{ padding: ".8rem" }}
+                  >
+                    <TokenBalance token={asset} imageSize="24px" />
+                  </StyledOverlayButton>
+                );
+              })}
+            </Column>
+          </Scrollbar>
         </Column>
       </ModalContent>
     </Modal>

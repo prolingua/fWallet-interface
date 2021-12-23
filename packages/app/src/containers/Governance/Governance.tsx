@@ -16,7 +16,7 @@ import {
 } from "../../utils/governance";
 import Spacer from "../../components/Spacer";
 import SliderWithMarks from "../../components/Slider";
-import { formatHexToBN, formatHexToInt } from "../../utils/conversion";
+import { formatHexToInt } from "../../utils/conversion";
 import { formatDate } from "../../utils/common";
 import { delegatedToAddressesList } from "../../utils/delegation";
 import CheckMarkImg from "../../assets/img/symbols/CheckMark.svg";

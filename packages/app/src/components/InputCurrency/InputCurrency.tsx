@@ -51,7 +51,7 @@ const InputCurrency: React.FC<any> = ({
       type="text"
       value={value}
       onChange={(event) => handleChange(event.target.value)}
-      placeholder="Enter an amount"
+      placeholder={disabled ? "" : "Enter an amount"}
     />
   );
 };

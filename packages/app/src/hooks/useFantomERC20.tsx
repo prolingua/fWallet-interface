@@ -88,6 +88,15 @@ const useFantomERC20 = () => {
     return contract.estimateGas[method](...args);
   };
 
+  const getTokenBalance = async (contractAddress: string) => {
+    const contract = await loadERC20Contract(
+      contractAddress,
+      walletContext.activeWallet.signer
+    );
+
+    return contract.balanceOf(walletContext.activeWallet.address);
+  };
+
   return {
     approve: async (
       contractAddress: string,
@@ -108,6 +117,7 @@ const useFantomERC20 = () => {
     ) => {
       return estimateGas(contractAddress, method, args);
     },
+    getTokenBalance,
   };
 };
 
