@@ -34,6 +34,10 @@ import config from "../../config/config";
 // @ts-ignore
 import { addresses } from "@f-wallet/contracts";
 import useSendTransaction from "../../hooks/useSendTransaction";
+import useCoingeckoApi, {
+  COINGECKO_BASEURL,
+  COINGECKO_METHODS,
+} from "../../hooks/useCoingeckoApi";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -164,10 +168,13 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
   const { sendTx } = useFantomNative();
   const { getAllowance, approve } = useFantomERC20();
   const { getSwapQuote } = useOpenOceanApi();
+  const { getPrice } = useCoingeckoApi();
   const { apiData } = useApiData();
   const OOQuoteData =
     apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_SWAP_QUOTE]?.response
       ?.data?.data;
+  const tokenPriceData =
+    apiData[COINGECKO_BASEURL + COINGECKO_METHODS.GET_PRICE]?.response?.data;
 
   const [inToken, setInToken] = useState(null);
   const [outToken, setOutToken] = useState(null);
@@ -257,6 +264,9 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
   useEffect(() => {
     if (inTokenAmount === "") {
       setOutTokenAmount("");
+      setEstimatedGas(null);
+      setMinReceived(null);
+      setPriceImpact(null);
     }
   }, [inTokenAmount]);
 
@@ -290,6 +300,12 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
       );
     }
   }, [inToken, outToken, inTokenAmount, refetchTimer]);
+
+  useEffect(() => {
+    if (inToken && outToken && OOQuoteData) {
+      getPrice("usd", [inToken.code, outToken.code]);
+    }
+  }, [inToken, outToken, OOQuoteData]);
 
   useEffect(() => {
     if (inToken && outToken && parseFloat(inTokenAmount) > 0) {
@@ -329,6 +345,27 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
       );
     }
   }, [OOQuoteData]);
+
+  useEffect(() => {
+    if (OOQuoteData && tokenPriceData && parseFloat(inTokenAmount) > 0) {
+      const inTokenAmount = weiToUnit(
+        BigNumber.from(OOQuoteData.inAmount),
+        inToken.decimals
+      );
+      const outTokenAmount = weiToUnit(
+        BigNumber.from(OOQuoteData.outAmount),
+        outToken.decimals
+      );
+      const inTokenPrice = tokenPriceData[inToken.code]["usd"];
+      const outTokenPrice = tokenPriceData[outToken.code]["usd"];
+      // console.log(inTokenAmount, outTokenAmount, inTokenPrice, outTokenPrice);
+      const priceImpact =
+        (inTokenAmount * inTokenPrice - outTokenAmount * outTokenPrice) /
+        (inTokenAmount * inTokenPrice);
+
+      setPriceImpact(priceImpact * 100);
+    }
+  }, [OOQuoteData, tokenPriceData]);
 
   return (
     <Column style={{ width: "100%" }}>
@@ -462,7 +499,10 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
           >
             <div>Price impact</div>
             {priceImpact ? (
-              <FormattedValue formattedValue={["0", ".0"]} tokenSymbol={"%"} />
+              <FormattedValue
+                formattedValue={toFormattedBalance(priceImpact.toString())}
+                tokenSymbol={"%"}
+              />
             ) : (
               "-"
             )}

@@ -1,5 +1,4 @@
 import useRestApi from "./useRestApi";
-import { walletconnect } from "web3modal/dist/providers/connectors";
 
 export const OPENOCEAN_BASEURL = "https://open-api.openocean.finance/v1/cross";
 
