@@ -3,7 +3,10 @@ const config = {
   providers: [
     {
       // http: "https://xapi.fantom.network/api",
-      http: "/api",
+      http:
+        process.env.USE_PROXY === "true"
+          ? "/api"
+          : "https://xapi-nodee.fantom.network/",
       // for subscriptions
       ws: "",
     },
@@ -24,7 +27,10 @@ if (process.env.REACT_APP_USE === "testnet") {
   config.providers = [
     {
       // http: "https://xapi.testnet.fantom.network/api",
-      http: "/api",
+      http:
+        process.env.USE_PROXY === "true"
+          ? "/api"
+          : "https://xapi.testnet.fantom.network/",
       // for subscriptions
       ws: "",
     },
@@ -33,6 +39,10 @@ if (process.env.REACT_APP_USE === "testnet") {
   config.rpc = "https://xapi.testnet.fantom.network/lachesis";
   config.explorerUrl = "https://testnet.ftmscan.com/";
   config.chainId = "0xfa2";
+}
+
+if (process.env.USE_PROXY) {
+  console.warn("fWallet is using proxy");
 }
 
 export default config;
