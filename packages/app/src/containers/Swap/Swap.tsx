@@ -26,7 +26,6 @@ import {
   weiToMaxUnit,
   weiToUnit,
 } from "../../utils/conversion";
-import { MaxUint256 } from "@ethersproject/constants";
 import SwapImg from "../../assets/img/symbols/Swap.svg";
 import useFantomNative from "../../hooks/useFantomNative";
 import useFantomERC20 from "../../hooks/useFantomERC20";
@@ -59,10 +58,23 @@ const SwapTokenInput: React.FC<any> = ({
     "0",
     "0",
   ]);
-  const [maximum, setMaximum] = useState(weiToMaxUnit(MaxUint256.toString()));
+  const [maximum, setMaximum] = useState(null);
   const handleSetMax = () => {
     setError(null);
-    setInputValue(weiToMaxUnit(tokenBalance.toString(), token.decimals));
+    setInputValue(
+      weiToMaxUnit(
+        tokenBalance
+          .sub(
+            BigNumber.from(10).pow(
+              token.address === "0x0000000000000000000000000000000000000000"
+                ? token.decimals
+                : 1
+            )
+          )
+          .toString(),
+        token.decimals
+      )
+    );
   };
   const handleTokenChange = (token: any) => {
     setError(null);
@@ -78,7 +90,7 @@ const SwapTokenInput: React.FC<any> = ({
         )
       );
       if (!disableMaximum) {
-        setMaximum(weiToUnit(BigNumber.from(token.balanceOf), token.decimals));
+        setMaximum(weiToMaxUnit(token.balanceOf, token.decimals));
       }
     }
   }, [token]);
@@ -245,7 +257,6 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
     let times = 0;
     if (!interval) {
       interval = setInterval(() => {
-        console.log(times);
         times += 1;
         setRefetchTimer(times);
       }, 5000);
@@ -262,11 +273,11 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
   }, [tokenList]);
 
   useEffect(() => {
+    setOutTokenAmount("");
+    setMinReceived(null);
+    setPriceImpact(null);
     if (inTokenAmount === "") {
-      setOutTokenAmount("");
       setEstimatedGas(null);
-      setMinReceived(null);
-      setPriceImpact(null);
     }
   }, [inTokenAmount]);
 
@@ -294,7 +305,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
       getSwapQuote(
         inToken,
         outToken,
-        parseFloat(inTokenAmount),
+        inTokenAmount,
         2,
         walletContext.activeWallet.address
       );
@@ -302,7 +313,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
   }, [inToken, outToken, inTokenAmount, refetchTimer]);
 
   useEffect(() => {
-    if (inToken && outToken && OOQuoteData) {
+    if (inToken && outToken && OOQuoteData && parseFloat(inTokenAmount) > 0) {
       getPrice("usd", [inToken.code, outToken.code]);
     }
   }, [inToken, outToken, OOQuoteData]);
@@ -323,31 +334,44 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
 
   useEffect(() => {
     if (OOQuoteData && outToken?.decimals && parseFloat(inTokenAmount) > 0) {
-      setOutTokenAmount(
-        weiToUnit(
-          BigNumber.from(OOQuoteData.outAmount),
-          outToken.decimals
-        ).toString()
-      );
+      // Only update if the data fetched is still representative
+      if (
+        parseFloat(inTokenAmount).toFixed(4) ===
+        parseFloat(
+          weiToUnit(BigNumber.from(OOQuoteData.inAmount)).toString()
+        ).toFixed(4)
+      ) {
+        setOutTokenAmount(
+          weiToUnit(
+            BigNumber.from(OOQuoteData.outAmount),
+            outToken.decimals
+          ).toString()
+        );
 
-      setMinReceived(
-        weiToUnit(
-          BigNumber.from(OOQuoteData.minOutAmount),
-          outToken.decimals
-        ).toString()
-      );
-      setEstimatedGas(
-        weiToUnit(
-          BigNumber.from(OOQuoteData.estimatedGas).mul(
-            BigNumber.from(OOQuoteData.gasPrice)
-          )
-        ).toString()
-      );
+        setMinReceived(
+          weiToUnit(
+            BigNumber.from(OOQuoteData.minOutAmount),
+            outToken.decimals
+          ).toString()
+        );
+        setEstimatedGas(
+          weiToUnit(
+            BigNumber.from(OOQuoteData.estimatedGas).mul(
+              BigNumber.from(OOQuoteData.gasPrice)
+            )
+          ).toString()
+        );
+      }
     }
   }, [OOQuoteData]);
 
   useEffect(() => {
-    if (OOQuoteData && tokenPriceData && parseFloat(inTokenAmount) > 0) {
+    if (
+      OOQuoteData &&
+      tokenPriceData &&
+      parseFloat(inTokenAmount) > 0 &&
+      parseFloat(outTokenAmount) > 0
+    ) {
       const inTokenAmount = weiToUnit(
         BigNumber.from(OOQuoteData.inAmount),
         inToken.decimals

@@ -54,7 +54,10 @@ const SendTokensContent: React.FC<any> = ({
   const { sendTokens } = useFantomERC20();
   const { transaction, dispatchTx } = useTransaction();
   const formattedAmountToSend = amountToSend
-    ? toFormattedBalance(weiToMaxUnit(amountToSend, tokenSelected.decimals), 18)
+    ? toFormattedBalance(
+        parseFloat(weiToMaxUnit(amountToSend, tokenSelected.decimals)),
+        18
+      )
     : ["", ""];
 
   const isNative = tokenSelected.symbol === "FTM";
@@ -203,8 +206,9 @@ const SendTokensContent: React.FC<any> = ({
                 <Spacer size="xs" />
                 {isNative ? (
                   <Typo2>{`~${toCurrencySymbol(currency)}${(
-                    weiToMaxUnit(amountToSend, tokenSelected.decimals) *
-                    getTokenPrice(tokenPrice)
+                    parseFloat(
+                      weiToMaxUnit(amountToSend, tokenSelected.decimals)
+                    ) * getTokenPrice(tokenPrice)
                   ).toFixed(2)}`}</Typo2>
                 ) : (
                   <Spacer />

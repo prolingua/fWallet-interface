@@ -29,7 +29,7 @@ const useOpenOceanApi = () => {
   const getQuote = (
     inToken: OOToken,
     outToken: OOToken,
-    amount: number,
+    amount: string,
     slippage: number
   ) => {
     return get({
@@ -51,7 +51,7 @@ const useOpenOceanApi = () => {
   const getSwapQuote = (
     inToken: OOToken,
     outToken: OOToken,
-    amount: number,
+    amount: string,
     slippage: number,
     account: string
   ) => {

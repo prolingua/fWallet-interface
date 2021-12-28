@@ -40,8 +40,8 @@ const DelegateStep: React.FC<any> = ({
   ] = useState(true);
   const { txSFCContractMethod } = useFantomContract();
   const balanceInWei = getAccountBalance(accountBalanceData);
-  const balance = weiToMaxUnit(
-    balanceInWei.sub(BigNumber.from(unitToWei(".2"))).toString()
+  const balance = parseFloat(
+    weiToMaxUnit(balanceInWei.sub(BigNumber.from(unitToWei(".2"))).toString())
   );
   const delegations = getValidators(delegationsData);
   const accountDelegations = getAccountDelegations(accountDelegationsData);

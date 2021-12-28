@@ -22,7 +22,13 @@ export const weiToUnit = (value: BigNumber, decimals = 18) => {
 };
 
 export const weiToMaxUnit = (value: string, decimals = 18) => {
-  return parseInt(value) / Math.pow(10, decimals);
+  const safeValue = BigNumber.from(value).toString();
+  return (
+    safeValue.toString().substr(0, safeValue.length - decimals) +
+    "." +
+    safeValue.toString().substr(safeValue.length - decimals)
+  );
+  // return parseFloat(value) / Math.pow(10, decimals);
 };
 
 export const hexToUnit = (value: string, decimals = 18) => {

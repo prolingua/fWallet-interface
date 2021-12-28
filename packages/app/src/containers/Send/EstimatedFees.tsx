@@ -7,7 +7,6 @@ import {
   toCurrencySymbol,
   toFormattedBalance,
   weiToMaxUnit,
-  weiToUnit,
 } from "../../utils/conversion";
 import Row from "../../components/Row";
 import Column from "../../components/Column";
@@ -27,7 +26,7 @@ const EstimatedFees: React.FC<any> = ({
   const { estimateGas } = useFantomERC20();
   const { color } = useContext(ThemeContext);
   const [estimatedGas, setEstimatedGas] = useState(BigNumber.from(0));
-  const estimatedGasInUnits = weiToMaxUnit(estimatedGas.toString());
+  const estimatedGasInUnits = parseFloat(weiToMaxUnit(estimatedGas.toString()));
   const formattedEstimatedGas = toFormattedBalance(estimatedGasInUnits, 18);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ export enum COINGECKO_METHODS {
   GET_PRICE = "/simple/price",
 }
 
-const useOpenOceanApi = () => {
+const useCoingeckoApi = () => {
   const { get } = useRestApi(COINGECKO_BASEURL);
 
   const getPrice = (currency: "usd" | "eur", tokens: string[]) => {
@@ -24,4 +24,4 @@ const useOpenOceanApi = () => {
   };
 };
 
-export default useOpenOceanApi;
+export default useCoingeckoApi;
