@@ -4,7 +4,14 @@ import { BigNumber } from "@ethersproject/bignumber";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import { getAccountAssets, getAccountBalance } from "../../utils/account";
-import { Button, ContentBox, OverlayButton, Typo2 } from "../../components";
+import {
+  Button,
+  ContentBox,
+  Heading3,
+  OverlayButton,
+  Typo1,
+  Typo2,
+} from "../../components";
 import Row from "../../components/Row";
 import InputError from "../../components/InputError";
 import useOpenOceanApi, {
@@ -37,6 +44,8 @@ import useCoingeckoApi, {
   COINGECKO_BASEURL,
   COINGECKO_METHODS,
 } from "../../hooks/useCoingeckoApi";
+import Chart from "../../components/Chart";
+import { formatDate } from "../../utils/common";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -154,7 +163,9 @@ const SwapTokenInput: React.FC<any> = ({
               variant="tertiary"
               onClick={handleSetMax}
             >
-              MAX
+              {token.address === "0x0000000000000000000000000000000000000000"
+                ? "MAX - 1"
+                : "MAX"}
             </Button>
           )}
           <Spacer />
@@ -174,7 +185,7 @@ const SwapTokenInput: React.FC<any> = ({
   );
 };
 
-const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
+const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
   const { color } = useContext(ThemeContext);
   const { walletContext } = useWalletProvider();
   const { sendTx } = useFantomNative();
@@ -273,6 +284,12 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
   }, [tokenList]);
 
   useEffect(() => {
+    if (inToken && outToken) {
+      setActiveTokens([inToken, outToken]);
+    }
+  }, [inToken, outToken]);
+
+  useEffect(() => {
     setOutTokenAmount("");
     setMinReceived(null);
     setPriceImpact(null);
@@ -314,7 +331,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
 
   useEffect(() => {
     if (inToken && outToken && OOQuoteData && parseFloat(inTokenAmount) > 0) {
-      getPrice("usd", [inToken.code, outToken.code]);
+      getPrice([inToken.code, outToken.code], "usd");
     }
   }, [inToken, outToken, OOQuoteData]);
 
@@ -554,12 +571,160 @@ const SwapTokensContent: React.FC<any> = ({ tokenList }) => {
   );
 };
 
+const TokenChart: React.FC<any> = ({ activeTokens }) => {
+  const { getMarketHistory } = useCoingeckoApi();
+  const { apiData } = useApiData();
+  const [interval, setInterval] = useState("15m");
+  const [chartData, setChartData] = useState(null);
+  const [pricePoint, setPricePoint] = useState(null);
+  const [priceTime, setPriceTime] = useState(null);
+
+  const handleCrosshairData = (data: any[]) => {
+    setPricePoint(data[1] ? data[1] : chartData[chartData.length - 1].value);
+    setPriceTime(data[0] ? data[0] : chartData[chartData.length - 1].time);
+  };
+
+  const inTokenChartData =
+    apiData[
+      COINGECKO_BASEURL +
+        COINGECKO_METHODS.GET_MARKET_CHART +
+        `/${activeTokens[0].code}/market_chart`
+    ]?.response?.data;
+  const outTokenChartData =
+    apiData[
+      COINGECKO_BASEURL +
+        COINGECKO_METHODS.GET_MARKET_CHART +
+        `/${activeTokens[1].code}/market_chart`
+    ]?.response?.data;
+
+  const intervalToDays = {
+    "5m": 1,
+    "15m": 3,
+    "30m": 7,
+    "1h": 14,
+    "1d": 30,
+  } as any;
+
+  useEffect(() => {
+    if (activeTokens[0].code !== "null" && activeTokens[1].code !== "null") {
+      getMarketHistory(activeTokens[0].code, intervalToDays[interval], "usd");
+      getMarketHistory(activeTokens[1].code, intervalToDays[interval], "usd");
+      return;
+    }
+    setChartData(null);
+  }, [activeTokens, interval]);
+
+  useEffect(() => {
+    if (inTokenChartData && outTokenChartData) {
+      const inReversed = inTokenChartData.prices.reverse();
+      const outReversed = outTokenChartData.prices.reverse();
+
+      const graphDataReversed = inReversed.map(
+        (dataPoint: any[], index: number) => {
+          if (outReversed.length > index) {
+            return {
+              time: parseInt((dataPoint[0] / 1000).toString()),
+              value: dataPoint[1] / outReversed[index][1],
+            };
+          }
+          return null;
+        }
+      );
+      const graphData = graphDataReversed
+        .filter((data: any) => data !== null)
+        .reverse();
+
+      setChartData(graphData);
+      setPricePoint(graphData[graphData.length - 1].value);
+      setPriceTime(graphData[graphData.length - 1].time);
+    }
+  }, [inTokenChartData, outTokenChartData]);
+
+  useEffect(() => {
+    if (!chartData) {
+      setPricePoint(null);
+      setPriceTime(null);
+    }
+  }, [chartData]);
+
+  return (
+    <Column>
+      <Row style={{ justifyContent: "space-between" }}>
+        <Column>
+          <Row>
+            <img
+              style={{ height: "40px", width: "40px", zIndex: 2 }}
+              src={activeTokens[0].icon}
+            />
+            <img
+              src={activeTokens[1].icon}
+              style={{ height: "40px", width: "40px", marginLeft: "-.5rem" }}
+            />
+            <Spacer />
+            {activeTokens[0].symbol}
+            <Spacer size="xs" />
+            /
+            <Spacer size="xs" />
+            {activeTokens[1].symbol}
+          </Row>
+          <Spacer size="sm" />
+          <Row>
+            {["5m", "15m", "30m", "1h", "1d"].map((selectInterval) => {
+              return (
+                <OverlayButton
+                  key={`interval-${selectInterval}`}
+                  onClick={() => setInterval(selectInterval)}
+                >
+                  <Typo1
+                    style={{
+                      fontWeight:
+                        selectInterval === interval ? "bold" : "normal",
+                    }}
+                  >
+                    {selectInterval}
+                  </Typo1>
+                </OverlayButton>
+              );
+            })}
+          </Row>
+        </Column>
+        <Column style={{ alignItems: "end" }}>
+          {pricePoint ? pricePoint.toFixed(6) : ""}
+          <Spacer size="sm" />
+          <Typo1>
+            {priceTime ? formatDate(new Date(priceTime * 1000)) : ""}
+          </Typo1>
+        </Column>
+      </Row>
+      <Chart data={chartData} handleCrossHairData={handleCrosshairData} />
+    </Column>
+  );
+};
+
 const Swap: React.FC<any> = () => {
   const { getTokenList } = useOpenOceanApi();
   const { walletContext } = useWalletProvider();
   const { apiData: fantomApiData } = useFantomApiData();
   const { apiData } = useApiData();
   const [tokenList, setTokenList] = useState(null);
+  const [activeTokens, setActiveTokens] = useState([
+    {
+      address: "0x0000000000000000000000000000000000000000",
+      code: "fantom",
+      decimals: 18,
+      icon:
+        "https://ethapi.openocean.finance/logos/fantom/0x0000000000000000000000000000000000000000.png",
+      symbol: "FTM",
+    },
+    {
+      address: "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
+      code: "usd-coin",
+      decimals: 6,
+      icon:
+        "https://ethapi.openocean.finance/logos/fantom/0x04068da6c83afcfa0e13ba15a6696662335d5b75.png",
+      symbol: "USDC",
+    },
+  ]);
   const activeAddress = walletContext.activeWallet.address
     ? walletContext.activeWallet.address.toLowerCase()
     : null;
@@ -619,10 +784,18 @@ const Swap: React.FC<any> = () => {
     }
   }, [assetsListData, OOTokenListData, accountFantomBalanceData]);
 
+  //https://api.coingecko.com/api/v3/coins/beethoven-x/market_chart?vs_currency=usd&days=60
+  //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
   return (
-    <div>
-      <SwapTokensContent tokenList={tokenList} />
-    </div>
+    <Row>
+      <SwapTokensContent
+        tokenList={tokenList}
+        setActiveTokens={setActiveTokens}
+      />
+      <Column>
+        <TokenChart activeTokens={activeTokens} />
+      </Column>
+    </Row>
   );
 };
 

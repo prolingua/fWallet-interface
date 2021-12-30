@@ -25,26 +25,34 @@ const useRestApi = (baseUrl: string) => {
     );
   };
   const get = ({ path, params, queryParams }: any) => {
-    return handleApiCall(baseUrl, path, async () =>
-      axios.get(buildUri({ baseUrl: baseUrl, path, params, queryParams }), {})
+    return handleApiCall(
+      baseUrl,
+      path,
+      async () =>
+        axios.get(
+          buildUri({ baseUrl: baseUrl, path, params, queryParams }),
+          {}
+        ),
+      params
     );
   };
 
   const handleApiCall = async (
     baseUrl: string,
     path: string,
-    callback: any
+    callback: any,
+    params: string[] = []
   ) => {
     try {
       dispatchApiData({
         type: "pending",
-        call: baseUrl + path,
+        call: baseUrl + path + (params.length ? "/" + params.join("/") : ""),
       });
 
       const result = await callback();
       dispatchApiData({
         type: "success",
-        call: baseUrl + path,
+        call: baseUrl + path + (params.length ? "/" + params.join("/") : ""),
         data: result,
       });
 
@@ -52,7 +60,7 @@ const useRestApi = (baseUrl: string) => {
     } catch (err) {
       dispatchApiData({
         type: "failed",
-        call: baseUrl + path,
+        call: baseUrl + path + (params.length ? "/" + params.join("/") : ""),
         error: err,
       });
     }
