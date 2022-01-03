@@ -11,6 +11,7 @@ import {
   OverlayButton,
   Typo1,
   Typo2,
+  Typo3,
 } from "../../components";
 import Row from "../../components/Row";
 import InputError from "../../components/InputError";
@@ -185,15 +186,22 @@ const SwapTokenInput: React.FC<any> = ({
   );
 };
 
-const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
+const SwapTokensContent: React.FC<any> = ({
+  tokenList,
+  setActiveTokens,
+  setSwapRoute,
+}) => {
   const { color } = useContext(ThemeContext);
   const { walletContext } = useWalletProvider();
   const { sendTx } = useFantomNative();
   const { getAllowance, approve } = useFantomERC20();
-  const { getSwapQuote } = useOpenOceanApi();
+  const { getSwapQuote, getQuote } = useOpenOceanApi();
   const { getPrice } = useCoingeckoApi();
   const { apiData } = useApiData();
   const OOQuoteData =
+    apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_QUOTE]?.response?.data
+      ?.data;
+  const OOSwapQuoteData =
     apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_SWAP_QUOTE]?.response
       ?.data?.data;
   const tokenPriceData =
@@ -201,7 +209,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
 
   const [inToken, setInToken] = useState(null);
   const [outToken, setOutToken] = useState(null);
-  const [inTokenAmount, setInTokenAmount] = useState("");
+  const [inTokenAmount, setInTokenAmount] = useState("1");
   const [outTokenAmount, setOutTokenAmount] = useState("");
   const [estimatedGas, setEstimatedGas] = useState(null);
   const [priceImpact, setPriceImpact] = useState(null);
@@ -242,19 +250,19 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
     reset: resetSwapTx,
   } = useSendTransaction(() =>
     sendTx(
-      OOQuoteData.to,
-      Math.floor(OOQuoteData.estimatedGas * 1.5),
-      +OOQuoteData.gasPrice * 2,
-      OOQuoteData.data,
-      OOQuoteData.inToken.address ===
+      OOSwapQuoteData.to,
+      Math.floor(OOSwapQuoteData.estimatedGas * 1.5),
+      +OOSwapQuoteData.gasPrice * 2,
+      OOSwapQuoteData.data,
+      OOSwapQuoteData.inToken.address ===
         "0x0000000000000000000000000000000000000000"
-        ? OOQuoteData.value
+        ? OOSwapQuoteData.value
         : null
     )
   );
 
   const handleSwapInOut = () => {
-    setInTokenAmount("");
+    setInTokenAmount("1");
     setOutTokenAmount("");
     setEstimatedGas(null);
     setMinReceived(null);
@@ -300,7 +308,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
 
   useEffect(() => {
     if (inToken) {
-      setInTokenAmount("");
+      setInTokenAmount("1");
       setOutTokenAmount("");
     }
   }, [inToken]);
@@ -309,7 +317,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
     let timeout: any;
     if (isSwapCompleted) {
       timeout = setTimeout(() => {
-        setInTokenAmount("");
+        setInTokenAmount("1");
         setOutTokenAmount("");
         resetSwapTx();
       }, 2000);
@@ -319,6 +327,7 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
 
   useEffect(() => {
     if (inToken && outToken && parseFloat(inTokenAmount) > 0) {
+      getQuote(inToken, outToken, inTokenAmount, 2);
       getSwapQuote(
         inToken,
         outToken,
@@ -330,10 +339,15 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
   }, [inToken, outToken, inTokenAmount, refetchTimer]);
 
   useEffect(() => {
-    if (inToken && outToken && OOQuoteData && parseFloat(inTokenAmount) > 0) {
+    if (
+      inToken &&
+      outToken &&
+      OOSwapQuoteData &&
+      parseFloat(inTokenAmount) > 0
+    ) {
       getPrice([inToken.code, outToken.code], "usd");
     }
-  }, [inToken, outToken, OOQuoteData]);
+  }, [inToken, outToken, OOSwapQuoteData]);
 
   useEffect(() => {
     if (inToken && outToken && parseFloat(inTokenAmount) > 0) {
@@ -350,51 +364,68 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
   }, [inToken, outToken, inTokenAmount, isApproveCompleted, refetchTimer]);
 
   useEffect(() => {
-    if (OOQuoteData && outToken?.decimals && parseFloat(inTokenAmount) > 0) {
+    if (
+      OOSwapQuoteData &&
+      outToken?.decimals &&
+      parseFloat(inTokenAmount) > 0
+    ) {
       // Only update if the data fetched is still representative
       if (
         parseFloat(inTokenAmount).toFixed(4) ===
         parseFloat(
-          weiToUnit(BigNumber.from(OOQuoteData.inAmount)).toString()
+          weiToUnit(BigNumber.from(OOSwapQuoteData.inAmount)).toString()
         ).toFixed(4)
       ) {
-        setOutTokenAmount(
-          weiToUnit(
-            BigNumber.from(OOQuoteData.outAmount),
-            outToken.decimals
-          ).toString()
-        );
+        // setOutTokenAmount(
+        //   weiToUnit(
+        //     BigNumber.from(OOSwapQuoteData.outAmount),
+        //     outToken.decimals
+        //   ).toString()
+        // );
 
         setMinReceived(
           weiToUnit(
-            BigNumber.from(OOQuoteData.minOutAmount),
+            BigNumber.from(OOSwapQuoteData.minOutAmount),
             outToken.decimals
           ).toString()
         );
         setEstimatedGas(
           weiToUnit(
-            BigNumber.from(OOQuoteData.estimatedGas).mul(
-              BigNumber.from(OOQuoteData.gasPrice)
+            BigNumber.from(OOSwapQuoteData.estimatedGas).mul(
+              BigNumber.from(OOSwapQuoteData.gasPrice)
             )
           ).toString()
         );
+      }
+    }
+  }, [OOSwapQuoteData]);
+
+  useEffect(() => {
+    if (OOQuoteData && outToken?.decimals && parseFloat(inTokenAmount) > 0) {
+      if (
+        parseFloat(inTokenAmount).toFixed(4) ===
+        parseFloat(OOQuoteData.inAmount).toFixed(4)
+      ) {
+        setOutTokenAmount(OOQuoteData.outAmount);
+
+        setSwapRoute(OOQuoteData.path);
       }
     }
   }, [OOQuoteData]);
 
   useEffect(() => {
     if (
-      OOQuoteData &&
+      OOSwapQuoteData &&
       tokenPriceData &&
       parseFloat(inTokenAmount) > 0 &&
       parseFloat(outTokenAmount) > 0
     ) {
       const inTokenAmount = weiToUnit(
-        BigNumber.from(OOQuoteData.inAmount),
+        BigNumber.from(OOSwapQuoteData.inAmount),
         inToken.decimals
       );
       const outTokenAmount = weiToUnit(
-        BigNumber.from(OOQuoteData.outAmount),
+        BigNumber.from(OOSwapQuoteData.outAmount),
         outToken.decimals
       );
       const inTokenPrice = tokenPriceData[inToken.code]["usd"];
@@ -406,168 +437,172 @@ const SwapTokensContent: React.FC<any> = ({ tokenList, setActiveTokens }) => {
 
       setPriceImpact(priceImpact * 100);
     }
-  }, [OOQuoteData, tokenPriceData]);
+  }, [OOSwapQuoteData, tokenPriceData]);
 
   return (
-    <Column style={{ width: "100%" }}>
-      <div
-        style={{
-          fontSize: "20px",
-          fontWeight: "bold",
-          color: color.greys.grey(),
-        }}
-      >
-        Swap Tokens
-      </div>
-      <Spacer size="lg" />
-      {inToken && (
-        <SwapTokenInput
-          inputValue={inTokenAmount}
-          setInputValue={setInTokenAmount}
-          tokenList={tokenList}
-          setToken={setInToken}
-          token={inToken}
-          title={"Pay"}
-          refetchTimer={refetchTimer}
-          disabledInput={isSwapPending || isSwapCompleted}
-        />
-      )}
+    <ContentBox style={{ width: "750px" }}>
+      <Column>
+        <div
+          style={{
+            fontSize: "20px",
+            fontWeight: "bold",
+            color: color.greys.grey(),
+          }}
+        >
+          Swap Tokens
+        </div>
+        <Spacer size="lg" />
+        {inToken && (
+          <SwapTokenInput
+            inputValue={inTokenAmount}
+            setInputValue={setInTokenAmount}
+            tokenList={tokenList}
+            setToken={setInToken}
+            token={inToken}
+            title={"Pay"}
+            refetchTimer={refetchTimer}
+            disabledInput={isSwapPending || isSwapCompleted}
+          />
+        )}
 
-      <Spacer size="lg" />
-      <Row style={{ justifyContent: "center", alignItems: "center" }}>
-        <div
-          style={{ height: "1px", width: "100%", backgroundColor: "#67748B" }}
-        />
-        <OverlayButton style={{ padding: 0 }} onClick={handleSwapInOut}>
-          <Row
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              height: "64px",
-              width: "64px",
-              border: "1px solid #67748B",
-              borderRadius: "50%",
-            }}
+        <Spacer size="lg" />
+        <Row style={{ justifyContent: "center", alignItems: "center" }}>
+          <div
+            style={{ height: "1px", width: "100%", backgroundColor: "#67748B" }}
+          />
+          <OverlayButton style={{ padding: 0 }} onClick={handleSwapInOut}>
+            <Row
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                height: "64px",
+                width: "64px",
+                border: "1px solid #67748B",
+                borderRadius: "50%",
+              }}
+            >
+              <img alt="swap" style={{ height: "20px" }} src={SwapImg} />
+            </Row>
+          </OverlayButton>
+          <div
+            style={{ height: "1px", width: "100%", backgroundColor: "#67748B" }}
+          />
+        </Row>
+        <Spacer size="lg" />
+        <Spacer />
+        {outToken && (
+          <SwapTokenInput
+            inputValue={outTokenAmount}
+            setInputValue={setOutTokenAmount}
+            disabledInput={true}
+            tokenList={tokenList}
+            setToken={setOutToken}
+            token={outToken}
+            title={"Receive"}
+            refetchTimer={refetchTimer}
+          />
+        )}
+        <Spacer size="lg" />
+        <Spacer />
+        {hasAllowance(allowance) ? (
+          <Button
+            variant="primary"
+            onClick={handleSwap}
+            disabled={isSwapPending || isSwapCompleted || !minReceived}
           >
-            <img alt="swap" style={{ height: "20px" }} src={SwapImg} />
-          </Row>
-        </OverlayButton>
-        <div
-          style={{ height: "1px", width: "100%", backgroundColor: "#67748B" }}
-        />
-      </Row>
-      <Spacer size="lg" />
-      <Spacer />
-      {outToken && (
-        <SwapTokenInput
-          inputValue={outTokenAmount}
-          setInputValue={setOutTokenAmount}
-          disabledInput={true}
-          tokenList={tokenList}
-          setToken={setOutToken}
-          token={outToken}
-          title={"Receive"}
-          refetchTimer={refetchTimer}
-        />
-      )}
-      <Spacer size="lg" />
-      <Spacer />
-      {hasAllowance(allowance) ? (
-        <Button
-          variant="primary"
-          onClick={handleSwap}
-          disabled={isSwapPending || isSwapCompleted}
-        >
-          {isSwapPending
-            ? "Swapping..."
-            : isSwapCompleted
-            ? "Swap successful"
-            : "Swap"}
-        </Button>
-      ) : (
-        <Button
-          variant="primary"
-          onClick={handleApprove}
-          disabled={isApproveCompleted || isApprovePending}
-        >
-          {isApprovePending
-            ? "Approving..."
-            : isApproveCompleted
-            ? "Approved!"
-            : "Approve"}
-        </Button>
-      )}
-      {/*{tx && tx.error ? (*/}
-      {/*  <>*/}
-      {/*    <Spacer size="xs" />*/}
-      {/*    <Row style={{ justifyContent: "center" }}>*/}
-      {/*      <InputError fontSize="18px" error={tx.error.message} />*/}
-      {/*    </Row>*/}
-      {/*    <Spacer />*/}
-      {/*  </>*/}
-      {/*) : (*/}
-      {/*  <>*/}
-      {/*    <Spacer />*/}
-      {/*    <Spacer />*/}
-      {/*  </>*/}
-      {/*)}*/}
-      <Spacer size="xxl" />
-      <ContentBox>
-        <Column style={{ width: "100%", gap: "1rem" }}>
-          <Typo2
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
+            {isSwapPending
+              ? "Swapping..."
+              : isSwapCompleted
+              ? "Swap successful"
+              : !minReceived
+              ? "Fetching best price..."
+              : "Swap"}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            onClick={handleApprove}
+            disabled={isApproveCompleted || isApprovePending}
           >
-            <div>Estimated cost</div>
-            {estimatedGas ? (
-              <FormattedValue
-                formattedValue={toFormattedBalance(estimatedGas.toString())}
-                tokenSymbol={"FTM"}
-              />
-            ) : (
-              "-"
-            )}
-          </Typo2>
-          <Typo2
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>Price impact</div>
-            {priceImpact ? (
-              <FormattedValue
-                formattedValue={toFormattedBalance(priceImpact.toString())}
-                tokenSymbol={"%"}
-              />
-            ) : (
-              "-"
-            )}
-          </Typo2>
-          <Typo2
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <div>Minimum received</div>
-            {minReceived ? (
-              <FormattedValue
-                formattedValue={toFormattedBalance(minReceived.toString())}
-                tokenSymbol={outToken.symbol}
-              />
-            ) : (
-              "-"
-            )}
-          </Typo2>
-        </Column>
-      </ContentBox>
-    </Column>
+            {isApprovePending
+              ? "Approving..."
+              : isApproveCompleted
+              ? "Approved!"
+              : "Approve"}
+          </Button>
+        )}
+        {/*{tx && tx.error ? (*/}
+        {/*  <>*/}
+        {/*    <Spacer size="xs" />*/}
+        {/*    <Row style={{ justifyContent: "center" }}>*/}
+        {/*      <InputError fontSize="18px" error={tx.error.message} />*/}
+        {/*    </Row>*/}
+        {/*    <Spacer />*/}
+        {/*  </>*/}
+        {/*) : (*/}
+        {/*  <>*/}
+        {/*    <Spacer />*/}
+        {/*    <Spacer />*/}
+        {/*  </>*/}
+        {/*)}*/}
+        <Spacer size="xxl" />
+        <ContentBox style={{ backgroundColor: "#202f49" }}>
+          <Column style={{ width: "100%", gap: "1rem" }}>
+            <Typo2
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>Estimated cost</div>
+              {estimatedGas ? (
+                <FormattedValue
+                  formattedValue={toFormattedBalance(estimatedGas.toString())}
+                  tokenSymbol={"FTM"}
+                />
+              ) : (
+                "-"
+              )}
+            </Typo2>
+            <Typo2
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>Price impact</div>
+              {priceImpact ? (
+                <FormattedValue
+                  formattedValue={toFormattedBalance(priceImpact.toString())}
+                  tokenSymbol={"%"}
+                />
+              ) : (
+                "-"
+              )}
+            </Typo2>
+            <Typo2
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>Minimum received</div>
+              {minReceived ? (
+                <FormattedValue
+                  formattedValue={toFormattedBalance(minReceived.toString())}
+                  tokenSymbol={outToken.symbol}
+                />
+              ) : (
+                "-"
+              )}
+            </Typo2>
+          </Column>
+        </ContentBox>
+      </Column>
+    </ContentBox>
   );
 };
 
@@ -701,6 +736,74 @@ const TokenChart: React.FC<any> = ({ activeTokens }) => {
   );
 };
 
+const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
+  const RouteBox = (part: any, first: boolean) => {
+    const token = tokenList.find(
+      (token: any) =>
+        token.address.toLowerCase() ===
+        (first ? part.from.toLowerCase() : part.to.toLowerCase())
+    );
+    return (
+      <ContentBox
+        key={`route-column-${part.parts}-${part.dexes[0].dex}`}
+        style={{ padding: ".5rem", width: "150px" }}
+      >
+        <Row style={{ alignItems: "center" }}>
+          <img style={{ height: "32px", width: "32px" }} src={token?.icon} />
+          <Spacer size="sm" />
+          <Column>
+            <Typo3 style={{ fontWeight: "bold" }}>{token.symbol}</Typo3>
+            <Typo3>{part.dexes[0].dex}</Typo3>
+          </Column>
+        </Row>
+      </ContentBox>
+    );
+  };
+
+  return (
+    <Column style={{ width: "100%" }}>
+      <Heading3>Routing</Heading3>
+      <Spacer size="xs" />
+      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
+        <Row style={{ alignItems: "center" }}>
+          <img
+            style={{ height: "40px", width: "40px" }}
+            src={activeTokens[0].icon}
+          />
+          <Spacer size="sm" />
+          <div
+            style={{ width: "1px", height: "30px", backgroundColor: "#232F46" }}
+          />
+        </Row>
+        <Column style={{ gap: ".2rem" }}>
+          {route?.routes.map((routePart: any) => {
+            return (
+              <Row
+                key={`route-row-${routePart.parts}`}
+                style={{ gap: ".2rem" }}
+              >
+                {routePart.subRoutes.map((subRoutePart: any, index: number) => {
+                  return RouteBox(subRoutePart, index === 0);
+                })}
+              </Row>
+            );
+          })}
+        </Column>
+        <Row style={{ alignItems: "center" }}>
+          <div
+            style={{ width: "1px", height: "30px", backgroundColor: "#232F46" }}
+          />
+          <Spacer size="sm" />
+          <img
+            style={{ height: "40px", width: "40px" }}
+            src={activeTokens[1].icon}
+          />
+        </Row>
+      </Row>
+    </Column>
+  );
+};
+
 const Swap: React.FC<any> = () => {
   const { getTokenList } = useOpenOceanApi();
   const { walletContext } = useWalletProvider();
@@ -725,6 +828,7 @@ const Swap: React.FC<any> = () => {
       symbol: "USDC",
     },
   ]);
+  const [swapRoute, setSwapRoute] = useState(null);
   const activeAddress = walletContext.activeWallet.address
     ? walletContext.activeWallet.address.toLowerCase()
     : null;
@@ -787,13 +891,21 @@ const Swap: React.FC<any> = () => {
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market_chart?vs_currency=usd&days=60
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
   return (
-    <Row>
+    <Row style={{ gap: "1rem" }}>
       <SwapTokensContent
         tokenList={tokenList}
         setActiveTokens={setActiveTokens}
+        setSwapRoute={setSwapRoute}
       />
-      <Column>
+      <Spacer />
+      <Column style={{ width: "100%" }}>
         <TokenChart activeTokens={activeTokens} />
+        <Spacer />
+        <SwapRoute
+          route={swapRoute}
+          tokenList={tokenList}
+          activeTokens={activeTokens}
+        />
       </Column>
     </Row>
   );

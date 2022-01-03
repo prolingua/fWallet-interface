@@ -44,6 +44,7 @@ const useOpenOceanApi = () => {
         ["slippage", slippage],
         ["exChange", "openoceanv2"],
         ["chainId", 250],
+        ["withRoute", "routes"],
       ],
     });
   };
@@ -70,6 +71,7 @@ const useOpenOceanApi = () => {
         ["exChange", "openoceanv2"],
         ["chainId", 250],
         ["account", account],
+        ["withRoute", "routes"],
       ],
     });
   };
