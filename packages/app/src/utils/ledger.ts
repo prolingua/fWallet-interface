@@ -1,4 +1,5 @@
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
+import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import { BigNumber } from "@ethersproject/bignumber";
 import FantomNano from "./ledger/fantom-nano";
 import { Signer } from "@ethersproject/abstract-signer";
@@ -55,7 +56,10 @@ export class LedgerSigner extends Signer {
     defineReadOnly(
       this,
       "_eth",
-      TransportU2F.create().then(
+      (navigator.userAgent.indexOf("Chrome") !== -1
+        ? TransportWebHID.create()
+        : TransportU2F.create()
+      ).then(
         (transport) => {
           console.log(transport);
           // @ts-ignore
@@ -137,6 +141,7 @@ export class LedgerSigner extends Signer {
     console.log("signTr: ", { tx });
     const baseTx: any = {
       // chainId: tx.chainId || undefined,
+      chainId: "0xfa",
       data: tx.data || undefined,
       gasLimit: tx.gasLimit ? new BN(tx.gasLimit.toString()) : undefined,
       gasPrice: tx.gasPrice ? new BN(tx.gasPrice.toString()) : undefined,
@@ -150,16 +155,18 @@ export class LedgerSigner extends Signer {
       ftm.signTransaction(0, 0, baseTx)
     );
 
-    console.log(sig);
+    return new Promise((resolve) => resolve(sig.raw));
+
+    // console.log(sig);
+    // // return serialize(baseTx, {
     // return serialize(baseTx, {
-    return serialize(baseTx, {
-      // v: BigNumber.from("0x" + sig.v).toNumber(),
-      // r: "0x" + sig.r,
-      // s: "0x" + sig.s,
-      v: sig.v,
-      r: sig.r,
-      s: sig.s,
-    });
+    //   // v: BigNumber.from("0x" + sig.v).toNumber(),
+    //   // r: "0x" + sig.r,
+    //   // s: "0x" + sig.s,
+    //   v: sig.v,
+    //   r: sig.r,
+    //   s: sig.s,
+    // });
   }
 
   // async sendTransaction(transaction: any) {
