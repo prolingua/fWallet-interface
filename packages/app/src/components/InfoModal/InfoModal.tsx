@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Modal from "../Modal";
 import ModalContent from "../ModalContent";
 import ModalTitle from "../ModalTitle";
@@ -14,7 +14,12 @@ const InfoModal: React.FC<any> = ({
   actionButtonNoDismiss,
   withCloseButton = true,
   onDismiss,
+  executeOnClose,
 }) => {
+  useEffect(() => {
+    return () => (executeOnClose ? executeOnClose() : "");
+  }, [executeOnClose]);
+
   return (
     <Modal>
       <ModalTitle text={title ? title : "Warning"} />

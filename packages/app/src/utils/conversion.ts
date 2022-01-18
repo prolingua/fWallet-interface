@@ -68,7 +68,9 @@ export const toFormattedBalance = (
   const parts = full.toString().split(".");
 
   return [
-    formatThousands(parseInt(parts[0], 10)),
+    formatThousands(parseInt(parts[0], 10)) === "NaN"
+      ? "0"
+      : formatThousands(parseInt(parts[0], 10)),
     parts[1] ? `.${parts[1].substr(0, toFixed)}` : ".00",
   ];
 };

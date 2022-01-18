@@ -204,7 +204,7 @@ const SendTokensContent: React.FC<any> = ({
                   style={{ color: color.primary.cyan() }}
                 >{`${formattedAmountToSend[0]}${formattedAmountToSend[1]} ${tokenSelected.symbol}`}</Heading1>
                 <Spacer size="xs" />
-                {isNative ? (
+                {isNative && amountToSend ? (
                   <Typo2>{`~${toCurrencySymbol(currency)}${(
                     parseFloat(
                       weiToMaxUnit(amountToSend, tokenSelected.decimals)

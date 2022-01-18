@@ -1,6 +1,5 @@
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
-import { BigNumber } from "@ethersproject/bignumber";
 import FantomNano from "./ledger/fantom-nano";
 import { Signer } from "@ethersproject/abstract-signer";
 import {
@@ -9,8 +8,8 @@ import {
   resolveProperties,
 } from "@ethersproject/properties";
 import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
-import { serialize } from "@ethersproject/transactions";
 import BN from "bn.js";
+import config from "../config/config";
 
 // type TransportCreator = {
 //   // @ts-ignore
@@ -21,7 +20,7 @@ import BN from "bn.js";
 //   default: u2f,
 // };
 
-const defaultPath = "m/44'/60'/0'/0/0";
+// const defaultPath = "m/44'/60'/0'/0/0";
 
 function waiter(duration: number): Promise<void> {
   return new Promise((resolve) => {
@@ -31,56 +30,65 @@ function waiter(duration: number): Promise<void> {
 
 // @ts-ignore
 export class LedgerSigner extends Signer {
-  readonly type: string;
-  readonly path: string;
-
+  // readonly path: string;
+  readonly addressId: number;
   readonly _eth: Promise<any>;
+  transport: any;
+  dispatch: any;
 
-  constructor(provider?: Provider, type?: string, path?: string) {
+  constructor(provider?: Provider, dispatch?: any, addressId?: number) {
     super();
-    if (path == null) {
-      path = defaultPath;
-    }
-    if (type == null) {
-      type = "default";
-    }
-
-    defineReadOnly(this, "path", path);
-    defineReadOnly(this, "type", type);
+    this.dispatch = dispatch;
     defineReadOnly(this, "provider", provider || null);
-
-    // const transport = transports[type];
-    // if (!transport) {
-    //   logger.throwArgumentError("unknown or unsupported type", "type", type);
-    // }
+    defineReadOnly(this, "addressId", addressId || 0);
     defineReadOnly(
       this,
       "_eth",
-      (navigator.userAgent.indexOf("Chrome") !== -1
-        ? TransportWebHID.create()
-        : TransportU2F.create()
-      ).then(
+      this.getTransport().then(
         (transport) => {
-          console.log(transport);
+          dispatch({ type: "setHWInitialState" });
           // @ts-ignore
           const ftm = new FantomNano(transport);
           return ftm.getVersion().then(
             (version) => {
               console.log(version);
+              this.transport = transport;
               return ftm;
             },
             (error) => {
-              console.log("version error");
+              console.warn("version error", error);
+              if (error.statusCode === 28169) {
+                dispatch({ type: "setHWIsLocked", data: { isLocked: true } });
+              } else {
+                dispatch({
+                  type: "setHWIsWrongApp",
+                  data: { isWrongApp: true },
+                });
+              }
+              transport.close();
               return Promise.reject(error);
             }
           );
         },
         (error) => {
-          console.log("transport error");
+          console.log("transport error", error);
           return Promise.reject(error);
         }
       )
     );
+  }
+
+  getTransport() {
+    return navigator.userAgent.indexOf("Chrome") !== -1
+      ? TransportWebHID.create()
+      : TransportU2F.create();
+  }
+
+  async closeTransport() {
+    if (this.transport) {
+      await this.transport.close();
+      this.transport = null;
+    }
   }
 
   _retry<T = any>(
@@ -94,27 +102,39 @@ export class LedgerSigner extends Signer {
         }, timeout);
       }
 
-      const ftm = await this._eth;
+      try {
+        const ftm = await this._eth;
 
-      // Wait up to 5 seconds
-      for (let i = 0; i < 50; i++) {
-        try {
-          const result = await callback(ftm);
-          return resolve(result);
-        } catch (error) {
-          if (error.id !== "TransportLocked") {
-            return reject(error);
+        // Wait up to 5 seconds
+        for (let i = 0; i < 50; i++) {
+          try {
+            const result = await callback(ftm);
+            return resolve(result);
+          } catch (error) {
+            if (error.id !== "TransportLocked") {
+              return reject(error);
+            }
           }
+          await waiter(100);
         }
-        await waiter(100);
+      } catch (error) {
+        return reject(error);
       }
 
       return reject(new Error("timeout"));
     });
   }
 
+  async listAddresses(firstAddress = 0, length = 5): Promise<string[]> {
+    try {
+      return await this._retry((ftm) => ftm.listAddresses(0, 0, length));
+    } finally {
+      await this.closeTransport();
+    }
+  }
+
   async getAddress(): Promise<string> {
-    return await this._retry((ftm) => ftm.getAddress());
+    return await this._retry((ftm) => ftm.getAddress(0, this.addressId, false));
   }
 
   async signMessage(message: any): Promise<string> {
@@ -136,12 +156,9 @@ export class LedgerSigner extends Signer {
   async signTransaction(
     transaction: Deferrable<TransactionRequest>
   ): Promise<string> {
-    console.log("signTr: ", { transaction });
     const tx = await resolveProperties(transaction);
-    console.log("signTr: ", { tx });
     const baseTx: any = {
-      // chainId: tx.chainId || undefined,
-      chainId: "0xfa",
+      chainId: config.chainId,
       data: tx.data || undefined,
       gasLimit: tx.gasLimit ? new BN(tx.gasLimit.toString()) : undefined,
       gasPrice: tx.gasPrice ? new BN(tx.gasPrice.toString()) : undefined,
@@ -150,41 +167,16 @@ export class LedgerSigner extends Signer {
       value: tx.value ? new BN(tx.value.toString()) : undefined,
     };
 
-    // const unsignedTx = serialize(baseTx).substring(2);
-    const sig: any = await this._retry((ftm) =>
-      ftm.signTransaction(0, 0, baseTx)
+    this.dispatch({ type: "setHWIsApproving", data: { isApproving: true } });
+    const signedTx: any = await this._retry((ftm) =>
+      ftm.signTransaction(0, this.addressId, baseTx)
     );
+    this.dispatch({ type: "setHWIsApproving", data: { isApproving: false } });
 
-    return new Promise((resolve) => resolve(sig.raw));
-
-    // console.log(sig);
-    // // return serialize(baseTx, {
-    // return serialize(baseTx, {
-    //   // v: BigNumber.from("0x" + sig.v).toNumber(),
-    //   // r: "0x" + sig.r,
-    //   // s: "0x" + sig.s,
-    //   v: sig.v,
-    //   r: sig.r,
-    //   s: sig.s,
-    // });
+    return new Promise((resolve) => resolve(signedTx.raw));
   }
 
-  // async sendTransaction(transaction: any) {
-  //   console.log("SEND TRANSACTION!", { transaction });
-  //   if ((await Promise.resolve(transaction.to)) === transaction.to) {
-  //     transaction.to = await transaction.to;
-  //   }
-  //
-  //   if (!transaction.value) {
-  //     transaction.value = parseEther("0.0");
-  //   }
-  //
-  //   let signedTx = await this.signTransaction(transaction);
-  //
-  //   return this.provider.sendTransaction(signedTx);
-  // }
-  //
   connect(provider: Provider): Signer {
-    return new LedgerSigner(provider, this.type, this.path);
+    return new LedgerSigner(provider, this.dispatch, this.addressId || 0);
   }
 }

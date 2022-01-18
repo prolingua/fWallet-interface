@@ -38,6 +38,9 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import refreshImg from "../../assets/img/symbols/Refresh.svg";
 import { useHardwareWallet } from "../../hooks/useHardwareWallet";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import InfoModal from "../../components/InfoModal";
+import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -510,41 +513,167 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
   );
 };
 
-const AccessWallet: React.FC<any> = ({ setFlow }) => {
+const SelectLedgerAccountModal: React.FC<any> = ({
+  onDismiss,
+  addresses,
+  executeOnClose,
+}) => {
+  const { color } = useContext(ThemeContext);
+  const { connectLedger } = useHardwareWallet();
+  const [selected, setSelected] = useState(null);
+  const [isLoading, setIsLoading] = useState(null);
+
+  useEffect(() => {
+    return () => executeOnClose();
+  }, []);
+
+  return (
+    <Modal onDismiss={onDismiss} style={{ minWidth: "35rem" }}>
+      <Heading2>Select ledger account</Heading2>
+      <Spacer />
+      <ContentBox
+        style={{
+          width: "90%",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: color.primary.black(),
+        }}
+      >
+        {addresses.map((address: string) => {
+          const isSelected = selected?.toLowerCase() === address.toLowerCase();
+          return (
+            <OverlayButton
+              key={`address-${address}`}
+              onClick={() => setSelected(address)}
+            >
+              <Typo1 style={{ fontWeight: isSelected ? "bold" : "normal" }}>
+                {address}
+              </Typo1>
+              <Spacer size="xs" />
+            </OverlayButton>
+          );
+        })}
+      </ContentBox>
+      <Spacer />
+      <Button
+        variant="primary"
+        disabled={!selected || isLoading}
+        onClick={() => {
+          setIsLoading(true);
+          connectLedger(addresses.indexOf(selected))
+            .then(onDismiss)
+            .finally(() => setIsLoading(false));
+        }}
+      >
+        {isLoading ? "Loading..." : "Continue"}
+      </Button>
+    </Modal>
+  );
+};
+
+export const AccessWallet: React.FC<any> = ({ setFlow }) => {
   const { color } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
   // const { activateLedger } = useLedger();
-  const { connectLedger } = useHardwareWallet();
+  const { connectLedger, listAddresses } = useHardwareWallet();
+  // const { walletContext, dispatchWalletContext } = useWalletProvider();
+  const [ledgerAddresses, setLedgerAddresses] = useState([]);
   const [tool, setTool] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const context = useWeb3React<Web3Provider>();
-  const { error } = context;
+  const [error, setError] = useState(null);
+
+  useLedgerWatcher();
 
   const [onPresentAccessByKeystoreModal] = useModal(
     <AccessBySoftwareModal setFlow={setFlow} />,
     "access-by-software-modal"
   );
 
+  const [onPresentSelectLedgerAccountModal] = useModal(
+    <SelectLedgerAccountModal
+      addresses={ledgerAddresses}
+      startAccountIndex={0}
+      executeOnClose={() => setLedgerAddresses([])}
+    />
+  );
+
+  useEffect(() => {
+    if (ledgerAddresses.length) {
+      onPresentSelectLedgerAccountModal();
+    }
+  }, [ledgerAddresses]);
+
+  useEffect(() => {
+    if (context?.error) {
+      setError(context.error);
+    }
+  }, [context.error]);
+
+  // const [onPresentLedgerErrorMessage] = useModal(
+  //   <InfoModal
+  //     message={
+  //       walletContext.hardwareWalletState.isLocked
+  //         ? "Ledger is locked. Unlock ledger first."
+  //         : walletContext.hardwareWalletState.isWrongApp
+  //         ? "Ledger wrong app selected. Connect ledger to FTM APP."
+  //         : "Ledger: Unknown error"
+  //     }
+  //     executeOnClose={() =>
+  //       dispatchWalletContext({ type: "setHWInitialState" })
+  //     }
+  //   />
+  // );
+  //
+  // console.log(walletContext.hardwareWalletState);
+  // useEffect(() => {
+  //   if (
+  //     walletContext.hardwareWalletState.isLocked ||
+  //     walletContext.hardwareWalletState.isWrongApp
+  //   ) {
+  //     onPresentLedgerErrorMessage();
+  //   }
+  // }, [
+  //   walletContext.hardwareWalletState.isLocked,
+  //   walletContext.hardwareWalletState.isWrongApp,
+  // ]);
+
   const handleSetTool = (tool: string) => {
+    setError(null);
     setSelectedTool(null);
     setTool(tool);
   };
 
   useEffect(() => {
     if (selectedTool === "ledger") {
-      connectLedger();
+      // connectLedger();
+      setIsLoading(true);
+      listAddresses()
+        .then((addresses) => {
+          setLedgerAddresses(addresses);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          setSelectedTool(null);
+        });
     }
     if (selectedTool === "metamask") {
       // loadWeb3Modal();
-      activateInjected();
+      activateInjected().finally(() => {
+        setSelectedTool(null);
+      });
     }
     if (selectedTool === "coinbase") {
       // loadWeb3Modal();
-      activateWalletLink();
+      activateWalletLink().finally(() => {
+        setSelectedTool(null);
+      });
     }
     if (selectedTool === "keystore") {
       onPresentAccessByKeystoreModal();
+      setSelectedTool(null);
     }
   }, [selectedTool]);
 
@@ -643,15 +772,24 @@ const AccessWallet: React.FC<any> = ({ setFlow }) => {
               </ContentBox>
             </OverlayButton>
           </Row>
+          {/*{ledgerAddresses && ledgerAddresses.length > 0 && (*/}
+          {/*  <Column>*/}
+          {/*    {ledgerAddresses.map((address: string, addressIndex: number) => (*/}
+          {/*      <OverlayButton onClick={() => connectLedger(addressIndex)}>*/}
+          {/*        <Typo1>{address}</Typo1>*/}
+          {/*      </OverlayButton>*/}
+          {/*    ))}{" "}*/}
+          {/*  </Column>*/}
+          {/*)}*/}
           <Spacer size="xl" />
           <Column style={{ alignSelf: "center", alignItems: "center" }}>
             <Button
-              disabled={!tool}
+              disabled={!tool || isLoading}
               onClick={() => setSelectedTool(tool)}
               style={{ width: "20rem" }}
               variant="primary"
             >
-              Continue
+              {isLoading ? "Loading..." : "Continue"}
             </Button>
             {error && (
               <Column style={{ maxWidth: "80%" }}>

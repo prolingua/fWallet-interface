@@ -18,6 +18,11 @@ const initial = {
     chainSelected: null,
     walletProvider: null,
   },
+  hardwareWalletState: {
+    isApproving: false,
+    isLocked: false,
+    isWrongApp: false,
+  },
 } as any;
 
 export const ActiveWalletProvider: React.FC = ({ children }) => {
@@ -25,6 +30,7 @@ export const ActiveWalletProvider: React.FC = ({ children }) => {
     switch (action.type) {
       case "setActiveWallet":
         return {
+          ...state,
           activeWallet: action.data,
           web3ProviderState: {
             accountSelected:
@@ -49,6 +55,38 @@ export const ActiveWalletProvider: React.FC = ({ children }) => {
           web3ProviderState: {
             ...action.data,
             chainSelected: action.data.walletProvider.chainId,
+          },
+        };
+      // ledger state
+      case "setHWIsApproving":
+        return {
+          ...state,
+          hardwareWalletState: {
+            ...state.hardwareWalletState,
+            ...action.data,
+          },
+        };
+      case "setHWIsLocked":
+        return {
+          ...state,
+          hardwareWalletState: {
+            ...state.hardwareWalletState,
+            ...action.data,
+          },
+        };
+      case "setHWIsWrongApp":
+        return {
+          ...state,
+          hardwareWalletState: {
+            ...state.hardwareWalletState,
+            ...action.data,
+          },
+        };
+      case "setHWInitialState":
+        return {
+          ...state,
+          hardwareWalletState: {
+            ...initial.hardwareWalletState,
           },
         };
 

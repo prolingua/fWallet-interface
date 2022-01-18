@@ -62,13 +62,13 @@ const useFantomNative = () => {
     );
   };
 
-  const getBalance = () => {
+  const getBalance = (address?: string) => {
     if (!walletContext.activeWallet.provider) {
       console.error("[getBalance] provider not found");
       return;
     }
     return walletContext.activeWallet.provider.getBalance(
-      walletContext.activeWallet.address
+      address || walletContext.activeWallet.address
     );
   };
 

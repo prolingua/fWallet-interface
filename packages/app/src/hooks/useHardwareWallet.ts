@@ -1,21 +1,14 @@
-import { Wallet } from "@ethersproject/wallet";
-import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import config from "../config/config";
 import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
 import { loadContracts } from "../utils/wallet";
-import { useWeb3React } from "@web3-react/core";
-import { wordlists } from "@ethersproject/wordlists";
-import { entropyToMnemonic } from "@ethersproject/hdnode";
-import { randomBytes } from "@ethersproject/random";
 import { LedgerSigner } from "../utils/ledger";
 
 export const useHardwareWallet = () => {
   const { dispatchWalletContext, walletContext } = useWalletProvider();
   const { dispatchAccount } = useAccounts();
-  // const context = useWeb3React<Web3Provider>();
 
-  const addWalletToContext = async (wallet: any) => {
+  const addHardwareWalletToContext = async (wallet: any) => {
     const address = await wallet.getAddress();
     const walletProvider: any = {
       contracts: loadContracts(wallet, parseInt(config.chainId)),
@@ -43,17 +36,30 @@ export const useHardwareWallet = () => {
     });
   };
 
-  const connectLedger = () => {
-    const ledgerSigner = new LedgerSigner(walletContext.activeWallet.provider);
-    console.log(ledgerSigner);
-    // ledgerSigner.getAddress().then((address) => {
-    //   console.log("ADDRESS", address);
-    // });
+  const listAddresses = async () => {
+    try {
+      const tempSigner = new LedgerSigner(
+        walletContext.activeWallet.provider,
+        dispatchWalletContext
+      );
+      return tempSigner.listAddresses();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    return addWalletToContext(ledgerSigner);
+  const connectLedger = (index = 0) => {
+    const ledgerSigner = new LedgerSigner(
+      walletContext.activeWallet.provider,
+      dispatchWalletContext,
+      index
+    );
+
+    return addHardwareWalletToContext(ledgerSigner);
   };
 
   return {
     connectLedger,
+    listAddresses,
   };
 };

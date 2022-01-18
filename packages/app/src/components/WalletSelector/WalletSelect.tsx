@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import useAccounts from "../../hooks/useAccount";
 import useWalletProvider from "../../hooks/useWalletProvider";
@@ -15,8 +15,23 @@ import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import WalletSelectView from "./WalletSelectView";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
-import useAccount from "../../hooks/useAccount";
 import { useInjectedWallet } from "../../hooks/useConnectWallet";
+import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
+import useSettings from "../../hooks/useSettings";
+import useFantomNative from "../../hooks/useFantomNative";
+import {
+  toCurrencySymbol,
+  toFormattedBalance,
+  weiToUnit,
+} from "../../utils/conversion";
+import { BigNumber } from "@ethersproject/bignumber";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import formattedValue from "../FormattedBalance";
+import FormattedValue from "../FormattedBalance";
+import useModal from "../../hooks/useModal";
+import Onboarding from "../../containers/Onboarding";
+import Modal from "../Modal";
+import { AccessWallet } from "../../containers/Onboarding/Onboarding";
 
 const WalletSelect: React.FC<any> = ({
   handleClose,
@@ -27,11 +42,47 @@ const WalletSelect: React.FC<any> = ({
   const context = useWeb3React<Web3Provider>();
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const { account, dispatchAccount } = useAccounts();
+  const { settings } = useSettings();
+  const { getBalance } = useFantomNative();
   const { dispatchWalletContext } = useWalletProvider();
+  const { apiData } = useFantomApiData();
+  const { activateInjected } = useInjectedWallet();
   const { color } = useContext(ThemeContext);
   const [copied, setCopied] = useState(null);
 
-  const { activateInjected } = useInjectedWallet();
+  const [totalFtmBalance, setTotalFtmBalance] = useState(0);
+  const [totalValue, setTotalValue] = useState(0);
+
+  const tokenPrice =
+    apiData[FantomApiMethods.getTokenPrice]?.data?.price?.price;
+  useFantomApi(FantomApiMethods.getTokenPrice, {
+    to: settings.currency.toUpperCase(),
+  });
+
+  const [onPresentOnboardingModal] = useModal(
+    <Modal>
+      <AccessWallet setFlow={() => console.log("setFlowDummy")} />
+    </Modal>,
+    "access-wallet-modal"
+  );
+
+  useEffect(() => {
+    if (account.wallets.length) {
+      const balancePromises = account.wallets.map((wallet: any) =>
+        getBalance(wallet.address)
+      );
+      Promise.all(balancePromises).then((balances) => {
+        const totalFTM = (balances as BigNumber[]).reduce((accum, current) => {
+          return accum + weiToUnit(current);
+        }, 0);
+
+        setTotalFtmBalance(totalFTM);
+        if (tokenPrice) {
+          setTotalValue(totalFTM * tokenPrice);
+        }
+      });
+    }
+  }, [account.wallets, tokenPrice]);
 
   const handleSwitchWallet = async (wallet: Wallet) => {
     if (
@@ -85,13 +136,28 @@ const WalletSelect: React.FC<any> = ({
       address,
     });
 
+    if (activeWallet && activeWallet.providerType === "hardware") {
+      activeWallet.signer.closeTransport();
+    }
+
     if (activeWallet && isSameAddress(address, activeWallet.address)) {
       dispatchWalletContext({
         type: "reset",
       });
+
+      // Switch to other account (if exist);
+      if (account.wallets.length > 1) {
+        handleSwitchWallet(
+          isSameAddress(account.wallets[0].address, address)
+            ? account.wallets[1]
+            : account.wallets[0]
+        );
+      }
     }
 
-    return deactivate();
+    if (activeWallet && activeWallet.providerType === "metamask") {
+      deactivate();
+    }
   };
 
   return (
@@ -185,7 +251,12 @@ const WalletSelect: React.FC<any> = ({
           >
             Total FTM balance
           </Typo2>
-          <Typo2 style={{ fontWeight: "bold" }}>12,000,100.72 FTM</Typo2>
+          <FormattedValue
+            fontSize="16px"
+            fontWeight="bold"
+            formattedValue={toFormattedBalance(totalFtmBalance)}
+            tokenSymbol="FTM"
+          />
         </Column>
         <Spacer size="xs" />
         <Column>
@@ -198,7 +269,12 @@ const WalletSelect: React.FC<any> = ({
           >
             Total asset value
           </Typo2>
-          <Typo2 style={{ fontWeight: "bold" }}>$94,123.61</Typo2>
+          <FormattedValue
+            fontSize="16px"
+            fontWeight="bold"
+            formattedValue={toFormattedBalance(totalValue)}
+            currencySymbol={toCurrencySymbol(settings.currency)}
+          />
         </Column>
       </Column>
       <Column
@@ -207,6 +283,19 @@ const WalletSelect: React.FC<any> = ({
           padding: "1rem 2rem",
         }}
       >
+        <OverlayButton
+          style={{ color: "white " }}
+          onClick={() => {
+            console.log("onboarding");
+            onPresentOnboardingModal();
+          }}
+        >
+          <Row>
+            <img alt="" src={syncSymbol} />
+            <Spacer />
+            <Typo1 style={{ fontWeight: "bold" }}>Add wallet</Typo1>
+          </Row>
+        </OverlayButton>
         <OverlayButton
           style={{ color: "white " }}
           onClick={() => {
