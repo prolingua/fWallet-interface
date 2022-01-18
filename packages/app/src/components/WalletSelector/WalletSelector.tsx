@@ -13,6 +13,7 @@ import WalletSelect from "./WalletSelect";
 import config from "../../config/config";
 import { Context } from "../../context/ModalProvider";
 import { switchToChain } from "../../web3/events";
+import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 
 const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const modalContext = useContext(Context);
@@ -21,6 +22,8 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const [closeDropDown, setCloseDropDown] = useState(false);
   const [warning, setWarning] = useState(null);
   const [requiredAccount, setRequiredAccount] = useState(null);
+  useLedgerWatcher();
+
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
     <InfoModal message={warning} withCloseButton={true} />,
     "metamask-wrong-account-modal",
