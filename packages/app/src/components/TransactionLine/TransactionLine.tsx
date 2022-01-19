@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { isSameAddress } from "../../utils/wallet";
 import {
@@ -12,6 +12,7 @@ import { LinkExt, OverlayButton, Typo1 } from "../index";
 import Spacer from "../Spacer";
 import config from "../../config/config";
 import { StyledPair, StyledPairHeader, StyledPairValue } from "./styled";
+import useFantomERC20 from "../../hooks/useFantomERC20";
 
 const TransactionLine: React.FC<any> = ({
   address,
@@ -20,6 +21,7 @@ const TransactionLine: React.FC<any> = ({
   currency,
 }) => {
   const { color } = useContext(ThemeContext);
+  const { getDecimals } = useFantomERC20();
   const [expanded, setExpanded] = useState(false);
   const isSender = isSameAddress(address, transaction.from);
   const amount = hexToUnit(transaction.value);
@@ -27,6 +29,21 @@ const TransactionLine: React.FC<any> = ({
   const timestamp = formatHexToInt(transaction.block.timestamp) * 1000;
   const now = Date.now();
   const transactionTimeAgo = millisecondsToTimeUnit(now - timestamp);
+  const tokenTransactions = transaction.tokenTransactions;
+  const [tokenDecimals, setTokenDecimals] = useState(null);
+
+  // TODO improve for multiple tokens and for ERC721 & ERC1155 type
+  useEffect(() => {
+    if (transaction.tokenTransactions.length) {
+      getDecimals(transaction.tokenTransactions[0].tokenAddress).then(
+        (decimals) => {
+          if (decimals) {
+            setTokenDecimals(decimals);
+          }
+        }
+      );
+    }
+  }, [transaction.tokenTransactions]);
 
   const transactionBase = (
     <Row style={{ width: "100%", cursor: "pointer" }}>
@@ -36,12 +53,22 @@ const TransactionLine: React.FC<any> = ({
         </Typo1>
         <Spacer size="xs" />
         <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
-          {amount.toFixed(2)} FTM
+          {tokenTransactions.length
+            ? tokenDecimals
+              ? `${hexToUnit(tokenTransactions[0].amount, tokenDecimals)} ${
+                  tokenTransactions[0].tokenSymbol
+                }`
+              : ""
+            : `${amount.toFixed(2)} FTM`}
         </Typo1>
-        <Spacer size="xs" />
-        <Typo1 style={{ color: color.greys.darkGrey() }}>
-          ({`${toCurrencySymbol(currency)}${value.toFixed(2)}`})
-        </Typo1>
+        {!tokenTransactions.length && (
+          <>
+            <Spacer size="xs" />
+            <Typo1 style={{ color: color.greys.darkGrey() }}>
+              ({`${toCurrencySymbol(currency)}${value.toFixed(2)}`})
+            </Typo1>
+          </>
+        )}
       </Row>
       <Typo1 style={{ color: color.greys.grey(), flex: 1, textAlign: "end" }}>
         {transactionTimeAgo} ago

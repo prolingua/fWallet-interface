@@ -75,6 +75,15 @@ const useFantomERC20 = () => {
     );
   };
 
+  const getDecimals = async (contractAddress: string) => {
+    const contract = await loadERC20Contract(
+      contractAddress,
+      walletContext.activeWallet.provider
+    );
+
+    return contract.decimals();
+  };
+
   const estimateGas = async (
     contractAddress: string,
     method: string,
@@ -118,6 +127,7 @@ const useFantomERC20 = () => {
       return estimateGas(contractAddress, method, args);
     },
     getTokenBalance,
+    getDecimals,
   };
 };
 

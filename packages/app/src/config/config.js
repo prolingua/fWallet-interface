@@ -19,7 +19,7 @@ const config = {
   // used in links pointing to fantom explorer
   explorerUrl: "https://ftmscan.com/",
   // used in links pointing to fantom explorer's transaction detail
-  explorerTransactionPath: "transactions",
+  explorerTransactionPath: "tx",
 };
 
 if (process.env.REACT_APP_USE === "testnet") {

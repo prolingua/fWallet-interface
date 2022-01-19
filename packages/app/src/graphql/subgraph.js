@@ -54,6 +54,17 @@ export const FETCH_ACCOUNT_TRANSACTION_HISTORY = gql`
               number
               timestamp
             }
+            tokenTransactions {
+              tokenAddress
+              tokenName
+              tokenSymbol
+              tokenType
+              type
+              amount
+              tokenId
+              sender
+              recipient
+            }
           }
         }
       }

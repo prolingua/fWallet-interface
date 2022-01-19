@@ -23,14 +23,16 @@ const TokensContent: React.FC<any> = ({ assetList }) => {
         </Typo1>
       </Row>
       <Spacer size="lg" />
-      {accountAssets.map((token: Token) => {
-        return (
-          <div key={token.address}>
-            <TokenBalance token={token} />
-            <Spacer size="lg" />
-          </div>
-        );
-      })}
+      {accountAssets
+        .filter((asset) => asset.balanceOf !== "0x0")
+        .map((token: Token) => {
+          return (
+            <div key={token.address}>
+              <TokenBalance token={token} />
+              <Spacer size="lg" />
+            </div>
+          );
+        })}
     </div>
   );
 };
