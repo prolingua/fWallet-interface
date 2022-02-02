@@ -34,6 +34,10 @@ export const AccountProvider: React.FC = ({ children }) => {
             (wallet: Wallet) => wallet.address !== action.address
           ),
         };
+      case "reset":
+        return {
+          ...initial,
+        };
       default:
         return state;
     }

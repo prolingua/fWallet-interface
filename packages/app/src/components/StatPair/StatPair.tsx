@@ -47,7 +47,7 @@ const StatPair: React.FC<any> = ({
             paddingBottom: ".1rem",
           }}
         >
-          {value2.length === 2 ? value2 + "0" : value2}
+          {value2?.length === 2 ? value2 + "0" : value2}
         </div>
         <Spacer size="xxs" />
         <div

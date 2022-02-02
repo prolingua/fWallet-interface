@@ -24,7 +24,8 @@ const TransactionLine: React.FC<any> = ({
   const { getDecimals } = useFantomERC20();
   const [expanded, setExpanded] = useState(false);
   const isSender = isSameAddress(address, transaction.from);
-  const amount = hexToUnit(transaction.value);
+  const [amount, setAmount] = useState(0);
+  const [type, setType] = useState(null);
   const value = amount * tokenPrice;
   const timestamp = formatHexToInt(transaction.block.timestamp) * 1000;
   const now = Date.now();
@@ -33,16 +34,24 @@ const TransactionLine: React.FC<any> = ({
   const [tokenDecimals, setTokenDecimals] = useState(null);
 
   // TODO improve for multiple tokens and for ERC721 & ERC1155 type
+  // TODO refine transactions in total
   useEffect(() => {
     if (transaction.tokenTransactions.length) {
       getDecimals(transaction.tokenTransactions[0].tokenAddress).then(
         (decimals) => {
-          if (decimals) {
+          if (decimals && tokenTransactions[0].type !== "APPROVAL") {
             setTokenDecimals(decimals);
+            setAmount(hexToUnit(transaction.value, decimals));
+            return;
+          }
+          if (tokenTransactions[0].type === "APPROVAL") {
+            setType(`approve ${tokenTransactions[0].tokenSymbol} spend`);
+            return;
           }
         }
       );
     }
+    setAmount(hexToUnit(transaction.value));
   }, [transaction.tokenTransactions]);
 
   const transactionBase = (
@@ -54,7 +63,9 @@ const TransactionLine: React.FC<any> = ({
         <Spacer size="xs" />
         <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
           {tokenTransactions.length
-            ? tokenDecimals
+            ? type
+              ? `${type}`
+              : tokenDecimals
               ? `${hexToUnit(tokenTransactions[0].amount, tokenDecimals)} ${
                   tokenTransactions[0].tokenSymbol
                 }`
@@ -107,7 +118,14 @@ const TransactionLine: React.FC<any> = ({
               <StyledPairValue
                 style={{ color: color.primary.semiWhite(), fontSize: "14px" }}
               >
-                {isSender ? transaction.to : transaction.from}
+                <LinkExt
+                  href={`${config.explorerUrl}address/${
+                    isSender ? transaction.to : transaction.from
+                  }`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {isSender ? transaction.to : transaction.from}
+                </LinkExt>
               </StyledPairValue>
             </StyledPair>
           </Row>

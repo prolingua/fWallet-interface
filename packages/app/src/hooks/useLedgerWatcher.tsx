@@ -1,9 +1,11 @@
 import useModal from "./useModal";
 import InfoModal from "../components/InfoModal";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import useWalletProvider from "./useWalletProvider";
+import { Context } from "../context/ModalProvider";
 
 const useLedgerWatcher = () => {
+  const { modalKey } = useContext(Context);
   const { walletContext, dispatchWalletContext } = useWalletProvider();
   const [onPresentLedgerErrorMessage] = useModal(
     <InfoModal
@@ -17,7 +19,16 @@ const useLedgerWatcher = () => {
       executeOnClose={() =>
         dispatchWalletContext({ type: "setHWInitialState" })
       }
-    />
+    />,
+    "ledger-error-modal"
+  );
+
+  const [
+    onPresentApproveOnLedgerMessage,
+    onDismissApproveOnLedgerMessage,
+  ] = useModal(
+    <InfoModal message="Confirm on Ledger device" />,
+    "ledger-confirm-modal"
   );
 
   useEffect(() => {
@@ -31,6 +42,15 @@ const useLedgerWatcher = () => {
     walletContext.hardwareWalletState.isLocked,
     walletContext.hardwareWalletState.isWrongApp,
   ]);
+
+  useEffect(() => {
+    if (walletContext.hardwareWalletState.isApproving) {
+      return onPresentApproveOnLedgerMessage();
+    }
+    if (modalKey === "ledger-confirm-modal") {
+      return onDismissApproveOnLedgerMessage();
+    }
+  }, [walletContext.hardwareWalletState.isApproving]);
 };
 
 export default useLedgerWatcher;

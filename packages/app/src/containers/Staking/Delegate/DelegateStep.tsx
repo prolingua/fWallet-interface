@@ -4,7 +4,12 @@ import useFantomContract, {
   SFC_TX_METHODS,
 } from "../../../hooks/useFantomContract";
 import { getAccountBalance } from "../../../utils/account";
-import { hexToUnit, unitToWei, weiToMaxUnit } from "../../../utils/conversion";
+import {
+  hexToUnit,
+  toFormattedBalance,
+  unitToWei,
+  weiToMaxUnit,
+} from "../../../utils/conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 import {
   canLockDelegation,
@@ -13,7 +18,7 @@ import {
   maxLockDays,
 } from "../../../utils/delegation";
 import useTransaction from "../../../hooks/useTransaction";
-import { Button, Heading3, Typo2 } from "../../../components";
+import { Button, Heading3, OverlayButton, Typo2 } from "../../../components";
 import Spacer from "../../../components/Spacer";
 import InputCurrencyBox from "../../../components/InputCurrency/InputCurrencyBox";
 import SliderWithMarks from "../../../components/Slider";
@@ -22,6 +27,9 @@ import Row from "../../../components/Row";
 import Scrollbar from "../../../components/Scrollbar";
 import DelegationSelectRow from "./DelegationSelectRow";
 import useSendTransaction from "../../../hooks/useSendTransaction";
+import walletSymbol from "../../../assets/img/symbols/wallet.svg";
+import FormattedValue from "../../../components/FormattedBalance";
+import { compare } from "../../../utils/common";
 
 const DelegateStep: React.FC<any> = ({
   delegationsData,
@@ -34,6 +42,9 @@ const DelegateStep: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [delegateAmount, setDelegateAmount] = useState("");
   const [selectedDelegation, setSelectedDelegation] = useState(null);
+  const [sort, setSort] = useState<[any, number]>([null, 1]); // 1 = asc, -1 = desc
+  const delegations = getValidators(delegationsData);
+  const [sortedDelegations, setSortedDelegations] = useState(delegations);
   const [
     selectedDelegationEligibleForLockup,
     setSelectedDelegationEligibleForLockup,
@@ -43,7 +54,6 @@ const DelegateStep: React.FC<any> = ({
   const balance = parseFloat(
     weiToMaxUnit(balanceInWei.sub(BigNumber.from(unitToWei(".2"))).toString())
   );
-  const delegations = getValidators(delegationsData);
   const accountDelegations = getAccountDelegations(accountDelegationsData);
   const handleSetDelegateAmount = (value: string) => {
     if (parseFloat(value) > balance) {
@@ -53,6 +63,22 @@ const DelegateStep: React.FC<any> = ({
   };
   const handleSliderSetDelegateAmount = (value: number) => {
     return setDelegateAmount(parseFloat(value.toFixed(2)).toString());
+  };
+  const handleSetMax = () => {
+    handleSetDelegateAmount(balance.toString());
+  };
+  const handleSetSort = (sortBy: string) => {
+    const defaultAsc = ["name"];
+    const isCurrentSortBy = sortBy === sort[0];
+    const sortDirection = isCurrentSortBy
+      ? sort[1] === 1
+        ? -1
+        : 1
+      : defaultAsc.includes(sortBy)
+      ? 1
+      : -1;
+
+    setSort([sortBy, sortDirection]);
   };
 
   const {
@@ -95,18 +121,97 @@ const DelegateStep: React.FC<any> = ({
         (delegation) => delegation.id === selectedDelegation
       );
 
-      const canLock =
+      const eligibleForLocking =
         canLockDelegation(accountDelegation, delegation) &&
         maxLockDays(delegation);
 
       setSteps(
-        canLock
+        eligibleForLocking
           ? ["Delegate", "Lockup", "Confirmation"]
           : ["Delegate", "Confirmation"]
       );
-      setSelectedDelegationEligibleForLockup(!!canLock);
+      setSelectedDelegationEligibleForLockup(!!eligibleForLocking);
     }
   }, [selectedDelegation]);
+
+  useEffect(() => {
+    // const sortOnMap = {
+    //   name: ["stakerInfo", "name"],
+    // } as any;
+    // console.log(sortOnMap[sort[0]]);
+    // console.log(delegations[0].stakerInfo);
+    const toSort = [...delegations];
+    let sorted = toSort;
+
+    if (sort[0] === "id") {
+      sorted = toSort.sort((a: any, b: any) => {
+        if (sort[1] === 1) {
+          return compare(parseInt(a.id), parseInt(b.id));
+        }
+        return compare(parseInt(b.id), parseInt(a.id));
+      });
+    }
+
+    if (sort[0] === "name") {
+      sorted = toSort.sort((a: any, b: any) => {
+        const canonicalizeForSorting = (string: string) => {
+          if (!string) {
+            return "~";
+          }
+          if (string[0] === "'") {
+            return string.substr(1, string.length - 2);
+          }
+
+          return string;
+        };
+        const compareA = canonicalizeForSorting(a.stakerInfo?.name);
+        const compareB = canonicalizeForSorting(b.stakerInfo?.name);
+
+        if (sort[1] === 1) {
+          return compare(compareA, compareB);
+        }
+        return compare(compareB, compareA);
+      });
+    }
+
+    if (sort[0] === "lock" || sort[0] === "apr") {
+      sorted = toSort.sort((a: any, b: any) => {
+        const compareA = maxLockDays(a);
+        const compareB = maxLockDays(b);
+
+        if (sort[1] === 1) {
+          return compare(compareA, compareB);
+        }
+        return compare(compareB, compareA);
+      });
+    }
+
+    if (sort[0] === "delegations") {
+      sorted = toSort.sort((a: any, b: any) => {
+        const compareA = parseInt(a.delegations.totalCount);
+        const compareB = parseInt(b.delegations.totalCount);
+
+        if (sort[1] === 1) {
+          return compare(compareA, compareB);
+        }
+        return compare(compareB, compareA);
+      });
+    }
+
+    if (sort[0] === "free") {
+      sorted = toSort.sort((a: any, b: any) => {
+        const compareA = parseInt(a.delegatedLimit);
+        const compareB = parseInt(b.delegatedLimit);
+
+        if (sort[1] === 1) {
+          return compare(compareA, compareB);
+        }
+        return compare(compareB, compareA);
+      });
+    }
+
+    setSortedDelegations(sorted);
+  }, [sort]);
 
   return (
     <>
@@ -114,6 +219,19 @@ const DelegateStep: React.FC<any> = ({
         How much would you like to delegate?
       </Heading3>
       <Spacer />
+      <OverlayButton style={{ width: "100%" }} onClick={handleSetMax}>
+        <Row style={{ width: "100%", justifyContent: "end" }}>
+          <img alt="" src={walletSymbol} />
+          <Spacer size="xs" />
+          <FormattedValue
+            formattedValue={toFormattedBalance(balance)}
+            tokenSymbol={"FTM"}
+            color={color.greys.grey()}
+            fontSize="16px"
+          />
+          <Spacer size="xs" />
+        </Row>
+      </OverlayButton>
       <InputCurrencyBox
         disabled={isDelegateCompleted || isDelegatePending}
         value={delegateAmount}
@@ -137,33 +255,132 @@ const DelegateStep: React.FC<any> = ({
       <Spacer />
       <ModalContent style={{ padding: "20px 0 0 0" }}>
         <Row style={{ margin: "0 1.5rem" }}>
-          <Typo2
+          <OverlayButton
             style={{
-              textAlign: "left",
               width: "10rem",
-              color: color.greys.grey(),
+              display: "flex",
+              justifyContent: "center",
+              gap: ".5rem",
             }}
+            onClick={() => handleSetSort("name")}
           >
-            Name
-          </Typo2>
-          <Typo2 style={{ width: "5rem", color: color.greys.grey() }}>ID</Typo2>
-          <Typo2 style={{ width: "8rem", color: color.greys.grey() }}>
-            Max lock
-          </Typo2>
-          <Typo2 style={{ width: "8rem", color: color.greys.grey() }}>
-            Max apr
-          </Typo2>
-          <Typo2 style={{ width: "8rem", color: color.greys.grey() }}>
-            Delegations
-          </Typo2>
-          <Typo2 style={{ width: "10rem", color: color.greys.grey() }}>
-            Free space
-          </Typo2>
+            <Typo2
+              style={{
+                textAlign: "left",
+                fontWeight: sort[0] === "name" ? "bold" : "normal",
+                color: color.greys.grey(),
+              }}
+            >
+              Name
+            </Typo2>
+            <Typo2
+              style={{ fontWeight: sort[0] === "name" ? "bold" : "normal" }}
+            >
+              {sort[0] === "name" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+            </Typo2>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              width: "5rem",
+              display: "flex",
+              justifyContent: "center",
+              gap: ".5rem",
+            }}
+            onClick={() => handleSetSort("id")}
+          >
+            <Typo2
+              style={{
+                fontWeight: sort[0] === "id" ? "bold" : "normal",
+                color: color.greys.grey(),
+              }}
+            >
+              ID
+            </Typo2>
+            <Typo2 style={{ fontWeight: sort[0] === "id" ? "bold" : "normal" }}>
+              {sort[0] === "id" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+            </Typo2>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              width: "8rem",
+              display: "flex",
+              justifyContent: "center",
+              gap: ".5rem",
+            }}
+            onClick={() => handleSetSort("lock")}
+          >
+            <Typo2
+              style={{
+                fontWeight: sort[0] === "lock" ? "bold" : "normal",
+                color: color.greys.grey(),
+              }}
+            >
+              Max lock
+            </Typo2>
+            <Typo2
+              style={{ fontWeight: sort[0] === "lock" ? "bold" : "normal" }}
+            >
+              {sort[0] === "lock" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+            </Typo2>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              fontWeight: sort[0] === "apr" ? "bold" : "normal",
+              width: "8rem",
+              display: "flex",
+              justifyContent: "center",
+              gap: ".5rem",
+            }}
+            onClick={() => handleSetSort("apr")}
+          >
+            <Typo2 style={{ color: color.greys.grey() }}>Max apr</Typo2>
+            <Typo2
+              style={{ fontWeight: sort[0] === "apr" ? "bold" : "normal" }}
+            >
+              {sort[0] === "apr" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+            </Typo2>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              fontWeight: sort[0] === "delegations" ? "bold" : "normal",
+              width: "8rem",
+              display: "flex",
+              justifyContent: "center",
+              gap: ".5rem",
+            }}
+            onClick={() => handleSetSort("delegations")}
+          >
+            <Typo2 style={{ color: color.greys.grey() }}>Delegations</Typo2>
+            <Typo2
+              style={{
+                fontWeight: sort[0] === "delegations" ? "bold" : "normal",
+              }}
+            >
+              {sort[0] === "delegations" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+            </Typo2>
+          </OverlayButton>
+          <OverlayButton
+            style={{
+              fontWeight: sort[0] === "free" ? "bold" : "normal",
+              width: "10rem",
+              display: "flex",
+              justifyContent: "center",
+              gap: ".5rem",
+            }}
+            onClick={() => handleSetSort("free")}
+          >
+            <Typo2 style={{ color: color.greys.grey() }}>Free space</Typo2>
+            <Typo2
+              style={{ fontWeight: sort[0] === "free" ? "bold" : "normal" }}
+            >
+              {sort[0] === "free" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+            </Typo2>
+          </OverlayButton>
         </Row>
         <Spacer size="sm" />
 
         <Scrollbar style={{ width: "100%", height: "40vh" }}>
-          {delegations.map((delegation, index) => {
+          {sortedDelegations.map((delegation, index) => {
             const accountDelegation = accountDelegations.find(
               (accountDelegation: any) =>
                 accountDelegation.delegation.toStakerId === delegation.id

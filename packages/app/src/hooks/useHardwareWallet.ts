@@ -3,6 +3,8 @@ import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
 import { loadContracts } from "../utils/wallet";
 import { LedgerSigner } from "../utils/ledger";
+import { useContext } from "react";
+import { Context } from "../context/ModalProvider";
 
 export const useHardwareWallet = () => {
   const { dispatchWalletContext, walletContext } = useWalletProvider();
@@ -36,13 +38,13 @@ export const useHardwareWallet = () => {
     });
   };
 
-  const listAddresses = async () => {
+  const listAddresses = async (startIndex = 0) => {
     try {
       const tempSigner = new LedgerSigner(
         walletContext.activeWallet.provider,
         dispatchWalletContext
       );
-      return tempSigner.listAddresses();
+      return tempSigner.listAddresses(startIndex);
     } catch (err) {
       console.error(err);
     }

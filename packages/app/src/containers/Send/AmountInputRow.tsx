@@ -9,7 +9,7 @@ import {
 import { BigNumber } from "@ethersproject/bignumber";
 import Column from "../../components/Column";
 import Row from "../../components/Row";
-import { Button, Typo2 } from "../../components";
+import { Button, OverlayButton, Typo2 } from "../../components";
 import walletSymbol from "../../assets/img/symbols/wallet.svg";
 import Spacer from "../../components/Spacer";
 import TokenSelectButton from "../../components/TokenSelectModal";
@@ -72,16 +72,18 @@ const AmountInputRow: React.FC<any> = ({
     <Column>
       <Row style={{ position: "relative", justifyContent: "space-between" }}>
         <Typo2 style={{ color: color.greys.grey() }}>Amount</Typo2>
-        <Row>
-          <img alt="" src={walletSymbol} />
-          <Spacer size="xs" />
-          <FormattedValue
-            formattedValue={formattedBalance}
-            tokenSymbol={token.symbol}
-            color={color.greys.grey()}
-            fontSize="16px"
-          />
-        </Row>
+        <OverlayButton onClick={handleSetMax}>
+          <Row>
+            <img alt="" src={walletSymbol} />
+            <Spacer size="xs" />
+            <FormattedValue
+              formattedValue={formattedBalance}
+              tokenSymbol={token.symbol}
+              color={color.greys.grey()}
+              fontSize="16px"
+            />
+          </Row>
+        </OverlayButton>
       </Row>
       <Spacer size="xs" />
       <Row

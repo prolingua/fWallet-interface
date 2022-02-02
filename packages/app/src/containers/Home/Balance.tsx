@@ -50,7 +50,7 @@ const BalanceContent: React.FC<any> = ({
 
   return (
     <Row>
-      <Column style={{ flex: 4 }}>
+      <Column style={{ flex: 2 }}>
         <Row style={{ alignItems: "flex-end" }}>
           <div style={{ fontSize: "64px", fontWeight: "bold" }}>
             {`${toCurrencySymbol(currency)}${totalBalance[0]}`}
@@ -67,7 +67,7 @@ const BalanceContent: React.FC<any> = ({
           </div>
         </Row>
       </Column>
-      <Column style={{ flex: 2 }}>
+      <Row style={{ flex: 4, justifyContent: "space-evenly" }}>
         <StatPair
           title="Available"
           value1={availableFTM[0]}
@@ -88,27 +88,27 @@ const BalanceContent: React.FC<any> = ({
           value2={rewardsFTM[1]}
           suffix="FTM"
         />
-      </Column>
-      <Column style={{ flex: 2 }}>
-        <StatPair
-          title="Minted sFTM"
-          value1={mintedSFTM[0]}
-          value2={mintedSFTM[1]}
-          suffix="sFTM"
-        />
-        <Spacer />
-        <StatPair
-          title="Locked collateral"
-          value1={lockedFTMCollateral[0]}
-          value2={lockedFTMCollateral[1]}
-          suffix="FTM"
-        />
-        {/*<Spacer />*/}
-        {/*<StatPair title="Net APY" value1="8.41%" value2="" suffix="" />*/}
-      </Column>
-      <Column style={{ flex: 2 }}>
-        <CRatio value={cRatioPercentage ? cRatioPercentage.toFixed(0) : 0} />
-      </Column>
+      </Row>
+      {/*<Column style={{ flex: 2 }}>*/}
+      {/*  <StatPair*/}
+      {/*    title="Minted sFTM"*/}
+      {/*    value1={mintedSFTM[0]}*/}
+      {/*    value2={mintedSFTM[1]}*/}
+      {/*    suffix="sFTM"*/}
+      {/*  />*/}
+      {/*  <Spacer />*/}
+      {/*  <StatPair*/}
+      {/*    title="Locked collateral"*/}
+      {/*    value1={lockedFTMCollateral[0]}*/}
+      {/*    value2={lockedFTMCollateral[1]}*/}
+      {/*    suffix="FTM"*/}
+      {/*  />*/}
+      {/*  /!*<Spacer />*!/*/}
+      {/*  /!*<StatPair title="Net APY" value1="8.41%" value2="" suffix="" />*!/*/}
+      {/*</Column>*/}
+      {/*<Column style={{ flex: 2 }}>*/}
+      {/*  <CRatio value={cRatioPercentage ? cRatioPercentage.toFixed(0) : 0} />*/}
+      {/*</Column>*/}
     </Row>
   );
 };

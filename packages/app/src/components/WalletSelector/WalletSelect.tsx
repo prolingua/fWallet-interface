@@ -26,10 +26,8 @@ import {
 } from "../../utils/conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 import useFantomApiData from "../../hooks/useFantomApiData";
-import formattedValue from "../FormattedBalance";
 import FormattedValue from "../FormattedBalance";
 import useModal from "../../hooks/useModal";
-import Onboarding from "../../containers/Onboarding";
 import Modal from "../Modal";
 import { AccessWallet } from "../../containers/Onboarding/Onboarding";
 
@@ -40,7 +38,7 @@ const WalletSelect: React.FC<any> = ({
   setRequiredAccount,
 }) => {
   const context = useWeb3React<Web3Provider>();
-  const { restoreWalletFromPrivateKey } = useSoftwareWallet();
+  // const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const { account, dispatchAccount } = useAccounts();
   const { settings } = useSettings();
   const { getBalance } = useFantomNative();
@@ -61,7 +59,7 @@ const WalletSelect: React.FC<any> = ({
 
   const [onPresentOnboardingModal] = useModal(
     <Modal>
-      <AccessWallet setFlow={() => console.log("setFlowDummy")} />
+      <AccessWallet setFlow={console.log} addWallet />
     </Modal>,
     "access-wallet-modal"
   );
@@ -158,6 +156,17 @@ const WalletSelect: React.FC<any> = ({
     if (activeWallet && activeWallet.providerType === "metamask") {
       deactivate();
     }
+  };
+
+  const handleLogout = () => {
+    const { deactivate } = context;
+
+    if (activeWallet && activeWallet.providerType === "metamask") {
+      deactivate();
+    }
+
+    dispatchWalletContext({ type: "reset" });
+    dispatchAccount({ type: "reset" });
   };
 
   return (
@@ -286,7 +295,6 @@ const WalletSelect: React.FC<any> = ({
         <OverlayButton
           style={{ color: "white " }}
           onClick={() => {
-            console.log("onboarding");
             onPresentOnboardingModal();
           }}
         >
@@ -296,32 +304,51 @@ const WalletSelect: React.FC<any> = ({
             <Typo1 style={{ fontWeight: "bold" }}>Add wallet</Typo1>
           </Row>
         </OverlayButton>
+        {/*<OverlayButton*/}
+        {/*  style={{ color: "white " }}*/}
+        {/*  onClick={() => {*/}
+        {/*    // loadWeb3Modal();*/}
+        {/*    activateInjected();*/}
+        {/*    handleClose();*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <Row>*/}
+        {/*    <img alt="" src={syncSymbol} />*/}
+        {/*    <Spacer />*/}
+        {/*    <Typo1 style={{ fontWeight: "bold" }}>Connect Metamask</Typo1>*/}
+        {/*  </Row>*/}
+        {/*</OverlayButton>*/}
+        {/*<OverlayButton*/}
+        {/*  style={{ color: "white " }}*/}
+        {/*  onClick={() => {*/}
+        {/*    restoreWalletFromPrivateKey(*/}
+        {/*      "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"*/}
+        {/*    ).then(handleClose());*/}
+        {/*  }}*/}
+        {/*>*/}
+        {/*  <Row>*/}
+        {/*    <img alt="" src={syncSymbol} />*/}
+        {/*    <Spacer />*/}
+        {/*    <Typo1 style={{ fontWeight: "bold" }}>Connect PrivateKey</Typo1>*/}
+        {/*  </Row>*/}
+        {/*</OverlayButton>*/}
+      </Column>
+      <Column
+        style={{
+          borderTop: "1px solid rgba(58,72,97,1)",
+          padding: "1rem 2rem",
+        }}
+      >
         <OverlayButton
           style={{ color: "white " }}
           onClick={() => {
-            // loadWeb3Modal();
-            activateInjected();
-            handleClose();
+            handleLogout();
           }}
         >
           <Row>
-            <img alt="" src={syncSymbol} />
+            <img alt="" src={crossSymbol} />
             <Spacer />
-            <Typo1 style={{ fontWeight: "bold" }}>Connect Metamask</Typo1>
-          </Row>
-        </OverlayButton>
-        <OverlayButton
-          style={{ color: "white " }}
-          onClick={() => {
-            restoreWalletFromPrivateKey(
-              "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"
-            ).then(handleClose());
-          }}
-        >
-          <Row>
-            <img alt="" src={syncSymbol} />
-            <Spacer />
-            <Typo1 style={{ fontWeight: "bold" }}>Connect PrivateKey</Typo1>
+            <Typo1 style={{ fontWeight: "bold" }}>Logout</Typo1>
           </Row>
         </OverlayButton>
       </Column>

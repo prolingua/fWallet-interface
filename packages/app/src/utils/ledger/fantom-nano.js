@@ -360,7 +360,6 @@ export default class FantomNano {
    */
   getRawTransaction(tx) {
     // prepare the transaction buffer for sending
-    console.log({ tx });
     const txRaw = new Transaction(tx, this.getTransactionSignatureOptions());
 
     // get the main set of data and add chain id

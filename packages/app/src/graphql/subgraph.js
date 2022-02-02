@@ -54,6 +54,7 @@ export const FETCH_ACCOUNT_TRANSACTION_HISTORY = gql`
               number
               timestamp
             }
+            inputData
             tokenTransactions {
               tokenAddress
               tokenName
@@ -86,8 +87,8 @@ export const FETCH_ERC20_TOKEN_LIST = gql`
 `;
 
 export const FETCH_ERC20_TOKEN_LIST_AND_BALANCE = gql`
-  query ERC20TokenList($owner: Address!) {
-    erc20TokenList {
+  query ERC20TokenList($owner: Address!, $count: Int!) {
+    erc20TokenList(count: $count) {
       address
       name
       symbol

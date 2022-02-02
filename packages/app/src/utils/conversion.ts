@@ -22,7 +22,12 @@ export const weiToUnit = (value: BigNumber, decimals = 18) => {
 };
 
 export const weiToMaxUnit = (value: string, decimals = 18) => {
-  const safeValue = BigNumber.from(value).toString();
+  let safeValue = BigNumber.from(value).toString();
+  // Fill wei with leading 0's if needed
+  if (safeValue.length < decimals) {
+    const fill = decimals - safeValue.length;
+    safeValue = Array(fill).fill("0").join("") + safeValue;
+  }
   return (
     safeValue.toString().substr(0, safeValue.length - decimals) +
     "." +

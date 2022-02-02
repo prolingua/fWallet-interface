@@ -244,10 +244,11 @@ export const canLockDelegation = (
 ) => {
   const now = Date.now() / 1000;
 
-  return (
-    parseInt(validator.lockedUntil) - now > MIN_LOCKUP_DAYS * DAY_IN_SECONDS &&
-    accountDelegation?.delegation?.lockedUntil === "0x0"
-  );
+  const isValidLockDuration =
+    parseInt(validator.lockedUntil) - now > MIN_LOCKUP_DAYS * DAY_IN_SECONDS;
+  const isNotAlreadyLocked =
+    accountDelegation?.delegation?.lockedUntil === "0x0" || !accountDelegation;
+  return isValidLockDuration && isNotAlreadyLocked;
 };
 
 export const calculateDelegationApr = (lockedDays = 0) => {

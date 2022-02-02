@@ -5,6 +5,22 @@ export interface ERC20Tokens {
   erc20TokenList: Token[];
 }
 
+export const stickyTokensList = [
+  "ftm",
+  "wftm",
+  "wbtc",
+  "weth",
+  "usdc",
+  "usdt",
+  "dai",
+  // "BOO",
+  // "SPIRIT",
+  // "BEETS",
+  // "SCREAM",
+  // "LQDR",
+  // "TAROT",
+];
+
 export const filterTokensWithBalance = (tokenList: ERC20Tokens) => {
   if (!tokenList?.erc20TokenList) {
     return;

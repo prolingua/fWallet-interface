@@ -52,17 +52,19 @@ const InputAddress: React.FC<any> = ({
     <Column>
       <Row style={{ justifyContent: "space-between" }}>
         <Typo2 style={{ color: color.greys.grey() }}>To</Typo2>
-        <Row>
-          <img alt="" src={walletSymbol} />
-          <Spacer size="xs" />
-          {validAddress ? (
-            <AddressBalance address={validAddress} token={token} />
-          ) : (
-            <Typo2 style={{ color: color.greys.grey() }}>
-              {`0 ${token.symbol}`}
-            </Typo2>
-          )}
-        </Row>
+        {validAddress && (
+          <Row>
+            <img alt="" src={walletSymbol} />
+            <Spacer size="xs" />
+            {validAddress ? (
+              <AddressBalance address={validAddress} token={token} />
+            ) : (
+              <Typo2 style={{ color: color.greys.grey() }}>
+                {`0 ${token.symbol}`}
+              </Typo2>
+            )}
+          </Row>
+        )}
       </Row>
       <Spacer size="xs" />
       <Row

@@ -127,7 +127,9 @@ export class LedgerSigner extends Signer {
 
   async listAddresses(firstAddress = 0, length = 5): Promise<string[]> {
     try {
-      return await this._retry((ftm) => ftm.listAddresses(0, 0, length));
+      return await this._retry((ftm) =>
+        ftm.listAddresses(0, firstAddress, length)
+      );
     } finally {
       await this.closeTransport();
     }

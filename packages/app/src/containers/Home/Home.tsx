@@ -34,9 +34,15 @@ const Home: React.FC<any> = () => {
   const delegationsData = apiData[
     FantomApiMethods.getDelegationsForAccount
   ].get(activeAddress);
-  const assetsList = apiData[FantomApiMethods.getAssetsListForAccount].get(
+  const topTokensList = apiData[FantomApiMethods.getTokenListForAccount].get(
     activeAddress
   );
+
+  const erc20AssetsList = topTokensList?.data
+    ? topTokensList.data.erc20TokenList.filter(
+        (asset: any) => asset.decimals > 0 && asset.balance !== "0x0"
+      )
+    : [];
 
   useFantomApi(FantomApiMethods.getTokenPrice, {
     to: settings.currency.toUpperCase(),
@@ -65,6 +71,14 @@ const Home: React.FC<any> = () => {
     },
     activeAddress
   );
+  useFantomApi(
+    FantomApiMethods.getTokenListForAccount,
+    {
+      owner: activeAddress,
+      count: 250,
+    },
+    activeAddress
+  );
 
   useEffect(() => {
     if (activeAddress) {
@@ -86,7 +100,7 @@ const Home: React.FC<any> = () => {
   const isDoneLoadingTransactionHistory =
     activeAddress && accountData?.data && tokenPrice?.data;
 
-  const isDoneLoadingTokens = activeAddress && assetsList?.data;
+  const isDoneLoadingTokens = activeAddress && topTokensList?.data;
 
   return (
     <>
@@ -112,7 +126,7 @@ const Home: React.FC<any> = () => {
           accountData={accountData}
         />
         <Spacer />
-        <Tokens loading={!isDoneLoadingTokens} tokenList={assetsList} />
+        <Tokens loading={!isDoneLoadingTokens} tokenList={erc20AssetsList} />
       </ResponsiveRow>
     </>
   );

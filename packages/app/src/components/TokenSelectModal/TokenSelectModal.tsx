@@ -1,10 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Modal from "../Modal";
 
-import { Heading2, OverlayButton, Typo1, Typo3 } from "../index";
+import { OverlayButton, Typo3 } from "../index";
 import Row from "../Row";
 import Spacer from "../Spacer";
-import CrossSymbol from "../../assets/img/symbols/Cross.svg";
 import { compare, FANTOM_NATIVE } from "../../utils/common";
 import Column from "../Column";
 import styled, { ThemeContext } from "styled-components";
@@ -12,6 +11,9 @@ import TokenBalance from "../TokenBalance";
 import ModalTitle from "../ModalTitle";
 import ModalContent from "../ModalContent";
 import Scrollbar from "../Scrollbar";
+import InputTextBox from "../InputText/InputTextBox";
+import { hexToUnit } from "../../utils/conversion";
+import { stickyTokensList } from "../../utils/token";
 
 const TokenSelectModal: React.FC<any> = ({
   onDismiss,
@@ -24,10 +26,38 @@ const TokenSelectModal: React.FC<any> = ({
   const allAssets = includeNative
     ? [{ ...FANTOM_NATIVE, balanceOf: ftmBalance }, ...assets]
     : assets;
-  const sortedAssets = allAssets.sort(
-    (a: any, b: any) =>
-      compare(b.balanceOf, a.balanceOf) || compare(a.symbol, b.symbol)
+  const erc20Assets = allAssets.filter((asset: any) => {
+    return asset.decimals > 0;
+  });
+  const sortedAssets = [...erc20Assets]
+    .filter(
+      (asset: any) => !stickyTokensList.includes(asset.symbol.toLowerCase())
+    )
+    .sort(
+      (a: any, b: any) =>
+        compare(hexToUnit(b.balanceOf), hexToUnit(a.balanceOf)) ||
+        compare(a.symbol, b.symbol)
+    );
+  const stickyAssets = [...erc20Assets].filter((asset: any) =>
+    stickyTokensList.includes(asset.symbol.toLowerCase())
   );
+
+  const [search, setSearch] = useState("");
+  const [listAssets, setListAssets] = useState([
+    ...stickyAssets,
+    ...sortedAssets,
+  ]);
+
+  useEffect(() => {
+    const filteredAssets = [...stickyAssets, ...sortedAssets].filter(
+      (asset: any) => {
+        const result = asset.symbol.toLowerCase().search(search.toLowerCase());
+        return result >= 0;
+      }
+    );
+
+    setListAssets(filteredAssets);
+  }, [search]);
 
   return (
     <Modal
@@ -35,25 +65,13 @@ const TokenSelectModal: React.FC<any> = ({
       onDismiss={onDismiss}
     >
       <ModalTitle text="Select token" />
-      {/*<Row*/}
-      {/*  style={{*/}
-      {/*    padding: "0 2rem",*/}
-      {/*    borderBottom: `1px solid ${color.greys.grey(".5")}`,*/}
-      {/*    boxSizing: "border-box",*/}
-      {/*    width: "95%",*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  <Typo1*/}
-      {/*    style={{*/}
-      {/*      borderBottom: `2px solid ${color.primary.fantomBlue()}`,*/}
-      {/*      boxSizing: "border-box",*/}
-      {/*      fontWeight: "bold",*/}
-      {/*      color: color.greys.grey(".8"),*/}
-      {/*    }}*/}
-      {/*  >*/}
-      {/*    Your Tokens*/}
-      {/*  </Typo1>*/}
-      {/*</Row>*/}
+      <InputTextBox
+        text={search}
+        setText={setSearch}
+        placeholder="Search..."
+        small
+      />
+      <Spacer />
       <ModalContent style={{ padding: "16px 0px" }}>
         <Column>
           <Row
@@ -83,7 +101,7 @@ const TokenSelectModal: React.FC<any> = ({
           </Row>
           <Scrollbar style={{ height: "60vh" }}>
             <Column>
-              {sortedAssets.map((asset: any) => {
+              {listAssets.map((asset: any) => {
                 return (
                   <StyledOverlayButton
                     key={"token-select-" + asset.address}

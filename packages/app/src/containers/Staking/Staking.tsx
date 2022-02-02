@@ -3,7 +3,6 @@ import { ThemeContext } from "styled-components";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
-import { ContentBox } from "../../components";
 import Row, { ResponsiveRow } from "../../components/Row/Row";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";

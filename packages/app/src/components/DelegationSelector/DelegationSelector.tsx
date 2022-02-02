@@ -26,6 +26,7 @@ const DelegationSelector: React.FC<any> = ({
     >
       <Button
         variant="secondary"
+        disabled={!selectedDelegation}
         style={{
           display: "flex",
           alignItems: "center",

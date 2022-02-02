@@ -515,17 +515,27 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
 
 const SelectLedgerAccountModal: React.FC<any> = ({
   onDismiss,
-  addresses,
   executeOnClose,
 }) => {
   const { color } = useContext(ThemeContext);
-  const { connectLedger } = useHardwareWallet();
+  const { connectLedger, listAddresses } = useHardwareWallet();
+  const [ledgerAddresses, setLedgerAddresses] = useState([]);
+  const [startingIndex, setStartingIndex] = useState(0);
   const [selected, setSelected] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingAccount, setIsLoadingAccount] = useState(false);
 
   useEffect(() => {
     return () => executeOnClose();
   }, []);
+
+  useEffect(() => {
+    setLedgerAddresses([]);
+    setIsLoading(true);
+    listAddresses(startingIndex)
+      .then((addresses) => setLedgerAddresses(addresses))
+      .finally(() => setIsLoading(false));
+  }, [startingIndex]);
 
   return (
     <Modal onDismiss={onDismiss} style={{ minWidth: "35rem" }}>
@@ -539,46 +549,71 @@ const SelectLedgerAccountModal: React.FC<any> = ({
           backgroundColor: color.primary.black(),
         }}
       >
-        {addresses.map((address: string) => {
-          const isSelected = selected?.toLowerCase() === address.toLowerCase();
-          return (
-            <OverlayButton
-              key={`address-${address}`}
-              onClick={() => setSelected(address)}
-            >
-              <Typo1 style={{ fontWeight: isSelected ? "bold" : "normal" }}>
-                {address}
-              </Typo1>
-              <Spacer size="xs" />
-            </OverlayButton>
-          );
-        })}
+        {!!ledgerAddresses.length &&
+          ledgerAddresses.map((address: string) => {
+            const isSelected =
+              selected?.toLowerCase() === address.toLowerCase();
+            return (
+              <OverlayButton
+                key={`address-${address}`}
+                onClick={() => setSelected(address)}
+              >
+                <Typo1 style={{ fontWeight: isSelected ? "bold" : "normal" }}>
+                  {address}
+                </Typo1>
+                <Spacer size="xs" />
+              </OverlayButton>
+            );
+          })}
+        {isLoading && (
+          <Row
+            style={{
+              height: "10rem",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typo1 style={{ fontWeight: "bold" }}>Fetching accounts...</Typo1>
+          </Row>
+        )}
       </ContentBox>
+      <Spacer size="sm" />
+      <Row
+        style={{
+          width: "80%",
+          justifyContent: "space-between",
+        }}
+      >
+        <OverlayButton onClick={() => setStartingIndex(startingIndex - 5)}>
+          {startingIndex >= 5 && (
+            <Typo1 style={{ fontWeight: "bold" }}>{"< Prev 5"}</Typo1>
+          )}
+        </OverlayButton>
+        <OverlayButton onClick={() => setStartingIndex(startingIndex + 5)}>
+          <Typo1 style={{ fontWeight: "bold" }}>{"Next 5 >"}</Typo1>
+        </OverlayButton>
+      </Row>
       <Spacer />
       <Button
         variant="primary"
-        disabled={!selected || isLoading}
+        disabled={!selected || isLoading || isLoadingAccount}
         onClick={() => {
-          setIsLoading(true);
-          connectLedger(addresses.indexOf(selected))
+          setIsLoadingAccount(true);
+          connectLedger(ledgerAddresses.indexOf(selected) + startingIndex)
             .then(onDismiss)
-            .finally(() => setIsLoading(false));
+            .finally(() => setIsLoadingAccount(false));
         }}
       >
-        {isLoading ? "Loading..." : "Continue"}
+        {isLoading || isLoadingAccount ? "Loading..." : "Continue"}
       </Button>
     </Modal>
   );
 };
 
-export const AccessWallet: React.FC<any> = ({ setFlow }) => {
+export const AccessWallet: React.FC<any> = ({ setFlow, addWallet }) => {
   const { color } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
-  // const { activateLedger } = useLedger();
-  const { connectLedger, listAddresses } = useHardwareWallet();
-  // const { walletContext, dispatchWalletContext } = useWalletProvider();
-  const [ledgerAddresses, setLedgerAddresses] = useState([]);
   const [tool, setTool] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -593,52 +628,14 @@ export const AccessWallet: React.FC<any> = ({ setFlow }) => {
   );
 
   const [onPresentSelectLedgerAccountModal] = useModal(
-    <SelectLedgerAccountModal
-      addresses={ledgerAddresses}
-      startAccountIndex={0}
-      executeOnClose={() => setLedgerAddresses([])}
-    />
+    <SelectLedgerAccountModal executeOnClose={() => setSelectedTool(null)} />
   );
-
-  useEffect(() => {
-    if (ledgerAddresses.length) {
-      onPresentSelectLedgerAccountModal();
-    }
-  }, [ledgerAddresses]);
 
   useEffect(() => {
     if (context?.error) {
       setError(context.error);
     }
   }, [context.error]);
-
-  // const [onPresentLedgerErrorMessage] = useModal(
-  //   <InfoModal
-  //     message={
-  //       walletContext.hardwareWalletState.isLocked
-  //         ? "Ledger is locked. Unlock ledger first."
-  //         : walletContext.hardwareWalletState.isWrongApp
-  //         ? "Ledger wrong app selected. Connect ledger to FTM APP."
-  //         : "Ledger: Unknown error"
-  //     }
-  //     executeOnClose={() =>
-  //       dispatchWalletContext({ type: "setHWInitialState" })
-  //     }
-  //   />
-  // );
-  //
-  // console.log(walletContext.hardwareWalletState);
-  // useEffect(() => {
-  //   if (
-  //     walletContext.hardwareWalletState.isLocked ||
-  //     walletContext.hardwareWalletState.isWrongApp
-  //   ) {
-  //     onPresentLedgerErrorMessage();
-  //   }
-  // }, [
-  //   walletContext.hardwareWalletState.isLocked,
-  //   walletContext.hardwareWalletState.isWrongApp,
-  // ]);
 
   const handleSetTool = (tool: string) => {
     setError(null);
@@ -648,25 +645,14 @@ export const AccessWallet: React.FC<any> = ({ setFlow }) => {
 
   useEffect(() => {
     if (selectedTool === "ledger") {
-      // connectLedger();
-      setIsLoading(true);
-      listAddresses()
-        .then((addresses) => {
-          setLedgerAddresses(addresses);
-        })
-        .finally(() => {
-          setIsLoading(false);
-          setSelectedTool(null);
-        });
+      onPresentSelectLedgerAccountModal();
     }
     if (selectedTool === "metamask") {
-      // loadWeb3Modal();
       activateInjected().finally(() => {
         setSelectedTool(null);
       });
     }
     if (selectedTool === "coinbase") {
-      // loadWeb3Modal();
       activateWalletLink().finally(() => {
         setSelectedTool(null);
       });
@@ -772,15 +758,6 @@ export const AccessWallet: React.FC<any> = ({ setFlow }) => {
               </ContentBox>
             </OverlayButton>
           </Row>
-          {/*{ledgerAddresses && ledgerAddresses.length > 0 && (*/}
-          {/*  <Column>*/}
-          {/*    {ledgerAddresses.map((address: string, addressIndex: number) => (*/}
-          {/*      <OverlayButton onClick={() => connectLedger(addressIndex)}>*/}
-          {/*        <Typo1>{address}</Typo1>*/}
-          {/*      </OverlayButton>*/}
-          {/*    ))}{" "}*/}
-          {/*  </Column>*/}
-          {/*)}*/}
           <Spacer size="xl" />
           <Column style={{ alignSelf: "center", alignItems: "center" }}>
             <Button
@@ -800,34 +777,41 @@ export const AccessWallet: React.FC<any> = ({ setFlow }) => {
               </Column>
             )}
             <Spacer size="lg" />
-            <OverlayButton onClick={() => setFlow(null)}>
-              <Typo1
-                style={{ fontWeight: "bold", color: color.primary.cyan() }}
-              >
-                Cancel
-              </Typo1>
-            </OverlayButton>
-            <Spacer size="xl" />
-            <Spacer size="xl" />
-            <Column
-              style={{
-                marginTop: "auto",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typo1 style={{ color: color.greys.grey() }}>
-                Dont have a wallet?
-              </Typo1>
-              <Spacer size="sm" />
-              <OverlayButton onClick={() => setFlow("newWallet")}>
-                <Typo1
-                  style={{ fontWeight: "bold", color: color.primary.cyan() }}
+            {!addWallet && (
+              <>
+                <OverlayButton onClick={() => setFlow(null)}>
+                  <Typo1
+                    style={{ fontWeight: "bold", color: color.primary.cyan() }}
+                  >
+                    Cancel
+                  </Typo1>
+                </OverlayButton>
+                <Spacer size="xl" />
+                <Spacer size="xl" />
+                <Column
+                  style={{
+                    marginTop: "auto",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
-                  Create a wallet
-                </Typo1>
-              </OverlayButton>
-            </Column>
+                  <Typo1 style={{ color: color.greys.grey() }}>
+                    Dont have a wallet?
+                  </Typo1>
+                  <Spacer size="sm" />
+                  <OverlayButton onClick={() => setFlow("newWallet")}>
+                    <Typo1
+                      style={{
+                        fontWeight: "bold",
+                        color: color.primary.cyan(),
+                      }}
+                    >
+                      Create a wallet
+                    </Typo1>
+                  </OverlayButton>
+                </Column>
+              </>
+            )}
           </Column>
         </Column>
       )}
@@ -1023,11 +1007,11 @@ const WalletCreatedModal: React.FC<any> = ({ onDismiss, mnemonic }) => {
 
 const NewWalletWizard: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
-  const { generateMnemonic, createNewWallet } = useSoftwareWallet();
+  const { generateMnemonic } = useSoftwareWallet();
   const [mnemonic, setMnemonic] = useState(generateMnemonic());
   const [acceptRisk, setAcceptRisk] = useState(false);
   const [verified, setIsVerified] = useState(false);
-  const [onPresentVerifyModal, setOnPresentVerifyModal] = useModal(
+  const [onPresentVerifyModal] = useModal(
     <VerifyMnemonicModal mnemonic={mnemonic} setIsVerified={setIsVerified} />,
     "verify-mnemonic-modal"
   );
@@ -1060,14 +1044,20 @@ const NewWalletWizard: React.FC<any> = () => {
                     alignItems: "center",
                   }}
                 >
-                  <Spacer />
-                  <Typo2 style={{ color: color.greys.darkGrey() }}>
+                  <Spacer size="sm" />
+                  <Typo2
+                    style={{
+                      color: color.greys.darkGrey(),
+                      userSelect: "none",
+                    }}
+                  >
                     {index + 1}.
                   </Typo2>
-                  <Spacer size="sm" />
-                  <Typo2 style={{ color: color.white, fontWeight: "bold" }}>
-                    {textArray[index] || ""}
-                  </Typo2>
+                  <Row style={{ width: "100%", justifyContent: "center" }}>
+                    <Typo2 style={{ color: color.white, fontWeight: "bold" }}>
+                      {textArray[index] || ""}
+                    </Typo2>
+                  </Row>
                 </Row>
               );
             })}
@@ -1075,7 +1065,7 @@ const NewWalletWizard: React.FC<any> = () => {
         </ContentBox>
         <Spacer />
         <ContentBox>
-          <Typo2 style={{ color: color.greys.grey() }}>{mnemonic}</Typo2>
+          <Typo2>{mnemonic}</Typo2>
         </ContentBox>
         <Spacer />
         <OverlayButton
@@ -1113,18 +1103,19 @@ const NewWalletWizard: React.FC<any> = () => {
               key phrases
             </Typo2>
             <Spacer size="lg" />
-            <Row>
-              <StyledCheckbox
-                name="accept"
-                type="checkbox"
-                checked={acceptRisk}
-                onChange={() => setAcceptRisk(!acceptRisk)}
-              />
-              <Spacer size="xs" />
-              <Typo2 style={{ color: color.greys.grey() }}>
-                I wrote down my key phrase in a secure location
-              </Typo2>
-            </Row>
+            <OverlayButton onClick={() => setAcceptRisk(!acceptRisk)}>
+              <Row style={{ alignItems: "center" }}>
+                <StyledCheckbox
+                  name="accept"
+                  type="checkbox"
+                  checked={acceptRisk}
+                />
+                <Spacer size="xs" />
+                <Typo2 style={{ color: color.greys.grey() }}>
+                  I wrote down my key phrase in a secure location
+                </Typo2>
+              </Row>
+            </OverlayButton>
             <Spacer size="lg" />
             <Button
               disabled={!acceptRisk}

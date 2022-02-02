@@ -2,6 +2,7 @@ import {
   FETCH_ACCOUNT_TRANSACTION_HISTORY,
   FETCH_DELEGATIONS_BY_ADDRESS,
   FETCH_ERC20_ASSETS,
+  FETCH_ERC20_TOKEN_LIST,
   FETCH_ERC20_TOKEN_LIST_AND_BALANCE,
   FETCH_FMINT_ACCOUNT_BY_ADDRESS,
   FETCH_GAS_PRICE,
@@ -25,6 +26,7 @@ export enum FantomApiMethods {
   getGasPrice = "getGasPrice",
   getFMintForAccount = "getFMintForAccount",
   getDelegationsForAccount = "getDelegationsForAccount",
+  getTokenList = "getTokenList",
   getTokenListForAccount = "getTokenListForAccount",
   getAssetsListForAccount = "getAssetsListForAccount",
   getDelegations = "getDelegations",
@@ -43,6 +45,7 @@ const methods: { [key in FantomApiMethods]: any } = {
     FETCH_DELEGATIONS_BY_ADDRESS,
   [FantomApiMethods.getDelegations]: () => FETCH_STAKERS,
   [FantomApiMethods.getFMintForAccount]: () => FETCH_FMINT_ACCOUNT_BY_ADDRESS,
+  [FantomApiMethods.getTokenList]: () => FETCH_ERC20_TOKEN_LIST,
   [FantomApiMethods.getTokenListForAccount]: () =>
     FETCH_ERC20_TOKEN_LIST_AND_BALANCE,
   [FantomApiMethods.getAssetsListForAccount]: () => FETCH_ERC20_ASSETS,

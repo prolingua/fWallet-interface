@@ -30,7 +30,7 @@ export const DelegationNameInfo: React.FC<any> = ({
           marginRight: !flexColumn && ".6rem",
           marginBottom: flexColumn && ".2rem",
         }}
-        src={delegationInfo?.logoURL || delegationFallbackImg}
+        src={delegationInfo?.logoUrl || delegationFallbackImg}
       />
       <Column>
         <Typo1 style={{ fontWeight: "bold" }}>

@@ -190,6 +190,7 @@ const SwapTokensContent: React.FC<any> = ({
   tokenList,
   setActiveTokens,
   setSwapRoute,
+  refetchTimer,
 }) => {
   const { color } = useContext(ThemeContext);
   const { walletContext } = useWalletProvider();
@@ -215,7 +216,6 @@ const SwapTokensContent: React.FC<any> = ({
   const [priceImpact, setPriceImpact] = useState(null);
   const [minReceived, setMinReceived] = useState(null);
   const [allowance, setAllowance] = useState(BigNumber.from(0));
-  const [refetchTimer, setRefetchTimer] = useState(0);
 
   const hasAllowance = (value: BigNumber) => {
     if (inToken?.decimals) {
@@ -270,19 +270,6 @@ const SwapTokensContent: React.FC<any> = ({
     setInToken(outToken);
     setOutToken(inToken);
   };
-
-  useEffect(() => {
-    let interval: any;
-    let times = 0;
-    if (!interval) {
-      interval = setInterval(() => {
-        times += 1;
-        setRefetchTimer(times);
-      }, 5000);
-    }
-
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     if (tokenList) {
@@ -606,7 +593,7 @@ const SwapTokensContent: React.FC<any> = ({
   );
 };
 
-const TokenChart: React.FC<any> = ({ activeTokens }) => {
+const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer }) => {
   const { getMarketHistory } = useCoingeckoApi();
   const { apiData } = useApiData();
   const [interval, setInterval] = useState("15m");
@@ -647,7 +634,7 @@ const TokenChart: React.FC<any> = ({ activeTokens }) => {
       return;
     }
     setChartData(null);
-  }, [activeTokens, interval]);
+  }, [activeTokens, interval, refetchTimer]);
 
   useEffect(() => {
     if (inTokenChartData && outTokenChartData) {
@@ -829,6 +816,7 @@ const Swap: React.FC<any> = () => {
     },
   ]);
   const [swapRoute, setSwapRoute] = useState(null);
+  const [refetchTimer, setRefetchTimer] = useState(0);
   const activeAddress = walletContext.activeWallet.address
     ? walletContext.activeWallet.address.toLowerCase()
     : null;
@@ -859,6 +847,19 @@ const Swap: React.FC<any> = () => {
   const OOTokenListData =
     apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_TOKENLIST]?.response?.data
       ?.data;
+
+  useEffect(() => {
+    let interval: any;
+    let times = 0;
+    if (!interval) {
+      interval = setInterval(() => {
+        times += 1;
+        setRefetchTimer(times);
+      }, 30000);
+    }
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     getTokenList();
@@ -896,10 +897,11 @@ const Swap: React.FC<any> = () => {
         tokenList={tokenList}
         setActiveTokens={setActiveTokens}
         setSwapRoute={setSwapRoute}
+        refetchTimer={refetchTimer}
       />
       <Spacer />
       <Column style={{ width: "100%" }}>
-        <TokenChart activeTokens={activeTokens} />
+        <TokenChart activeTokens={activeTokens} refetchTimer={refetchTimer} />
         <Spacer />
         <SwapRoute
           route={swapRoute}
