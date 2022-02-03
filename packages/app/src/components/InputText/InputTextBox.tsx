@@ -91,7 +91,9 @@ const InputTextBox: React.FC<any> = ({
           {pre && (
             <>
               <Spacer size="sm" />
-              <Typo2>{pre}</Typo2>
+              <Typo2 style={{ fontWeight: !disabled ? "bold" : "normal" }}>
+                {pre}
+              </Typo2>
             </>
           )}
           <Spacer size="sm" />

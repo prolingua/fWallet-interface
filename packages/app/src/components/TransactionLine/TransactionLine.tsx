@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
-import { isSameAddress } from "../../utils/wallet";
+import { formatAddress, isSameAddress } from "../../utils/wallet";
 import {
   formatHexToInt,
   hexToUnit,
@@ -37,6 +37,17 @@ const TransactionLine: React.FC<any> = ({
   // TODO refine transactions in total
   useEffect(() => {
     if (transaction.tokenTransactions.length) {
+      if (
+        tokenTransactions[0].tokenType === "ERC721" ||
+        tokenTransactions[0].tokenType === "ERC1155"
+      ) {
+        setType(
+          `${tokenTransactions[0].tokenType} ${
+            tokenTransactions[0].tokenSymbol
+          } [${parseInt(tokenTransactions[0].tokenId)}]`
+        );
+        return;
+      }
       getDecimals(transaction.tokenTransactions[0].tokenAddress).then(
         (decimals) => {
           if (decimals && tokenTransactions[0].type !== "APPROVAL") {
@@ -45,13 +56,22 @@ const TransactionLine: React.FC<any> = ({
             return;
           }
           if (tokenTransactions[0].type === "APPROVAL") {
-            setType(`approve ${tokenTransactions[0].tokenSymbol} spend`);
+            setType(`Approve ${tokenTransactions[0].tokenSymbol} spend`);
             return;
           }
         }
       );
     }
-    setAmount(hexToUnit(transaction.value));
+    if (!transaction.tokenTransactions.length && transaction.value === "0x0") {
+      setType(
+        `Contract Interaction
+           ${formatAddress(transaction.to)}`
+      );
+      return;
+    }
+    if (!transaction.tokenTransactions.length && transaction.value) {
+      setAmount(hexToUnit(transaction.value));
+    }
   }, [transaction.tokenTransactions]);
 
   const transactionBase = (
@@ -62,17 +82,17 @@ const TransactionLine: React.FC<any> = ({
         </Typo1>
         <Spacer size="xs" />
         <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
-          {tokenTransactions.length
-            ? type
-              ? `${type}`
-              : tokenDecimals
+          {type
+            ? `${type}`
+            : tokenTransactions.length
+            ? tokenDecimals
               ? `${hexToUnit(tokenTransactions[0].amount, tokenDecimals)} ${
                   tokenTransactions[0].tokenSymbol
                 }`
               : ""
             : `${amount.toFixed(2)} FTM`}
         </Typo1>
-        {!tokenTransactions.length && (
+        {!tokenTransactions.length && !type && (
           <>
             <Spacer size="xs" />
             <Typo1 style={{ color: color.greys.darkGrey() }}>

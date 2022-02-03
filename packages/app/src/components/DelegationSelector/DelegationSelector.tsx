@@ -12,6 +12,7 @@ const DelegationSelector: React.FC<any> = ({
 }) => {
   return (
     <DropDownButton
+      disabled={!selectedDelegation || activeDelegations.length === 1}
       width="400px"
       DropDown={() =>
         DelegationSelect({
@@ -26,7 +27,7 @@ const DelegationSelector: React.FC<any> = ({
     >
       <Button
         variant="secondary"
-        disabled={!selectedDelegation}
+        disabled={!selectedDelegation || activeDelegations.length === 1}
         style={{
           display: "flex",
           alignItems: "center",
@@ -41,7 +42,7 @@ const DelegationSelector: React.FC<any> = ({
           <DelegationSelectRow
             activeDelegation={selectedDelegation}
             proposal={proposal}
-            isSelected
+            isSelected={activeDelegations.length > 1}
           />
         )}
       </Button>

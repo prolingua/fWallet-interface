@@ -5,6 +5,7 @@ import useOutsideClick from "../../hooks/useOutsideClick";
 const DropDownButton: React.FC<any> = ({
   children,
   DropDown,
+  disabled,
   triggerClose,
   width,
   dropdownWidth,
@@ -29,7 +30,7 @@ const DropDownButton: React.FC<any> = ({
 
   return (
     <div style={{ width, position: "relative" }}>
-      <div style={{ width }} onClick={() => setIsOpen(!isOpen)}>
+      <div style={{ width }} onClick={() => !disabled && setIsOpen(!isOpen)}>
         {children}
       </div>
       {isOpen && (

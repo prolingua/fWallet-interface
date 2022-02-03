@@ -30,6 +30,7 @@ import useSendTransaction from "../../../hooks/useSendTransaction";
 import walletSymbol from "../../../assets/img/symbols/wallet.svg";
 import FormattedValue from "../../../components/FormattedBalance";
 import { compare } from "../../../utils/common";
+import useWalletProvider from "../../../hooks/useWalletProvider";
 
 const DelegateStep: React.FC<any> = ({
   delegationsData,
@@ -51,9 +52,7 @@ const DelegateStep: React.FC<any> = ({
   ] = useState(true);
   const { txSFCContractMethod } = useFantomContract();
   const balanceInWei = getAccountBalance(accountBalanceData);
-  const balance = parseFloat(
-    weiToMaxUnit(balanceInWei.sub(BigNumber.from(unitToWei(".2"))).toString())
-  );
+  const balance = parseFloat(weiToMaxUnit(balanceInWei.toString()));
   const accountDelegations = getAccountDelegations(accountDelegationsData);
   const handleSetDelegateAmount = (value: string) => {
     if (parseFloat(value) > balance) {
@@ -65,7 +64,7 @@ const DelegateStep: React.FC<any> = ({
     return setDelegateAmount(parseFloat(value.toFixed(2)).toString());
   };
   const handleSetMax = () => {
-    handleSetDelegateAmount(balance.toString());
+    handleSetDelegateAmount((balance - 1).toString());
   };
   const handleSetSort = (sortBy: string) => {
     const defaultAsc = ["name"];
@@ -164,8 +163,12 @@ const DelegateStep: React.FC<any> = ({
 
           return string;
         };
-        const compareA = canonicalizeForSorting(a.stakerInfo?.name);
-        const compareB = canonicalizeForSorting(b.stakerInfo?.name);
+        const compareA = canonicalizeForSorting(
+          a.stakerInfo?.name?.toLowerCase()
+        );
+        const compareB = canonicalizeForSorting(
+          b.stakerInfo?.name?.toLowerCase()
+        );
 
         if (sort[1] === 1) {
           return compare(compareA, compareB);
@@ -236,7 +239,8 @@ const DelegateStep: React.FC<any> = ({
         disabled={isDelegateCompleted || isDelegatePending}
         value={delegateAmount}
         setValue={handleSetDelegateAmount}
-        max={balance}
+        max={balance - 1}
+        minus
       />
       <Spacer size="sm" />
       <div style={{ width: "98%" }}>
@@ -244,7 +248,7 @@ const DelegateStep: React.FC<any> = ({
           disabled={isDelegateCompleted || isDelegatePending}
           value={parseFloat(delegateAmount)}
           setValue={handleSliderSetDelegateAmount}
-          max={parseFloat(balance.toString())}
+          max={parseFloat((balance - 1).toString())}
           steps={0.1}
         />
         <Spacer size="xl" />

@@ -130,7 +130,7 @@ export const Button = styled.button<{
   }
 
   :active {
-    transform: scale(0.98);
+    transform: ${(props) => !props.disabled && "scale(0.98)"};
   }
 `;
 
@@ -148,13 +148,18 @@ export const ContentBox = styled.div<{ padding?: string }>`
   border-radius: 8px;
 `;
 
-export const Input = styled.input<{ fontSize?: string; fontWeight?: string }>`
+export const Input = styled.input<{
+  fontSize?: string;
+  fontWeight?: string;
+  disabled?: boolean;
+}>`
   flex: 1;
   background-color: transparent;
   border: none;
   color: white;
   font-size: ${(props) => props.fontSize || "20px"};
   font-weight: ${(props) => props.fontWeight && props.fontWeight};
+  opacity: ${(props) => props.disabled && 0.6};
 
   :focus {
     outline: none;

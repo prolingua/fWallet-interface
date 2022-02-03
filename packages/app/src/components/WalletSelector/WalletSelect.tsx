@@ -30,6 +30,7 @@ import FormattedValue from "../FormattedBalance";
 import useModal from "../../hooks/useModal";
 import Modal from "../Modal";
 import { AccessWallet } from "../../containers/Onboarding/Onboarding";
+import { Context } from "../../context/ModalProvider";
 
 const WalletSelect: React.FC<any> = ({
   handleClose,
@@ -37,6 +38,7 @@ const WalletSelect: React.FC<any> = ({
   setWarning,
   setRequiredAccount,
 }) => {
+  const { onDismiss } = useContext(Context);
   const context = useWeb3React<Web3Provider>();
   // const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const { account, dispatchAccount } = useAccounts();
@@ -59,7 +61,7 @@ const WalletSelect: React.FC<any> = ({
 
   const [onPresentOnboardingModal] = useModal(
     <Modal>
-      <AccessWallet setFlow={console.log} addWallet />
+      <AccessWallet setFlow={console.log} addWallet onDismiss={onDismiss} />
     </Modal>,
     "access-wallet-modal"
   );

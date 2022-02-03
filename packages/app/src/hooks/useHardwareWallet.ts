@@ -13,7 +13,7 @@ export const useHardwareWallet = () => {
   const addHardwareWalletToContext = async (wallet: any) => {
     const address = await wallet.getAddress();
     const walletProvider: any = {
-      contracts: loadContracts(wallet, parseInt(config.chainId)),
+      contracts: await loadContracts(wallet, parseInt(config.chainId)),
       chainId: parseInt(config.chainId),
       address: address,
       provider: wallet.provider,

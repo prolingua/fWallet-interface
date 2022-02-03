@@ -610,13 +610,16 @@ const SelectLedgerAccountModal: React.FC<any> = ({
   );
 };
 
-export const AccessWallet: React.FC<any> = ({ setFlow, addWallet }) => {
+export const AccessWallet: React.FC<any> = ({
+  setFlow,
+  addWallet,
+  onDismiss,
+}) => {
   const { color } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
   const [tool, setTool] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const context = useWeb3React<Web3Provider>();
   const [error, setError] = useState(null);
 
@@ -650,11 +653,13 @@ export const AccessWallet: React.FC<any> = ({ setFlow, addWallet }) => {
     if (selectedTool === "metamask") {
       activateInjected().finally(() => {
         setSelectedTool(null);
+        if (addWallet) onDismiss();
       });
     }
     if (selectedTool === "coinbase") {
       activateWalletLink().finally(() => {
         setSelectedTool(null);
+        if (addWallet) onDismiss();
       });
     }
     if (selectedTool === "keystore") {
@@ -761,12 +766,12 @@ export const AccessWallet: React.FC<any> = ({ setFlow, addWallet }) => {
           <Spacer size="xl" />
           <Column style={{ alignSelf: "center", alignItems: "center" }}>
             <Button
-              disabled={!tool || isLoading}
+              disabled={!tool}
               onClick={() => setSelectedTool(tool)}
               style={{ width: "20rem" }}
               variant="primary"
             >
-              {isLoading ? "Loading..." : "Continue"}
+              {"Continue"}
             </Button>
             {error && (
               <Column style={{ maxWidth: "80%" }}>
@@ -903,7 +908,8 @@ const VerifyMnemonicModal: React.FC<any> = ({
   setIsVerified,
 }) => {
   const { color } = useContext(ThemeContext);
-  const [words, setWords] = useState(Array(24).fill(""));
+  const [verifyIndexes, setVerifyIndexes] = useState([]);
+  const [words, setWords] = useState([]);
   const [error, setError] = useState(null);
   const handleWordInput = (value: string, index: number) => {
     const updatedWords = [...words];
@@ -921,11 +927,28 @@ const VerifyMnemonicModal: React.FC<any> = ({
     setError("Failed to verify mnemonic");
   };
 
+  useEffect(() => {
+    const genRandom = () => Math.floor(Math.random() * 24) + 1;
+    const toVerify = Array(7)
+      .fill("")
+      .map(() => genRandom());
+
+    setVerifyIndexes(toVerify);
+    setWords(
+      mnemonic.split(" ").map((word: string, index: number) => {
+        if (toVerify.includes(index + 1)) {
+          return "";
+        }
+        return word;
+      })
+    );
+  }, []);
+
   return (
     <Modal style={{ maxWidth: "760px" }} onDismiss={onDismiss}>
       <ModalTitle text="Verify mnemonic" />
       <Typo2 style={{ color: color.greys.grey() }}>
-        Fill in mnemonic phrase below
+        Fill in the missing words from the mnemonic phrase below
       </Typo2>
       <Spacer />
       <Column style={{ padding: "0 2rem" }}>
@@ -934,6 +957,7 @@ const VerifyMnemonicModal: React.FC<any> = ({
             return (
               <div key={`mnemnic-${index}`} style={{ width: "24%" }}>
                 <InputTextBox
+                  disabled={!verifyIndexes.includes(index + 1)}
                   text={words[index]}
                   setText={(value: string) => handleWordInput(value, index)}
                   maxLength={null}
@@ -946,7 +970,9 @@ const VerifyMnemonicModal: React.FC<any> = ({
         </Row>
         <Spacer size="xl" />
         <Button
-          disabled={words.findIndex((word) => word === "") !== -1 || error}
+          disabled={
+            words.findIndex((word: string) => word === "") !== -1 || error
+          }
           variant="primary"
           onClick={() => handleVerify()}
         >

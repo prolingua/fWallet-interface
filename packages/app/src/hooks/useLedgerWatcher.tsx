@@ -27,8 +27,9 @@ const useLedgerWatcher = () => {
     onPresentApproveOnLedgerMessage,
     onDismissApproveOnLedgerMessage,
   ] = useModal(
-    <InfoModal message="Confirm on Ledger device" />,
-    "ledger-confirm-modal"
+    <InfoModal message="Confirm on Ledger device" withCloseButton={false} />,
+    "ledger-confirm-modal",
+    true
   );
 
   useEffect(() => {

@@ -41,7 +41,6 @@ const TokensContent: React.FC<any> = ({ assetList }) => {
       <Spacer size="lg" />
       <Scrollbar style={{ height: "30rem" }}>
         {tokenList.map((token: Token) => {
-          console.log(token);
           return (
             <div key={token.address} style={{ paddingRight: "1.5rem" }}>
               <TokenBalance token={token} />

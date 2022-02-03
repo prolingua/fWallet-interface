@@ -11,6 +11,7 @@ const InputCurrencyBox: React.FC<any> = ({
   max,
   setValue,
   disabled,
+  minus,
 }) => {
   const { color } = useContext(ThemeContext);
   const [error, setError] = useState(null);
@@ -47,7 +48,7 @@ const InputCurrencyBox: React.FC<any> = ({
           variant="tertiary"
           onClick={handleSetMax}
         >
-          MAX
+          MAX {minus ? " - 1" : ""}
         </Button>
         <Spacer />
       </Row>

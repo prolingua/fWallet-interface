@@ -11,17 +11,6 @@ import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
 import BN from "bn.js";
 import config from "../config/config";
 
-// type TransportCreator = {
-//   // @ts-ignore
-//   create: () => Promise<u2f.Transport>;
-// };
-// const transports: { [name: string]: TransportCreator } = {
-//   u2f: u2f,
-//   default: u2f,
-// };
-
-// const defaultPath = "m/44'/60'/0'/0/0";
-
 function waiter(duration: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, duration);
@@ -30,7 +19,6 @@ function waiter(duration: number): Promise<void> {
 
 // @ts-ignore
 export class LedgerSigner extends Signer {
-  // readonly path: string;
   readonly addressId: number;
   readonly _eth: Promise<any>;
   transport: any;
@@ -155,27 +143,40 @@ export class LedgerSigner extends Signer {
     return "";
   }
 
+  async populateTransaction(transaction: Deferrable<TransactionRequest>) {
+    try {
+      this.dispatch({ type: "setHWIsApproving", data: { isApproving: true } });
+      return super.populateTransaction(transaction);
+    } catch (err) {
+      this.dispatch({ type: "setHWIsApproving", data: { isApproving: false } });
+    }
+  }
+
   async signTransaction(
     transaction: Deferrable<TransactionRequest>
   ): Promise<string> {
-    const tx = await resolveProperties(transaction);
-    const baseTx: any = {
-      chainId: config.chainId,
-      data: tx.data || undefined,
-      gasLimit: tx.gasLimit ? new BN(tx.gasLimit.toString()) : undefined,
-      gasPrice: tx.gasPrice ? new BN(tx.gasPrice.toString()) : undefined,
-      nonce: tx.nonce === undefined ? undefined : new BN(tx.nonce.toString()),
-      to: tx.to || undefined,
-      value: tx.value ? new BN(tx.value.toString()) : undefined,
-    };
+    try {
+      const tx = await resolveProperties(transaction);
+      const baseTx: any = {
+        chainId: config.chainId,
+        data: tx.data || undefined,
+        gasLimit: tx.gasLimit ? new BN(tx.gasLimit.toString()) : undefined,
+        gasPrice: tx.gasPrice ? new BN(tx.gasPrice.toString()) : undefined,
+        nonce: tx.nonce === undefined ? undefined : new BN(tx.nonce.toString()),
+        to: tx.to || undefined,
+        value: tx.value ? new BN(tx.value.toString()) : undefined,
+      };
 
-    this.dispatch({ type: "setHWIsApproving", data: { isApproving: true } });
-    const signedTx: any = await this._retry((ftm) =>
-      ftm.signTransaction(0, this.addressId, baseTx)
-    );
-    this.dispatch({ type: "setHWIsApproving", data: { isApproving: false } });
+      const signedTx: any = await this._retry((ftm) =>
+        ftm.signTransaction(0, this.addressId, baseTx)
+      );
 
-    return new Promise((resolve) => resolve(signedTx.raw));
+      return new Promise((resolve) => resolve(signedTx.raw));
+    } catch (err) {
+      return new Promise((r, reject) => reject(err));
+    } finally {
+      this.dispatch({ type: "setHWIsApproving", data: { isApproving: false } });
+    }
   }
 
   connect(provider: Provider): Signer {
