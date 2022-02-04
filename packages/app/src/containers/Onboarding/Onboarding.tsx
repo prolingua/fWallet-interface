@@ -20,8 +20,11 @@ import keysSymbolImg from "../../assets/img/symbols/Keys.svg";
 import checkmarkBlueImg from "../../assets/img/shapes/checkmarkBlue.svg";
 import checkmarkGreenImg from "../../assets/img/symbols/GreenCheckMark.svg";
 import ledgerImg from "../../assets/img/icons/ledgerBlue.svg";
-import metamaskImg from "../../assets/img/icons/metamaskBlue.svg";
-import keystoreImg from "../../assets/img/icons/keystoreBlue.svg";
+import metamaskImg from "../../assets/img/icons/metamask.svg";
+// import keystoreImg from "../../assets/img/icons/keystoreBlue.svg";
+import coinbaseImg from "../../assets/img/icons/coinbase.svg";
+import walletConnectImg from "../../assets/img/icons/walletConnect.svg";
+import softwareWalletImg from "../../assets/img/icons/software.svg";
 import useModal from "../../hooks/useModal";
 import ModalTitle from "../../components/ModalTitle";
 import Modal from "../../components/Modal";
@@ -33,13 +36,15 @@ import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import { useDropzone } from "react-dropzone";
 import fileIcon from "../../assets/img/icons/fileWhite.svg";
 import crossIcon from "../../assets/img/symbols/Cross.svg";
-import { useInjectedWallet, useWalletLink } from "../../hooks/useConnectWallet";
+import {
+  useInjectedWallet,
+  useWalletLink,
+  useWalletConnect,
+} from "../../hooks/useConnectWallet";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import refreshImg from "../../assets/img/symbols/Refresh.svg";
 import { useHardwareWallet } from "../../hooks/useHardwareWallet";
-import useWalletProvider from "../../hooks/useWalletProvider";
-import InfoModal from "../../components/InfoModal";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
@@ -618,6 +623,7 @@ export const AccessWallet: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
+  const { activateWalletConnect } = useWalletConnect();
   const [tool, setTool] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
   const context = useWeb3React<Web3Provider>();
@@ -662,6 +668,12 @@ export const AccessWallet: React.FC<any> = ({
         if (addWallet) onDismiss();
       });
     }
+    if (selectedTool === "walletConnect") {
+      activateWalletConnect().finally(() => {
+        setSelectedTool(null);
+        if (addWallet) onDismiss();
+      });
+    }
     if (selectedTool === "keystore") {
       onPresentAccessByKeystoreModal();
       setSelectedTool(null);
@@ -678,31 +690,10 @@ export const AccessWallet: React.FC<any> = ({
           </Heading1>
           <Spacer size="xl" />
           <Row style={{ gap: "1rem" }}>
-            <OverlayButton onClick={() => handleSetTool("ledger")}>
-              <ContentBox
-                style={{
-                  width: "16rem",
-                  height: "16rem",
-                  boxSizing: "border-box",
-                  border: tool === "ledger" && "2px solid #1969FF",
-                }}
-              >
-                <Column
-                  style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <img src={ledgerImg} />
-                  <Heading2>Ledger</Heading2>
-                </Column>
-              </ContentBox>
-            </OverlayButton>
             <OverlayButton onClick={() => handleSetTool("metamask")}>
               <ContentBox
                 style={{
-                  width: "16rem",
+                  width: "14rem",
                   height: "16rem",
                   boxSizing: "border-box",
                   border: tool === "metamask" && "2px solid #1969FF",
@@ -715,15 +706,44 @@ export const AccessWallet: React.FC<any> = ({
                     alignItems: "center",
                   }}
                 >
-                  <img src={metamaskImg} />
+                  <img
+                    style={{ height: "90px", width: "90px" }}
+                    src={metamaskImg}
+                  />
+                  <Spacer />
                   <Heading2>Metamask</Heading2>
+                </Column>
+              </ContentBox>
+            </OverlayButton>
+            <OverlayButton onClick={() => handleSetTool("walletConnect")}>
+              <ContentBox
+                style={{
+                  width: "14rem",
+                  height: "16rem",
+                  boxSizing: "border-box",
+                  border: tool === "walletConnect" && "2px solid #1969FF",
+                }}
+              >
+                <Column
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    style={{ height: "90px", width: "90px" }}
+                    src={walletConnectImg}
+                  />
+                  <Spacer />
+                  <Heading2>WalletConnect</Heading2>
                 </Column>
               </ContentBox>
             </OverlayButton>
             <OverlayButton onClick={() => handleSetTool("coinbase")}>
               <ContentBox
                 style={{
-                  width: "16rem",
+                  width: "14rem",
                   height: "16rem",
                   boxSizing: "border-box",
                   border: tool === "coinbase" && "2px solid #1969FF",
@@ -736,15 +756,44 @@ export const AccessWallet: React.FC<any> = ({
                     alignItems: "center",
                   }}
                 >
-                  <img src={metamaskImg} />
+                  <img
+                    style={{ height: "90px", width: "90px" }}
+                    src={coinbaseImg}
+                  />
+                  <Spacer />
                   <Heading2>Coinbase</Heading2>
+                </Column>
+              </ContentBox>
+            </OverlayButton>
+            <OverlayButton onClick={() => handleSetTool("ledger")}>
+              <ContentBox
+                style={{
+                  width: "14rem",
+                  height: "16rem",
+                  boxSizing: "border-box",
+                  border: tool === "ledger" && "2px solid #1969FF",
+                }}
+              >
+                <Column
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    style={{ height: "90px", width: "90px" }}
+                    src={ledgerImg}
+                  />
+                  <Spacer />
+                  <Heading2>Ledger</Heading2>
                 </Column>
               </ContentBox>
             </OverlayButton>
             <OverlayButton onClick={() => handleSetTool("keystore")}>
               <ContentBox
                 style={{
-                  width: "16rem",
+                  width: "14rem",
                   height: "16rem",
                   boxSizing: "border-box",
                   border: tool === "keystore" && "2px solid #1969FF",
@@ -757,8 +806,12 @@ export const AccessWallet: React.FC<any> = ({
                     alignItems: "center",
                   }}
                 >
-                  <img src={keystoreImg} />
-                  <Heading2>Software</Heading2>
+                  <img
+                    style={{ height: "80px", width: "80px" }}
+                    src={softwareWalletImg}
+                  />
+                  <Spacer />
+                  <Heading2 style={{ paddingTop: "10px" }}>Software</Heading2>
                 </Column>
               </ContentBox>
             </OverlayButton>

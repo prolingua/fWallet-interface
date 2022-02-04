@@ -1,6 +1,6 @@
 import { InjectedConnector } from "@web3-react/injected-connector";
 // import { NetworkConnector } from "@web3-react/network-connector";
-// import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
 // import { LedgerConnector } from "@web3-react/ledger-connector";
 // import { TrezorConnector } from "@web3-react/trezor-connector";
@@ -20,16 +20,16 @@ export const walletlink = new WalletLinkConnector({
   url: config.rpc,
   appName: "fWallet",
 });
-// export const ledger = new LedgerConnector({
-//   chainId: parseInt(config.chainId),
-//   url: config.rpc,
-//   pollingInterval: POLLING_INTERVAL,
-// });
+export const walletconnect = new WalletConnectConnector({
+  rpc: { 250: config.rpc, 4002: config.rpc },
+  qrcode: true,
+  // pollingInterval: POLLING_INTERVAL,
+});
 
 enum ConnectorNames {
   Injected = "Injected",
   // Network = "Network",
-  // WalletConnect = "WalletConnect",
+  WalletConnect = "WalletConnect",
   WalletLink = "WalletLink",
   // Ledger = "Ledger",
   // Trezor = "Trezor",
@@ -41,10 +41,11 @@ enum ConnectorNames {
   // Portis = "Portis",
   // Torus = "Torus",
 }
+
 export const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.Injected]: injected,
   // [ConnectorNames.Network]: network,
-  // [ConnectorNames.WalletConnect]: walletconnect,
+  [ConnectorNames.WalletConnect]: walletconnect,
   [ConnectorNames.WalletLink]: walletlink,
   // [ConnectorNames.Ledger]: ledger,
   // [ConnectorNames.Trezor]: trezor,
@@ -61,12 +62,6 @@ export const connectorsByName: { [connectorName in ConnectorNames]: any } = {
 //     urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
 //     defaultChainId: 1
 // })
-//
-// export const walletconnect = new WalletConnectConnector({
-//     rpc: { 1: RPC_URLS[1] },
-//     qrcode: true
-// })
-//
 //
 // export const ledger = new LedgerConnector({ chainId: 1, url: RPC_URLS[1], pollingInterval: POLLING_INTERVAL })
 //

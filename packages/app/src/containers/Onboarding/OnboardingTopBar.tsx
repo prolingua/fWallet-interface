@@ -3,7 +3,7 @@ import Row from "../../components/Row";
 import React from "react";
 import fWalletLogoImg from "../../assets/img/fWalletLogo.svg";
 import Spacer from "../../components/Spacer";
-import moonSymbolImg from "../../assets/img/symbols/Moon.svg";
+// import moonSymbolImg from "../../assets/img/symbols/Moon.svg";
 
 const OnboardingTopBar: React.FC<any> = ({ setContentFlow }) => {
   return (
@@ -27,18 +27,18 @@ const OnboardingTopBar: React.FC<any> = ({ setContentFlow }) => {
             <Heading3>Create new wallet</Heading3>
           </OverlayButton>
           <Spacer size="xl" />
-          <Button style={{ height: "56px", width: "56px" }} variant="secondary">
-            <Row
-              style={{
-                height: "100%",
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img src={moonSymbolImg} />
-            </Row>
-          </Button>
+          {/*<Button style={{ height: "56px", width: "56px" }} variant="secondary">*/}
+          {/*<Row*/}
+          {/*  style={{*/}
+          {/*    height: "100%",*/}
+          {/*    width: "100%",*/}
+          {/*    alignItems: "center",*/}
+          {/*    justifyContent: "center",*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <img src={moonSymbolImg} />*/}
+          {/*</Row>*/}
+          {/*</Button>*/}
         </Row>
       </Row>
     </Header>

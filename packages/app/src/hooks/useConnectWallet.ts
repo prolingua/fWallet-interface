@@ -6,6 +6,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { createWalletContext } from "../utils/wallet";
 import useWalletProvider from "./useWalletProvider";
 import useAccount from "./useAccount";
+import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 
 export function useWalletEvents() {
   const context = useWeb3React<Web3Provider>();
@@ -62,6 +63,28 @@ export function useWalletLink() {
 
   return {
     activateWalletLink: () => activate(connectorsByName.WalletLink),
+  };
+}
+
+export function useWalletConnect() {
+  const context = useWeb3React<Web3Provider>();
+  // const triedEager = useEagerConnect();
+  useInactiveListener();
+
+  const { activate } = context;
+
+  const resetWalletConnector = (connector: any) => {
+    if (connector && connector instanceof WalletConnectConnector) {
+      connector.walletConnectProvider = undefined;
+    }
+  };
+
+  return {
+    activateWalletConnect: () =>
+      activate(connectorsByName.WalletConnect, (err) => {
+        console.error(err);
+        resetWalletConnector(connectorsByName.WalletConnect);
+      }),
   };
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { ContentBox, Heading1 } from "../../components";
+import { ContentBox, Heading1, Typo1 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import TransactionLine from "../../components/TransactionLine";
@@ -13,7 +13,7 @@ const TransactionHistoryContent: React.FC<any> = ({
 }) => {
   return (
     <>
-      {transactions &&
+      {transactions?.length ? (
         transactions.map((edge: any, index: number) => {
           return (
             <Column key={edge.transaction.hash}>
@@ -27,7 +27,10 @@ const TransactionHistoryContent: React.FC<any> = ({
               <Spacer key={edge.transaction.hash + index} size="lg" />
             </Column>
           );
-        })}
+        })
+      ) : (
+        <Typo1>No transactions found</Typo1>
+      )}
     </>
   );
 };

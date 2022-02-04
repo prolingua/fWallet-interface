@@ -115,7 +115,12 @@ const ProposalVote: React.FC<any> = ({
                 {opinionScales && (
                   <StyledSliderWrapper>
                     <SliderWithMarks
-                      disabled={!isOpen || hasVoted?.length || isVotePending}
+                      disabled={
+                        !isOpen ||
+                        hasVoted?.length ||
+                        isVotePending ||
+                        !selectedDelegation
+                      }
                       value={voteState[index]}
                       setValue={(value: number) => setVoteValue(value, index)}
                       max={parseInt(opinionScales[opinionScales.length - 1])}
@@ -148,7 +153,7 @@ const ProposalVote: React.FC<any> = ({
         ) : (
           <Button
             style={{ marginTop: "auto" }}
-            disabled={!isOpen || isVotePending}
+            disabled={!isOpen || isVotePending || !selectedDelegation}
             variant="primary"
             onClick={handleVote}
           >

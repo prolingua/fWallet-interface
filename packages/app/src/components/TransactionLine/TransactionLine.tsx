@@ -65,7 +65,7 @@ const TransactionLine: React.FC<any> = ({
     if (!transaction.tokenTransactions.length && transaction.value === "0x0") {
       setType(
         `Contract Interaction
-           ${formatAddress(transaction.to)}`
+           ${transaction?.to ? formatAddress(transaction.to) : ""}`
       );
       return;
     }

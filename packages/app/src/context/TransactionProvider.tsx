@@ -1,6 +1,8 @@
 import React, { useReducer } from "react";
 
-const initial = {} as any;
+const initial = {
+  currentTransactions: [],
+} as any;
 export const TransactionContext = React.createContext(null);
 
 export const TransactionProvider: React.FC = ({ children }) => {
@@ -13,6 +15,7 @@ export const TransactionProvider: React.FC = ({ children }) => {
         };
         return {
           ...state,
+          currentTransactions: [...state.currentTransactions, action.hash],
           [action.hash]: pendingTransaction,
         };
       case "transactionCompleted":
@@ -23,6 +26,9 @@ export const TransactionProvider: React.FC = ({ children }) => {
         };
         return {
           ...state,
+          currentTransactions: state.currentTransactions.filter(
+            (hash: string) => hash !== action.hash
+          ),
           [action.hash]: completedTransaction,
         };
       case "transactionError":
@@ -33,6 +39,9 @@ export const TransactionProvider: React.FC = ({ children }) => {
         };
         return {
           ...state,
+          currentTransactions: state.currentTransactions.filter(
+            (hash: string) => hash !== action.hash
+          ),
           [action.hash]: failedTransaction,
         };
       case "reset":

@@ -31,6 +31,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Web3ReactProvider } from "@web3-react/core";
 import Swap from "./containers/Swap";
 import { ApiDataProvider } from "./context/ApiDataProvider";
+import NotifyProvider from "./context/NotifyProvider";
 
 const AppContent: React.FC<any> = () => {
   return (
@@ -122,7 +123,9 @@ const Providers: React.FC<any> = ({ children }) => {
                 <AccountProvider>
                   <ActiveWalletProvider>
                     <TransactionProvider>
-                      <ModalProvider>{children}</ModalProvider>
+                      <ModalProvider>
+                        <NotifyProvider>{children}</NotifyProvider>
+                      </ModalProvider>
                     </TransactionProvider>
                   </ActiveWalletProvider>
                 </AccountProvider>
