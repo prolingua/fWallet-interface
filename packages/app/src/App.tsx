@@ -53,7 +53,7 @@ const AppContent: React.FC<any> = () => {
             }}
           >
             <Switch>
-              <Route path="/otherRoute" component={Test} />
+              <Route path="/test" component={Test} />
               <Route path="/home" component={Home} />
               <Route path="/send" component={Send} />
               <Route path="/staking" component={Staking} />
@@ -65,7 +65,7 @@ const AppContent: React.FC<any> = () => {
                 exact
               />
               <Route path="/governance/proposal/:id" component={Proposal} />
-              <Route path="/" component={Test} />
+              <Route path="/" component={Home} />
             </Switch>
           </div>
         </Scrollbar>
