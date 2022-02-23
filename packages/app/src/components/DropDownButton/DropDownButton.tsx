@@ -29,7 +29,7 @@ const DropDownButton: React.FC<any> = ({
   });
 
   return (
-    <div style={{ width, position: "relative" }}>
+    <div style={{ width, position: "relative", cursor: "pointer" }}>
       <div style={{ width }} onClick={() => !disabled && setIsOpen(!isOpen)}>
         {children}
       </div>
@@ -55,7 +55,7 @@ const StyledDropDown = styled.div<{
   right?: number;
 }>`
   position: absolute;
-  width: ${(props) => props.width}px;
+  width: ${(props) => (props.width ? `${props.width}px` : `100%`)};
   top: ${(props) => props.top}px;
   left: ${(props) => props.left && `${props.left}px`};
   right: ${(props) => props.right && `${props.right}px`};

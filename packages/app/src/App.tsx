@@ -32,6 +32,7 @@ import { Web3ReactProvider } from "@web3-react/core";
 import Swap from "./containers/Swap";
 import { ApiDataProvider } from "./context/ApiDataProvider";
 import NotifyProvider from "./context/NotifyProvider";
+import Bridge from "./containers/Bridge";
 
 const AppContent: React.FC<any> = () => {
   return (
@@ -58,6 +59,7 @@ const AppContent: React.FC<any> = () => {
               <Route path="/send" component={Send} />
               <Route path="/staking" component={Staking} />
               <Route path="/defi" component={Swap} />
+              <Route path="/bridge" component={Bridge} />
               <Route path="/governance" component={Governance} exact />
               <Route
                 path="/governance/proposal/create"

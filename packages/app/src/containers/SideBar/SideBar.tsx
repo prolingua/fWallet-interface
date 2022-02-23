@@ -15,6 +15,8 @@ import defiSymbolImg from "../../assets/img/symbols/DeFi.svg";
 import defiActiveSymbolImg from "../../assets/img/symbols/DeFi_active.svg";
 import governanceSymbolImg from "../../assets/img/symbols/Governance.svg";
 import governanceActiveSymbolImg from "../../assets/img/symbols/Governance_active.svg";
+import bridgeSymbolImg from "../../assets/img/symbols/Bridge.svg";
+import bridgeActiveSymbolImg from "../../assets/img/symbols/Bridge_active.svg";
 
 const SideBarLink: React.FC<any> = ({
   img,
@@ -114,6 +116,14 @@ const SideBar: React.FC<any> = () => {
         activeImg={defiActiveSymbolImg}
         name="Defi"
         path="/defi"
+        currentPath={currentPath}
+        setCurrentPath={setCurrentPath}
+      />
+      <SideBarLink
+        img={bridgeSymbolImg}
+        activeImg={bridgeActiveSymbolImg}
+        name="Bridge"
+        path="/bridge"
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
