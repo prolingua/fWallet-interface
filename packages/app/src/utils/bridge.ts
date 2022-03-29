@@ -12,7 +12,7 @@ export const chainToNetworkInfoMap = {
   56: { symbol: "bsc", name: "Binance Smart Chain", image: bscImage },
   137: { symbol: "matic", name: "Polygon", image: polyImage },
   43114: { symbol: "avax", name: "Avalanche", image: avaxImage },
-  42161: { symbol: "arb", name: "Arbirtum", image: arbImage },
+  42161: { symbol: "arb", name: "Arbitrum", image: arbImage },
 } as any;
 export const transactionStatusMapping = {
   3: "Failed: exceeded limit",

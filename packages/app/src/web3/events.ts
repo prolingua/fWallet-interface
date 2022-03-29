@@ -123,8 +123,8 @@ export const switchToChain = async (provider: any, chainId: number) => {
       return {
         chainId: "0xa4b1",
         chainName: "Arbitrum",
-        nativeCurrency: chainToNativeToken[43114],
-        rpcUrls: ["https://arb1.arbitrum.io"],
+        nativeCurrency: chainToNativeToken[42161],
+        rpcUrls: ["https://arb1.arbitrum.io/rpc"],
         blockExplorerUrls: ["https://arbiscan.io"],
       };
     }

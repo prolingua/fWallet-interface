@@ -11,52 +11,63 @@ export const WFTM_ADDRESS = "0x21be370d5312f44cb42ce377bc9b8a0cef1a4c83";
 
 // API Anyswap
 export const FTM_ETH = [
-  // "USDC",
   "LINK",
   "COVER",
   "CRV",
   "FRAX",
   "ICE",
-  // "DAI",
-  // "WBTC",
   "BAND",
   "WOOFY",
   "YFI",
   "YEL",
   "SNX",
-  // "USDT",
   "METRIC",
 ];
 export const FTM_BNB = ["BNB", "BUSD", "START", "BIFI", "BISON"];
-export const BNB_ETH = ["START", "YFI", "LINK", "FRAX", "ICE", "fUSDT"];
+export const FTM_MATIC = ["MATIC", "SAVG"];
 
 // API Anyswap Stables
-export const GLOBAL_STABLE = ["anyUSDC", "anyDAI", "anyUSDT"]; // For Fantom, Binance and Ethereum
+export const GLOBAL_STABLE = ["anyUSDC", "anyDAI", "anyUSDT", "MIM"]; // For Fantom, Binance and Ethereum
 export const FTM_ETH_STABLE = [
-  "MIM",
+  ...GLOBAL_STABLE,
   "anyFTM",
   "anyTOMB",
   "anyETH",
   "anyWBTC",
+];
+export const FTM_MATIC_STABLE = [...GLOBAL_STABLE, "anyWBTC", "anyETH"];
+export const FTM_AVALANCHE_STABLE = [
   ...GLOBAL_STABLE,
-]; // For Fantom, Binance and Ethereum
-// export const FTM_MATIC_STABLE = [];
-// export const FTM_AVALANCHE_STABLE = [];
-// export const FTM_ARBRITRUM_STABLE = [];
-export const FTM_BSC_STABLE = [...GLOBAL_STABLE, "anyETH", "anyWBTC", "MIM"];
-export const MATIC_STABLE = ["anyUSDC", "anyDAI", "anyUSDT"]; // If Polygon or Avalanche is In or Out
-export const AVALANCHE_STABLE = ["anyUSDC", "anyDAI", "anyUSDT", "anyAVAX"]; // If Polygon or Avalanche is In or Out
-export const ARBITRUM_STABLE = ["MIM", "anyUSDC"]; // If is not Polygon
-export const ARBITRUM_MATIC_STABLE = ["anyUSDC", "anyEURS"]; // If is Polygon
+  "anyAVAX",
+  "anyETH",
+  "anyWBTC",
+];
+export const FTM_ARBRITRUM_STABLE = ["MIM", "anyUSDC", "anyEURS"];
+export const FTM_BSC_STABLE = [
+  ...GLOBAL_STABLE,
+  "anyETH",
+  "anyWBTC",
+  "anyFTM",
+  "anyAVAX",
+];
 
 export const MULTICHAIN_URL = "https://bridgeapi.anyswap.exchange";
-
 export enum MULTICHAIN_METHODS {
   GET_CHAIN_TOKENS = "/v2/serverInfo",
   GET_STABLE_TOKENS = "/v3/serverinfoV3",
   GET_TX_STATUS = "/v2/history/details",
   ANNOUNCE_TX = "/v2/reswaptxns?hash=0xa63e6e3a86718d710658ef1445c6bd604752086ae68908ffac39a686db6b815g&srcChainID=250&destChainID=137",
 }
+
+const isNativeForDestChain = (tokenid: string, destChainId: number) => {
+  if (tokenid === "FTM" && destChainId === 250) return true;
+  if (tokenid === "AVAX" && destChainId === 43114) return true;
+  if (tokenid === "BNB" && destChainId === 56) return true;
+  if (tokenid === "MATIC" && destChainId === 137) return true;
+  if (tokenid === "ETH" && destChainId === 1) return true;
+
+  return false;
+};
 
 const useBridgeApi = () => {
   const { get } = useRestApi(MULTICHAIN_URL);
@@ -66,9 +77,11 @@ const useBridgeApi = () => {
     const isFTM = srcChain === "250" || destChain === "250";
     const isEth = srcChain === "1" || destChain === "1";
     const isBNB = srcChain === "56" || destChain === "56";
+    const isPolygon = srcChain === "137" || destChain === "137";
+
     if (isFTM && isEth && FTM_ETH.includes(symbol)) return true;
     if (isFTM && isBNB && FTM_BNB.includes(symbol)) return true;
-    if (isEth && isBNB && BNB_ETH.includes(symbol)) return true;
+    if (isFTM && isPolygon && FTM_MATIC.includes(symbol)) return true;
 
     return false;
   };
@@ -151,54 +164,24 @@ const useBridgeApi = () => {
         const isFantom = chainToId === 250 || chainFromId === 250;
         const isEthereum = chainToId === 1 || chainFromId === 1;
         const isBinance = chainToId === 56 || chainFromId === 56;
+        const isPolygon = chainToId === 137 || chainFromId === 137;
+        const isAvalanche = chainToId === 43114 || chainFromId === 43114;
+        const isArbitrum = chainToId === 42161 || chainFromId === 42161;
 
-        const isPolygonArbitrum =
-          (chainToId === 137 && chainFromId === 42161) ||
-          (chainToId === 42161 && chainFromId === 137);
-        const isArbitrumOthers =
-          (chainToId === 42161 && chainFromId === 1) ||
-          (chainToId === 42161 && chainFromId === 56) ||
-          (chainToId === 42161 && chainFromId === 250) ||
-          (chainToId === 42161 && chainFromId === 43114) ||
-          (chainToId === 1 && chainFromId === 42161) ||
-          (chainToId === 56 && chainFromId === 42161) ||
-          (chainToId === 250 && chainFromId === 42161) ||
-          (chainToId === 43114 && chainFromId === 42161);
-
-        const isPolygon =
-          (chainToId === 137 && chainFromId === 1) ||
-          (chainToId === 137 && chainFromId === 56) ||
-          (chainToId === 137 && chainFromId === 250) ||
-          (chainToId === 137 && chainFromId === 43114) ||
-          (chainToId === 1 && chainFromId === 137) ||
-          (chainToId === 56 && chainFromId === 137) ||
-          (chainToId === 250 && chainFromId === 137) ||
-          (chainToId === 43114 && chainFromId === 137);
-
-        const isAvalanche =
-          (chainToId === 43114 && chainFromId === 1) ||
-          (chainToId === 43114 && chainFromId === 56) ||
-          (chainToId === 43114 && chainFromId === 250) ||
-          (chainToId === 43114 && chainFromId === 137) ||
-          (chainToId === 1 && chainFromId === 43114) ||
-          (chainToId === 56 && chainFromId === 43114) ||
-          (chainToId === 250 && chainFromId === 43114) ||
-          (chainToId === 137 && chainFromId === 43114);
-
-        if (isPolygonArbitrum) {
-          return ARBITRUM_MATIC_STABLE.includes(tokenId);
+        if (isFantom && isPolygon) {
+          return FTM_MATIC_STABLE.includes(tokenId);
         }
-        if (isArbitrumOthers) {
-          return ARBITRUM_STABLE.includes(tokenId);
+        if (isFantom && isAvalanche) {
+          return FTM_AVALANCHE_STABLE.includes(tokenId);
         }
-        if (isPolygon) {
-          return MATIC_STABLE.includes(tokenId);
-        }
-        if (isAvalanche) {
-          return AVALANCHE_STABLE.includes(tokenId);
+        if (isFantom && isBinance) {
+          return FTM_BSC_STABLE.includes(tokenId);
         }
         if (isFantom && isEthereum) {
           return FTM_ETH_STABLE.includes(tokenId);
+        }
+        if (isFantom && isArbitrum) {
+          return FTM_ARBRITRUM_STABLE.includes(tokenId);
         }
 
         return false;
@@ -216,8 +199,13 @@ const useBridgeApi = () => {
           version,
         } = token;
         const id = toChainId;
-        const isNativeFTM = version === "NATIVE" && fromChainId === 250;
-        const isNativeFTMTo = version === "NATIVE" && fromChainId === 1;
+        const isNative =
+          version === "NATIVE" &&
+          routerABI ===
+            "anySwapOutNative(anytoken,toAddress,toChainID,{value: amount})";
+        const isNativeTo =
+          version === "NATIVE" &&
+          isNativeForDestChain(underlying.symbol, toChainId);
         const isUnderlying = (destChains as any)[id]?.underlying;
 
         return {
@@ -243,17 +231,17 @@ const useBridgeApi = () => {
           DecimalsTo: (destChains as any)[id]?.anyToken.decimals,
           router,
           routerABI,
-          type: isNativeFTM
+          type: isNative
             ? "anySwapOutNative(address,address,uint256)"
             : underlying
             ? "anySwapOutUnderlying"
             : "anySwapOut(address,address,uint256,uint256)",
           toChainId: id,
           fromChainId: fromChainId,
-          needApprove: isNativeFTM ? "false" : "true",
+          needApprove: isNative ? "false" : "true",
           balance: null,
-          isNative: isNativeFTM ? "true" : "false",
-          isNativeTo: isNativeFTMTo ? "true" : "false",
+          isNative: isNative ? "true" : "false",
+          isNativeTo: isNativeTo ? "true" : "false",
           version,
         };
       });
