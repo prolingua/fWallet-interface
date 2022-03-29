@@ -14,9 +14,11 @@ import config from "../../config/config";
 import { Context } from "../../context/ModalProvider";
 import { switchToChain } from "../../web3/events";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
+import { useLocation } from "react-router-dom";
 
 const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const modalContext = useContext(Context);
+  const location = useLocation();
   const { account, dispatchAccount } = useAccount();
   const { dispatchWalletContext } = useWalletProvider();
   const [closeDropDown, setCloseDropDown] = useState(false);
@@ -26,7 +28,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
 
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
     <InfoModal message={warning} withCloseButton={true} />,
-    "metamask-wrong-account-modal",
+    "browser-wrong-account-modal",
     true
   );
   const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
@@ -46,7 +48,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
       }`}
       actionButtonNoDismiss={true}
     />,
-    "metamask-wrong-network-modal",
+    "browser-wrong-network-modal",
     true
   );
 
@@ -55,7 +57,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
       type: "setActiveWallet",
       data: {
         ...walletContext.web3ProviderState.walletProvider,
-        providerType: "metamask",
+        providerType: "browser",
       },
     });
   };
@@ -64,10 +66,11 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     <InfoModal
       message={
         <div>
-          Unknown metamask account selected, do you want to add{" "}
+          Unknown web3 wallet account selected, do you want to add{" "}
           {walletContext.web3ProviderState.accountSelected}? <br />
           <br /> If not, select currently active account{" "}
-          {walletContext.activeWallet.address} <br /> in metamask to continue.
+          {walletContext.activeWallet.address} <br /> in web3 wallet to
+          continue.
         </div>
       }
       handleButton={() => {
@@ -76,13 +79,13 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
           type: "addWallet",
           wallet: {
             address: walletContext.web3ProviderState.accountSelected,
-            providerType: "metamask",
+            providerType: "browser",
           },
         });
       }}
       withCloseButton={false}
     />,
-    "metamask-unknown-account-modal",
+    "browser-unknown-account-modal",
     true
   );
 
@@ -94,7 +97,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
 
     // Switch to new provider if the required account is the currently active metamask account
     if (
-      activeWallet.providerType !== "metamask" &&
+      activeWallet.providerType !== "browser" &&
       isSameAddress(requiredAccount, web3ProviderState.accountSelected)
     ) {
       return switchToNewWeb3Provider();
@@ -103,7 +106,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     // Handle provider account change only if current provider is of type metamask
     if (
       !isSameAddress(activeWallet.address, web3ProviderState.accountSelected) &&
-      activeWallet.providerType === "metamask"
+      activeWallet.providerType === "browser"
     ) {
       const existingWallet = account.wallets.find((wallet: any) =>
         isSameAddress(wallet.address, web3ProviderState.accountSelected)
@@ -135,8 +138,12 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   // TODO move chain check to other place (own hook preferably)
   // Present warning modal if wrong metamask account or network is selected
   useEffect(() => {
+    // TODO: create solution useable on all pages (useMultiChain)
+    if (location.pathname === "/bridge") {
+      return;
+    }
     if (
-      walletContext.activeWallet.providerType === "metamask" &&
+      walletContext.activeWallet.providerType === "browser" &&
       walletContext.web3ProviderState.chainSelected &&
       walletContext.web3ProviderState.chainSelected !== parseInt(config.chainId)
     ) {
@@ -145,7 +152,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     if (
       walletContext.web3ProviderState.chainSelected ===
         parseInt(config.chainId) &&
-      modalContext.modalKey === "metamask-wrong-network-modal"
+      modalContext.modalKey === "browser-wrong-network-modal"
     ) {
       onDismissWrongChainSelected();
     }
@@ -165,7 +172,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   useEffect(() => {
     if (
       isSameAddress(requiredAccount, walletContext.activeWallet.address) &&
-      modalContext.modalKey === "metamask-wrong-account-modal"
+      modalContext.modalKey === "browser-wrong-account-modal"
     ) {
       onDismissWrongAccountModal();
     }
@@ -174,7 +181,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
         walletContext.activeWallet.address,
         walletContext.web3ProviderState.accountSelected
       ) &&
-      modalContext.modalKey === "metamask-unknown-account-modal"
+      modalContext.modalKey === "browser-unknown-account-modal"
     ) {
       onDismissUnknownAccountModal();
     }

@@ -91,7 +91,7 @@ export const OverlayButton = styled.button<{ disabled?: boolean }>`
   transition: 0.2s all;
 
   :active {
-    transform: scale(0.98);
+    transform: ${(props) => !props.disabled && "scale(0.98)"};
   }
 `;
 

@@ -37,7 +37,7 @@ function useWeb3Modal(config = {}) {
     if (!existingAccount) {
       await dispatchAccount({
         type: "addWallet",
-        wallet: { address: walletProvider.address, providerType: "metamask" },
+        wallet: { address: walletProvider.address, providerType: "browser" },
       });
     }
 
@@ -45,7 +45,7 @@ function useWeb3Modal(config = {}) {
       type: "setActiveWallet",
       data: {
         ...walletProvider,
-        providerType: "metamask",
+        providerType: "browser",
       },
     });
   };

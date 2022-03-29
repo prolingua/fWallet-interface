@@ -1,5 +1,9 @@
 import { Wallet } from "@ethersproject/wallet";
-import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import {
+  getDefaultProvider,
+  JsonRpcProvider,
+  Web3Provider,
+} from "@ethersproject/providers";
 import config from "../config/config";
 import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
@@ -15,9 +19,14 @@ export const useSoftwareWallet = () => {
   const context = useWeb3React<Web3Provider>();
 
   const addWalletToContext = async (wallet: Wallet, provider?: any) => {
+    let chainId = config.chainId;
+    if (provider) {
+      const network = await provider.getNetwork();
+      chainId = network.chainId;
+    }
     const walletProvider: any = {
-      contracts: loadContracts(wallet, parseInt(config.chainId)),
-      chainId: parseInt(config.chainId),
+      contracts: await loadContracts(wallet, parseInt(chainId)),
+      chainId: parseInt(chainId),
       address: wallet.address,
       provider: provider || wallet.provider,
       signer: wallet,
@@ -90,6 +99,16 @@ export const useSoftwareWallet = () => {
     return addWalletToContext(wallet, provider);
   };
 
+  const changeWalletProvider = (wallet: Wallet, providerUri: any) => {
+    const provider =
+      providerUri === "mainnet"
+        ? getDefaultProvider()
+        : new JsonRpcProvider(providerUri);
+    const connectedWallet = wallet.connect(provider);
+
+    return addWalletToContext(connectedWallet, provider);
+  };
+
   return {
     generateMnemonic: () => generateMnemonic(),
     createNewWallet: (mnemonic: string) => handleCreateNewWallet(mnemonic),
@@ -99,5 +118,6 @@ export const useSoftwareWallet = () => {
       handleRestoreWalletFromMnemonic(mnemonic),
     restoreWalletFromKeystoreFile: (json: string, password: string) =>
       handleRestoreWalletFromEncryptedJson(json, password),
+    changeWalletProvider,
   };
 };

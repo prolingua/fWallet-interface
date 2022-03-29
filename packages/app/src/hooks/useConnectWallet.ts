@@ -27,14 +27,14 @@ export function useWalletEvents() {
       createWalletContext(library).then(async (walletProvider) => {
         await dispatchAccount({
           type: "addWallet",
-          wallet: { address: walletProvider.address, providerType: "metamask" },
+          wallet: { address: walletProvider.address, providerType: "browser" },
         });
 
         return dispatchWalletContext({
           type: "setActiveWallet",
           data: {
             ...walletProvider,
-            providerType: "metamask",
+            providerType: "browser",
           },
         });
       });

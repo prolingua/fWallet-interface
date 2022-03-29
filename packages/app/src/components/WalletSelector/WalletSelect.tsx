@@ -92,13 +92,13 @@ const WalletSelect: React.FC<any> = ({
       return;
     }
 
-    if (wallet.providerType === "metamask") {
+    if (wallet.providerType === "browser") {
       if (
         wallet.address.toLowerCase() !==
         window.ethereum.selectedAddress.toLowerCase()
       ) {
         setWarning(
-          `Please select account ${wallet.address} in metamask to continue`
+          `Please select account ${wallet.address} in web3 wallet to continue`
         );
         setRequiredAccount(wallet.address);
         return;
@@ -155,7 +155,7 @@ const WalletSelect: React.FC<any> = ({
       }
     }
 
-    if (activeWallet && activeWallet.providerType === "metamask") {
+    if (activeWallet && activeWallet.providerType === "browser") {
       deactivate();
     }
   };
@@ -163,7 +163,7 @@ const WalletSelect: React.FC<any> = ({
   const handleLogout = () => {
     const { deactivate } = context;
 
-    if (activeWallet && activeWallet.providerType === "metamask") {
+    if (activeWallet && activeWallet.providerType === "browser") {
       deactivate();
     }
 

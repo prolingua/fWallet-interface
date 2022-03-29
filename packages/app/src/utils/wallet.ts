@@ -93,3 +93,15 @@ export const loadERC20Contract = async (
 
   return new Contract(contractAddress, abis.erc20.abi, signer);
 };
+
+export const loadContract = async (
+  contractAddress: string,
+  abi: any,
+  signer: Signer
+) => {
+  if (!signer) {
+    return;
+  }
+
+  return new Contract(contractAddress, abi, signer);
+};

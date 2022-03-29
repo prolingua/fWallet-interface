@@ -34,11 +34,11 @@ export const ActiveWalletProvider: React.FC = ({ children }) => {
           activeWallet: action.data,
           web3ProviderState: {
             accountSelected:
-              action.data.providerType === "metamask"
+              action.data.providerType === "browser"
                 ? action.data.address
                 : state.metamaskAccountSelected,
             chainSelected:
-              action.data.providerType === "metamask" && action.data.chainId,
+              action.data.providerType === "browser" && action.data.chainId,
           },
         };
       case "web3ProviderAccountChanged":

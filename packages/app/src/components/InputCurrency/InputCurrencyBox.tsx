@@ -12,6 +12,7 @@ const InputCurrencyBox: React.FC<any> = ({
   setValue,
   disabled,
   minus,
+  variant = "old",
 }) => {
   const { color } = useContext(ThemeContext);
   const [error, setError] = useState(null);
@@ -24,7 +25,7 @@ const InputCurrencyBox: React.FC<any> = ({
     <Row
       style={{
         width: "100%",
-        backgroundColor: "#202F49",
+        backgroundColor: variant === "new" ? color.primary.black() : "#202F49",
         borderRadius: "8px",
         height: "64px",
         alignItems: "center",
@@ -41,6 +42,7 @@ const InputCurrencyBox: React.FC<any> = ({
       />
       <Row style={{ alignItems: "center" }}>
         <Button
+          disabled={disabled}
           fontSize="14px"
           color={color.greys.grey()}
           padding="8px"

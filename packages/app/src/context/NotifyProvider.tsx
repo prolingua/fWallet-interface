@@ -54,9 +54,6 @@ const NotifyProvider: React.FC = ({ children }) => {
       {children}
       {isOpen && (
         <StyledNotifyWrapper>
-          {/*<StyledModalBackdrop*/}
-          {/*    onClick={!persist ? handleDismiss : () => null}*/}
-          {/*/>*/}
           {React.isValidElement(content) &&
             React.cloneElement(content, {
               onDismiss: handleDismiss,

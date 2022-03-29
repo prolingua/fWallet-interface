@@ -24,7 +24,7 @@ const useRestApi = (baseUrl: string) => {
       )
     );
   };
-  const get = ({ path, params, queryParams }: any) => {
+  const get = ({ path, params, queryParams, slug }: any) => {
     return handleApiCall(
       baseUrl,
       path,
@@ -33,7 +33,8 @@ const useRestApi = (baseUrl: string) => {
           buildUri({ baseUrl: baseUrl, path, params, queryParams }),
           {}
         ),
-      params
+      params,
+      slug
     );
   };
 
@@ -41,18 +42,27 @@ const useRestApi = (baseUrl: string) => {
     baseUrl: string,
     path: string,
     callback: any,
-    params: string[] = []
+    params: string[] = [],
+    slug: string = ""
   ) => {
     try {
       dispatchApiData({
         type: "pending",
-        call: baseUrl + path + (params.length ? "/" + params.join("/") : ""),
+        call:
+          baseUrl +
+          path +
+          (params.length ? "/" + params.join("/") : "") +
+          (slug ? "-" + slug : slug),
       });
 
       const result = await callback();
       dispatchApiData({
         type: "success",
-        call: baseUrl + path + (params.length ? "/" + params.join("/") : ""),
+        call:
+          baseUrl +
+          path +
+          (params.length ? "/" + params.join("/") : "") +
+          (slug ? "-" + slug : slug),
         data: result,
       });
 
@@ -60,7 +70,11 @@ const useRestApi = (baseUrl: string) => {
     } catch (err) {
       dispatchApiData({
         type: "failed",
-        call: baseUrl + path + (params.length ? "/" + params.join("/") : ""),
+        call:
+          baseUrl +
+          path +
+          (params.length ? "/" + params.join("/") : "") +
+          (slug ? "-" + slug : slug),
         error: err,
       });
     }
