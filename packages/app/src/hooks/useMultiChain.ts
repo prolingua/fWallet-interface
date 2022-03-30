@@ -8,7 +8,8 @@ import { getDefaultProvider, JsonRpcProvider } from "@ethersproject/providers";
 
 const SUPPORTED_CHAINS = [250, 1, 56, 137, 43114, 42161];
 const DEFAULT_PROVIDERS = {
-  1: getDefaultProvider(),
+  // 1: getDefaultProvider(),
+  1: new JsonRpcProvider("https://rpc.ankr.com/eth"),
   56: new JsonRpcProvider(bridgeNetworks[56].rpc),
   137: new JsonRpcProvider(bridgeNetworks[137].rpc),
   250: new JsonRpcProvider(config.rpc),

@@ -54,6 +54,7 @@ export const loadContracts = async (signer: Signer, chainId: number) => {
   }
 
   if (chainId !== parseInt(config.chainId)) {
+    console.warn("[loadContracts] wrong chain selected");
     return;
   }
 

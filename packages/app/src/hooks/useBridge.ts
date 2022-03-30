@@ -92,7 +92,7 @@ const useBridge = () => {
     if (type === "anySwapOut(address,address,uint256,uint256)") {
       console.info("[bridgeStableMethod] anySwapOut");
       bridgeMethod = () =>
-        routerContract.anySwapOut(
+        routerContract["anySwapOut(address,address,uint256,uint256)"](
           DepositAddress,
           walletContext.activeWallet.address,
           amount,

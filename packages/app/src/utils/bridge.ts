@@ -30,7 +30,7 @@ export const bridgeNetworks = {
     rpc: "https://rpc.ankr.com/eth",
     name: "Ethereum",
     symbol: "ETH",
-    blockExp: "Ethereum",
+    blockExp: "https://etherscan.com",
     explorerTransactionPath: "tx/",
     decimals: 18,
   },

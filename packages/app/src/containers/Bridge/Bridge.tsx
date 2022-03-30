@@ -44,6 +44,7 @@ import useSendTransaction from "../../hooks/useSendTransaction";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import { BigNumber } from "@ethersproject/bignumber";
 import useTransaction from "../../hooks/useTransaction";
+import { stickyTokensList } from "../../utils/token";
 
 const ChainSelect: React.FC<any> = ({ selectChain, chains }) => {
   const { color } = useContext(ThemeContext);
@@ -133,7 +134,16 @@ const ChainSelection: React.FC<any> = ({
   const [fromChain, setFromChain] = useState(250);
   const [toChain, setToChain] = useState(1);
   const { getBridgeTokens } = useBridgeApi();
-  const { forceSwap } = useMultiChain();
+  const { forceSwap, DEFAULT_PROVIDERS } = useMultiChain();
+
+  const getBalance = async (address: string, provider: any) => {
+    if (address === AddressZero || !address) {
+      return provider.getBalance(walletContext.activeWallet.address);
+    }
+
+    const contract = await loadERC20Contract(address, provider);
+    return contract.balanceOf(walletContext.activeWallet.address);
+  };
 
   useEffect(() => {
     connectToChain(fromChain);
@@ -145,8 +155,60 @@ const ChainSelection: React.FC<any> = ({
 
   useEffect(() => {
     setTokenList(null);
-    getBridgeTokens(toChain, fromChain).then((result) => setTokenList(result));
-  }, [fromChain, toChain]);
+    getBridgeTokens(toChain, fromChain).then((tokenList) => {
+      if (tokenList?.length) {
+        const tokenOrder = [
+          "FTM",
+          "WFTM",
+          "USDC",
+          "USDT",
+          "fUSDT",
+          "DAI",
+          "MIM",
+          "ETH",
+          "WETH",
+          "BTC",
+          "WBTC",
+          "MATIC",
+          "AVAX",
+          "BNB",
+        ];
+        if (tokenList?.length && walletContext.activeWallet.address) {
+          const stickyTokens = tokenOrder
+            .map((symbol) => {
+              return tokenList.find(
+                (token: any) =>
+                  token.symbol.toLowerCase() === symbol.toLowerCase()
+              );
+            })
+            .filter((item: any) => item);
+          const restOfTokens = tokenList.filter(
+            (token: any) => !stickyTokens.includes(token)
+          );
+
+          const allTokens = [...stickyTokens, ...restOfTokens];
+          const fromProvider = DEFAULT_PROVIDERS[fromChain];
+          const toProvider = DEFAULT_PROVIDERS[toChain];
+          const tokensAndBalances = allTokens.map((token) => {
+            return {
+              ...token,
+              balance: getBalance(
+                token.isNative === "true" ? AddressZero : token.ContractAddress,
+                fromProvider
+              ),
+              balanceTo: getBalance(
+                token.isNativeTo === "true"
+                  ? AddressZero
+                  : token.ContractAddressTo,
+                toProvider
+              ),
+            };
+          });
+          setTokenList(tokensAndBalances);
+        }
+      }
+    });
+  }, [fromChain, toChain, walletContext.activeWallet.address]);
 
   const handleSetFromChain = (chainId: number) => {
     if (chainId !== 250) {
@@ -329,16 +391,26 @@ const BridgeTokenSelectModal: React.FC<any> = ({
                       }}
                       style={{ padding: ".8rem" }}
                     >
-                      <Row style={{ gap: "1rem", alignItems: "center" }}>
-                        <img
-                          style={{ height: "30px", width: "30px" }}
-                          src={token.logoUrl}
+                      <Row
+                        style={{
+                          width: "100%",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Row style={{ gap: "1rem", alignItems: "center" }}>
+                          <img
+                            style={{ height: "30px", width: "30px" }}
+                            src={token.logoUrl}
+                          />
+                          <Typo2 style={{ fontWeight: "bold" }}>
+                            {token.symbol}
+                          </Typo2>
+                        </Row>
+                        <BalancePromiseToUnit
+                          promise={token.balance}
+                          decimals={token.Decimals}
                         />
-                        <Typo2 style={{ fontWeight: "bold" }}>
-                          {token.symbol}
-                        </Typo2>
                       </Row>
-                      {/*<TokenBalance token={asset} imageSize="24px" />*/}
                     </StyledOverlayButton>
                   );
                 })}
@@ -347,6 +419,25 @@ const BridgeTokenSelectModal: React.FC<any> = ({
         </Column>
       </ModalContent>
     </Modal>
+  );
+};
+
+const BalancePromiseToUnit: React.FC<any> = ({ promise, decimals }) => {
+  const [value, setValue] = useState(null);
+  useEffect(() => {
+    promise.then((resolvedValue: any) => {
+      if (resolvedValue) {
+        setValue(resolvedValue);
+      }
+    });
+  }, [promise]);
+
+  return (
+    <Row style={{ alignItems: "center" }}>
+      <Typo2 style={{ width: "5rem", textAlign: "end", paddingRight: ".5rem" }}>
+        {value ? weiToUnit(value, decimals) : "..."}
+      </Typo2>
+    </Row>
   );
 };
 
@@ -361,64 +452,39 @@ const BridgeTokenList: React.FC<any> = ({
   isBridgeTxCompleted,
 }) => {
   const { walletContext } = useWalletProvider();
-  const { DEFAULT_PROVIDERS } = useMultiChain();
   const [token, setToken] = useState(null);
   const [fromTokenBalance, setFromTokenBalance] = useState(null);
   const [toTokenBalance, setToTokenBalance] = useState(null);
 
-  const getBalance = async (address: string, provider: any, to = false) => {
-    if (address === AddressZero || !address) {
-      const nativeBalance = await provider.getBalance(
-        walletContext.activeWallet.address
-      );
-
-      if (to) setToTokenBalance(nativeBalance);
-      if (!to) setFromTokenBalance(nativeBalance);
-
-      return nativeBalance;
-    }
-
-    const contract = await loadERC20Contract(address, provider);
-    const tokenBalance = await contract.balanceOf(
-      walletContext.activeWallet.address
-    );
-
-    if (to) setToTokenBalance(tokenBalance);
-    if (!to) setFromTokenBalance(tokenBalance);
-
-    return tokenBalance;
+  const handleSetToken = (value: any) => {
+    setFromTokenBalance(null);
+    setToTokenBalance(null);
+    setToken(value);
   };
 
   useEffect(() => {
     if (tokenList && tokenList.length) {
+      setFromTokenBalance(null);
+      setToTokenBalance(null);
       return setToken(tokenList[0]);
     }
   }, [tokenList]);
 
   useEffect(() => {
     setSelectedToken(token);
-    setFromTokenBalance(null);
-    setToTokenBalance(null);
     setAmount("");
 
     if (token) {
-      const fromBalancePromise = getBalance(
-        token.isNative === "true" ? AddressZero : token.ContractAddress,
-        DEFAULT_PROVIDERS[fromChain]
-      );
-      const toBalancePromise = getBalance(
-        token.isNativeTo === "true" ? AddressZero : token.ContractAddressTo,
-        DEFAULT_PROVIDERS[toChain],
-        true
-      );
-
-      Promise.all([fromBalancePromise, toBalancePromise]).then(
-        ([fromBalance, toBalance]) =>
+      Promise.all([token.balance, token.balanceTo]).then(
+        ([fromBalance, toBalance]) => {
+          setFromTokenBalance(fromBalance || BigNumber.from(0));
+          setToTokenBalance(toBalance || BigNumber.from(0));
           setSelectedToken({
             ...token,
-            balance: fromBalance,
-            balanceTo: toBalance,
-          })
+            // balance: fromBalance || BigNumber.from(0),
+            // balanceTo: toBalance || BigNumber.from(0),
+          });
+        }
       );
       return;
     }
@@ -441,7 +507,7 @@ const BridgeTokenList: React.FC<any> = ({
         <TokenSelector
           tokens={tokenList}
           selected={token}
-          selectToken={setToken}
+          selectToken={handleSetToken}
         />
         <div style={{ flex: 2 }}>
           <InputCurrencyBox
@@ -509,32 +575,32 @@ const Bridge: React.FC<any> = () => {
   const [bridgeStatus, setBridgeStatus] = useState(0);
 
   const {
-    router,
-    needApprove,
     ContractAddress,
     symbol,
     Decimals,
-    fromChainId,
     balance,
     MinimumSwap,
     MaximumSwap,
     type,
-    toChainId,
-    isNativeTo,
   } = selectedToken || {};
 
   const validateAmount = (amount: string) => {
-    if (selectedToken) {
-      if (balance && BigNumber.from(unitToWei(amount, Decimals)).gt(balance)) {
-        return setInputError("Insufficient funds");
-      }
-      if (parseInt(amount) < parseInt(MinimumSwap)) {
-        return setInputError("Below minimum amount");
-      }
-      if (parseInt(amount) > parseInt(MaximumSwap)) {
-        return setInputError("Above maximum amount");
-      }
-      return setInputError(null);
+    if (selectedToken && balance) {
+      balance.then((resolvedBalance: BigNumber) => {
+        if (
+          resolvedBalance &&
+          BigNumber.from(unitToWei(amount, Decimals)).gt(resolvedBalance)
+        ) {
+          return setInputError("Insufficient funds");
+        }
+        if (parseInt(amount) < parseInt(MinimumSwap)) {
+          return setInputError("Below minimum amount");
+        }
+        if (parseInt(amount) > parseInt(MaximumSwap)) {
+          return setInputError("Above maximum amount");
+        }
+        return setInputError(null);
+      });
     }
   };
 
@@ -567,19 +633,22 @@ const Bridge: React.FC<any> = () => {
       type === "anySwapOut(address,address,uint256,uint256)" ||
       type === "anySwapOutNative(address,address,uint256)";
     const isNative = symbol !== "FTM" && !ContractAddress;
-
+    console.log(selectedToken);
     let tx;
     if (isNative) {
+      console.log("NATIVE BRIDGE");
       tx = await bridgeNativeMethod(
         selectedToken,
         unitToWei(amount, Decimals).toString()
       );
     } else if (isStableType) {
+      console.log("STABLE BRIDGE");
       tx = await bridgeStableMethod(
         selectedToken,
         unitToWei(amount, Decimals).toString()
       );
     } else {
+      console.log("BRIDGE");
       tx = await bridgeMethod(
         selectedToken,
         unitToWei(amount, Decimals).toString()
@@ -646,8 +715,6 @@ const Bridge: React.FC<any> = () => {
 
     return () => clearInterval(interval);
   }, [bridgeTxHash]);
-
-  console.log(selectedToken);
 
   return (
     <>
