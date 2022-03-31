@@ -834,7 +834,14 @@ const Bridge: React.FC<any> = () => {
                       <Typo2 style={{ color: "#84888d" }}>
                         Max bridge amount
                       </Typo2>
-                      <Typo2>
+                      <Typo2
+                        style={{
+                          color:
+                            inputError === "Above maximum amount"
+                              ? "red"
+                              : "inherit",
+                        }}
+                      >
                         {selectedToken
                           ? `${selectedToken.MaximumSwap} ${selectedToken.symbol}`
                           : "-"}
@@ -844,7 +851,14 @@ const Bridge: React.FC<any> = () => {
                       <Typo2 style={{ color: "#84888d" }}>
                         Min Bridge amount
                       </Typo2>
-                      <Typo2>
+                      <Typo2
+                        style={{
+                          color:
+                            inputError === "Below minimum amount"
+                              ? "red"
+                              : "inherit",
+                        }}
+                      >
                         {selectedToken
                           ? `${selectedToken.MinimumSwap} ${selectedToken.symbol}`
                           : "-"}
