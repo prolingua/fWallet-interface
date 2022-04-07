@@ -46,7 +46,6 @@ import refreshImg from "../../assets/img/symbols/Refresh.svg";
 import { useHardwareWallet } from "../../hooks/useHardwareWallet";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 import Loader from "../../components/Loader";
-import { ResponsiveRow } from "../../components/Row/Row";
 import FadeInOut from "../../components/AnimationFade";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
@@ -500,10 +499,6 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
     </>
   );
 
-  useEffect(() => {
-    return () => setFlow(null);
-  }, []);
-
   return (
     <Modal onDismiss={onDismiss} style={{ width: "50rem" }}>
       {!selectedSoftware && SelectSoftware}
@@ -541,6 +536,7 @@ const SelectLedgerAccountModal: React.FC<any> = ({
     setIsLoading(true);
     listAddresses(startingIndex)
       .then((addresses) => setLedgerAddresses(addresses))
+      .catch(onDismiss)
       .finally(() => setIsLoading(false));
   }, [startingIndex]);
 
@@ -611,8 +607,19 @@ const SelectLedgerAccountModal: React.FC<any> = ({
             .finally(() => setIsLoadingAccount(false));
         }}
       >
-        import Loader from '../../components/Loader';
-        {isLoading || isLoadingAccount ? <Loader /> : "Continue"}
+        {isLoading || isLoadingAccount ? (
+          <Row
+            style={{
+              height: "18px",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Loader />
+          </Row>
+        ) : (
+          "Continue"
+        )}
       </Button>
     </Modal>
   );
@@ -651,8 +658,8 @@ export const AccessWallet: React.FC<any> = ({
 
   const handleSetTool = (tool: string) => {
     setError(null);
-    setSelectedTool(null);
     setTool(tool);
+    setSelectedTool(tool);
   };
 
   useEffect(() => {
@@ -829,14 +836,14 @@ export const AccessWallet: React.FC<any> = ({
           </Row>
           <Spacer size="xl" />
           <Column style={{ alignSelf: "center", alignItems: "center" }}>
-            <Button
-              disabled={!tool}
-              onClick={() => setSelectedTool(tool)}
-              style={{ width: "20rem" }}
-              variant="primary"
-            >
-              {"Continue"}
-            </Button>
+            {/*<Button*/}
+            {/*  disabled={!tool}*/}
+            {/*  onClick={() => setSelectedTool(tool)}*/}
+            {/*  style={{ width: "20rem" }}*/}
+            {/*  variant="primary"*/}
+            {/*>*/}
+            {/*  {"Continue"}*/}
+            {/*</Button>*/}
             {error && (
               <Column style={{ maxWidth: "80%" }}>
                 <Spacer />
@@ -848,13 +855,13 @@ export const AccessWallet: React.FC<any> = ({
             <Spacer size="lg" />
             {!addWallet && (
               <>
-                <OverlayButton onClick={() => setFlow(null)}>
-                  <Typo1
-                    style={{ fontWeight: "bold", color: color.primary.cyan() }}
-                  >
-                    Cancel
-                  </Typo1>
-                </OverlayButton>
+                {/*<OverlayButton onClick={() => setFlow(null)}>*/}
+                {/*  <Typo1*/}
+                {/*    style={{ fontWeight: "bold", color: color.primary.cyan() }}*/}
+                {/*  >*/}
+                {/*    Cancel*/}
+                {/*  </Typo1>*/}
+                {/*</OverlayButton>*/}
                 <Spacer size="xl" />
                 <Spacer size="xl" />
                 <Column

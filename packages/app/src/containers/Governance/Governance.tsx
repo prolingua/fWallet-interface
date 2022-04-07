@@ -130,13 +130,14 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
             history.push(`governance/proposal/${proposal.proposal.id}`)
           }
           variant="primary"
-          style={
-            {
-              // backgroundColor:
-              //   !isActiveProposal ||
-              //   (delegationsToVoteWith[0] === 0 && color.greys.darkGrey()),
-            }
-          }
+          style={{
+            border:
+              (!isActiveProposal || delegationsToVoteWith[0] === 0) &&
+              "2px solid #1869FF",
+            backgroundColor:
+              (!isActiveProposal || delegationsToVoteWith[0] === 0) &&
+              "transparent",
+          }}
         >
           {isActiveProposal && delegationsToVoteWith[0] > 0
             ? `Vote now`
