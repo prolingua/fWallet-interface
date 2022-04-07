@@ -47,6 +47,7 @@ import { useHardwareWallet } from "../../hooks/useHardwareWallet";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 import Loader from "../../components/Loader";
 import { ResponsiveRow } from "../../components/Row/Row";
+import FadeInOut from "../../components/AnimationFade";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -622,7 +623,7 @@ export const AccessWallet: React.FC<any> = ({
   addWallet,
   onDismiss,
 }) => {
-  const { color, breakpoints } = useContext(ThemeContext);
+  const { color } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
   const { activateWalletConnect } = useWalletConnect();
@@ -1301,14 +1302,22 @@ const CreateNewWallet: React.FC<any> = ({ setFlow }) => {
 const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
   return (
     <Column
-      style={{ height: "100%", alignItems: "center", justifyContent: "center" }}
+      style={{
+        height: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
       {!contentFlow && <CreateOrAccessWallet setFlow={setContentFlow} />}
       {contentFlow === "accessWallet" && (
-        <AccessWallet setFlow={setContentFlow} />
+        <FadeInOut>
+          <AccessWallet setFlow={setContentFlow} />
+        </FadeInOut>
       )}
       {contentFlow === "newWallet" && (
-        <CreateNewWallet setFlow={setContentFlow} />
+        <FadeInOut>
+          <CreateNewWallet setFlow={setContentFlow} />
+        </FadeInOut>
       )}
     </Column>
   );
