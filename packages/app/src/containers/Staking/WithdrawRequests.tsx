@@ -6,6 +6,7 @@ import { ContentBox, Heading1, Heading3, Typo2 } from "../../components";
 import Spacer from "../../components/Spacer";
 import Column from "../../components/Column";
 import WithdrawRequestRow from "../../components/WithdrawRequestRow";
+import Loader from "../../components/Loader";
 
 const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
   const { color } = useContext(ThemeContext);
@@ -93,7 +94,7 @@ const WithdrawRequests: React.FC<any> = ({
         <Heading1>Withdraw Requests</Heading1>
         <Spacer />
         {loading ? (
-          <div>Loading...</div>
+          <Loader />
         ) : (
           <WithdrawRequestsContent
             accountDelegationsData={accountDelegations.data}

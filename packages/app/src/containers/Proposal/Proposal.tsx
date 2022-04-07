@@ -19,6 +19,7 @@ import ProposalOverview from "./ProposalOverview";
 import config from "../../config/config";
 // @ts-ignore
 import { addresses } from "@f-wallet/contracts";
+import FadeInOut from "../../components/AnimationFade";
 
 const Proposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
@@ -76,32 +77,36 @@ const Proposal: React.FC<any> = () => {
   }, [accountDelegationsResponse, delegationsResponse]);
 
   return (
-    <Column>
-      <OverlayButton
-        style={{ alignSelf: "start" }}
-        onClick={() => history.goBack()}
-      >
-        <Typo1>{"< BACK"}</Typo1>
-      </OverlayButton>
-      <Spacer />
-      <Row>
-        <Column>
-          <Typo1 style={{ color: color.greys.grey() }}>Select delegation</Typo1>
-          <Spacer size="sm" />
-          <DelegationSelector
-            activeDelegations={activeDelegations}
-            selectedDelegation={selectedDelegation}
-            setSelectedDelegation={setSelectedDelegation}
-            proposal={proposalResponse?.data?.govContract.proposal}
-          />
-        </Column>
-      </Row>
-      <Spacer size="xl" />
-      <ProposalOverview
-        proposal={proposalResponse?.data?.govContract.proposal}
-        selectedDelegation={selectedDelegation}
-      />
-    </Column>
+    <FadeInOut>
+      <Column>
+        <OverlayButton
+          style={{ alignSelf: "start" }}
+          onClick={() => history.goBack()}
+        >
+          <Typo1>{"< BACK"}</Typo1>
+        </OverlayButton>
+        <Spacer />
+        <Row>
+          <Column>
+            <Typo1 style={{ color: color.greys.grey() }}>
+              Select delegation
+            </Typo1>
+            <Spacer size="sm" />
+            <DelegationSelector
+              activeDelegations={activeDelegations}
+              selectedDelegation={selectedDelegation}
+              setSelectedDelegation={setSelectedDelegation}
+              proposal={proposalResponse?.data?.govContract.proposal}
+            />
+          </Column>
+        </Row>
+        <Spacer size="xl" />
+        <ProposalOverview
+          proposal={proposalResponse?.data?.govContract.proposal}
+          selectedDelegation={selectedDelegation}
+        />
+      </Column>
+    </FadeInOut>
   );
 };
 

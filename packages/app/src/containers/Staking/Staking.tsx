@@ -9,10 +9,11 @@ import Spacer from "../../components/Spacer";
 import StakingOverview from "./StakingOverview";
 import Delegate from "./Delegate";
 import Rewards from "./Rewards";
-import LiquidStaking from "./LiquidStaking";
+// import LiquidStaking from "./LiquidStaking";
 import ActiveDelegations from "./ActiveDelegations";
 import WithdrawRequests from "./WithdrawRequests";
 import FluidRewards from "./FluidRewards";
+import FadeInOut from "../../components/AnimationFade";
 
 const Staking: React.FC<any> = () => {
   const { breakpoints } = useContext(ThemeContext);
@@ -68,60 +69,62 @@ const Staking: React.FC<any> = () => {
   );
 
   return (
-    <ResponsiveRow
-      breakpoint={breakpoints.ultra}
-      style={{ marginBottom: "1.5rem" }}
-    >
-      <Column style={{ flex: 7 }}>
-        <StakingOverview
-          loading={!accountDelegationsIsDoneLoading}
-          accountDelegations={accountDelegations}
-        />
-        <Spacer />
-        <Row>
-          <Delegate
-            loading={!delegateIsDoneLoading}
-            accountBalance={accountBalance}
-            delegations={delegations}
+    <FadeInOut>
+      <ResponsiveRow
+        breakpoint={breakpoints.ultra}
+        style={{ marginBottom: "1.5rem" }}
+      >
+        <Column style={{ flex: 7 }}>
+          <StakingOverview
+            loading={!accountDelegationsIsDoneLoading}
             accountDelegations={accountDelegations}
           />
           <Spacer />
-          <Rewards
+          <Row>
+            <Delegate
+              loading={!delegateIsDoneLoading}
+              accountBalance={accountBalance}
+              delegations={delegations}
+              accountDelegations={accountDelegations}
+            />
+            <Spacer />
+            <Rewards
+              loading={!activeDelegationsIsDoneLoading}
+              accountDelegations={accountDelegations}
+              delegations={delegations}
+            />
+          </Row>
+          <Spacer />
+          <Row>
+            <FluidRewards
+              loading={!activeDelegationsIsDoneLoading}
+              accountDelegations={accountDelegations?.data}
+              delegations={delegations?.data}
+            />
+            {/*<Spacer />*/}
+            {/*<LiquidStaking*/}
+            {/*  loading={!activeDelegationsIsDoneLoading}*/}
+            {/*  accountDelegations={accountDelegations}*/}
+            {/*  delegations={delegations}*/}
+            {/*/>*/}
+          </Row>
+        </Column>
+        <Spacer />
+        <Column style={{ flex: 5 }}>
+          <ActiveDelegations
             loading={!activeDelegationsIsDoneLoading}
             accountDelegations={accountDelegations}
             delegations={delegations}
-          />
-        </Row>
-        <Spacer />
-        <Row>
-          <FluidRewards
-            loading={!activeDelegationsIsDoneLoading}
-            accountDelegations={accountDelegations?.data}
-            delegations={delegations?.data}
           />
           <Spacer />
-          <LiquidStaking
+          <WithdrawRequests
             loading={!activeDelegationsIsDoneLoading}
             accountDelegations={accountDelegations}
             delegations={delegations}
           />
-        </Row>
-      </Column>
-      <Spacer />
-      <Column style={{ flex: 5 }}>
-        <ActiveDelegations
-          loading={!activeDelegationsIsDoneLoading}
-          accountDelegations={accountDelegations}
-          delegations={delegations}
-        />
-        <Spacer />
-        <WithdrawRequests
-          loading={!activeDelegationsIsDoneLoading}
-          accountDelegations={accountDelegations}
-          delegations={delegations}
-        />
-      </Column>
-    </ResponsiveRow>
+        </Column>
+      </ResponsiveRow>
+    </FadeInOut>
   );
 };
 

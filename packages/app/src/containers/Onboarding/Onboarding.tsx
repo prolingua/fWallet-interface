@@ -46,6 +46,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import refreshImg from "../../assets/img/symbols/Refresh.svg";
 import { useHardwareWallet } from "../../hooks/useHardwareWallet";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
+import Loader from "../../components/Loader";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -609,7 +610,8 @@ const SelectLedgerAccountModal: React.FC<any> = ({
             .finally(() => setIsLoadingAccount(false));
         }}
       >
-        {isLoading || isLoadingAccount ? "Loading..." : "Continue"}
+        import Loader from '../../components/Loader';
+        {isLoading || isLoadingAccount ? <Loader /> : "Continue"}
       </Button>
     </Modal>
   );

@@ -49,6 +49,7 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import { FantomApiMethods } from "../../hooks/useFantomApi";
 import { getAccountAssets } from "../../utils/account";
 import useSendTransaction from "../../hooks/useSendTransaction";
+import Loader from "../../components/Loader";
 
 const LiquidStakingContent: React.FC<any> = ({ accountDelegationsData }) => {
   const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
@@ -521,7 +522,7 @@ const LiquidStaking: React.FC<any> = ({ loading, accountDelegations }) => {
         <Spacer />
         <Column style={{ marginTop: "auto", width: "100%" }}>
           {loading ? (
-            <div>Loading...</div>
+            <Loader />
           ) : (
             <LiquidStakingContent
               accountDelegationsData={accountDelegations.data}

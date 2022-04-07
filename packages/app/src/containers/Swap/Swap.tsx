@@ -47,6 +47,7 @@ import useCoingeckoApi, {
 } from "../../hooks/useCoingeckoApi";
 import Chart from "../../components/Chart";
 import { formatDate } from "../../utils/common";
+import FadeInOut from "../../components/AnimationFade";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -892,24 +893,26 @@ const Swap: React.FC<any> = () => {
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market_chart?vs_currency=usd&days=60
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
   return (
-    <Row style={{ gap: "1rem" }}>
-      <SwapTokensContent
-        tokenList={tokenList}
-        setActiveTokens={setActiveTokens}
-        setSwapRoute={setSwapRoute}
-        refetchTimer={refetchTimer}
-      />
-      <Spacer />
-      <Column style={{ width: "100%" }}>
-        <TokenChart activeTokens={activeTokens} refetchTimer={refetchTimer} />
-        <Spacer />
-        <SwapRoute
-          route={swapRoute}
+    <FadeInOut>
+      <Row style={{ gap: "1rem" }}>
+        <SwapTokensContent
           tokenList={tokenList}
-          activeTokens={activeTokens}
+          setActiveTokens={setActiveTokens}
+          setSwapRoute={setSwapRoute}
+          refetchTimer={refetchTimer}
         />
-      </Column>
-    </Row>
+        <Spacer />
+        <Column style={{ width: "100%" }}>
+          <TokenChart activeTokens={activeTokens} refetchTimer={refetchTimer} />
+          <Spacer />
+          <SwapRoute
+            route={swapRoute}
+            tokenList={tokenList}
+            activeTokens={activeTokens}
+          />
+        </Column>
+      </Row>
+    </FadeInOut>
   );
 };
 

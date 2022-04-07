@@ -34,6 +34,7 @@ import InputAddress from "../../components/InputAddress";
 import EstimatedFees from "./EstimatedFees";
 import useModal from "../../hooks/useModal";
 import InfoModal from "../../components/InfoModal";
+import FadeInOut from "../../components/AnimationFade";
 
 const SendTokensContent: React.FC<any> = ({
   accountData,
@@ -386,17 +387,19 @@ const Send: React.FC<any> = () => {
     activeAddress && accountData?.data && assetsList?.data && tokenPrice?.data;
 
   return (
-    <Column style={{ alignItems: "center" }}>
-      <Spacer size="lg" />
-      <SendTokens
-        loading={!isDoneLoading}
-        accountData={accountData}
-        assetsList={assetsList}
-        tokenPrice={tokenPrice}
-        gasPrice={gasPrice}
-        currency={settings.currency}
-      />
-    </Column>
+    <FadeInOut>
+      <Column style={{ alignItems: "center" }}>
+        <Spacer size="lg" />
+        <SendTokens
+          loading={!isDoneLoading}
+          accountData={accountData}
+          assetsList={assetsList}
+          tokenPrice={tokenPrice}
+          gasPrice={gasPrice}
+          currency={settings.currency}
+        />
+      </Column>
+    </FadeInOut>
   );
 };
 

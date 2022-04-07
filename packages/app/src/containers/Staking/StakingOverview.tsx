@@ -6,6 +6,7 @@ import StatPair from "../../components/StatPair";
 import { ContentBox, Heading1 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
+import Loader from "../../components/Loader";
 
 const StakingOverviewContent: React.FC<any> = ({ accountDelegationsData }) => {
   const totalDelegated = getAccountDelegationSummary(accountDelegationsData);
@@ -29,7 +30,7 @@ const StakingOverview: React.FC<any> = ({ loading, accountDelegations }) => {
         <Heading1>Overview</Heading1>
         <Spacer />
         {loading ? (
-          <div>Loading...</div>
+          <Loader />
         ) : (
           <StakingOverviewContent
             accountDelegationsData={accountDelegations.data}

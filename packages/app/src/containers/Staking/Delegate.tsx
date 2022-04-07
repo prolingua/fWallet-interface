@@ -12,6 +12,7 @@ import DelegateStep from "./Delegate/DelegateStep";
 import LockupStep from "./Delegate/LockupStep";
 import ConfirmationStep from "./Delegate/ConfirmationStep";
 import { getAccountDelegations } from "../../utils/delegation";
+import Loader from "../../components/Loader";
 
 const DelegateModal: React.FC<any> = ({
   onDismiss,
@@ -106,7 +107,7 @@ const Delegate: React.FC<any> = ({
         <Column style={{ marginTop: "auto", width: "100%" }}>
           <Spacer />
           {loading ? (
-            <div>Loading...</div>
+            <Loader />
           ) : (
             <DelegateContent accountBalanceData={accountBalance.data} />
           )}

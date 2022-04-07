@@ -10,6 +10,7 @@ import Scrollbar from "../../components/Scrollbar";
 import { FANTOM_NATIVE } from "../../utils/common";
 import useFantomNative from "../../hooks/useFantomNative";
 import { BigNumber } from "@ethersproject/bignumber";
+import Loader from "../../components/Loader";
 
 const TokensContent: React.FC<any> = ({ assetList }) => {
   const { color } = useContext(ThemeContext);
@@ -59,11 +60,7 @@ const Tokens: React.FC<any> = ({ loading, tokenList }) => {
       <Column style={{ width: "100%" }}>
         <Heading1>Tokens</Heading1>
         <Spacer size="lg" />
-        {loading ? (
-          <div>LOADING...</div>
-        ) : (
-          <TokensContent assetList={tokenList} />
-        )}
+        {loading ? <Loader /> : <TokensContent assetList={tokenList} />}
       </Column>
     </ContentBox>
   );

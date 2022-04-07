@@ -48,6 +48,7 @@ import Column from "../../components/Column";
 import SliderWithMarks from "../../components/Slider";
 import vShapeImg from "../../assets/img/shapes/vShapeBack.svg";
 import ConfirmationStep from "./Delegate/ConfirmationStep";
+import Loader from "../../components/Loader";
 
 const LockupSelect: React.FC<any> = ({
   validator,
@@ -494,7 +495,7 @@ const FluidRewards: React.FC<any> = ({
         <Spacer />
         <Column style={{ marginTop: "auto", width: "100%" }}>
           {loading ? (
-            <div>Loading...</div>
+            <Loader />
           ) : (
             <FluidRewardsContent availableToLockup={availableToLockup} />
           )}

@@ -38,6 +38,7 @@ import useFantomERC20 from "../../hooks/useFantomERC20";
 import useSendTransaction from "../../hooks/useSendTransaction";
 import useSendBatchTransactions from "../../hooks/useSendBatchTransactions";
 import { BigNumber } from "@ethersproject/bignumber";
+import Loader from "../../components/Loader";
 
 const RewardsContent: React.FC<any> = ({ totalPendingRewards }) => {
   const rewardsFTM =
@@ -284,7 +285,7 @@ const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
         <Spacer />
         <Column style={{ marginTop: "auto", width: "100%" }}>
           {loading ? (
-            <div>Loading...</div>
+            <Loader />
           ) : (
             <RewardsContent
               totalPendingRewards={totalDelegated?.totalPendingRewards}

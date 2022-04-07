@@ -45,6 +45,8 @@ import useFantomERC20 from "../../hooks/useFantomERC20";
 import { BigNumber } from "@ethersproject/bignumber";
 import useTransaction from "../../hooks/useTransaction";
 import { stickyTokensList } from "../../utils/token";
+import Loader from "../../components/Loader";
+import FadeInOut from "../../components/AnimationFade";
 
 const ChainSelect: React.FC<any> = ({ selectChain, chains }) => {
   const { color } = useContext(ThemeContext);
@@ -329,7 +331,7 @@ const TokenSelector: React.FC<any> = ({ tokens, selected, selectToken }) => {
             ) : tokens && tokens.length ? (
               <Typo1>Select token </Typo1>
             ) : (
-              <Typo1>Loading tokens... </Typo1>
+              <Loader />
             )}
           </Row>
         </ContentBox>
@@ -593,10 +595,10 @@ const Bridge: React.FC<any> = () => {
         ) {
           return setInputError("Insufficient funds");
         }
-        if (parseInt(amount) < parseInt(MinimumSwap)) {
+        if (parseFloat(amount) < parseFloat(MinimumSwap)) {
           return setInputError("Below minimum amount");
         }
-        if (parseInt(amount) > parseInt(MaximumSwap)) {
+        if (parseFloat(amount) > parseFloat(MaximumSwap)) {
           return setInputError("Above maximum amount");
         }
         return setInputError(null);
@@ -633,7 +635,7 @@ const Bridge: React.FC<any> = () => {
       type === "anySwapOut(address,address,uint256,uint256)" ||
       type === "anySwapOutNative(address,address,uint256)";
     const isNative = symbol !== "FTM" && !ContractAddress;
-    console.log(selectedToken);
+
     let tx;
     if (isNative) {
       console.log("NATIVE BRIDGE");
@@ -717,7 +719,7 @@ const Bridge: React.FC<any> = () => {
   }, [bridgeTxHash]);
 
   return (
-    <>
+    <FadeInOut>
       {bridgeTxHash && (
         <ContentBox
           style={{
@@ -911,7 +913,7 @@ const Bridge: React.FC<any> = () => {
         </ContentBox>
       </Row>
       <Spacer />
-    </>
+    </FadeInOut>
   );
 };
 

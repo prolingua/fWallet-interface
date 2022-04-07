@@ -4,6 +4,7 @@ import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import TransactionLine from "../../components/TransactionLine";
 import { getAccountTransactions } from "../../utils/account";
+import Loader from "../../components/Loader";
 
 const TransactionHistoryContent: React.FC<any> = ({
   transactions,
@@ -51,7 +52,7 @@ const TransactionHistory: React.FC<any> = ({
         <Heading1>History</Heading1>
         <Spacer size="lg" />
         {loading ? (
-          <div>LOADING...</div>
+          <Loader />
         ) : (
           <TransactionHistoryContent
             transactions={accountTransactions}

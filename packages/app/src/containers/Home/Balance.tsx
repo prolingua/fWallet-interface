@@ -15,6 +15,7 @@ import { getAccountDelegationSummary } from "../../utils/delegation";
 import { getCurrentCRatio, getLockedCollateral } from "../../utils/fMint";
 import { getAccountBalance } from "../../utils/account";
 import { getTotalFTMBalanceForAccount } from "../../utils/common";
+import Loader from "../../components/Loader";
 
 const BalanceContent: React.FC<any> = ({
   accountData,
@@ -122,12 +123,12 @@ const Balance: React.FC<any> = ({
   loading,
 }) => {
   return (
-    <ContentBox>
+    <ContentBox style={{ width: "100%", boxSizing: "border-box" }}>
       <Column style={{ flex: 1 }}>
         <Heading1>Balance</Heading1>
         <Spacer size="xs" />
         {loading ? (
-          <div> LOADING... </div>
+          <Loader />
         ) : (
           <BalanceContent
             accountData={accountData.data}

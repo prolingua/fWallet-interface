@@ -7,9 +7,11 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import Spacer from "../../components/Spacer";
 import useSettings from "../../hooks/useSettings";
 import TransactionHistory from "./TransactionHistory";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import { ResponsiveRow } from "../../components/Row/Row";
 import Tokens from "./Tokens";
+import { Transition } from "react-transition-group";
+import FadeInOut from "../../components/AnimationFade";
 
 const Home: React.FC<any> = () => {
   const { breakpoints } = useContext(ThemeContext);
@@ -103,7 +105,7 @@ const Home: React.FC<any> = () => {
   const isDoneLoadingTokens = activeAddress && topTokensList?.data;
 
   return (
-    <>
+    <FadeInOut>
       <Balance
         loading={!isDoneLoadingBalance}
         accountData={accountData}
@@ -128,7 +130,7 @@ const Home: React.FC<any> = () => {
         <Spacer />
         <Tokens loading={!isDoneLoadingTokens} tokenList={erc20AssetsList} />
       </ResponsiveRow>
-    </>
+    </FadeInOut>
   );
 };
 

@@ -51,6 +51,7 @@ import { ManageSFTMModal } from "./LiquidStaking";
 import useSendTransaction from "../../hooks/useSendTransaction";
 import InputCurrency from "../../components/InputCurrency";
 import { BigNumber } from "@ethersproject/bignumber";
+import Loader from "../../components/Loader";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -763,7 +764,7 @@ const ActiveDelegations: React.FC<any> = ({
         <Heading1>Active Delegations</Heading1>
         <Spacer />
         {loading ? (
-          <div>Loading...</div>
+          <Loader />
         ) : (
           <ActiveDelegationsContent
             accountDelegationsData={accountDelegations.data}
