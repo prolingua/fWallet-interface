@@ -7,21 +7,13 @@ import { createWalletContext } from "../utils/wallet";
 import useWalletProvider from "./useWalletProvider";
 import useAccount from "./useAccount";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
+import { promptWeb3WalletUse } from "../web3/events";
 
 export function useWalletEvents() {
   const context = useWeb3React<Web3Provider>();
-  const { dispatchWalletContext, walletContext } = useWalletProvider();
+  const { dispatchWalletContext } = useWalletProvider();
   const { dispatchAccount } = useAccount();
-  const {
-    connector,
-    library,
-    chainId,
-    account,
-    activate,
-    deactivate,
-    active,
-    error,
-  } = context;
+  const { library, chainId, account, active } = context;
   useEffect(() => {
     if (active) {
       createWalletContext(library).then(async (walletProvider) => {
@@ -47,10 +39,15 @@ export function useInjectedWallet() {
   // const triedEager = useEagerConnect();
   useInactiveListener();
 
-  const { activate } = context;
+  const { active, activate } = context;
 
   return {
-    activateInjected: () => activate(connectorsByName.Injected),
+    activateInjected: () => {
+      if (active) {
+        return promptWeb3WalletUse();
+      }
+      return activate(connectorsByName.Injected);
+    },
   };
 }
 

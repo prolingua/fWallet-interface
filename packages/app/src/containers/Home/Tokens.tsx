@@ -11,8 +11,10 @@ import { FANTOM_NATIVE } from "../../utils/common";
 import useFantomNative from "../../hooks/useFantomNative";
 import { BigNumber } from "@ethersproject/bignumber";
 import Loader from "../../components/Loader";
+import useWalletProvider from "../../hooks/useWalletProvider";
 
 const TokensContent: React.FC<any> = ({ assetList }) => {
+  const { walletContext } = useWalletProvider();
   const { color } = useContext(ThemeContext);
   const [tokenList, setTokenList] = useState([]);
   const { getBalance } = useFantomNative();
@@ -27,7 +29,7 @@ const TokensContent: React.FC<any> = ({ assetList }) => {
         ...assetsWithBalance,
       ]);
     });
-  }, [assetList]);
+  }, [assetList, walletContext.activeWallet.address]);
 
   return (
     <div style={{ bottom: 0, marginRight: "-1.5rem" }}>

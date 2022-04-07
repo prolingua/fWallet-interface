@@ -7,10 +7,9 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import Spacer from "../../components/Spacer";
 import useSettings from "../../hooks/useSettings";
 import TransactionHistory from "./TransactionHistory";
-import styled, { ThemeContext } from "styled-components";
+import { ThemeContext } from "styled-components";
 import { ResponsiveRow } from "../../components/Row/Row";
 import Tokens from "./Tokens";
-import { Transition } from "react-transition-group";
 import FadeInOut from "../../components/AnimationFade";
 
 const Home: React.FC<any> = () => {

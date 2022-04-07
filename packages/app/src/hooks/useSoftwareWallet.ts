@@ -55,12 +55,13 @@ export const useSoftwareWallet = () => {
     return entropyToMnemonic(entropy, wordlists.en);
   };
   const handleCreateNewWallet = (mnemonic: string) => {
+    const provider = new JsonRpcProvider(config.rpc);
     const wallet = Wallet.fromMnemonic(
       mnemonic,
       "m/44'/60'/0'/0/0",
       wordlists.en
     );
-    return addWalletToContext(wallet);
+    return addWalletToContext(wallet, provider);
   };
 
   const handleRestoreWalletFromPrivateKey = async (pkey: string) => {

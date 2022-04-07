@@ -1,7 +1,13 @@
-import React, { Suspense } from "react";
-import { Route, Switch } from "react-router-dom";
+import React, {
+  Suspense,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Route, Switch, useLocation } from "react-router-dom";
 import { I18nextProvider } from "react-i18next";
-import { ThemeProvider } from "styled-components";
+import { ThemeContext, ThemeProvider } from "styled-components";
 
 import i18next from "./i18n";
 import theme from "./theme/theme";
@@ -35,6 +41,15 @@ import NotifyProvider from "./context/NotifyProvider";
 import Bridge from "./containers/Bridge";
 
 const AppContent: React.FC<any> = () => {
+  const location = useLocation();
+  const containerRef = useRef(null);
+
+  // refresh scrollbar on height change
+  const [, setContainerHeight] = useState(null);
+  useEffect(() => {
+    setContainerHeight(containerRef?.current?.clientHeight);
+  }, [location.pathname]);
+
   return (
     <>
       <SideBar />
@@ -42,8 +57,15 @@ const AppContent: React.FC<any> = () => {
         <Suspense fallback="Loading">
           <TopBar />
         </Suspense>
-        <Scrollbar style={{ width: "100%", height: "100%" }}>
+        <Scrollbar
+          style={{
+            width: "100%",
+            height: "100%",
+            barColor: "rgba(196,202,213,0.41)",
+          }}
+        >
           <div
+            ref={containerRef}
             style={{
               flex: 1,
               display: "flex",
@@ -79,7 +101,7 @@ const AppContent: React.FC<any> = () => {
 const AppContentWithWallet = withConnectedWallet(AppContent);
 
 function App() {
-  const resolutionType = useDetectResolutionType();
+  const { resolutionType } = useDetectResolutionType();
   return (
     <Providers>
       <Body>

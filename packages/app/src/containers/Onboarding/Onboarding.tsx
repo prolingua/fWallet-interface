@@ -21,7 +21,6 @@ import checkmarkBlueImg from "../../assets/img/shapes/checkmarkBlue.svg";
 import checkmarkGreenImg from "../../assets/img/symbols/GreenCheckMark.svg";
 import ledgerImg from "../../assets/img/icons/ledgerBlue.svg";
 import metamaskImg from "../../assets/img/icons/metamask.svg";
-// import keystoreImg from "../../assets/img/icons/keystoreBlue.svg";
 import coinbaseImg from "../../assets/img/icons/coinbase.svg";
 import walletConnectImg from "../../assets/img/icons/walletConnect.svg";
 import softwareWalletImg from "../../assets/img/icons/software.svg";
@@ -47,6 +46,7 @@ import refreshImg from "../../assets/img/symbols/Refresh.svg";
 import { useHardwareWallet } from "../../hooks/useHardwareWallet";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 import Loader from "../../components/Loader";
+import { ResponsiveRow } from "../../components/Row/Row";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -622,7 +622,7 @@ export const AccessWallet: React.FC<any> = ({
   addWallet,
   onDismiss,
 }) => {
-  const { color } = useContext(ThemeContext);
+  const { color, breakpoints } = useContext(ThemeContext);
   const { activateInjected } = useInjectedWallet();
   const { activateWalletLink } = useWalletLink();
   const { activateWalletConnect } = useWalletConnect();
@@ -691,7 +691,15 @@ export const AccessWallet: React.FC<any> = ({
             How do you want to access your wallet?
           </Heading1>
           <Spacer size="xl" />
-          <Row style={{ gap: "1rem" }}>
+          <Row
+            style={{
+              gap: "1rem",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 2rem",
+            }}
+          >
             <OverlayButton onClick={() => handleSetTool("metamask")}>
               <ContentBox
                 style={{
@@ -1308,7 +1316,7 @@ const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
 
 const Onboarding: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
-  const [contentFlow, setContentFlow] = useState(null);
+  const [contentFlow, setContentFlow] = useState("accessWallet");
   return (
     <Column style={{ width: "100%" }}>
       <OnboardingTopBar setContentFlow={setContentFlow} />

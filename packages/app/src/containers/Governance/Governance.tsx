@@ -130,11 +130,13 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
             history.push(`governance/proposal/${proposal.proposal.id}`)
           }
           variant="primary"
-          style={{
-            backgroundColor:
-              !isActiveProposal ||
-              (delegationsToVoteWith[0] === 0 && color.greys.darkGrey()),
-          }}
+          style={
+            {
+              // backgroundColor:
+              //   !isActiveProposal ||
+              //   (delegationsToVoteWith[0] === 0 && color.greys.darkGrey()),
+            }
+          }
         >
           {isActiveProposal && delegationsToVoteWith[0] > 0
             ? `Vote now`
@@ -275,7 +277,7 @@ const Governance: React.FC<any> = () => {
   const { breakpoints } = useContext(ThemeContext);
   const { apiData } = useFantomApiData();
   const { walletContext } = useWalletProvider();
-  const activeAddress = walletContext.activeWallet.address.toLowerCase();
+  const activeAddress = walletContext.activeWallet.address?.toLowerCase();
   const [activeCategory, setActiveCategory] = useState("Current proposals");
   const [govProposalVars, setGovProposalVars] = useState({
     count: 100,
@@ -341,8 +343,9 @@ const Governance: React.FC<any> = () => {
             flex: 1,
             justifyContent: "space-between",
             alignItems: "center",
+            gap: "1rem",
           }}
-          breakpoint={breakpoints.ultra}
+          breakpoint={breakpoints.tablet}
         >
           <CategorySwitch
             categories={["Current proposals", "Past proposals"]}
@@ -353,7 +356,7 @@ const Governance: React.FC<any> = () => {
             variant="primary"
             onClick={() => history.push(`governance/proposal/create`)}
           >
-            Create new proposal
+            Create proposal
           </Button>
         </ResponsiveRow>
         <Spacer />

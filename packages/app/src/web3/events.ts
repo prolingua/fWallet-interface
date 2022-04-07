@@ -157,3 +157,27 @@ export const switchToChain = async (provider: any, chainId: number) => {
     // handle other "switch" errors
   }
 };
+
+export const promptWeb3WalletUse = async () => {
+  await window.ethereum.request({
+    method: "wallet_requestPermissions",
+    params: [
+      {
+        eth_accounts: {},
+      },
+    ],
+  });
+};
+
+// export const requestWeb3Accounts = async () => {
+//   const walletAddress = await window.ethereum.request({
+//     method: "eth_requestAccounts",
+//     params: [
+//       {
+//         eth_accounts: {},
+//       },
+//     ],
+//   });
+//
+//   console.log(walletAddress);
+// };

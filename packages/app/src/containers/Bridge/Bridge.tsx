@@ -569,7 +569,7 @@ const Bridge: React.FC<any> = () => {
   const [toChain, setToChain] = useState(1);
   const [selectedToken, setSelectedToken] = useState(null);
   const [isApproved, setIsApproved] = useState(true);
-  const [amount, setAmount] = useState(null);
+  const [amount, setAmount] = useState("");
   const [inputError, setInputError] = useState(null);
   const [bridgeTxHash, setBridgeTxHash] = useState(
     window.localStorage.getItem("BridgeTxHash")

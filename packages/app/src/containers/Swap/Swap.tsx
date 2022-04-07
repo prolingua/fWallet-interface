@@ -48,6 +48,7 @@ import useCoingeckoApi, {
 import Chart from "../../components/Chart";
 import { formatDate } from "../../utils/common";
 import FadeInOut from "../../components/AnimationFade";
+import useDetectResolutionType from "../../hooks/useDetectResolutionType";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -428,7 +429,7 @@ const SwapTokensContent: React.FC<any> = ({
   }, [OOSwapQuoteData, tokenPriceData]);
 
   return (
-    <ContentBox style={{ width: "750px" }}>
+    <ContentBox>
       <Column>
         <div
           style={{
@@ -594,7 +595,7 @@ const SwapTokensContent: React.FC<any> = ({
   );
 };
 
-const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer }) => {
+const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer, width }) => {
   const { getMarketHistory } = useCoingeckoApi();
   const { apiData } = useApiData();
   const [interval, setInterval] = useState("15m");
@@ -719,7 +720,11 @@ const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer }) => {
           </Typo1>
         </Column>
       </Row>
-      <Chart data={chartData} handleCrossHairData={handleCrosshairData} />
+      {chartData && (
+        <div key={width + (chartData?.length || 0)}>
+          <Chart data={chartData} handleCrossHairData={handleCrosshairData} />
+        </div>
+      )}
     </Column>
   );
 };
@@ -733,7 +738,7 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
     );
     return (
       <ContentBox
-        key={`route-column-${part.parts}-${part.dexes[0].dex}`}
+        key={`route-column-${part.parts}-${part.dexes[0].dex}-${token.symbol}`}
         style={{ padding: ".5rem", width: "150px" }}
       >
         <Row style={{ alignItems: "center" }}>
@@ -768,7 +773,11 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
             return (
               <Row
                 key={`route-row-${routePart.parts}`}
-                style={{ gap: ".2rem" }}
+                style={{
+                  gap: ".2rem",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                }}
               >
                 {routePart.subRoutes.map((subRoutePart: any, index: number) => {
                   return RouteBox(subRoutePart, index === 0);
@@ -796,6 +805,7 @@ const Swap: React.FC<any> = () => {
   const { getTokenList } = useOpenOceanApi();
   const { walletContext } = useWalletProvider();
   const { apiData: fantomApiData } = useFantomApiData();
+  const { width } = useDetectResolutionType();
   const { apiData } = useApiData();
   const [tokenList, setTokenList] = useState(null);
   const [activeTokens, setActiveTokens] = useState([
@@ -894,16 +904,25 @@ const Swap: React.FC<any> = () => {
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
   return (
     <FadeInOut>
-      <Row style={{ gap: "1rem" }}>
+      <Row
+        style={{
+          gap: "2rem",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
         <SwapTokensContent
           tokenList={tokenList}
           setActiveTokens={setActiveTokens}
           setSwapRoute={setSwapRoute}
           refetchTimer={refetchTimer}
         />
-        <Spacer />
-        <Column style={{ width: "100%" }}>
-          <TokenChart activeTokens={activeTokens} refetchTimer={refetchTimer} />
+        <Column style={{ flex: 2, minWidth: "500px" }}>
+          <TokenChart
+            width={width}
+            activeTokens={activeTokens}
+            refetchTimer={refetchTimer}
+          />
           <Spacer />
           <SwapRoute
             route={swapRoute}
@@ -912,6 +931,7 @@ const Swap: React.FC<any> = () => {
           />
         </Column>
       </Row>
+      <Spacer />
     </FadeInOut>
   );
 };
