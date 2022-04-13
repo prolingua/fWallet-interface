@@ -313,6 +313,10 @@ export const LockupFTMModal: React.FC<any> = ({
           accountDelegation.delegation.toStakerId === validator.id
       );
 
+      if (!stakedDelegation) {
+        return false;
+      }
+
       return (
         canLockDelegation(stakedDelegation, validator) &&
         stakedDelegation.delegation.amountDelegated !== "0x0"

@@ -171,6 +171,11 @@ export const Input = styled.input<{
     margin: 0;
   }
 
+  ::-webkit-input-placeholder {
+    font-size: 16px;
+    line-height: 3;
+  }
+
   [type="number"] {
     -moz-appearance: textfield;
   }

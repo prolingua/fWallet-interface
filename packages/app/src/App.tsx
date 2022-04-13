@@ -80,7 +80,7 @@ const AppContent: React.FC<any> = () => {
               <Route path="/home" component={Home} />
               <Route path="/send" component={Send} />
               <Route path="/staking" component={Staking} />
-              <Route path="/defi" component={Swap} />
+              <Route path="/swap" component={Swap} />
               <Route path="/bridge" component={Bridge} />
               <Route path="/governance" component={Governance} exact />
               <Route

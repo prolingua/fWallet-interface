@@ -50,7 +50,7 @@ const InputCurrencyBox: React.FC<any> = ({
           variant="tertiary"
           onClick={handleSetMax}
         >
-          MAX {minus ? " - 1" : ""}
+          MAX {minus ? "" : ""}
         </Button>
         <Spacer />
       </Row>

@@ -24,6 +24,7 @@ const SliderWithMarks: React.FC<any> = ({
   tooltipTextColor,
   tooltipSuffix = "%",
   tooltipPlacement = "bottom",
+  noHandle = false,
 }) => {
   const markStyle = (value: number, mark: number) => {
     return {
@@ -73,12 +74,12 @@ const SliderWithMarks: React.FC<any> = ({
             marks={marks}
             trackStyle={{ backgroundColor: color, height: 7 }}
             handleStyle={{
-              borderColor: color,
+              borderColor: noHandle ? "transparent" : color,
               height: 20,
               width: 20,
               marginLeft: 0,
               marginTop: -7,
-              backgroundColor: color,
+              backgroundColor: noHandle ? "transparent" : color,
             }}
             railStyle={{ backgroundColor: railColor, height: 7 }}
             dotStyle={{ backgroundColor: "transparent", border: "none" }}

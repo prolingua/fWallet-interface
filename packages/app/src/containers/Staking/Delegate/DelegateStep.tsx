@@ -31,6 +31,8 @@ import walletSymbol from "../../../assets/img/symbols/wallet.svg";
 import FormattedValue from "../../../components/FormattedBalance";
 import { compare } from "../../../utils/common";
 import useWalletProvider from "../../../hooks/useWalletProvider";
+import sortImg from "../../../assets/img/symbols/Sort.svg";
+import Column from "../../../components/Column";
 
 const DelegateStep: React.FC<any> = ({
   delegationsData,
@@ -78,6 +80,36 @@ const DelegateStep: React.FC<any> = ({
       : -1;
 
     setSort([sortBy, sortDirection]);
+  };
+
+  const SortImg = (direction: "A" | "D" | null) => {
+    if (direction) {
+      return (
+        <img
+          style={{
+            transform: `rotate(${direction === "A" ? "180deg" : "0deg"})`,
+          }}
+          src={sortImg}
+        />
+      );
+    }
+
+    return (
+      <Column>
+        <img
+          style={{
+            transform: `rotate(180deg)`,
+          }}
+          src={sortImg}
+        />
+        <img
+          style={{
+            transform: `rotate(0deg)`,
+          }}
+          src={sortImg}
+        />
+      </Column>
+    );
   };
 
   const {
@@ -134,11 +166,6 @@ const DelegateStep: React.FC<any> = ({
   }, [selectedDelegation]);
 
   useEffect(() => {
-    // const sortOnMap = {
-    //   name: ["stakerInfo", "name"],
-    // } as any;
-    // console.log(sortOnMap[sort[0]]);
-    // console.log(delegations[0].stakerInfo);
     const toSort = [...delegations];
     let sorted = toSort;
 
@@ -264,6 +291,7 @@ const DelegateStep: React.FC<any> = ({
               width: "10rem",
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: ".5rem",
             }}
             onClick={() => handleSetSort("name")}
@@ -277,17 +305,24 @@ const DelegateStep: React.FC<any> = ({
             >
               Name
             </Typo2>
-            <Typo2
-              style={{ fontWeight: sort[0] === "name" ? "bold" : "normal" }}
+            <Row
+              style={{
+                fontWeight: sort[0] === "name" ? "bold" : "normal",
+              }}
             >
-              {sort[0] === "name" ? (sort[1] === 1 ? "A" : "D") : "AD"}
-            </Typo2>
+              {sort[0] === "name"
+                ? sort[1] === 1
+                  ? SortImg("A")
+                  : SortImg("D")
+                : SortImg(null)}
+            </Row>
           </OverlayButton>
           <OverlayButton
             style={{
               width: "5rem",
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: ".5rem",
             }}
             onClick={() => handleSetSort("id")}
@@ -301,7 +336,11 @@ const DelegateStep: React.FC<any> = ({
               ID
             </Typo2>
             <Typo2 style={{ fontWeight: sort[0] === "id" ? "bold" : "normal" }}>
-              {sort[0] === "id" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+              {sort[0] === "id"
+                ? sort[1] === 1
+                  ? SortImg("A")
+                  : SortImg("D")
+                : SortImg(null)}
             </Typo2>
           </OverlayButton>
           <OverlayButton
@@ -309,6 +348,7 @@ const DelegateStep: React.FC<any> = ({
               width: "8rem",
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: ".5rem",
             }}
             onClick={() => handleSetSort("lock")}
@@ -324,7 +364,11 @@ const DelegateStep: React.FC<any> = ({
             <Typo2
               style={{ fontWeight: sort[0] === "lock" ? "bold" : "normal" }}
             >
-              {sort[0] === "lock" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+              {sort[0] === "lock"
+                ? sort[1] === 1
+                  ? SortImg("A")
+                  : SortImg("D")
+                : SortImg(null)}
             </Typo2>
           </OverlayButton>
           <OverlayButton
@@ -333,6 +377,7 @@ const DelegateStep: React.FC<any> = ({
               width: "8rem",
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: ".5rem",
             }}
             onClick={() => handleSetSort("apr")}
@@ -341,7 +386,11 @@ const DelegateStep: React.FC<any> = ({
             <Typo2
               style={{ fontWeight: sort[0] === "apr" ? "bold" : "normal" }}
             >
-              {sort[0] === "apr" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+              {sort[0] === "apr"
+                ? sort[1] === 1
+                  ? SortImg("A")
+                  : SortImg("D")
+                : SortImg(null)}
             </Typo2>
           </OverlayButton>
           <OverlayButton
@@ -350,6 +399,7 @@ const DelegateStep: React.FC<any> = ({
               width: "8rem",
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: ".5rem",
             }}
             onClick={() => handleSetSort("delegations")}
@@ -360,7 +410,11 @@ const DelegateStep: React.FC<any> = ({
                 fontWeight: sort[0] === "delegations" ? "bold" : "normal",
               }}
             >
-              {sort[0] === "delegations" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+              {sort[0] === "delegations"
+                ? sort[1] === 1
+                  ? SortImg("A")
+                  : SortImg("D")
+                : SortImg(null)}
             </Typo2>
           </OverlayButton>
           <OverlayButton
@@ -369,6 +423,7 @@ const DelegateStep: React.FC<any> = ({
               width: "10rem",
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
               gap: ".5rem",
             }}
             onClick={() => handleSetSort("free")}
@@ -377,7 +432,11 @@ const DelegateStep: React.FC<any> = ({
             <Typo2
               style={{ fontWeight: sort[0] === "free" ? "bold" : "normal" }}
             >
-              {sort[0] === "free" ? (sort[1] === 1 ? "A" : "D") : "AD"}
+              {sort[0] === "free"
+                ? sort[1] === 1
+                  ? SortImg("A")
+                  : SortImg("D")
+                : SortImg(null)}
             </Typo2>
           </OverlayButton>
         </Row>
@@ -406,7 +465,7 @@ const DelegateStep: React.FC<any> = ({
                 key={`delegation-select-row-${delegation.id}-${index}`}
                 style={{
                   borderBottom: !isLastRow && "2px solid #202F49",
-                  margin: "0 1rem",
+                  margin: "1rem 1rem",
                   backgroundColor:
                     isActive && isValid && color.primary.semiWhite(0.3),
                   borderRadius: "8px",

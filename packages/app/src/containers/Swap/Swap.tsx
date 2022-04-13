@@ -167,7 +167,7 @@ const SwapTokenInput: React.FC<any> = ({
               onClick={handleSetMax}
             >
               {token.address === "0x0000000000000000000000000000000000000000"
-                ? "MAX - 1"
+                ? "MAX"
                 : "MAX"}
             </Button>
           )}

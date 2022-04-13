@@ -36,7 +36,11 @@ import TokenSelectModal from "../../components/TokenSelectModal/TokenSelectModal
 import InputCurrency from "../../components/InputCurrency";
 import InputCurrencyBox from "../../components/InputCurrency/InputCurrencyBox";
 import { AddressZero } from "@ethersproject/constants";
-import { unitToWei, weiToUnit } from "../../utils/conversion";
+import {
+  formatSimpleValue,
+  unitToWei,
+  weiToUnit,
+} from "../../utils/conversion";
 import { formatAddress, loadERC20Contract } from "../../utils/wallet";
 import { Token, ETHER } from "@pancakeswap/sdk";
 import useBridge from "../../hooks/useBridge";
@@ -828,7 +832,11 @@ const Bridge: React.FC<any> = () => {
                       </Typo2>
                       <Typo2>
                         {selectedToken
-                          ? `${selectedToken.MinimumSwap} - ${selectedToken.MaximumSwap} ${selectedToken.symbol}`
+                          ? `${formatSimpleValue(
+                              selectedToken.MinimumSwap
+                            )} - ${formatSimpleValue(
+                              selectedToken.MaximumSwap
+                            )} ${selectedToken.symbol}`
                           : "-"}
                       </Typo2>
                     </Row>
@@ -845,7 +853,9 @@ const Bridge: React.FC<any> = () => {
                         }}
                       >
                         {selectedToken
-                          ? `${selectedToken.MaximumSwap} ${selectedToken.symbol}`
+                          ? `${formatSimpleValue(selectedToken.MaximumSwap)} ${
+                              selectedToken.symbol
+                            }`
                           : "-"}
                       </Typo2>
                     </Row>
@@ -862,7 +872,9 @@ const Bridge: React.FC<any> = () => {
                         }}
                       >
                         {selectedToken
-                          ? `${selectedToken.MinimumSwap} ${selectedToken.symbol}`
+                          ? `${formatSimpleValue(selectedToken.MinimumSwap)} ${
+                              selectedToken.symbol
+                            }`
                           : "-"}
                       </Typo2>
                     </Row>
@@ -870,7 +882,9 @@ const Bridge: React.FC<any> = () => {
                       <Typo2 style={{ color: "#84888d" }}>Minimum fee</Typo2>
                       <Typo2>
                         {selectedToken
-                          ? `${selectedToken.MinimumSwapFee} ${selectedToken.symbol}`
+                          ? `${formatSimpleValue(
+                              selectedToken.MinimumSwapFee
+                            )} ${selectedToken.symbol}`
                           : "-"}
                       </Typo2>
                     </Row>
@@ -879,7 +893,9 @@ const Bridge: React.FC<any> = () => {
                 <Spacer />
                 <Typo3>
                   {selectedToken
-                    ? `* Amounts greater than ${selectedToken.BigValueThreshold} ${selectedToken.symbol} could
+                    ? `* Amounts greater than ${formatSimpleValue(
+                        selectedToken.BigValueThreshold
+                      )} ${selectedToken.symbol} could
                   take up to 12 hours`
                     : ""}
                 </Typo3>

@@ -52,11 +52,12 @@ const StyledCategorySelector = styled.div<{ isActive: boolean }>`
     props.isActive
       ? props.theme.color.primary.fantomBlue()
       : props.theme.color.secondary.navy()};
-  font-size: 18px;
+  font-size: 16px;
   padding: 0.8rem 0;
   width: 12rem;
   text-align: center;
   border-radius: 8px;
+  font-weight: bold;
   cursor: ${(props) => (props.isActive ? "default" : "pointer")};
 `;
 
@@ -89,6 +90,7 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
           tooltip
           color="#FFA319"
           tooltipTextColor="#ffa319"
+          noHandle
         />
         <Spacer size="xl" />
         <Spacer size="xl" />
@@ -96,33 +98,33 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
           <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
             Voting started
           </Typo2>
-          <Typo1 style={{ color: "white" }}>
+          <Typo2 style={{ color: "white" }}>
             {formatDate(
               new Date(formatHexToInt(proposal.proposal.votingStarts) * 1000),
               "d LLLL yyy"
             )}
-          </Typo1>
+          </Typo2>
         </Row>
         <Spacer size="sm" />
         <Row style={{ justifyContent: "space-between" }}>
           <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
             Voting will end
           </Typo2>
-          <Typo1 style={{ color: "white" }}>
+          <Typo2 style={{ color: "white" }}>
             {formatDate(
               new Date(formatHexToInt(proposal.proposal.votingMustEnd) * 1000),
               "d LLLL yyy"
             )}
-          </Typo1>
+          </Typo2>
         </Row>
         <Spacer size="sm" />
         <Row style={{ justifyContent: "space-between" }}>
           <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
             Votes
           </Typo2>
-          <Typo1 style={{ color: "white" }}>
+          <Typo2 style={{ color: "white" }}>
             {`${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left`}
-          </Typo1>
+          </Typo2>
         </Row>
         <Spacer size="xl" />
         <Button
@@ -190,6 +192,7 @@ const ProposalTable: React.FC<any> = ({ proposals }) => {
                   width: "100%",
                   textAlign: "center",
                   alignItems: "center",
+                  margin: "1rem 0",
                 }}
               >
                 <Typo1 style={{ flex: 4, textAlign: "start" }}>

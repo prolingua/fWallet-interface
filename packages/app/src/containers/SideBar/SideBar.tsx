@@ -114,8 +114,8 @@ const SideBar: React.FC<any> = () => {
       <SideBarLink
         img={defiSymbolImg}
         activeImg={defiActiveSymbolImg}
-        name="Defi"
-        path="/defi"
+        name="Swap"
+        path="/swap"
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
