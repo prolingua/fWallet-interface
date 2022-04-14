@@ -49,6 +49,7 @@ import Chart from "../../components/Chart";
 import { formatDate } from "../../utils/common";
 import FadeInOut from "../../components/AnimationFade";
 import useDetectResolutionType from "../../hooks/useDetectResolutionType";
+import openoceanImg from "../../assets/img/icons/openocean.svg";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -431,15 +432,32 @@ const SwapTokensContent: React.FC<any> = ({
   return (
     <ContentBox>
       <Column>
-        <div
-          style={{
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: color.greys.grey(),
-          }}
-        >
-          Swap Tokens
-        </div>
+        <Row style={{ justifyContent: "space-between" }}>
+          <div
+            style={{
+              fontSize: "20px",
+              fontWeight: "bold",
+              color: color.greys.grey(),
+            }}
+          >
+            Swap Tokens
+          </div>
+          <div
+            style={{
+              borderRadius: "34px",
+              backgroundColor: color.primary.black(),
+            }}
+          >
+            <Row style={{ justifyContent: "space-between", gap: "1rem" }}>
+              <Typo3
+                style={{ color: "#67748B", padding: ".5rem 0 .5rem 1rem" }}
+              >
+                Powered by OpenOcean
+              </Typo3>
+              <img src={openoceanImg} />
+            </Row>
+          </div>
+        </Row>
         <Spacer size="lg" />
         {inToken && (
           <SwapTokenInput

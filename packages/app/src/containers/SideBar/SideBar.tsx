@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useHistory, NavLink } from "react-router-dom";
 
@@ -17,6 +17,12 @@ import governanceSymbolImg from "../../assets/img/symbols/Governance.svg";
 import governanceActiveSymbolImg from "../../assets/img/symbols/Governance_active.svg";
 import bridgeSymbolImg from "../../assets/img/symbols/Bridge.svg";
 import bridgeActiveSymbolImg from "../../assets/img/symbols/Bridge_active.svg";
+import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
+import { delegatedToAddressesList } from "../../utils/delegation";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import { votesLeftForProposal } from "../../utils/governance";
+import Row from "../../components/Row";
 
 const SideBarLink: React.FC<any> = ({
   img,
@@ -67,6 +73,54 @@ const SideBar: React.FC<any> = () => {
   const history = useHistory();
   const [currentPath, setCurrentPath] = useState(history.location.pathname);
 
+  // Get governance actions open
+  const { walletContext } = useWalletProvider();
+  const { apiData } = useFantomApiData();
+  const activeAddress = walletContext.activeWallet.address?.toLowerCase();
+  const accountDelegations =
+    apiData &&
+    apiData[FantomApiMethods.getDelegationsForAccount].get(activeAddress);
+  const delegations = apiData && apiData[FantomApiMethods.getDelegations];
+  const governanceProposals =
+    apiData && apiData[FantomApiMethods.getGovernanceProposals];
+  const [voteActions, setVoteActions] = useState(0);
+
+  useFantomApi(FantomApiMethods.getDelegations);
+  useFantomApi(
+    FantomApiMethods.getDelegationsForAccount,
+    {
+      address: activeAddress,
+    },
+    activeAddress
+  );
+  useFantomApi(
+    FantomApiMethods.getGovernanceProposals,
+    {
+      count: 100,
+      activeOnly: true,
+      address: walletContext.activeWallet.address,
+    },
+    null,
+    10000,
+    [activeAddress, delegatedToAddressesList(accountDelegations, delegations)]
+  );
+
+  useEffect(() => {
+    if (
+      governanceProposals?.data?.govProposals?.edges?.length &&
+      accountDelegations &&
+      delegations
+    ) {
+      const openProposals = governanceProposals.data.govProposals.edges.filter(
+        (proposal: any) => {
+          const [votesLeft] = votesLeftForProposal(proposal.proposal);
+          return votesLeft > 0;
+        }
+      );
+      setVoteActions(openProposals.length);
+    }
+  }, [governanceProposals, accountDelegations, delegations]);
+
   return (
     <StyledSideBar>
       <img height="50" width="109" src={fWalletLogoImg} alt="fWallet" />
@@ -95,14 +149,35 @@ const SideBar: React.FC<any> = () => {
         currentPath={currentPath}
         setCurrentPath={setCurrentPath}
       />
-      <SideBarLink
-        img={governanceSymbolImg}
-        activeImg={governanceActiveSymbolImg}
-        name="Governance"
-        path="/governance"
-        currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
-      />
+      <Row style={{ position: "relative" }}>
+        <SideBarLink
+          img={governanceSymbolImg}
+          activeImg={governanceActiveSymbolImg}
+          name="Governance"
+          path="/governance"
+          currentPath={currentPath}
+          setCurrentPath={setCurrentPath}
+        />
+        {voteActions > 0 && (
+          <Row
+            style={{
+              width: "1.25rem",
+              height: "1.25rem",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "red",
+              borderRadius: "50%",
+              fontSize: "20px",
+              fontWeight: "bold",
+              position: "absolute",
+              left: "27px",
+              top: "-2px",
+            }}
+          >
+            {voteActions}
+          </Row>
+        )}
+      </Row>
       {/*<SideBarLink*/}
       {/*  img={defiSymbolImg}*/}
       {/*  activeImg={defiActiveSymbolImg}*/}

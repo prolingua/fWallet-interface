@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, OverlayButton } from "../index";
+import { Button, Container, OverlayButton, Typo1 } from "../index";
 import Column from "../Column";
 import Row from "../Row";
 import DropDownButton from "../DropDownButton";
@@ -11,11 +11,13 @@ import euFlagIcon from "../../assets/img/icons/euFlag.png";
 export const currencyOptions: any = {
   usd: {
     name: "USD",
+    long: "US Dollar",
     symbol: "$",
     icon: usFlagIcon,
   },
   eur: {
     name: "EUR",
+    long: "Euro",
     symbol: "€",
     icon: euFlagIcon,
   },
@@ -35,7 +37,11 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
                 handleClose();
               }}
             >
-              <Row>{`${value.name} (${value.symbol})`}</Row>
+              <Row>
+                <Typo1
+                  style={{ fontWeight: "bold" }}
+                >{`${value.long} - ${value.name} - ${value.symbol}`}</Typo1>
+              </Row>
             </OverlayButton>
           );
         })}

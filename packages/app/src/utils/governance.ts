@@ -33,6 +33,7 @@ export const getProposalStatus = (status: string) => {
 };
 
 // Returns number of active delegations not used to vote for the proposal
+// returns [votesLeft / totalVotes] for address
 export const votesLeftForProposal = (proposal: any) => {
   const voteKeys = Object.keys(proposal).filter(
     (key) => key.substr(0, 5) === "vote_"
