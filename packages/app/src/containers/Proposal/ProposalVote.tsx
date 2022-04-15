@@ -6,7 +6,7 @@ import useFantomContract, {
 } from "../../hooks/useFantomContract";
 import useTransaction from "../../hooks/useTransaction";
 import { FantomApiMethods } from "../../hooks/useFantomApi";
-import { Button, ContentBox, Typo1 } from "../../components";
+import { Button, ContentBox, Typo1, Typo2 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import SliderWithMarks from "../../components/Slider";
@@ -114,6 +114,7 @@ const ProposalVote: React.FC<any> = ({
                 <Spacer />
                 {opinionScales && (
                   <StyledSliderWrapper>
+                    <Spacer size="xs" />
                     <SliderWithMarks
                       disabled={
                         !isOpen ||
@@ -125,8 +126,8 @@ const ProposalVote: React.FC<any> = ({
                       setValue={(value: number) => setVoteValue(value, index)}
                       max={parseInt(opinionScales[opinionScales.length - 1])}
                       markInPercentage={false}
-                      markLabels={opinionScales.map((scale: string) =>
-                        parseInt(scale)
+                      markLabels={opinionScales.map(
+                        (scale: string) => `${parseInt(scale) * 25}%`
                       )}
                       color={
                         !isOpen || hasVoted?.length

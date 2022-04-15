@@ -590,7 +590,9 @@ const WithdrawRequestsTab: React.FC<any> = ({ activeDelegation }) => {
               );
             })
           ) : (
-            <Heading3>No pending withdraw requests</Heading3>
+            <Typo2 style={{ color: "#B7BECB" }}>
+              No pending withdraw requests
+            </Typo2>
           )}
         </Column>
       </Column>
@@ -738,7 +740,7 @@ const ActiveDelegationsContent: React.FC<any> = ({
           );
         })
       ) : (
-        <Heading3>No active delegations</Heading3>
+        <Typo2 style={{ color: "#B7BECB" }}>No active delegations</Typo2>
       )}
     </div>
   );

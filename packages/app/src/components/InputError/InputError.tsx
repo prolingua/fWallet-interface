@@ -5,8 +5,8 @@ const InputError: React.FC<any> = ({ error, fontSize }) => {
     <div
       style={{
         width: "100%",
-        height: "32px",
-        fontSize: fontSize || "24px",
+        height: "22px",
+        fontSize: fontSize || "14px",
         color: "#F84239",
       }}
     >

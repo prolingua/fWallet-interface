@@ -66,12 +66,12 @@ export const DelegationBalance: React.FC<any> = ({
     hexToUnit(activeDelegation.delegation.amountDelegated)
   );
   const daysLocked = delegationDaysLockedLeft(activeDelegation.delegation);
-
+  console.log(activeDelegation);
   return (
     <Row style={{ justifyContent: "space-between" }}>
       <DelegationNameInfo
         imageSize={imageSize}
-        delegationInfo={activeDelegation.delegationInfo}
+        delegationInfo={activeDelegation.delegationInfo.stakerInfo}
         daysLocked={daysLocked}
         id={activeDelegation.delegation.toStakerId}
       />

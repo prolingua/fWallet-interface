@@ -480,11 +480,11 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
           your crypto.
         </Typo2>
         <Spacer size="xs" />
-        <OverlayButton>
-          <Typo2 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
-            Purchase a hardware wallet
-          </Typo2>
-        </OverlayButton>
+        {/*<OverlayButton>*/}
+        {/*  <Typo2 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>*/}
+        {/*    Purchase a hardware wallet*/}
+        {/*  </Typo2>*/}
+        {/*</OverlayButton>*/}
       </Column>
       <Spacer size="xl" />
       <Button

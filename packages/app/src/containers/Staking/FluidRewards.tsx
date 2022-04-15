@@ -412,9 +412,6 @@ export const LockupFTMModal: React.FC<any> = ({
                 Choose a lockup period
               </Typo1>
               <Spacer size="xs" />
-              <Typo3 style={{ color: color.greys.grey() }}>
-                Description goes here
-              </Typo3>
             </Column>
           </Row>
           <Spacer />

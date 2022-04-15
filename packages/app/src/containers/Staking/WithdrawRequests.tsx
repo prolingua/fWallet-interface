@@ -76,7 +76,9 @@ const WithdrawRequestsContent: React.FC<any> = ({ accountDelegationsData }) => {
               );
             })
         ) : (
-          <Heading3>No pending withdraw requests</Heading3>
+          <Typo2 style={{ color: "#B7BECB" }}>
+            No pending withdraw requests
+          </Typo2>
         )}
       </Column>
     </div>

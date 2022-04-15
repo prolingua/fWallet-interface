@@ -502,7 +502,7 @@ const BridgeTokenList: React.FC<any> = ({
         <Typo2 style={{ flex: 1, color: "#84888d" }}>{"Token to Bridge"}</Typo2>
         <Row style={{ flex: 2, paddingLeft: "1rem" }}>
           {inputError ? (
-            <InputError error={inputError} fontSize="18px" />
+            <InputError error={inputError} fontSize="14px" />
           ) : (
             <Spacer />
           )}

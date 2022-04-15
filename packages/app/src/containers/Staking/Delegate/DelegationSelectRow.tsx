@@ -12,6 +12,7 @@ import {
 import Row from "../../../components/Row";
 import { DelegationNameInfo } from "../../../components/DelegationBalance/DelegationBalance";
 import { Typo2 } from "../../../components";
+import Spacer from "../../../components/Spacer";
 
 const DelegationSelectRow: React.FC<any> = ({
   delegation,
@@ -47,20 +48,60 @@ const DelegationSelectRow: React.FC<any> = ({
           delegationInfo={delegation.stakerInfo}
         />
       </div>
-      <Typo2 style={{ width: "5rem", fontWeight: "bold" }}>
+      <Typo2
+        style={{
+          width: "5rem",
+          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "end",
+        }}
+      >
         {parseInt(delegation.id)}
+        <Spacer size="xs" />
       </Typo2>
-      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
+      <Typo2
+        style={{
+          width: "8rem",
+          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "end",
+        }}
+      >
         {maxDelegationLockUp <= 0 ? "-" : `${maxDelegationLockUp} days`}
+        <Spacer size="xs" />
       </Typo2>
-      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
+      <Typo2
+        style={{
+          width: "7rem",
+          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "end",
+        }}
+      >
         {maxApr.toFixed(2)}%
+        <Spacer size="xs" />
       </Typo2>
-      <Typo2 style={{ width: "8rem", fontWeight: "bold" }}>
+      <Typo2
+        style={{
+          width: "9rem",
+          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "end",
+        }}
+      >
         {noOfDelegations}
+        <Spacer size="xs" />
       </Typo2>
-      <Typo2 style={{ width: "10rem", fontWeight: "bold" }}>
+      <Typo2
+        style={{
+          display: "flex",
+          justifyContent: "end",
+          width: "10rem",
+          fontWeight: "bold",
+        }}
+      >
         {formattedFreeSpace[0]}
+        <Spacer size="xs" />
       </Typo2>
     </Row>
   );

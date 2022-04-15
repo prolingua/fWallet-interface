@@ -10,14 +10,12 @@ import {
   unitToWei,
   weiToMaxUnit,
 } from "../../../utils/conversion";
-import { BigNumber } from "@ethersproject/bignumber";
 import {
   canLockDelegation,
   getAccountDelegations,
   getValidators,
   maxLockDays,
 } from "../../../utils/delegation";
-import useTransaction from "../../../hooks/useTransaction";
 import { Button, Heading3, OverlayButton, Typo2 } from "../../../components";
 import Spacer from "../../../components/Spacer";
 import InputCurrencyBox from "../../../components/InputCurrency/InputCurrencyBox";
@@ -30,7 +28,6 @@ import useSendTransaction from "../../../hooks/useSendTransaction";
 import walletSymbol from "../../../assets/img/symbols/wallet.svg";
 import FormattedValue from "../../../components/FormattedBalance";
 import { compare } from "../../../utils/common";
-import useWalletProvider from "../../../hooks/useWalletProvider";
 import sortImg from "../../../assets/img/symbols/Sort.svg";
 import Column from "../../../components/Column";
 
@@ -45,7 +42,7 @@ const DelegateStep: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [delegateAmount, setDelegateAmount] = useState("");
   const [selectedDelegation, setSelectedDelegation] = useState(null);
-  const [sort, setSort] = useState<[any, number]>([null, 1]); // 1 = asc, -1 = desc
+  const [sort, setSort] = useState<[any, number]>(["apr", -1]); // 1 = asc, -1 = desc
   const delegations = getValidators(delegationsData);
   const [sortedDelegations, setSortedDelegations] = useState(delegations);
   const [
@@ -321,9 +318,10 @@ const DelegateStep: React.FC<any> = ({
             style={{
               width: "5rem",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "end",
               alignItems: "center",
               gap: ".5rem",
+              padding: 0,
             }}
             onClick={() => handleSetSort("id")}
           >
@@ -347,9 +345,10 @@ const DelegateStep: React.FC<any> = ({
             style={{
               width: "8rem",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "end",
               alignItems: "center",
               gap: ".5rem",
+              padding: 0,
             }}
             onClick={() => handleSetSort("lock")}
           >
@@ -374,11 +373,12 @@ const DelegateStep: React.FC<any> = ({
           <OverlayButton
             style={{
               fontWeight: sort[0] === "apr" ? "bold" : "normal",
-              width: "8rem",
+              width: "7rem",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "end",
               alignItems: "center",
               gap: ".5rem",
+              padding: 0,
             }}
             onClick={() => handleSetSort("apr")}
           >
@@ -396,11 +396,12 @@ const DelegateStep: React.FC<any> = ({
           <OverlayButton
             style={{
               fontWeight: sort[0] === "delegations" ? "bold" : "normal",
-              width: "8rem",
+              width: "9rem",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "end",
               alignItems: "center",
               gap: ".5rem",
+              padding: 0,
             }}
             onClick={() => handleSetSort("delegations")}
           >
@@ -422,9 +423,10 @@ const DelegateStep: React.FC<any> = ({
               fontWeight: sort[0] === "free" ? "bold" : "normal",
               width: "10rem",
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "end",
               alignItems: "center",
               gap: ".5rem",
+              padding: 0,
             }}
             onClick={() => handleSetSort("free")}
           >
@@ -465,7 +467,7 @@ const DelegateStep: React.FC<any> = ({
                 key={`delegation-select-row-${delegation.id}-${index}`}
                 style={{
                   borderBottom: !isLastRow && "2px solid #202F49",
-                  margin: "1rem 1rem",
+                  padding: "1rem 1rem",
                   backgroundColor:
                     isActive && isValid && color.primary.semiWhite(0.3),
                   borderRadius: "8px",
