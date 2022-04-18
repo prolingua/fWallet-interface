@@ -708,7 +708,7 @@ export const AccessWallet: React.FC<any> = ({
               margin: "0 2rem",
             }}
           >
-            <OverlayButton onClick={() => handleSetTool("metamask")}>
+            <StyledOverlayButton onClick={() => handleSetTool("metamask")}>
               <ContentBox
                 style={{
                   width: "14rem",
@@ -732,8 +732,8 @@ export const AccessWallet: React.FC<any> = ({
                   <Heading2>Metamask</Heading2>
                 </Column>
               </ContentBox>
-            </OverlayButton>
-            <OverlayButton onClick={() => handleSetTool("walletConnect")}>
+            </StyledOverlayButton>
+            <StyledOverlayButton onClick={() => handleSetTool("walletConnect")}>
               <ContentBox
                 style={{
                   width: "14rem",
@@ -757,8 +757,8 @@ export const AccessWallet: React.FC<any> = ({
                   <Heading2>WalletConnect</Heading2>
                 </Column>
               </ContentBox>
-            </OverlayButton>
-            <OverlayButton onClick={() => handleSetTool("coinbase")}>
+            </StyledOverlayButton>
+            <StyledOverlayButton onClick={() => handleSetTool("coinbase")}>
               <ContentBox
                 style={{
                   width: "14rem",
@@ -782,8 +782,8 @@ export const AccessWallet: React.FC<any> = ({
                   <Heading2>Coinbase</Heading2>
                 </Column>
               </ContentBox>
-            </OverlayButton>
-            <OverlayButton onClick={() => handleSetTool("ledger")}>
+            </StyledOverlayButton>
+            <StyledOverlayButton onClick={() => handleSetTool("ledger")}>
               <ContentBox
                 style={{
                   width: "14rem",
@@ -807,8 +807,8 @@ export const AccessWallet: React.FC<any> = ({
                   <Heading2>Ledger</Heading2>
                 </Column>
               </ContentBox>
-            </OverlayButton>
-            <OverlayButton onClick={() => handleSetTool("keystore")}>
+            </StyledOverlayButton>
+            <StyledOverlayButton onClick={() => handleSetTool("keystore")}>
               <ContentBox
                 style={{
                   width: "14rem",
@@ -832,7 +832,7 @@ export const AccessWallet: React.FC<any> = ({
                   <Heading2 style={{ paddingTop: "10px" }}>Software</Heading2>
                 </Column>
               </ContentBox>
-            </OverlayButton>
+            </StyledOverlayButton>
           </Row>
           <Spacer size="xl" />
           <Column style={{ alignSelf: "center", alignItems: "center" }}>
@@ -862,7 +862,6 @@ export const AccessWallet: React.FC<any> = ({
                 {/*    Cancel*/}
                 {/*  </Typo1>*/}
                 {/*</OverlayButton>*/}
-                <Spacer size="xl" />
                 <Spacer size="xl" />
                 <Column
                   style={{
@@ -894,6 +893,14 @@ export const AccessWallet: React.FC<any> = ({
     </Column>
   );
 };
+
+const StyledOverlayButton = styled(OverlayButton)`
+  transition: 0.2s all;
+
+  :hover {
+    transform: ${(props) => !props.disabled && "scale(1.04)"};
+  }
+`;
 
 const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
   const { color } = useContext(ThemeContext);
@@ -1094,8 +1101,7 @@ const WalletCreatedModal: React.FC<any> = ({ onDismiss, mnemonic }) => {
       <Spacer size="xl" />
       <Row style={{ flexWrap: "wrap", maxWidth: "70%" }}>
         <Typo3 style={{ color: color.greys.darkGrey(), textAlign: "center" }}>
-          By using this application you agree to the{" "}
-          <span style={{ color: "white" }}>Terms of Use.</span>
+          ©2022 Fantom Foundation
         </Typo3>
       </Row>
     </Modal>
@@ -1357,11 +1363,12 @@ const Onboarding: React.FC<any> = () => {
           justifyContent: "center",
         }}
       >
-        <Typo2 style={{ color: "#707B8F" }}>
-          By using this application you agree to the
-        </Typo2>
-        <Spacer size="xxs" />
-        <Typo2 style={{ color: color.greys.grey() }}>Terms of Use.</Typo2>
+        {/*<Typo2 style={{ color: "#707B8F" }}>*/}
+        {/*  By using this application you agree to the*/}
+        {/*</Typo2>*/}
+        {/*<Spacer size="xxs" />*/}
+        {/*<Typo2 style={{ color: color.greys.grey() }}>Terms of Use.</Typo2>*/}
+        <Typo2 style={{ color: "#707B8F" }}>©2022 Fantom Foundation</Typo2>
       </Row>
     </Column>
   );

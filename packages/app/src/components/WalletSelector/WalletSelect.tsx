@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
 import useAccounts from "../../hooks/useAccount";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import { ThemeContext } from "styled-components";
@@ -31,6 +30,7 @@ import useModal from "../../hooks/useModal";
 import Modal from "../Modal";
 import { AccessWallet } from "../../containers/Onboarding/Onboarding";
 import { Context } from "../../context/ModalProvider";
+import FadeInOut from "../AnimationFade";
 
 const WalletSelect: React.FC<any> = ({
   handleClose,
@@ -40,7 +40,6 @@ const WalletSelect: React.FC<any> = ({
 }) => {
   const { onDismiss } = useContext(Context);
   const context = useWeb3React<Web3Provider>();
-  // const { restoreWalletFromPrivateKey } = useSoftwareWallet();
   const { account, dispatchAccount } = useAccounts();
   const { settings } = useSettings();
   const { getBalance } = useFantomNative();
@@ -172,189 +171,191 @@ const WalletSelect: React.FC<any> = ({
   };
 
   return (
-    <Container padding="0">
-      <Column style={{ padding: "1rem 2rem" }}>
-        <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
-          Connected
-        </Typo2>
-        {account.wallets.length ? (
-          account.wallets.map((wallet: Wallet) => {
-            const isActive =
-              activeWallet.address &&
-              wallet.address.toLowerCase() ===
-                activeWallet.address.toLowerCase();
-            return (
-              <Row key={wallet.address}>
-                <OverlayButton
-                  style={{ marginTop: ".8rem" }}
-                  onClick={() => {
-                    handleSwitchWallet(wallet).then(handleClose());
-                  }}
-                >
-                  <WalletSelectView wallet={wallet} isActive={isActive} />
-                </OverlayButton>
-                <Row
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  <OverlayButton onClick={() => handleCopy(wallet.address)}>
-                    <div style={{ position: "relative" }}>
+    <FadeInOut>
+      <Container padding="0">
+        <Column style={{ padding: "1rem 2rem" }}>
+          <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+            Connected
+          </Typo2>
+          {account.wallets.length ? (
+            account.wallets.map((wallet: Wallet) => {
+              const isActive =
+                activeWallet.address &&
+                wallet.address.toLowerCase() ===
+                  activeWallet.address.toLowerCase();
+              return (
+                <Row key={wallet.address}>
+                  <OverlayButton
+                    style={{ marginTop: ".8rem" }}
+                    onClick={() => {
+                      handleSwitchWallet(wallet).then(handleClose());
+                    }}
+                  >
+                    <WalletSelectView wallet={wallet} isActive={isActive} />
+                  </OverlayButton>
+                  <Row
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <OverlayButton onClick={() => handleCopy(wallet.address)}>
+                      <div style={{ position: "relative" }}>
+                        <img
+                          alt=""
+                          style={{
+                            height: "16px",
+                            width: "16px",
+                            marginRight: "1.5rem",
+                          }}
+                          src={copySymbol}
+                        />
+                        {copied === wallet.address && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              left: "-.7rem",
+                              top: "-1rem",
+                              fontSize: "12px",
+                            }}
+                          >
+                            copied
+                          </div>
+                        )}
+                      </div>
+                    </OverlayButton>
+                    <OverlayButton onClick={() => handleDelete(wallet.address)}>
                       <img
                         alt=""
                         style={{
                           height: "16px",
                           width: "16px",
-                          marginRight: "1.5rem",
                         }}
-                        src={copySymbol}
+                        src={crossSymbol}
                       />
-                      {copied === wallet.address && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            left: "-1rem",
-                            top: "-.7rem",
-                            fontSize: "14px",
-                          }}
-                        >
-                          COPIED
-                        </div>
-                      )}
-                    </div>
-                  </OverlayButton>
-                  <OverlayButton onClick={() => handleDelete(wallet.address)}>
-                    <img
-                      alt=""
-                      style={{
-                        height: "16px",
-                        width: "16px",
-                      }}
-                      src={crossSymbol}
-                    />
-                  </OverlayButton>
+                    </OverlayButton>
+                  </Row>
                 </Row>
-              </Row>
-            );
-          })
-        ) : (
-          <Typo1 style={{ paddingTop: ".8rem", fontWeight: "bold" }}>
-            No wallet connected
-          </Typo1>
-        )}
-      </Column>
-      <Spacer size="xs" />
-      <Column
-        style={{
-          borderTop: "1px solid rgba(58,72,97,1)",
-          padding: "1rem 2rem",
-        }}
-      >
-        <Column>
-          <Typo2
-            style={{
-              color: color.greys.grey(),
-              fontWeight: "bold",
-              paddingBottom: ".4rem",
-            }}
-          >
-            Total FTM balance
-          </Typo2>
-          <FormattedValue
-            fontSize="16px"
-            fontWeight="bold"
-            formattedValue={toFormattedBalance(totalFtmBalance)}
-            tokenSymbol="FTM"
-          />
+              );
+            })
+          ) : (
+            <Typo1 style={{ paddingTop: ".8rem", fontWeight: "bold" }}>
+              No wallet connected
+            </Typo1>
+          )}
         </Column>
         <Spacer size="xs" />
-        <Column>
-          <Typo2
-            style={{
-              color: color.greys.grey(),
-              fontWeight: "bold",
-              paddingBottom: ".4rem",
+        <Column
+          style={{
+            borderTop: "1px solid rgba(58,72,97,1)",
+            padding: "1rem 2rem",
+          }}
+        >
+          <Column>
+            <Typo2
+              style={{
+                color: color.greys.grey(),
+                fontWeight: "bold",
+                paddingBottom: ".4rem",
+              }}
+            >
+              Total FTM balance
+            </Typo2>
+            <FormattedValue
+              fontSize="16px"
+              fontWeight="bold"
+              formattedValue={toFormattedBalance(totalFtmBalance)}
+              tokenSymbol="FTM"
+            />
+          </Column>
+          <Spacer size="xs" />
+          <Column>
+            <Typo2
+              style={{
+                color: color.greys.grey(),
+                fontWeight: "bold",
+                paddingBottom: ".4rem",
+              }}
+            >
+              Total asset value
+            </Typo2>
+            <FormattedValue
+              fontSize="16px"
+              fontWeight="bold"
+              formattedValue={toFormattedBalance(totalValue)}
+              currencySymbol={toCurrencySymbol(settings.currency)}
+            />
+          </Column>
+        </Column>
+        <Column
+          style={{
+            borderTop: "1px solid rgba(58,72,97,1)",
+            padding: "1rem 2rem",
+          }}
+        >
+          <OverlayButton
+            style={{ color: "white " }}
+            onClick={() => {
+              onPresentOnboardingModal();
             }}
           >
-            Total asset value
-          </Typo2>
-          <FormattedValue
-            fontSize="16px"
-            fontWeight="bold"
-            formattedValue={toFormattedBalance(totalValue)}
-            currencySymbol={toCurrencySymbol(settings.currency)}
-          />
+            <Row>
+              <img alt="" src={syncSymbol} />
+              <Spacer />
+              <Typo1 style={{ fontWeight: "bold" }}>Add wallet</Typo1>
+            </Row>
+          </OverlayButton>
+          {/*<OverlayButton*/}
+          {/*  style={{ color: "white " }}*/}
+          {/*  onClick={() => {*/}
+          {/*    // loadWeb3Modal();*/}
+          {/*    activateInjected();*/}
+          {/*    handleClose();*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <Row>*/}
+          {/*    <img alt="" src={syncSymbol} />*/}
+          {/*    <Spacer />*/}
+          {/*    <Typo1 style={{ fontWeight: "bold" }}>Connect Metamask</Typo1>*/}
+          {/*  </Row>*/}
+          {/*</OverlayButton>*/}
+          {/*<OverlayButton*/}
+          {/*  style={{ color: "white " }}*/}
+          {/*  onClick={() => {*/}
+          {/*    restoreWalletFromPrivateKey(*/}
+          {/*      "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"*/}
+          {/*    ).then(handleClose());*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  <Row>*/}
+          {/*    <img alt="" src={syncSymbol} />*/}
+          {/*    <Spacer />*/}
+          {/*    <Typo1 style={{ fontWeight: "bold" }}>Connect PrivateKey</Typo1>*/}
+          {/*  </Row>*/}
+          {/*</OverlayButton>*/}
         </Column>
-      </Column>
-      <Column
-        style={{
-          borderTop: "1px solid rgba(58,72,97,1)",
-          padding: "1rem 2rem",
-        }}
-      >
-        <OverlayButton
-          style={{ color: "white " }}
-          onClick={() => {
-            onPresentOnboardingModal();
+        <Column
+          style={{
+            borderTop: "1px solid rgba(58,72,97,1)",
+            padding: "1rem 2rem",
           }}
         >
-          <Row>
-            <img alt="" src={syncSymbol} />
-            <Spacer />
-            <Typo1 style={{ fontWeight: "bold" }}>Add wallet</Typo1>
-          </Row>
-        </OverlayButton>
-        {/*<OverlayButton*/}
-        {/*  style={{ color: "white " }}*/}
-        {/*  onClick={() => {*/}
-        {/*    // loadWeb3Modal();*/}
-        {/*    activateInjected();*/}
-        {/*    handleClose();*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  <Row>*/}
-        {/*    <img alt="" src={syncSymbol} />*/}
-        {/*    <Spacer />*/}
-        {/*    <Typo1 style={{ fontWeight: "bold" }}>Connect Metamask</Typo1>*/}
-        {/*  </Row>*/}
-        {/*</OverlayButton>*/}
-        {/*<OverlayButton*/}
-        {/*  style={{ color: "white " }}*/}
-        {/*  onClick={() => {*/}
-        {/*    restoreWalletFromPrivateKey(*/}
-        {/*      "0xca12ecbbede631c5f61b39f3201d3722ea5eabde1b6b649b79057d80369e2583"*/}
-        {/*    ).then(handleClose());*/}
-        {/*  }}*/}
-        {/*>*/}
-        {/*  <Row>*/}
-        {/*    <img alt="" src={syncSymbol} />*/}
-        {/*    <Spacer />*/}
-        {/*    <Typo1 style={{ fontWeight: "bold" }}>Connect PrivateKey</Typo1>*/}
-        {/*  </Row>*/}
-        {/*</OverlayButton>*/}
-      </Column>
-      <Column
-        style={{
-          borderTop: "1px solid rgba(58,72,97,1)",
-          padding: "1rem 2rem",
-        }}
-      >
-        <OverlayButton
-          style={{ color: "white " }}
-          onClick={() => {
-            handleLogout();
-          }}
-        >
-          <Row>
-            <img alt="" src={crossSymbol} />
-            <Spacer />
-            <Typo1 style={{ fontWeight: "bold" }}>Logout</Typo1>
-          </Row>
-        </OverlayButton>
-      </Column>
-    </Container>
+          <OverlayButton
+            style={{ color: "white " }}
+            onClick={() => {
+              handleLogout();
+            }}
+          >
+            <Row>
+              <img alt="" src={crossSymbol} />
+              <Spacer />
+              <Typo1 style={{ fontWeight: "bold" }}>Logout</Typo1>
+            </Row>
+          </OverlayButton>
+        </Column>
+      </Container>
+    </FadeInOut>
   );
 };
 

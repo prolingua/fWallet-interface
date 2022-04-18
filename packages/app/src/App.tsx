@@ -28,7 +28,7 @@ import Staking from "./containers/Staking";
 import { Body, Heading1, Heading3 } from "./components";
 import Column from "./components/Column";
 import Spacer from "./components/Spacer";
-import fWalletLogoImg from "./assets/img/fWalletLogo.svg";
+import fWalletLogoImg from "./assets/img/fWalletLogo_beta.svg";
 import Scrollbar from "./components/Scrollbar";
 import Governance from "./containers/Governance";
 import Proposal from "./containers/Proposal";

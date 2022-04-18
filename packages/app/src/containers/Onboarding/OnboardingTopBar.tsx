@@ -1,7 +1,7 @@
 import { Button, Header, Heading3, OverlayButton } from "../../components";
 import Row from "../../components/Row";
 import React from "react";
-import fWalletLogoImg from "../../assets/img/fWalletLogo.svg";
+import fWalletLogoImg from "../../assets/img/fWalletLogo_beta.svg";
 import Spacer from "../../components/Spacer";
 // import moonSymbolImg from "../../assets/img/symbols/Moon.svg";
 
@@ -19,14 +19,14 @@ const OnboardingTopBar: React.FC<any> = ({ setContentFlow }) => {
           <img height="50" width="109" src={fWalletLogoImg} alt="fWallet" />
         </div>
         <Row style={{ alignItems: "center" }}>
-          <OverlayButton onClick={() => setContentFlow("accessWallet")}>
-            <Heading3>Access wallet</Heading3>
-          </OverlayButton>
-          <Spacer size="xl" />
-          <OverlayButton onClick={() => setContentFlow("newWallet")}>
-            <Heading3>Create new wallet</Heading3>
-          </OverlayButton>
-          <Spacer size="xl" />
+          {/*<OverlayButton onClick={() => setContentFlow("accessWallet")}>*/}
+          {/*  <Heading3>Access wallet</Heading3>*/}
+          {/*</OverlayButton>*/}
+          {/*<Spacer size="xl" />*/}
+          {/*<OverlayButton onClick={() => setContentFlow("newWallet")}>*/}
+          {/*  <Heading3>Create new wallet</Heading3>*/}
+          {/*</OverlayButton>*/}
+          {/*<Spacer size="xl" />*/}
           {/*<Button style={{ height: "56px", width: "56px" }} variant="secondary">*/}
           {/*<Row*/}
           {/*  style={{*/}

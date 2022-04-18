@@ -42,7 +42,7 @@ const TokensContent: React.FC<any> = ({ assetList }) => {
         </Typo1>
       </Row>
       <Spacer size="lg" />
-      <Scrollbar style={{ height: "30rem" }}>
+      <Scrollbar style={{ height: "20rem" }}>
         {tokenList.map((token: Token) => {
           return (
             <div key={token.address} style={{ paddingRight: "1.5rem" }}>

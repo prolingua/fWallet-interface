@@ -4,7 +4,7 @@ import { useHistory, NavLink } from "react-router-dom";
 
 import { Typo2 } from "../../components";
 
-import fWalletLogoImg from "../../assets/img/fWalletLogo.svg";
+import fWalletLogoImg from "../../assets/img/fWalletLogo_beta.svg";
 import homeSymbolImg from "../../assets/img/symbols/Home.svg";
 import homeActiveSymbolImg from "../../assets/img/symbols/Home_active.svg";
 import sendSymbolImg from "../../assets/img/symbols/Send.svg";

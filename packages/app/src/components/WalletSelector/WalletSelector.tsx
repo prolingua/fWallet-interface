@@ -24,6 +24,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
   const [closeDropDown, setCloseDropDown] = useState(false);
   const [warning, setWarning] = useState(null);
   const [requiredAccount, setRequiredAccount] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   useLedgerWatcher();
 
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
@@ -209,6 +210,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
       dropdownWidth={336}
       dropdownTop={70}
       dropdownRight={5}
+      getState={setIsDropdownOpen}
     >
       <Button
         variant="secondary"
@@ -235,6 +237,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
               style={{
                 marginLeft: ".5rem",
                 alignSelf: "center",
+                transform: isDropdownOpen ? "rotate(0deg)" : "rotate(180deg)",
               }}
             />
           </Row>

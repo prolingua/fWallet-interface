@@ -12,6 +12,7 @@ const DropDownButton: React.FC<any> = ({
   dropdownTop,
   dropdownRight,
   dropdownLeft,
+  getState,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -27,6 +28,12 @@ const DropDownButton: React.FC<any> = ({
       setIsOpen(false);
     }
   });
+
+  useEffect(() => {
+    if (getState) {
+      getState(isOpen);
+    }
+  }, [isOpen]);
 
   return (
     <div style={{ width, position: "relative", cursor: "pointer" }}>

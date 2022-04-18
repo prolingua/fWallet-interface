@@ -134,6 +134,7 @@ export const StyledSliderTooltip = styled.div<{
     padding: 0.25rem 0.5rem;
     background-color: ${(props) => props.tooltipColor};
     white-space: nowrap;
+    box-shadow: none;
   }
   .rc-slider-tooltip-arrow {
     margin-top: -0.3rem;

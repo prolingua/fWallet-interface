@@ -20,6 +20,7 @@ import config from "../../config/config";
 // @ts-ignore
 import { addresses } from "@f-wallet/contracts";
 import FadeInOut from "../../components/AnimationFade";
+import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
 
 const Proposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
@@ -80,10 +81,10 @@ const Proposal: React.FC<any> = () => {
     <FadeInOut>
       <Column>
         <OverlayButton
-          style={{ alignSelf: "start" }}
+          style={{ zIndex: 1, alignSelf: "start" }}
           onClick={() => history.goBack()}
         >
-          <Typo1>{"< BACK"}</Typo1>
+          <img alt="" src={backArrowSymbol} />
         </OverlayButton>
         <Spacer />
         <Row>
