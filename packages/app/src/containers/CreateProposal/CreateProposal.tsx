@@ -17,6 +17,7 @@ import useTransaction from "../../hooks/useTransaction";
 import { formatBytes32String } from "@ethersproject/strings";
 import { useHistory } from "react-router-dom";
 import FadeInOut from "../../components/AnimationFade";
+import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
 
 const CreateProposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
@@ -123,7 +124,13 @@ const CreateProposal: React.FC<any> = () => {
 
   return (
     <FadeInOut>
-      <Row style={{ columnGap: "5rem", marginTop: "3rem" }}>
+      <OverlayButton
+        style={{ zIndex: 1, alignSelf: "start" }}
+        onClick={() => history.goBack()}
+      >
+        <img alt="" src={backArrowSymbol} />
+      </OverlayButton>
+      <Row style={{ columnGap: "5rem", marginTop: "2rem" }}>
         <Column style={{ flex: 1 }}>
           <InputTextBox
             key="name-input"
