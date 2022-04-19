@@ -52,6 +52,8 @@ const CurrencySelect: React.FC<any> = ({ dispatch, handleClose }) => {
 
 const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
   const [closeDropDown, setCloseDropDown] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const handleClose = () => {
     setCloseDropDown(true);
   };
@@ -69,6 +71,7 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
       dropdownWidth={336}
       dropdownTop={70}
       dropdownLeft={5}
+      getState={setIsDropdownOpen}
     >
       <Button
         variant="secondary"
@@ -87,7 +90,14 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
           style={{ height: "20px", width: "20px", paddingRight: ".5rem" }}
         />
         {current.toUpperCase()}
-        <img alt="" src={vShape} style={{ paddingLeft: ".5rem" }} />
+        <img
+          alt=""
+          src={vShape}
+          style={{
+            paddingLeft: ".5rem",
+            transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        />
       </Button>
     </DropDownButton>
   );

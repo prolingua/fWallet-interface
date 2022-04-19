@@ -237,7 +237,7 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
               style={{
                 marginLeft: ".5rem",
                 alignSelf: "center",
-                transform: isDropdownOpen ? "rotate(0deg)" : "rotate(180deg)",
+                transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
               }}
             />
           </Row>
