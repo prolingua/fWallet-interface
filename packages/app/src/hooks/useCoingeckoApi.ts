@@ -1,10 +1,15 @@
 import useRestApi from "./useRestApi";
 
-export const COINGECKO_BASEURL = "https://api.coingecko.com/api/v3";
+// export const COINGECKO_BASEURL = "https://pro-api.coingecko.com/api/v3";
+export const COINGECKO_BASEURL = process.env.REACT_APP_CG_PROXY_API_URI;
 
+// export enum COINGECKO_METHODS {
+//   GET_PRICE = "/simple/price",
+//   GET_MARKET_CHART = "/coins",
+// }
 export enum COINGECKO_METHODS {
-  GET_PRICE = "/simple/price",
-  GET_MARKET_CHART = "/coins",
+  GET_PRICE = "/price",
+  GET_MARKET_CHART = "/history",
 }
 
 const useCoingeckoApi = () => {
@@ -17,6 +22,7 @@ const useCoingeckoApi = () => {
         ["vs_currencies", currency],
         ["ids", tokens.join(",")],
       ],
+      headers: { "x-api-key": process.env.REACT_APP_PROXY_API_KEY },
     });
   };
 
@@ -32,6 +38,7 @@ const useCoingeckoApi = () => {
         ["vs_currency", currency],
         ["days", days],
       ],
+      headers: { "x-api-key": process.env.REACT_APP_PROXY_API_KEY },
     });
   };
 
