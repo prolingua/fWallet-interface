@@ -85,7 +85,7 @@ const ClaimDelegationRewardRow: React.FC<any> = ({
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
       <Row style={{ width: "18rem", alignItems: "center" }}>
         <DelegationNameInfo
-          delegationInfo={activeDelegation.delegationInfo}
+          delegationInfo={activeDelegation.delegationInfo.stakerInfo}
           imageSize="32px"
           id={activeDelegation.delegation.toStakerId}
         />

@@ -108,6 +108,8 @@ const SideBar: React.FC<any> = () => {
   useEffect(() => {
     if (
       governanceProposals?.data?.govProposals?.edges?.length &&
+      // TEMP FIX. Need to look at saving Past Proposals seperated from Active Proposals data
+      governanceProposals.data.govProposals.edges.length < 20 &&
       accountDelegations &&
       delegations
     ) {

@@ -16,7 +16,7 @@ const link = createHttpLink({
   // headers: { authorization: token },  // The token in the auth header will be removed when the cookie approach is working)
 });
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({ addTypename: true }),
   // uri: "/api",
   link,
   connectToDevTools: process.env.NODE_ENV === "development",

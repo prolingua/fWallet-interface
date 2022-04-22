@@ -6,6 +6,7 @@ import { DelegationNameInfo } from "../DelegationBalance/DelegationBalance";
 import { Typo3 } from "../index";
 import Spacer from "../Spacer";
 import vShape from "../../assets/img/shapes/vShape.png";
+import checkmarkImg from "../../assets/img/symbols/CheckMark.svg";
 
 const DelegationSelectRow: React.FC<any> = ({
   activeDelegation,
@@ -33,11 +34,14 @@ const DelegationSelectRow: React.FC<any> = ({
         justifyContent: "space-between",
       }}
     >
-      <DelegationNameInfo delegationInfo={activeDelegation.delegationInfo} />
+      <DelegationNameInfo
+        delegationInfo={activeDelegation.delegationInfo.stakerInfo}
+        imageSize="35px"
+      />
       <Row style={{ alignItems: "center" }}>
         {hasVoted && (
           <Row style={{ alignItems: "center" }}>
-            <Typo3>Voted!</Typo3>
+            <img src={checkmarkImg} />
             <Spacer />
           </Row>
         )}

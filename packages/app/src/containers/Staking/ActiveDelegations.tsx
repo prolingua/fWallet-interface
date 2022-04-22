@@ -478,7 +478,7 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
                 ratioColors={["#3F69D4", "#2BBEBE"]}
               >
                 <DelegationNameInfo
-                  delegationInfo={activeDelegation.delegationInfo}
+                  delegationInfo={activeDelegation.delegationInfo.stakerInfo}
                   imageSize="35px"
                   flexColumn
                 />

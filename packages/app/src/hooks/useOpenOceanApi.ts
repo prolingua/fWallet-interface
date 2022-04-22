@@ -72,6 +72,7 @@ const useOpenOceanApi = () => {
         ["chainId", 250],
         ["account", account],
         ["withRoute", "routes"],
+        ["referrer", "0x1551c797c53d459c39baeafe79fe7a3a6592022c"],
       ],
     });
   };
