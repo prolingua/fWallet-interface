@@ -10,6 +10,42 @@ const config = {
       // for subscriptions
       ws: "",
     },
+    {
+      // http: "https://xapi.fantom.network/api",
+      http:
+        process.env.USE_PROXY === "true"
+          ? "/api"
+          : "https://xapi-nodeb.fantom.network/",
+      // for subscriptions
+      ws: "",
+    },
+    {
+      // http: "https://xapi.fantom.network/api",
+      http:
+        process.env.USE_PROXY === "true"
+          ? "/api"
+          : "https://xapi-nodec.fantom.network/",
+      // for subscriptions
+      ws: "",
+    },
+    {
+      // http: "https://xapi.fantom.network/api",
+      http:
+        process.env.USE_PROXY === "true"
+          ? "/api"
+          : "https://xapi-noded.fantom.network/",
+      // for subscriptions
+      ws: "",
+    },
+    {
+      // http: "https://xapi.fantom.network/api",
+      http:
+        process.env.USE_PROXY === "true"
+          ? "/api"
+          : "https://xapi-nodee.fantom.network/",
+      // for subscriptions
+      ws: "",
+    },
   ],
   supportedChains: [250],
   // Opera chain id

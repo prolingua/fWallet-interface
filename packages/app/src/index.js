@@ -6,19 +6,80 @@ import {
   ApolloProvider,
   createHttpLink,
   InMemoryCache,
+  ApolloLink,
 } from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import "./index.css";
 import App from "./App";
 import config from "./config/config";
+import axios from "axios";
 
-const link = createHttpLink({
-  uri: config.providers[0].http,
-  // headers: { authorization: token },  // The token in the auth header will be removed when the cookie approach is working)
+let healthyProviders = [];
+const getHealthyProviders = async () => {
+  for (const provider of config.providers) {
+    try {
+      await axios.get(provider.http);
+    } catch (err) {
+      if (err.message !== "Network Error") {
+        healthyProviders.push(provider.http);
+      } else {
+        console.warn(`[GraphQL] provider "${provider.http}" is unhealthy`);
+      }
+    }
+  }
+
+  return healthyProviders;
+};
+getHealthyProviders();
+
+let currentActiveLink = 0;
+let switchToProvider = null;
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors)
+    graphQLErrors.forEach(({ message, locations, path }) =>
+      console.warn(
+        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+      )
+    );
+  if (networkError) {
+    console.error(`[Network error]: ${networkError}`);
+
+    // Skip if already switching to healthy provider
+    if (switchToProvider === healthyProviders[currentActiveLink]) {
+      return;
+    }
+
+    currentActiveLink = (currentActiveLink + 1) % healthyProviders.length;
+    client.setLink(
+      ApolloLink.from([
+        errorLink,
+        createHttpLink({
+          uri: healthyProviders.length
+            ? healthyProviders[currentActiveLink]
+            : config.providers[0].http,
+        }),
+      ])
+    );
+
+    switchToProvider = healthyProviders.length
+      ? healthyProviders[currentActiveLink]
+      : config.providers[0].http;
+
+    console.info(
+      `[GraphQL http] switch to provider ${healthyProviders[currentActiveLink]}`
+    );
+  }
 });
+
 const client = new ApolloClient({
   cache: new InMemoryCache({ addTypename: true }),
   // uri: "/api",
-  link,
+  link: ApolloLink.from([
+    errorLink,
+    createHttpLink({
+      uri: config.providers[0].http,
+    }),
+  ]),
   connectToDevTools: process.env.NODE_ENV === "development",
 });
 
