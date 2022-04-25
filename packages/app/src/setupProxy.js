@@ -10,7 +10,7 @@ module.exports = function (app) {
         target:
           process.env.REACT_APP_USE === "testnet"
             ? "https://xapi.testnet.fantom.network/"
-            : "https://xapi-nodee.fantom.network/",
+            : "https://xapi-nodea.fantom.network/",
         changeOrigin: true,
         secure: false,
         pathRewrite: {

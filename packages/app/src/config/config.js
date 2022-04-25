@@ -6,7 +6,7 @@ const config = {
       http:
         process.env.USE_PROXY === "true"
           ? "/api"
-          : "https://xapi-nodee.fantom.network/",
+          : "https://xapi-nodea.fantom.network/",
       // for subscriptions
       ws: "",
     },
