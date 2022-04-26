@@ -50,24 +50,20 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     }
 
     currentActiveLink = (currentActiveLink + 1) % healthyProviders.length;
-    client.setLink(
-      ApolloLink.from([
-        errorLink,
-        createHttpLink({
-          uri: healthyProviders.length
-            ? healthyProviders[currentActiveLink]
-            : config.providers[0].http,
-        }),
-      ])
-    );
-
     switchToProvider = healthyProviders.length
       ? healthyProviders[currentActiveLink]
       : config.providers[0].http;
 
-    console.info(
-      `[GraphQL http] switch to provider ${healthyProviders[currentActiveLink]}`
+    client.setLink(
+      ApolloLink.from([
+        errorLink,
+        createHttpLink({
+          uri: switchToProvider,
+        }),
+      ])
     );
+
+    console.info(`[GraphQL http] switch to provider ${switchToProvider}`);
   }
 });
 

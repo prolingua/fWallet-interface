@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
@@ -58,6 +58,7 @@ const RewardsContent: React.FC<any> = ({ totalPendingRewards }) => {
 const ClaimDelegationRewardRow: React.FC<any> = ({
   activeDelegation,
   claimTx,
+  compoundTx,
 }) => {
   const { color } = useContext(ThemeContext);
   const { txSFCContractMethod } = useFantomContract();
@@ -78,8 +79,21 @@ const ClaimDelegationRewardRow: React.FC<any> = ({
     ])
   );
 
+  const {
+    sendTx: handleCompoundReward,
+    isPending: isCompoundPending,
+    isCompleted: isCompoundCompleted,
+  } = useSendTransaction(() =>
+    txSFCContractMethod(SFC_TX_METHODS.RESTAKE_REWARDS, [
+      activeDelegation.delegation.toStakerId,
+    ])
+  );
+
   const isClaiming = isPending || claimTx?.status === "pending";
   const isClaimed = isCompleted || claimTx?.status === "completed";
+  const isCompounding = isCompoundPending || compoundTx?.status === "pending";
+  const isCompounded =
+    isCompoundCompleted || compoundTx?.status === "completed";
 
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
@@ -103,8 +117,30 @@ const ClaimDelegationRewardRow: React.FC<any> = ({
           marginLeft: "auto",
           alignItems: "center",
           justifyContent: "flex-end",
+          gap: "1rem",
         }}
       >
+        <OverlayButton
+          disabled={isCompounded || isCompounding || pendingReward < 0.01}
+          onClick={() => handleCompoundReward()}
+        >
+          <Typo1
+            style={{
+              fontWeight: "bold",
+              color:
+                isCompounded || pendingReward < 0.01
+                  ? color.primary.cyan(0.5)
+                  : color.primary.cyan(),
+            }}
+          >
+            {isCompounded
+              ? "Compounded"
+              : isCompounding
+              ? "Compounding..."
+              : "Compound"}
+          </Typo1>
+        </OverlayButton>
+        <Typo1>|</Typo1>
         <OverlayButton
           disabled={isClaimed || isClaiming || pendingReward < 0.01}
           onClick={() => handleClaimReward()}
@@ -118,7 +154,7 @@ const ClaimDelegationRewardRow: React.FC<any> = ({
                   : color.primary.cyan(),
             }}
           >
-            {isClaimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim now"}
+            {isClaimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim"}
           </Typo1>
         </OverlayButton>
       </Row>
@@ -170,6 +206,18 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
     }
   );
 
+  const compoundAllBatch = activeDelegationWithPendingRewards.map(
+    (activeDelegation) => {
+      return [
+        activeDelegation.delegation.toStakerId,
+        () =>
+          txSFCContractMethod(SFC_TX_METHODS.RESTAKE_REWARDS, [
+            activeDelegation.delegation.toStakerId,
+          ]),
+      ];
+    }
+  );
+
   // TODO remove -> just for testing batching
   // const { sendTokens } = useFantomERC20();
   // const testBatch = activeDelegations.map((activeDelegation) => {
@@ -186,12 +234,21 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
 
   const {
     sendBatch: handleClaimAllRewards,
-    hashes: txHashes,
-    txs,
-    pendingTxs,
-    successfulTxs,
-    failedTxs,
+    hashes: txHashesClaim,
+    txs: txsClaim,
+    pendingTxs: pendingClaimTxs,
+    successfulTxs: successfulClaimTxs,
+    failedTxs: failedClaimTxs,
   } = useSendBatchTransactions(claimAllBatch);
+
+  const {
+    sendBatch: handleCompoundAllRewards,
+    hashes: txHashesCompound,
+    txs: txsCompound,
+    pendingTxs: pendingCompoundTxs,
+    successfulTxs: successfulCompoundTxs,
+    failedTxs: failedCompoundTxs,
+  } = useSendBatchTransactions(compoundAllBatch);
 
   return (
     <Modal onDismiss={onDismiss}>
@@ -223,44 +280,78 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
             >
               <ClaimDelegationRewardRow
                 activeDelegation={delegation}
-                claimTx={txHashes[delegation.delegation.toStakerId]}
+                claimTx={txHashesClaim[delegation.delegation.toStakerId]}
+                compoundTx={txHashesCompound[delegation.delegation.toStakerId]}
               />
             </div>
           );
         })}
       </ModalContent>
       <Spacer />
-      <Button
-        disabled={
-          !activeDelegationWithPendingRewards.length ||
-          pendingTxs.length > 0 ||
-          successfulTxs.length > 0 ||
-          failedTxs.length > 0
-        }
-        onClick={() => handleClaimAllRewards()}
-        style={{ width: "105%" }}
-        variant="primary"
-      >
-        {txs.length ? (
-          <Column>
-            {pendingTxs.length
-              ? `Pending: ${pendingTxs.length} / ${txs.length} ${
-                  successfulTxs.length ? " - " : ""
-                }`
-              : ""}{" "}
-            {successfulTxs.length
-              ? `Completed: ${successfulTxs.length} / ${txs.length} ${
-                  failedTxs.length ? " - " : ""
-                }`
-              : ""}
-            {failedTxs.length
-              ? `Failed: ${failedTxs.length} / ${txs.length}`
-              : ""}
-          </Column>
-        ) : (
-          "Claim all"
-        )}
-      </Button>
+      <Row style={{ width: "100%", gap: "1rem" }}>
+        <Button
+          disabled={
+            !activeDelegationWithPendingRewards.length ||
+            pendingCompoundTxs.length > 0 ||
+            successfulCompoundTxs.length > 0 ||
+            failedCompoundTxs.length > 0
+          }
+          onClick={() => handleCompoundAllRewards()}
+          style={{ width: "105%" }}
+          variant="primary"
+        >
+          {txsCompound.length ? (
+            <Column>
+              {pendingCompoundTxs.length
+                ? `Pending: ${pendingCompoundTxs.length} / ${
+                    txsCompound.length
+                  } ${successfulCompoundTxs.length ? " - " : ""}`
+                : ""}{" "}
+              {successfulCompoundTxs.length
+                ? `Completed: ${successfulCompoundTxs.length} / ${
+                    txsCompound.length
+                  } ${failedCompoundTxs.length ? " - " : ""}`
+                : ""}
+              {failedCompoundTxs.length
+                ? `Failed: ${failedCompoundTxs.length} / ${txsCompound.length}`
+                : ""}
+            </Column>
+          ) : (
+            "Compound all"
+          )}
+        </Button>
+        <Button
+          disabled={
+            !activeDelegationWithPendingRewards.length ||
+            pendingClaimTxs.length > 0 ||
+            successfulClaimTxs.length > 0 ||
+            failedClaimTxs.length > 0
+          }
+          onClick={() => handleClaimAllRewards()}
+          style={{ width: "105%" }}
+          variant="primary"
+        >
+          {txsClaim.length ? (
+            <Column>
+              {pendingClaimTxs.length
+                ? `Pending: ${pendingClaimTxs.length} / ${txsClaim.length} ${
+                    successfulClaimTxs.length ? " - " : ""
+                  }`
+                : ""}{" "}
+              {successfulClaimTxs.length
+                ? `Completed: ${successfulClaimTxs.length} / ${
+                    txsClaim.length
+                  } ${failedClaimTxs.length ? " - " : ""}`
+                : ""}
+              {failedClaimTxs.length
+                ? `Failed: ${failedClaimTxs.length} / ${txsClaim.length}`
+                : ""}
+            </Column>
+          ) : (
+            "Claim all"
+          )}
+        </Button>
+      </Row>
     </Modal>
   );
 };
