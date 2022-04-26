@@ -39,6 +39,7 @@ import Swap from "./containers/Swap";
 import { ApiDataProvider } from "./context/ApiDataProvider";
 import NotifyProvider from "./context/NotifyProvider";
 import Bridge from "./containers/Bridge";
+import { TokenPriceProvider } from "./context/TokenPriceProvider";
 
 const AppContent: React.FC<any> = () => {
   const location = useLocation();
@@ -145,13 +146,15 @@ const Providers: React.FC<any> = ({ children }) => {
             <ApiDataProvider>
               <FantomApiProvider>
                 <AccountProvider>
-                  <ActiveWalletProvider>
-                    <TransactionProvider>
-                      <ModalProvider>
-                        <NotifyProvider>{children}</NotifyProvider>
-                      </ModalProvider>
-                    </TransactionProvider>
-                  </ActiveWalletProvider>
+                  <TokenPriceProvider>
+                    <ActiveWalletProvider>
+                      <TransactionProvider>
+                        <ModalProvider>
+                          <NotifyProvider>{children}</NotifyProvider>
+                        </ModalProvider>
+                      </TransactionProvider>
+                    </ActiveWalletProvider>
+                  </TokenPriceProvider>
                 </AccountProvider>
               </FantomApiProvider>
             </ApiDataProvider>

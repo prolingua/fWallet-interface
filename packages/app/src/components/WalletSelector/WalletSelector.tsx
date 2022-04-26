@@ -16,16 +16,20 @@ import { switchToChain } from "../../web3/events";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 import { useLocation } from "react-router-dom";
 
-const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
+const WalletSelector: React.FC<any> = ({ width }) => {
   const modalContext = useContext(Context);
   const location = useLocation();
   const { account, dispatchAccount } = useAccount();
-  const { dispatchWalletContext } = useWalletProvider();
-  const [closeDropDown, setCloseDropDown] = useState(false);
+  const { walletContext, dispatchWalletContext } = useWalletProvider();
   const [warning, setWarning] = useState(null);
   const [requiredAccount, setRequiredAccount] = useState(null);
+  const [closeDropDown, setCloseDropDown] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   useLedgerWatcher();
+
+  const handleClose = () => {
+    setCloseDropDown(true);
+  };
 
   const [onPresentWrongAccountModal, onDismissWrongAccountModal] = useModal(
     <InfoModal message={warning} withCloseButton={true} />,
@@ -124,10 +128,6 @@ const WalletSelector: React.FC<any> = ({ walletContext, width }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletContext, requiredAccount, modalContext.isOpen]);
-
-  const handleClose = () => {
-    setCloseDropDown(true);
-  };
 
   // Force closing of the dropdown
   useEffect(() => {

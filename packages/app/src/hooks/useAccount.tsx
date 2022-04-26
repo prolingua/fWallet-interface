@@ -1,8 +1,9 @@
-import { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AccountContext } from "../context/AccountProvider";
 
 const useAccount = () => {
   const [account, dispatchAccount] = useContext(AccountContext);
+
   return { account, dispatchAccount };
 };
 

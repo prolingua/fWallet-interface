@@ -75,7 +75,7 @@ export const FETCH_ACCOUNT_TRANSACTION_HISTORY = gql`
 
 export const FETCH_ERC20_TOKEN_LIST = gql`
   query ERC20TokenList {
-    erc20TokenList {
+    erc20TokenList(count: 250) {
       address
       name
       symbol

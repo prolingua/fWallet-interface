@@ -31,6 +31,7 @@ import Modal from "../Modal";
 import { AccessWallet } from "../../containers/Onboarding/Onboarding";
 import { Context } from "../../context/ModalProvider";
 import FadeInOut from "../AnimationFade";
+import useAccountSnapshot from "../../hooks/useAccountSnapshot";
 
 const WalletSelect: React.FC<any> = ({
   handleClose,
@@ -46,10 +47,13 @@ const WalletSelect: React.FC<any> = ({
   const { dispatchWalletContext } = useWalletProvider();
   const { apiData } = useFantomApiData();
   const { activateInjected } = useInjectedWallet();
+  const { accountSnapshots } = useAccountSnapshot();
   const { color } = useContext(ThemeContext);
   const [copied, setCopied] = useState(null);
 
   const [totalFtmBalance, setTotalFtmBalance] = useState(0);
+  const [totalFtmValue, setTotalFtmValue] = useState(0);
+  const [totalAssetsValue, setTotalAssetsValue] = useState(0);
   const [totalValue, setTotalValue] = useState(0);
 
   const tokenPrice =
@@ -76,12 +80,39 @@ const WalletSelect: React.FC<any> = ({
         }, 0);
 
         setTotalFtmBalance(totalFTM);
-        if (tokenPrice) {
-          setTotalValue(totalFTM * tokenPrice);
-        }
       });
     }
-  }, [account.wallets, tokenPrice]);
+  }, [account.wallets]);
+
+  useEffect(() => {
+    if (totalFtmBalance && tokenPrice) {
+      setTotalFtmValue(totalFtmBalance * tokenPrice);
+    }
+  }, [totalFtmBalance, tokenPrice]);
+
+  useEffect(() => {
+    if (accountSnapshots) {
+      const totalAssets = account.wallets.reduce(
+        (accumulator: any, current: any) => {
+          // calculate total worth over all wallets
+          if (accountSnapshots[current.address]) {
+            const walletAssetValue =
+              accountSnapshots[current.address].walletAssetValue[
+                settings.currency
+              ];
+            return accumulator + walletAssetValue;
+          }
+          return accumulator;
+        },
+        0
+      );
+      setTotalAssetsValue(totalAssets);
+    }
+  }, [account.wallets, accountSnapshots]);
+
+  useEffect(() => {
+    setTotalValue(totalFtmValue + totalAssetsValue);
+  }, [totalFtmValue, totalAssetsValue]);
 
   const handleSwitchWallet = async (wallet: Wallet) => {
     if (

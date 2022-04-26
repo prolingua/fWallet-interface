@@ -8,6 +8,7 @@ const initial: any = {
   getFMintForAccount: new Map([]),
   getDelegationsForAccount: new Map([]),
   getDelegations: null,
+  getTokenList: null,
   getTokenListForAccount: new Map([]),
   getAssetsListForAccount: new Map([]),
   getGovernanceContracts: null,

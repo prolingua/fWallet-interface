@@ -5,6 +5,7 @@ export const COINGECKO_BASEURL = "https://api.coingecko.com/api/v3";
 export enum COINGECKO_METHODS {
   GET_PRICE = "/simple/price",
   GET_MARKET_CHART = "/coins",
+  GET_COINS_LIST = "/coins/list",
 }
 
 const useCoingeckoApi = () => {
@@ -35,9 +36,16 @@ const useCoingeckoApi = () => {
     });
   };
 
+  const getCoinsList = () => {
+    return get({
+      path: COINGECKO_METHODS.GET_COINS_LIST,
+    });
+  };
+
   return {
     getPrice,
     getMarketHistory,
+    getCoinsList,
   };
 };
 

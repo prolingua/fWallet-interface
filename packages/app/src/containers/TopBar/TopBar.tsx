@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useSettings from "../../hooks/useSettings";
@@ -10,15 +10,87 @@ import Row from "../../components/Row";
 // import { useTranslation } from "react-i18next";
 import WalletSelector from "../../components/WalletSelector";
 import useNotify from "../../hooks/useNotify";
+import useCoingeckoApi, {
+  COINGECKO_BASEURL,
+  COINGECKO_METHODS,
+} from "../../hooks/useCoingeckoApi";
+import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
+import useApiData from "../../hooks/useApiData";
+import useFantomApiData from "../../hooks/useFantomApiData";
+import useTokenPrice from "../../hooks/useTokenPrice";
+
+const AccountSnapshot: React.FC<any> = () => {
+  const { getCoinsList, getPrice } = useCoingeckoApi();
+  const { apiData: fantomApiData } = useFantomApiData();
+  const { apiData } = useApiData();
+  const ftmTokenList =
+    fantomApiData[FantomApiMethods.getTokenList]?.data?.erc20TokenList;
+  const cgCoinMapping =
+    apiData[COINGECKO_BASEURL + COINGECKO_METHODS.GET_COINS_LIST]?.response
+      ?.data;
+  const [cgCoinIdList, setCgCoinIdList] = useState([]);
+  const { dispatchTokenPrices } = useTokenPrice();
+
+  useFantomApi(FantomApiMethods.getTokenList, null);
+  useEffect(() => {
+    getCoinsList();
+  }, []);
+
+  useEffect(() => {
+    if (cgCoinMapping && ftmTokenList) {
+      const ids = ftmTokenList
+        .map((token: any) => {
+          const coin = cgCoinMapping.find(
+            (coin: any) =>
+              token.symbol.toLowerCase() === coin.symbol.toLowerCase()
+          );
+          return coin?.id;
+        })
+        .filter((result: any) => result);
+
+      setCgCoinIdList(ids);
+    }
+  }, [cgCoinMapping, ftmTokenList]);
+
+  useEffect(() => {
+    if (cgCoinIdList.length && cgCoinMapping) {
+      const getPricePromises = [
+        getPrice(cgCoinIdList, "usd"),
+        getPrice(cgCoinIdList, "eur"),
+      ];
+      const allPricedTokens = cgCoinMapping.filter((coin: any) =>
+        cgCoinIdList.includes(coin.id)
+      );
+      Promise.all(getPricePromises).then(([usd, eur]) => {
+        const tokenPrices = {} as any;
+        allPricedTokens.forEach((token: any) => {
+          tokenPrices[token.symbol] = {
+            symbol: token.symbol,
+            cgCode: token.id,
+            price: {
+              eur: eur?.data[token.id]?.eur,
+              usd: usd?.data[token.id]?.usd,
+            },
+          };
+        });
+
+        dispatchTokenPrices({ type: "setTokenPrices", tokens: tokenPrices });
+      });
+    }
+  }, [cgCoinIdList]);
+
+  return <></>;
+};
 
 const TopBar: React.FC<any> = () => {
-  const { walletContext } = useWalletProvider();
   const { settings, dispatchSettings } = useSettings();
   useNotify();
+
   // const { t, i18n } = useTranslation("common");
   return (
     <Header>
       <Row>
+        <AccountSnapshot />
         {/*<Row style={{ alignItems: "center" }}>*/}
         {/*  {t("welcome.title", { framework: "FWallet" })}*/}
         {/*</Row>*/}
@@ -37,7 +109,7 @@ const TopBar: React.FC<any> = () => {
           dispatch={dispatchSettings}
         />
         <Spacer size="xs" />
-        <WalletSelector width="200px" walletContext={walletContext} />
+        <WalletSelector width="200px" />
       </Row>
     </Header>
   );

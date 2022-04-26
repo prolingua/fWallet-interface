@@ -35,7 +35,7 @@ export enum FantomApiMethods {
   getGovernanceProposals = "getGovernanceProposals",
   getEstimatedRewards = "getEstimatedRewards",
 }
-const methods: { [key in FantomApiMethods]: any } = {
+export const fantomApiMethods: { [key in FantomApiMethods]: any } = {
   [FantomApiMethods.getAccountBalance]: () => FETCH_ACCOUNT_BALANCE,
   [FantomApiMethods.getAccountTransactionHistory]: () =>
     FETCH_ACCOUNT_TRANSACTION_HISTORY,
@@ -81,7 +81,7 @@ const useFantomApi = (
   };
 
   const { loading, error, data, refetch } = useQuery(
-    args ? methods[request](args) : methods[request](),
+    args ? fantomApiMethods[request](args) : fantomApiMethods[request](),
     createOptions()
   );
 

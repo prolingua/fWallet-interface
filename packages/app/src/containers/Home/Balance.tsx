@@ -5,17 +5,20 @@ import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import Row from "../../components/Row";
 import StatPair from "../../components/StatPair";
-import CRatio from "../../components/C-Ratio";
 import {
   toCurrencySymbol,
   toFormattedBalance,
   weiToUnit,
 } from "../../utils/conversion";
 import { getAccountDelegationSummary } from "../../utils/delegation";
-import { getCurrentCRatio, getLockedCollateral } from "../../utils/fMint";
+import { getLockedCollateral } from "../../utils/fMint";
 import { getAccountBalance } from "../../utils/account";
 import { getTotalFTMBalanceForAccount } from "../../utils/common";
 import Loader from "../../components/Loader";
+import useAccountSnapshot from "../../hooks/useAccountSnapshot";
+import useWalletProvider from "../../hooks/useWalletProvider";
+import { settings } from "cluster";
+import useSettings from "../../hooks/useSettings";
 
 const BalanceContent: React.FC<any> = ({
   accountData,
@@ -25,27 +28,37 @@ const BalanceContent: React.FC<any> = ({
   currency,
 }) => {
   const { color } = useContext(ThemeContext);
+  const { walletContext } = useWalletProvider();
+  const { accountSnapshots } = useAccountSnapshot();
+  const { settings } = useSettings();
 
   const accountBalance = getAccountBalance(accountData);
   const totalDelegated = getAccountDelegationSummary(delegations);
   const fMintFTMCollateral = getLockedCollateral(fMint);
-  const cRatioPercentage = getCurrentCRatio(fMint);
+  // const cRatioPercentage = getCurrentCRatio(fMint);
 
   const availableFTM = toFormattedBalance(weiToUnit(accountBalance));
   const stakedFTM = toFormattedBalance(weiToUnit(totalDelegated.totalStaked));
   const rewardsFTM = toFormattedBalance(
     weiToUnit(totalDelegated.totalPendingRewards)
   );
-  const mintedSFTM = toFormattedBalance(
-    weiToUnit(totalDelegated.totalMintedSFTM)
-  );
-  const lockedFTMCollateral = toFormattedBalance(weiToUnit(fMintFTMCollateral));
+  // const mintedSFTM = toFormattedBalance(
+  //   weiToUnit(totalDelegated.totalMintedSFTM)
+  // );
+  // const lockedFTMCollateral = toFormattedBalance(weiToUnit(fMintFTMCollateral));
+  const assetBalance =
+    accountSnapshots[walletContext.activeWallet.address]?.walletAssetValue[
+      settings.currency
+    ];
+
   const totalBalance = toFormattedBalance(
-    getTotalFTMBalanceForAccount(
-      accountBalance,
-      totalDelegated.totalStaked,
-      fMintFTMCollateral,
-      tokenPrice
+    (
+      getTotalFTMBalanceForAccount(
+        accountBalance,
+        totalDelegated.totalStaked,
+        fMintFTMCollateral,
+        tokenPrice
+      ) + assetBalance
     ).toString()
   );
 
