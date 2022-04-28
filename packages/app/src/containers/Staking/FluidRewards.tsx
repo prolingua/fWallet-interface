@@ -248,12 +248,12 @@ const LockupFTMRow: React.FC<any> = ({
   );
   const maxLockup = maxLockDays(validator);
   const maxApr = calculateDelegationApr(maxLockup <= 0 ? 0 : maxLockup) * 100;
-
+  console.log(validator.dele);
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
       <Row style={{ width: "16rem", alignItems: "center" }}>
         <DelegationNameInfo
-          delegationInfo={validator.delegationInfo.stakerInfo}
+          delegationInfo={validator.stakerInfo}
           imageSize="32px"
           id={validator.id}
         />
