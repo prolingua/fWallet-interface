@@ -41,7 +41,7 @@ const DelegationSelectRow: React.FC<any> = ({
       <Row style={{ alignItems: "center" }}>
         {hasVoted && (
           <Row style={{ alignItems: "center" }}>
-            <img src={checkmarkImg} />
+            <img alt="" src={checkmarkImg} />
             <Spacer />
           </Row>
         )}

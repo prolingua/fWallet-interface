@@ -1,8 +1,7 @@
-import { Button, Header, Heading3, OverlayButton } from "../../components";
+import { Header } from "../../components";
 import Row from "../../components/Row";
 import React from "react";
 import fWalletLogoImg from "../../assets/img/fWalletLogo_beta.svg";
-import Spacer from "../../components/Spacer";
 // import moonSymbolImg from "../../assets/img/symbols/Moon.svg";
 
 const OnboardingTopBar: React.FC<any> = ({ setContentFlow }) => {

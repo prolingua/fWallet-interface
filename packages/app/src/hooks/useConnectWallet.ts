@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useWeb3React } from "@web3-react/core";
 
 import { connectorsByName, injected } from "../web3/connectors";
@@ -31,6 +31,7 @@ export function useWalletEvents() {
         });
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, chainId, account]);
 }
 
@@ -103,32 +104,32 @@ export function useWalletConnect() {
 //     },
 //   };
 // }
-
-export function useEagerConnect() {
-  const { activate, active } = useWeb3React();
-
-  const [tried, setTried] = useState(false);
-
-  useEffect(() => {
-    injected.isAuthorized().then((isAuthorized: boolean) => {
-      if (isAuthorized) {
-        activate(injected, undefined, true).catch(() => {
-          setTried(true);
-        });
-      } else {
-        setTried(true);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!tried && active) {
-      setTried(true);
-    }
-  }, [tried, active]);
-
-  return tried;
-}
+//
+// export function useEagerConnect() {
+//   const { activate, active } = useWeb3React();
+//
+//   const [tried, setTried] = useState(false);
+//
+//   useEffect(() => {
+//     injected.isAuthorized().then((isAuthorized: boolean) => {
+//       if (isAuthorized) {
+//         activate(injected, undefined, true).catch(() => {
+//           setTried(true);
+//         });
+//       } else {
+//         setTried(true);
+//       }
+//     });
+//   }, []);
+//
+//   useEffect(() => {
+//     if (!tried && active) {
+//       setTried(true);
+//     }
+//   }, [tried, active]);
+//
+//   return tried;
+// }
 
 export function useInactiveListener(suppress: boolean = false) {
   const { active, error, activate } = useWeb3React();

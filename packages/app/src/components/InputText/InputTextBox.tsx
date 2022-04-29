@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import Column from "../Column";
 import Row from "../Row";
-import { Input, TextArea, Typo1, Typo2 } from "../index";
+import { Input, TextArea, Typo2 } from "../index";
 import Spacer from "../Spacer";
 import InputError from "../InputError";
 
@@ -38,6 +38,7 @@ const InputTextBox: React.FC<any> = ({
     }
     setInternalError(null);
     return () => setInternalError(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
 
   useEffect(() => {

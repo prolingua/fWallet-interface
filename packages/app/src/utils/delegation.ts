@@ -1,4 +1,4 @@
-import { formatHexToBN, formatHexToInt, hexToUnit } from "./conversion";
+import { formatHexToBN, formatHexToInt } from "./conversion";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export const MIN_LOCKUP_DAYS = 14;

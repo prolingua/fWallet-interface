@@ -200,6 +200,7 @@ const ProposalTable: React.FC<any> = ({ proposals }) => {
                 </Typo1>
                 <Typo1 style={{ flex: 1 }}>
                   <img
+                    alt=""
                     style={{ paddingTop: ".15rem" }}
                     src={statusMark(
                       getProposalStatus(proposal.proposal.state.status)
@@ -337,6 +338,7 @@ const Governance: React.FC<any> = () => {
         address: walletContext.activeWallet.address,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory]);
 
   return (

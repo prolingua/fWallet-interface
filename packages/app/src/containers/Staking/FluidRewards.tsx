@@ -1,13 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 // @ts-ignore
-import { addresses } from "@f-wallet/contracts";
 import { ThemeContext } from "styled-components";
 import {
   calculateDelegationApr,
   canLockDelegation,
   getAccountDelegations,
-  getAccountDelegationSummary,
-  getValidators,
   getValidatorsWithLockup,
   maxLockDays,
   maxLockSeconds,
@@ -17,12 +14,9 @@ import {
   formatHexToBN,
   hexToUnit,
   toFormattedBalance,
-  unitToWei,
-  weiToUnit,
 } from "../../utils/conversion";
 import useFantomContract, {
   SFC_TX_METHODS,
-  STAKE_TOKENIZER_TX_METHODS,
 } from "../../hooks/useFantomContract";
 import StatPair from "../../components/StatPair";
 import useTransaction from "../../hooks/useTransaction";
@@ -115,6 +109,7 @@ const LockupSelect: React.FC<any> = ({
       }, 250);
     }
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLockupCompleted]);
 
   return (
@@ -404,7 +399,7 @@ export const LockupFTMModal: React.FC<any> = ({
             style={{ position: "absolute", top: ".3rem" }}
             onClick={() => setStep("Select")}
           >
-            <img style={{ height: "18px" }} src={vShapeImg} />
+            <img alt="" style={{ height: "18px" }} src={vShapeImg} />
           </OverlayButton>
           <Row style={{ alignItems: "center", justifyContent: "center" }}>
             <Column style={{ alignItems: "center" }}>

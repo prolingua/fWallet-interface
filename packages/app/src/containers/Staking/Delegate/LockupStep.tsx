@@ -11,7 +11,6 @@ import {
   maxLockSeconds,
 } from "../../../utils/delegation";
 import {
-  formatHexToInt,
   hexToUnit,
   toFormattedBalance,
   unitToWei,
@@ -109,6 +108,7 @@ const LockupStep: React.FC<any> = ({
       }, 250);
     }
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLockupCompleted]);
 
   return (
@@ -150,7 +150,7 @@ const LockupStep: React.FC<any> = ({
                   borderRadius: "50%",
                 }}
               >
-                {!useLockup && <img src={checkmarkShapeImg} />}
+                {!useLockup && <img alt="" src={checkmarkShapeImg} />}
               </Row>
             </Row>
             <Column style={{ justifyContent: "center", margin: "2rem 0" }}>
@@ -206,7 +206,7 @@ const LockupStep: React.FC<any> = ({
                 borderRadius: "50%",
               }}
             >
-              {useLockup && <img src={checkmarkShapeImg} />}
+              {useLockup && <img alt="" src={checkmarkShapeImg} />}
             </Row>
             <Column>
               <Row>

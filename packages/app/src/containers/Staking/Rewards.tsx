@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
@@ -34,7 +34,6 @@ import Column from "../../components/Column";
 import { FantomApiMethods } from "../../hooks/useFantomApi";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
-import useFantomERC20 from "../../hooks/useFantomERC20";
 import useSendTransaction from "../../hooks/useSendTransaction";
 import useSendBatchTransactions from "../../hooks/useSendBatchTransactions";
 import { BigNumber } from "@ethersproject/bignumber";

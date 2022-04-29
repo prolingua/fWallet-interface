@@ -83,6 +83,7 @@ const DelegateStep: React.FC<any> = ({
     if (direction) {
       return (
         <img
+          alt=""
           style={{
             transform: `rotate(${direction === "A" ? "180deg" : "0deg"})`,
           }}
@@ -94,12 +95,14 @@ const DelegateStep: React.FC<any> = ({
     return (
       <Column>
         <img
+          alt=""
           style={{
             transform: `rotate(180deg)`,
           }}
           src={sortImg}
         />
         <img
+          alt=""
           style={{
             transform: `rotate(0deg)`,
           }}
@@ -137,6 +140,7 @@ const DelegateStep: React.FC<any> = ({
       }, 250);
     }
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDelegateCompleted]);
 
   useEffect(() => {
@@ -160,6 +164,7 @@ const DelegateStep: React.FC<any> = ({
       );
       setSelectedDelegationEligibleForLockup(!!eligibleForLocking);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDelegation]);
 
   useEffect(() => {
@@ -238,6 +243,7 @@ const DelegateStep: React.FC<any> = ({
     }
 
     setSortedDelegations(sorted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sort]);
 
   return (

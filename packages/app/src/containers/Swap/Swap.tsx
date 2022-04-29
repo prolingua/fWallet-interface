@@ -106,6 +106,7 @@ const SwapTokenInput: React.FC<any> = ({
         setMaximum(weiToMaxUnit(token.balanceOf, token.decimals));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -121,6 +122,7 @@ const SwapTokenInput: React.FC<any> = ({
         )
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, refetchTimer]);
 
   return (
@@ -285,6 +287,7 @@ const SwapTokensContent: React.FC<any> = ({
     if (inToken && outToken) {
       setActiveTokens([inToken, outToken]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inToken, outToken]);
 
   useEffect(() => {
@@ -313,6 +316,7 @@ const SwapTokensContent: React.FC<any> = ({
       }, 2000);
     }
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSwapCompleted]);
 
   useEffect(() => {
@@ -326,6 +330,7 @@ const SwapTokensContent: React.FC<any> = ({
         walletContext.activeWallet.address
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inToken, outToken, inTokenAmount, refetchTimer]);
 
   useEffect(() => {
@@ -337,6 +342,7 @@ const SwapTokensContent: React.FC<any> = ({
     ) {
       getPrice([inToken.code, outToken.code], "usd");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inToken, outToken, OOSwapQuoteData]);
 
   useEffect(() => {
@@ -351,6 +357,7 @@ const SwapTokensContent: React.FC<any> = ({
         setAllowance(result);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inToken, outToken, inTokenAmount, isApproveCompleted, refetchTimer]);
 
   useEffect(() => {
@@ -388,6 +395,7 @@ const SwapTokensContent: React.FC<any> = ({
         );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [OOSwapQuoteData]);
 
   useEffect(() => {
@@ -401,6 +409,7 @@ const SwapTokensContent: React.FC<any> = ({
         setSwapRoute(OOQuoteData.path);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [OOQuoteData]);
 
   useEffect(() => {
@@ -427,6 +436,7 @@ const SwapTokensContent: React.FC<any> = ({
 
       setPriceImpact(priceImpact * 100);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [OOSwapQuoteData, tokenPriceData]);
 
   return (
@@ -454,7 +464,7 @@ const SwapTokensContent: React.FC<any> = ({
               >
                 Powered by OpenOcean
               </Typo3>
-              <img src={openoceanImg} />
+              <img alt="openocean" src={openoceanImg} />
             </Row>
           </div>
         </Row>
@@ -654,6 +664,7 @@ const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer, width }) => {
       return;
     }
     setChartData(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTokens, interval, refetchTimer]);
 
   useEffect(() => {
@@ -695,10 +706,12 @@ const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer, width }) => {
         <Column>
           <Row>
             <img
+              alt=""
               style={{ height: "40px", width: "40px", zIndex: 2 }}
               src={activeTokens[0].icon}
             />
             <img
+              alt=""
               src={activeTokens[1].icon}
               style={{ height: "40px", width: "40px", marginLeft: "-.5rem" }}
             />
@@ -760,7 +773,11 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
         style={{ padding: ".5rem", width: "150px" }}
       >
         <Row style={{ alignItems: "center" }}>
-          <img style={{ height: "32px", width: "32px" }} src={token?.icon} />
+          <img
+            alt=""
+            style={{ height: "32px", width: "32px" }}
+            src={token?.icon}
+          />
           <Spacer size="sm" />
           <Column>
             <Typo3 style={{ fontWeight: "bold" }}>{token.symbol}</Typo3>
@@ -778,6 +795,7 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
       <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
         <Row style={{ alignItems: "center" }}>
           <img
+            alt=""
             style={{ height: "40px", width: "40px" }}
             src={activeTokens[0].icon}
           />
@@ -810,6 +828,7 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
           />
           <Spacer size="sm" />
           <img
+            alt=""
             style={{ height: "40px", width: "40px" }}
             src={activeTokens[1].icon}
           />
@@ -892,6 +911,7 @@ const Swap: React.FC<any> = () => {
 
   useEffect(() => {
     getTokenList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     if (assetsListData && OOTokenListData && accountFantomBalanceData) {

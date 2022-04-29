@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import useFantomContract, {
   SFC_TX_METHODS,
 } from "../../hooks/useFantomContract";
-import useTransaction from "../../hooks/useTransaction";
-import useFantomApiData from "../../hooks/useFantomApiData";
-import useWalletProvider from "../../hooks/useWalletProvider";
 import {
   withdrawDaysLockedLeft,
   withdrawLockTimeLeft,
@@ -17,7 +14,7 @@ import {
 import { BigNumber } from "@ethersproject/bignumber";
 import Row from "../Row";
 import StatPair from "../StatPair";
-import { Button, Typo1, Typo2 } from "../index";
+import { Button, Typo1 } from "../index";
 import useSendTransaction from "../../hooks/useSendTransaction";
 
 const WithdrawRequestRow: React.FC<any> = ({

@@ -1,10 +1,6 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "styled-components";
-import {
-  formatHexToBN,
-  hexToUnit,
-  toFormattedBalance,
-} from "../../utils/conversion";
+import { hexToUnit, toFormattedBalance } from "../../utils/conversion";
 import Row from "../Row";
 import { Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";

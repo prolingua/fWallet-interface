@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { useApolloClient } from "@apollo/client";
 import useApiData from "./useApiData";
 import { COINGECKO_BASEURL, COINGECKO_METHODS } from "./useCoingeckoApi";
@@ -77,6 +77,7 @@ const useAccountSnapshot = () => {
           });
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cgCoinMapping, tokenPrices]);
 
   return { accountSnapshots };

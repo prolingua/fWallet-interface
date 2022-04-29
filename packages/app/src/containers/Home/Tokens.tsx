@@ -29,6 +29,7 @@ const TokensContent: React.FC<any> = ({ assetList }) => {
         ...assetsWithBalance,
       ]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetList, walletContext.activeWallet.address]);
 
   return (

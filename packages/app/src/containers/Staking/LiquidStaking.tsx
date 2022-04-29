@@ -12,11 +12,9 @@ import {
   formatHexToBN,
   hexToUnit,
   toFormattedBalance,
-  unitToWei,
   weiToUnit,
 } from "../../utils/conversion";
 import useFantomContract, {
-  SFC_TX_METHODS,
   STAKE_TOKENIZER_TX_METHODS,
 } from "../../hooks/useFantomContract";
 import StatPair from "../../components/StatPair";
@@ -27,7 +25,6 @@ import {
   Button,
   ContentBox,
   Heading1,
-  Heading2,
   Heading3,
   OverlayButton,
   Typo1,
@@ -193,6 +190,7 @@ const ManageSFTMOverview: React.FC<any> = ({
       return setActiveTab("Mint");
     }
     return setActiveTab("Repay");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -202,6 +200,7 @@ const ManageSFTMOverview: React.FC<any> = ({
     ).then((result) => {
       setAllowance(result);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountDelegationsData, isApproving]);
 
   return (

@@ -39,6 +39,7 @@ const useLedgerWatcher = () => {
     ) {
       onPresentLedgerErrorMessage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     walletContext.hardwareWalletState.isLocked,
     walletContext.hardwareWalletState.isWrongApp,
@@ -51,6 +52,7 @@ const useLedgerWatcher = () => {
     if (modalKey === "ledger-confirm-modal") {
       return onDismissApproveOnLedgerMessage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletContext.hardwareWalletState.isApproving]);
 };
 

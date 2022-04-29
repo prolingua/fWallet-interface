@@ -4,7 +4,7 @@ import { useSoftwareWallet } from "./useSoftwareWallet";
 import { bridgeNetworks } from "../utils/bridge";
 import config from "../config/config";
 import { switchToChain } from "../web3/events";
-import { getDefaultProvider, JsonRpcProvider } from "@ethersproject/providers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 const SUPPORTED_CHAINS = [250, 1, 56, 137, 43114, 42161];
 const DEFAULT_PROVIDERS = {
@@ -43,6 +43,7 @@ const useMultiChain = () => {
     swapToChain(toChain);
 
     // return () => swapToChain(parseInt(config.chainId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toChain, walletContext.activeWallet.address]);
 
   return {

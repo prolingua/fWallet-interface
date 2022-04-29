@@ -66,7 +66,7 @@ const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   return (
     <Column style={{ width: "100%", alignItems: "center" }}>
       <Spacer />
-      <img style={{ width: "6rem" }} src={pkeyImg} />
+      <img alt="" style={{ width: "6rem" }} src={pkeyImg} />
       <Spacer />
       <Heading1>Private key</Heading1>
       <Spacer size="xl" />
@@ -242,13 +242,17 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
 
   useEffect(() => {
     setAcceptedFiles([...acceptedFiles, ...dropzoneAccepted]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dropzoneAccepted]);
   useEffect(() => {
     setAcceptedFiles([...acceptedFiles, ...buttonAccepted]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buttonAccepted]);
   useEffect(() => {
     if (acceptedFiles.length) {
       const file = acceptedFiles[acceptedFiles.length - 1];
+      // TODO: use ref for reader
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       reader = new FileReader();
       reader.onloadend = handleFileRead;
       reader.readAsText(file);
@@ -259,7 +263,11 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
   return (
     <Column style={{ width: "100%", alignItems: "center" }}>
       <Spacer />
-      <img style={{ height: "8rem", width: "8rem" }} src={keystoreFileImg} />
+      <img
+        alt=""
+        style={{ height: "8rem", width: "8rem" }}
+        src={keystoreFileImg}
+      />
       <Spacer />
       <Heading1>Keystore file</Heading1>
       <Spacer size="xl" />
@@ -275,14 +283,14 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
             <Row
               style={{ width: "100%", alignItems: "center", padding: "0 2rem" }}
             >
-              <img src={fileIcon} />
+              <img alt="" src={fileIcon} />
               <Spacer />
               <Typo1 style={{ fontWeight: "bold" }}> {fileName}</Typo1>
               <OverlayButton
                 style={{ marginLeft: "auto" }}
                 onClick={() => setFileContent(null)}
               >
-                <img src={crossIcon} />
+                <img alt="" src={crossIcon} />
               </OverlayButton>
             </Row>
           </ContentBox>
@@ -420,7 +428,7 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
                 alignItems: "center",
               }}
             >
-              <img src={keystoreFileImg} />
+              <img alt="" src={keystoreFileImg} />
               <Spacer size="sm" />
               <Heading3>Keystore file</Heading3>
             </Column>
@@ -443,7 +451,7 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
                 alignItems: "center",
               }}
             >
-              <img src={mnemonicImg} />
+              <img alt="" src={mnemonicImg} />
               <Spacer size="sm" />
               <Heading3>Mnemonic Phrase</Heading3>
             </Column>
@@ -466,7 +474,7 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
                 alignItems: "center",
               }}
             >
-              <img src={pkeyImg} />
+              <img alt="" src={pkeyImg} />
               <Spacer size="sm" />
               <Heading3>Private key</Heading3>
             </Column>
@@ -529,6 +537,7 @@ const SelectLedgerAccountModal: React.FC<any> = ({
 
   useEffect(() => {
     return () => executeOnClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -538,6 +547,7 @@ const SelectLedgerAccountModal: React.FC<any> = ({
       .then((addresses) => setLedgerAddresses(addresses))
       .catch(onDismiss)
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startingIndex]);
 
   return (
@@ -688,6 +698,7 @@ export const AccessWallet: React.FC<any> = ({
       onPresentAccessByKeystoreModal();
       setSelectedTool(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTool]);
 
   return (
@@ -725,6 +736,7 @@ export const AccessWallet: React.FC<any> = ({
                   }}
                 >
                   <img
+                    alt="metamask"
                     style={{ height: "90px", width: "90px" }}
                     src={metamaskImg}
                   />
@@ -750,6 +762,7 @@ export const AccessWallet: React.FC<any> = ({
                   }}
                 >
                   <img
+                    alt="wallet-connect"
                     style={{ height: "90px", width: "90px" }}
                     src={walletConnectImg}
                   />
@@ -775,6 +788,7 @@ export const AccessWallet: React.FC<any> = ({
                   }}
                 >
                   <img
+                    alt="coinbase"
                     style={{ height: "90px", width: "90px" }}
                     src={coinbaseImg}
                   />
@@ -800,6 +814,7 @@ export const AccessWallet: React.FC<any> = ({
                   }}
                 >
                   <img
+                    alt="ledger"
                     style={{ height: "90px", width: "90px" }}
                     src={ledgerImg}
                   />
@@ -825,6 +840,7 @@ export const AccessWallet: React.FC<any> = ({
                   }}
                 >
                   <img
+                    alt="software"
                     style={{ height: "80px", width: "80px" }}
                     src={softwareWalletImg}
                   />
@@ -910,6 +926,7 @@ const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
         <Column style={{ width: "100%" }}>
           <Spacer />
           <img
+            alt=""
             style={{ alignSelf: "center", height: "78px", width: "84px" }}
             src={walletSymbolImg}
           />
@@ -943,6 +960,7 @@ const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
         <Column style={{ width: "100%" }}>
           <Spacer />
           <img
+            alt=""
             style={{ alignSelf: "center", height: "78px", width: "84px" }}
             src={keysSymbolImg}
           />
@@ -954,19 +972,19 @@ const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
           </Typo2>
           <Spacer size="sm" />
           <Row>
-            <img src={checkmarkBlueImg} />
+            <img alt="" src={checkmarkBlueImg} />
             <Spacer size="xs" />
             <Typo2>Send and receive FTM</Typo2>
           </Row>
           <Spacer size="sm" />
           <Row>
-            <img src={checkmarkBlueImg} />
+            <img alt="" src={checkmarkBlueImg} />
             <Spacer size="xs" />
             <Typo2>Stake your FTM</Typo2>
           </Row>
           <Spacer size="sm" />
           <Row>
-            <img src={checkmarkBlueImg} />
+            <img alt="" src={checkmarkBlueImg} />
             <Spacer size="xs" />
             <Typo2>Collect your rewards</Typo2>
           </Row>
@@ -1020,6 +1038,7 @@ const VerifyMnemonicModal: React.FC<any> = ({
         return word;
       })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1083,7 +1102,7 @@ const WalletCreatedModal: React.FC<any> = ({ onDismiss, mnemonic }) => {
   return (
     <Modal>
       <Spacer />
-      <img src={checkmarkGreenImg} />
+      <img alt="" src={checkmarkGreenImg} />
       <Spacer />
       <Heading1>Congratulations</Heading1>
       <Spacer size="xs" />
@@ -1127,6 +1146,7 @@ const NewWalletWizard: React.FC<any> = () => {
     if (verified) {
       onPresentWalletCreatedModal();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verified]);
 
   return (
@@ -1178,7 +1198,7 @@ const NewWalletWizard: React.FC<any> = () => {
           }}
         >
           <Row>
-            <img src={refreshImg} />
+            <img alt="" src={refreshImg} />
             <Spacer size="xs" />
             <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
               Regenerate
@@ -1277,6 +1297,7 @@ const CreateNewWallet: React.FC<any> = ({ setFlow }) => {
             <ContentBox style={{ width: "20rem" }}>
               <Column>
                 <img
+                  alt=""
                   style={{ alignSelf: "center", height: "78px", width: "84px" }}
                   src={walletSymbolImg}
                 />
@@ -1337,7 +1358,6 @@ const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
 };
 
 const Onboarding: React.FC<any> = () => {
-  const { color } = useContext(ThemeContext);
   const [contentFlow, setContentFlow] = useState("accessWallet");
   return (
     <Column style={{ width: "100%" }}>

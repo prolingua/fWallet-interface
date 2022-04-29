@@ -68,6 +68,7 @@ const Chart: React.FC<any> = ({ data, handleCrossHairData }) => {
       chart.subscribeCrosshairMove(handleCrossHair);
       return;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chart, data]);
 
   return (

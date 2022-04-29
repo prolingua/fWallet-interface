@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context } from "../context/NotifyProvider";
 import useTransaction from "./useTransaction";
 import Column from "../components/Column";
@@ -18,6 +18,7 @@ const NotifyModal: React.FC<any> = ({ onDismiss, hash }) => {
     if (transaction[hash] && transactionStatus !== "pending") {
       setTimeout(() => onDismiss(), 1000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionStatus]);
 
   const getExplorerTxUrl = () => {
@@ -68,6 +69,7 @@ const useNotify = () => {
         />
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction]);
 };
 

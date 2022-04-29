@@ -36,7 +36,7 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
               }}
             >
               {stepIndex > index ? (
-                <img src={checkMarkShapeImg} />
+                <img alt="" src={checkMarkShapeImg} />
               ) : (
                 <div>{index + 1}</div>
               )}

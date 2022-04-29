@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import useWalletProvider from "../../hooks/useWalletProvider";
 import useSettings from "../../hooks/useSettings";
 import { Header } from "../../components";
 import CurrencySelector from "../../components/CurrencySelector";
 import Spacer from "../../components/Spacer";
 import Row from "../../components/Row";
-// import LanguageSelector from "../../components/LanguageSelector/LanguageSelector";
-// import { useTranslation } from "react-i18next";
 import WalletSelector from "../../components/WalletSelector";
 import useNotify from "../../hooks/useNotify";
 import useCoingeckoApi, {
@@ -34,6 +31,7 @@ const AccountSnapshot: React.FC<any> = () => {
   useFantomApi(FantomApiMethods.getTokenList, null);
   useEffect(() => {
     getCoinsList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -77,6 +75,7 @@ const AccountSnapshot: React.FC<any> = () => {
         dispatchTokenPrices({ type: "setTokenPrices", tokens: tokenPrices });
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cgCoinIdList]);
 
   return <></>;

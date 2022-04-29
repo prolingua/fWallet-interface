@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import Row from "../../components/Row";
 import {
   Button,
-  Container,
   ContentBox,
   OverlayButton,
   Typo1,
@@ -23,17 +22,12 @@ import DropDownButton from "../../components/DropDownButton";
 import useBridgeApi from "../../hooks/useBridgeApi";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useMultiChain from "../../hooks/useMultiChain";
-import { Wallet } from "@ethersproject/wallet";
 import InputError from "../../components/InputError";
 import Modal from "../../components/Modal";
 import ModalTitle from "../../components/ModalTitle";
-import InputTextBox from "../../components/InputText/InputTextBox";
 import ModalContent from "../../components/ModalContent";
 import Scrollbar from "../../components/Scrollbar";
-import TokenBalance from "../../components/TokenBalance";
 import useModal from "../../hooks/useModal";
-import TokenSelectModal from "../../components/TokenSelectModal/TokenSelectModal";
-import InputCurrency from "../../components/InputCurrency";
 import InputCurrencyBox from "../../components/InputCurrency/InputCurrencyBox";
 import { AddressZero } from "@ethersproject/constants";
 import {
@@ -42,13 +36,11 @@ import {
   weiToUnit,
 } from "../../utils/conversion";
 import { formatAddress, loadERC20Contract } from "../../utils/wallet";
-import { Token, ETHER } from "@pancakeswap/sdk";
 import useBridge from "../../hooks/useBridge";
 import useSendTransaction from "../../hooks/useSendTransaction";
 import useFantomERC20 from "../../hooks/useFantomERC20";
 import { BigNumber } from "@ethersproject/bignumber";
 import useTransaction from "../../hooks/useTransaction";
-import { stickyTokensList } from "../../utils/token";
 import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
 
@@ -75,6 +67,7 @@ const ChainSelect: React.FC<any> = ({ selectChain, chains }) => {
             >
               <Row style={{ gap: "1rem", alignItems: "center" }}>
                 <img
+                  alt="chain"
                   style={{ height: "30px", width: "30px" }}
                   src={chainToNetworkInfoMap[chainId].image}
                 />
@@ -117,6 +110,7 @@ const ChainSelector: React.FC<any> = ({
         >
           <Row style={{ gap: "1rem", alignItems: "center" }}>
             <img
+              alt="chain"
               style={{ height: "30px", width: "30px" }}
               src={chainToNetworkInfoMap[selected].image}
             />
@@ -153,10 +147,12 @@ const ChainSelection: React.FC<any> = ({
 
   useEffect(() => {
     connectToChain(fromChain);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromChain]);
 
   useEffect(() => {
     bridgeToChain(toChain);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toChain]);
 
   useEffect(() => {
@@ -214,6 +210,7 @@ const ChainSelection: React.FC<any> = ({
         }
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromChain, toChain, walletContext.activeWallet.address]);
 
   const handleSetFromChain = (chainId: number) => {
@@ -327,6 +324,7 @@ const TokenSelector: React.FC<any> = ({ tokens, selected, selectToken }) => {
             {selected ? (
               <>
                 <img
+                  alt=""
                   style={{ height: "30px", width: "30px" }}
                   src={selected.logoUrl}
                 />
@@ -405,6 +403,7 @@ const BridgeTokenSelectModal: React.FC<any> = ({
                       >
                         <Row style={{ gap: "1rem", alignItems: "center" }}>
                           <img
+                            alt=""
                             style={{ height: "30px", width: "30px" }}
                             src={token.logoUrl}
                           />
@@ -494,6 +493,7 @@ const BridgeTokenList: React.FC<any> = ({
       );
       return;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, walletContext.activeWallet.address, isBridgeTxCompleted]);
 
   return (
@@ -617,6 +617,7 @@ const Bridge: React.FC<any> = () => {
 
   useEffect(() => {
     validateAmount(amount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedToken]);
 
   const isBridgeTxPending =
@@ -676,6 +677,7 @@ const Bridge: React.FC<any> = () => {
 
   useEffect(() => {
     connectToChain(fromChain);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromChain]);
 
   useEffect(() => {
@@ -698,6 +700,7 @@ const Bridge: React.FC<any> = () => {
       );
     }
     return setIsApproved(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedToken, isApproveCompleted, walletContext.activeWallet.chainId]);
 
   useEffect(() => {
@@ -720,6 +723,7 @@ const Bridge: React.FC<any> = () => {
     }
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bridgeTxHash]);
 
   return (
@@ -746,6 +750,7 @@ const Bridge: React.FC<any> = () => {
               <a
                 href={`https://anyswap.net/explorer/tx?params=${bridgeTxHash}`}
                 target="_blank"
+                rel="noreferrer"
               >
                 {formatAddress(bridgeTxHash)}
               </a>
@@ -789,7 +794,7 @@ const Bridge: React.FC<any> = () => {
                   >
                     Powered by multichain
                   </Typo3>
-                  <img src={multichainImg} />
+                  <img alt="multichain" src={multichainImg} />
                 </Row>
               </div>
             </Row>

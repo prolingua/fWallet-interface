@@ -57,6 +57,7 @@ const TokenSelectModal: React.FC<any> = ({
     );
 
     setListAssets(filteredAssets);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   return (

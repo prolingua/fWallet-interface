@@ -1,8 +1,8 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { ThemeContext } from "styled-components";
 import { getAccountDelegations } from "../../utils/delegation";
 import Row from "../../components/Row";
-import { ContentBox, Heading1, Heading3, Typo2 } from "../../components";
+import { ContentBox, Heading1, Typo2 } from "../../components";
 import Spacer from "../../components/Spacer";
 import Column from "../../components/Column";
 import WithdrawRequestRow from "../../components/WithdrawRequestRow";

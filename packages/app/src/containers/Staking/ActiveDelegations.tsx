@@ -157,6 +157,7 @@ const UndelegateModal: React.FC<any> = ({
     if (isUnlockCompleted && pendingRewards === "0x0") {
       setAcceptLossOfRewards(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUnlockCompleted, isClaimRewardsCompleted, isUnstakeCompleted]);
 
   return (
@@ -635,6 +636,7 @@ const ManageDelegationModal: React.FC<any> = ({
 
   useEffect(() => {
     return () => setActiveStakerId(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -713,6 +715,7 @@ const ActiveDelegationsContent: React.FC<any> = ({
     if (activeStakerId) {
       onPresentManageDelegationModal();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStakerId]);
 
   return (

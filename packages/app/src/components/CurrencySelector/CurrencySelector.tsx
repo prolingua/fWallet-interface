@@ -7,7 +7,6 @@ import DropDownButton from "../DropDownButton";
 import vShape from "../../assets/img/shapes/vShape.png";
 import usFlagIcon from "../../assets/img/icons/usFlag.svg";
 import euFlagIcon from "../../assets/img/icons/euFlag.png";
-import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 
 export const currencyOptions: any = {
   usd: {

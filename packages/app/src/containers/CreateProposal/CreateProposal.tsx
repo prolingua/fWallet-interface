@@ -111,6 +111,7 @@ const CreateProposal: React.FC<any> = () => {
       );
     }
     return handleProposalTimeErrors(null, 3);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endMinimumInDays, endMaximumInDays]);
 
   useEffect(() => {
@@ -120,6 +121,7 @@ const CreateProposal: React.FC<any> = () => {
     }
 
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProposalCompleted]);
 
   return (
@@ -176,7 +178,7 @@ const CreateProposal: React.FC<any> = () => {
                         right: ".8rem",
                       }}
                     >
-                      <img src={CrossSymbol} />
+                      <img alt="" src={CrossSymbol} />
                     </OverlayButton>
                   )}
                 </div>
@@ -275,6 +277,7 @@ const CreateProposal: React.FC<any> = () => {
                 />
               );
             }
+            return <></>;
           })}
           <Spacer size="xl" />
           <Button

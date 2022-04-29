@@ -17,7 +17,6 @@ import { getTotalFTMBalanceForAccount } from "../../utils/common";
 import Loader from "../../components/Loader";
 import useAccountSnapshot from "../../hooks/useAccountSnapshot";
 import useWalletProvider from "../../hooks/useWalletProvider";
-import { settings } from "cluster";
 import useSettings from "../../hooks/useSettings";
 
 const BalanceContent: React.FC<any> = ({

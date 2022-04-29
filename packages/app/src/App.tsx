@@ -1,13 +1,7 @@
-import React, {
-  Suspense,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import { I18nextProvider } from "react-i18next";
-import { ThemeContext, ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components";
 
 import i18next from "./i18n";
 import theme from "./theme/theme";

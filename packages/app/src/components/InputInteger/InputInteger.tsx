@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { ThemeContext } from "styled-components";
 import Row from "../Row";
 import { Input, Typo1, Typo2, Typo3 } from "../index";

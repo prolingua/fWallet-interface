@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
-import styled, { ThemeContext } from "styled-components";
+import React from "react";
+import styled from "styled-components";
 import {
   hexToUnit,
   toCurrencySymbol,
   toFormattedBalance,
 } from "../../utils/conversion";
 import Row from "../Row";
-import { ContentBox, Typo1, Typo2 } from "../index";
+import { Typo1, Typo2 } from "../index";
 import useTokenPrice from "../../hooks/useTokenPrice";
 import useSettings from "../../hooks/useSettings";
 

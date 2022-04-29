@@ -82,6 +82,7 @@ const WalletSelect: React.FC<any> = ({
         setTotalFtmBalance(totalFTM);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account.wallets]);
 
   useEffect(() => {
@@ -108,6 +109,7 @@ const WalletSelect: React.FC<any> = ({
       );
       setTotalAssetsValue(totalAssets);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account.wallets, accountSnapshots]);
 
   useEffect(() => {

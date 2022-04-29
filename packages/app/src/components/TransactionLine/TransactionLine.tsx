@@ -72,6 +72,7 @@ const TransactionLine: React.FC<any> = ({
     if (!transaction.tokenTransactions.length && transaction.value) {
       setAmount(hexToUnit(transaction.value));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transaction.tokenTransactions]);
 
   const transactionBase = (

@@ -3,8 +3,6 @@ import useWalletProvider from "./useWalletProvider";
 import useAccounts from "./useAccount";
 import { loadContracts } from "../utils/wallet";
 import { LedgerSigner } from "../utils/ledger";
-import { useContext } from "react";
-import { Context } from "../context/ModalProvider";
 
 export const useHardwareWallet = () => {
   const { dispatchWalletContext, walletContext } = useWalletProvider();
