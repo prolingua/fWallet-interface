@@ -1,4 +1,4 @@
-import { BigNumber, parseFixed } from "@ethersproject/bignumber";
+import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { formatBytes32String } from "@ethersproject/strings";
 
 export const formatStringToBytes32 = (value: string) => {
@@ -17,8 +17,8 @@ export const weiToUnit = (value: BigNumber, decimals = 18) => {
     console.warn(`[weiToUnit] ${value} is not of type BigNumber`);
     return;
   }
-  const result = value.mul(10000).div(BigNumber.from(10).pow(decimals));
-  return result.toNumber() / 10000;
+
+  return parseFloat(formatFixed(value, decimals));
 };
 
 export const weiToMaxUnit = (value: string, decimals = 18) => {

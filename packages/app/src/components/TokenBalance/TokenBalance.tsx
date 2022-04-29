@@ -60,11 +60,16 @@ const StyledBalance = styled(Typo2)`
     font-weight: normal;
     visibility: hidden;
     position: absolute;
-    z-index: 1;
+    left: -5.5rem;
+    top: -0.21rem;
   }
 
   &:hover .balance-tooltip {
     visibility: visible;
+    background-color: rgba(10, 22, 46, 1);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    zindex: 1000;
   }
 `;
 
