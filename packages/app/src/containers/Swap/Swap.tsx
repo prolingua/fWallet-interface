@@ -211,7 +211,8 @@ const SwapTokensContent: React.FC<any> = ({
     apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_SWAP_QUOTE]?.response
       ?.data?.data;
   const tokenPriceData =
-    apiData[COINGECKO_BASEURL + COINGECKO_METHODS.GET_PRICE]?.response?.data;
+    apiData[COINGECKO_BASEURL + COINGECKO_METHODS.GET_PRICE + "-swap"]?.response
+      ?.data;
 
   const [inToken, setInToken] = useState(null);
   const [outToken, setOutToken] = useState(null);
@@ -340,7 +341,7 @@ const SwapTokensContent: React.FC<any> = ({
       OOSwapQuoteData &&
       parseFloat(inTokenAmount) > 0
     ) {
-      getPrice([inToken.code, outToken.code], "usd");
+      getPrice([inToken.code, outToken.code], "usd", "swap");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inToken, outToken, OOSwapQuoteData]);
@@ -427,6 +428,7 @@ const SwapTokensContent: React.FC<any> = ({
         BigNumber.from(OOSwapQuoteData.outAmount),
         outToken.decimals
       );
+
       const inTokenPrice = tokenPriceData[inToken.code]["usd"];
       const outTokenPrice = tokenPriceData[outToken.code]["usd"];
       // console.log(inTokenAmount, outTokenAmount, inTokenPrice, outTokenPrice);

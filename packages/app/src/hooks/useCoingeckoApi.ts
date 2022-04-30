@@ -11,7 +11,11 @@ export enum COINGECKO_METHODS {
 const useCoingeckoApi = () => {
   const { get } = useRestApi(COINGECKO_BASEURL);
 
-  const getPrice = (tokens: string[], currency: "usd" | "eur" = "usd") => {
+  const getPrice = (
+    tokens: string[],
+    currency: "usd" | "eur" = "usd",
+    slug?: string
+  ) => {
     return get({
       path: COINGECKO_METHODS.GET_PRICE,
       queryParams: [
