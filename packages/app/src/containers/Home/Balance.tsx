@@ -18,6 +18,7 @@ import Loader from "../../components/Loader";
 import useAccountSnapshot from "../../hooks/useAccountSnapshot";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useSettings from "../../hooks/useSettings";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const BalanceContent: React.FC<any> = ({
   accountData,
@@ -139,17 +140,19 @@ const Balance: React.FC<any> = ({
       <Column style={{ flex: 1 }}>
         <Heading1>Balance</Heading1>
         <Spacer size="xs" />
-        {loading ? (
-          <Loader />
-        ) : (
-          <BalanceContent
-            accountData={accountData.data}
-            fMint={fMint.data}
-            delegations={delegations.data}
-            tokenPrice={tokenPrice}
-            currency={currency}
-          />
-        )}
+        <ErrorBoundary name="[Home][Balance]">
+          {loading ? (
+            <Loader />
+          ) : (
+            <BalanceContent
+              accountData={accountData.data}
+              fMint={fMint.data}
+              delegations={delegations.data}
+              tokenPrice={tokenPrice}
+              currency={currency}
+            />
+          )}
+        </ErrorBoundary>
       </Column>
     </ContentBox>
   );

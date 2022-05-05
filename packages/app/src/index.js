@@ -7,12 +7,16 @@ import {
   createHttpLink,
   InMemoryCache,
   ApolloLink,
+  HttpLink,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import "./index.css";
 import App from "./App";
 import config from "./config/config";
 import axios from "axios";
+
+const FNS_ENDPOINT =
+  "https://api.thegraph.com/subgraphs/name/fantomnameservice/fantomdomains";
 
 let healthyProviders = [];
 const getHealthyProviders = async () => {
@@ -70,12 +74,16 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const client = new ApolloClient({
   cache: new InMemoryCache({ addTypename: true }),
   // uri: "/api",
-  link: ApolloLink.from([
-    errorLink,
-    createHttpLink({
-      uri: config.providers[0].http,
-    }),
-  ]),
+  link: ApolloLink.split(
+    (operation) => operation.getContext().clientName === "fns",
+    new HttpLink({ uri: FNS_ENDPOINT }),
+    ApolloLink.from([
+      errorLink,
+      createHttpLink({
+        uri: config.providers[0].http,
+      }),
+    ])
+  ),
   connectToDevTools: process.env.NODE_ENV === "development",
 });
 

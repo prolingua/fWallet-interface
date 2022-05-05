@@ -17,6 +17,8 @@
   "dependencies": {
     "@apollo/client": "^3.3.20",
     "@apollo/react-hooks": "^4.0.0",
+    "@bugsnag/js": "^7.16.2",
+    "@bugsnag/plugin-react": "^7.16.4",
     "@ethersproject/abstract-provider": "^5.5.1",
     "@ethersproject/abstract-signer": "^5.5.0",
     "@ethersproject/address": "^5.5.0",
@@ -69,6 +71,7 @@
     "react": "17.0.2",
     "react-circular-progressbar": "^2.0.4",
     "react-custom-scrollbars-2": "^4.4.0",
+    "react-device-detect": "^2.2.2",
     "react-dom": "17.0.2",
     "react-dropzone": "^11.3.4",
     "react-i18next": "^11.8.15",

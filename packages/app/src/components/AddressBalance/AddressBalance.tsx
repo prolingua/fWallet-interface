@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import {
   FETCH_ERC20_ASSETS,
   FETCH_ACCOUNT_BALANCE,
-} from "../../graphql/subgraph";
+} from "../../graphql/ftm_subgraph";
 import { getAccountAssetBalance, getAccountBalance } from "../../utils/account";
 import { toFormattedBalance, weiToUnit } from "../../utils/conversion";
 import { Typo2 } from "../index";

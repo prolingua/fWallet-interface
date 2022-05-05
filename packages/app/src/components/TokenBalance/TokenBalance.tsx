@@ -36,7 +36,7 @@ export const TokenBalance: React.FC<any> = ({ token, imageSize = " 32px" }) => {
         <Typo1 style={{ fontWeight: "bold" }}>{token.symbol}</Typo1>
       </Row>
       <Row style={{ alignItems: "center", position: "relative" }}>
-        <StyledBalance>
+        <StyledBalance noOfDigits={formattedBalance[0].length}>
           {formattedBalance[0]}
           {formattedBalance[1]}
           {value > 0.1 && (
@@ -51,7 +51,7 @@ export const TokenBalance: React.FC<any> = ({ token, imageSize = " 32px" }) => {
   );
 };
 
-const StyledBalance = styled(Typo2)`
+const StyledBalance = styled(Typo2)<{ noOfDigits: number }>`
   font-weight: bold;
   color: #eff3fb;
   cursor: default;
@@ -60,7 +60,7 @@ const StyledBalance = styled(Typo2)`
     font-weight: normal;
     visibility: hidden;
     position: absolute;
-    left: -5.5rem;
+    left: ${(props) => `-${props.noOfDigits / 2 + 5}rem`};
     top: -0.21rem;
   }
 

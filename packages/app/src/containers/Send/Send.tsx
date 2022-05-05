@@ -35,6 +35,7 @@ import EstimatedFees from "./EstimatedFees";
 import useModal from "../../hooks/useModal";
 import InfoModal from "../../components/InfoModal";
 import FadeInOut from "../../components/AnimationFade";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const SendTokensContent: React.FC<any> = ({
   accountData,
@@ -122,6 +123,7 @@ const SendTokensContent: React.FC<any> = ({
         resetInitial();
       }, 1000);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx]);
 
@@ -332,14 +334,16 @@ const SendTokens: React.FC<any> = ({
 }) => {
   return (
     <ContentBox style={{ width: "610px" }}>
-      <SendTokensContent
-        accountData={accountData?.data}
-        assetsList={assetsList?.data}
-        tokenPrice={tokenPrice?.data}
-        gasPrice={gasPrice?.data}
-        currency={currency}
-        loading={loading}
-      />
+      <ErrorBoundary name="[Send]">
+        <SendTokensContent
+          accountData={accountData?.data}
+          assetsList={assetsList?.data}
+          tokenPrice={tokenPrice?.data}
+          gasPrice={gasPrice?.data}
+          currency={currency}
+          loading={loading}
+        />
+      </ErrorBoundary>
     </ContentBox>
   );
 };

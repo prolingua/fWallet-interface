@@ -50,6 +50,7 @@ import { formatDate } from "../../utils/common";
 import FadeInOut from "../../components/AnimationFade";
 import useDetectResolutionType from "../../hooks/useDetectResolutionType";
 import openoceanImg from "../../assets/img/icons/openocean.svg";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -943,36 +944,38 @@ const Swap: React.FC<any> = () => {
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market_chart?vs_currency=usd&days=60
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
   return (
-    <FadeInOut>
-      <Row
-        style={{
-          gap: "2rem",
-          flexWrap: "wrap",
-          justifyContent: "center",
-        }}
-      >
-        <SwapTokensContent
-          tokenList={tokenList}
-          setActiveTokens={setActiveTokens}
-          setSwapRoute={setSwapRoute}
-          refetchTimer={refetchTimer}
-        />
-        <Column style={{ flex: 2, minWidth: "500px" }}>
-          <TokenChart
-            width={width}
-            activeTokens={activeTokens}
+    <ErrorBoundary name="[Swap]">
+      <FadeInOut>
+        <Row
+          style={{
+            gap: "2rem",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          <SwapTokensContent
+            tokenList={tokenList}
+            setActiveTokens={setActiveTokens}
+            setSwapRoute={setSwapRoute}
             refetchTimer={refetchTimer}
           />
-          <Spacer />
-          <SwapRoute
-            route={swapRoute}
-            tokenList={tokenList}
-            activeTokens={activeTokens}
-          />
-        </Column>
-      </Row>
-      <Spacer />
-    </FadeInOut>
+          <Column style={{ flex: 2, minWidth: "500px" }}>
+            <TokenChart
+              width={width}
+              activeTokens={activeTokens}
+              refetchTimer={refetchTimer}
+            />
+            <Spacer />
+            <SwapRoute
+              route={swapRoute}
+              tokenList={tokenList}
+              activeTokens={activeTokens}
+            />
+          </Column>
+        </Row>
+        <Spacer />
+      </FadeInOut>
+    </ErrorBoundary>
   );
 };
 

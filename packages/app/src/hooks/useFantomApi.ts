@@ -13,7 +13,7 @@ import {
   FETCH_GOVERNANCE_PROPOSAL,
   FETCH_GOVERNANCE_PROPOSALS,
   FETCH_ESTIMATED_REWARDS,
-} from "../graphql/subgraph";
+} from "../graphql/ftm_subgraph";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import useFantomApiData from "./useFantomApiData";

@@ -24,6 +24,7 @@ import CrossMarkImg from "../../assets/img/symbols/CrossMark.svg";
 import StopMarkImg from "../../assets/img/symbols/StopMark.svg";
 import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const CategorySwitch: React.FC<any> = ({
   categories,
@@ -342,37 +343,39 @@ const Governance: React.FC<any> = () => {
   }, [activeCategory]);
 
   return (
-    <FadeInOut>
-      <Column style={{ marginBottom: "1.5rem" }}>
-        <ResponsiveRow
-          style={{
-            flex: 1,
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "1rem",
-          }}
-          breakpoint={breakpoints.tablet}
-        >
-          <CategorySwitch
-            categories={["Current proposals", "Past proposals"]}
-            setActiveCategory={setActiveCategory}
-            activeCategory={activeCategory}
-          />
-          <Button
-            variant="primary"
-            onClick={() => history.push(`governance/proposal/create`)}
+    <ErrorBoundary name="[Governance]">
+      <FadeInOut>
+        <Column style={{ marginBottom: "1.5rem" }}>
+          <ResponsiveRow
+            style={{
+              flex: 1,
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "1rem",
+            }}
+            breakpoint={breakpoints.tablet}
           >
-            Create proposal
-          </Button>
-        </ResponsiveRow>
-        <Spacer />
-        <GovernanceProposalsList
-          loading={!governanceProposals?.data}
-          governanceProposalsData={governanceProposals?.data}
-          filterInactive={activeCategory === "Past proposals"}
-        />
-      </Column>
-    </FadeInOut>
+            <CategorySwitch
+              categories={["Current proposals", "Past proposals"]}
+              setActiveCategory={setActiveCategory}
+              activeCategory={activeCategory}
+            />
+            <Button
+              variant="primary"
+              onClick={() => history.push(`governance/proposal/create`)}
+            >
+              Create proposal
+            </Button>
+          </ResponsiveRow>
+          <Spacer />
+          <GovernanceProposalsList
+            loading={!governanceProposals?.data}
+            governanceProposalsData={governanceProposals?.data}
+            filterInactive={activeCategory === "Past proposals"}
+          />
+        </Column>
+      </FadeInOut>
+    </ErrorBoundary>
   );
 };
 

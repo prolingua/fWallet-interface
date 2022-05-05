@@ -12,6 +12,7 @@ import useFantomNative from "../../hooks/useFantomNative";
 import { BigNumber } from "@ethersproject/bignumber";
 import Loader from "../../components/Loader";
 import useWalletProvider from "../../hooks/useWalletProvider";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const TokensContent: React.FC<any> = ({ assetList }) => {
   const { walletContext } = useWalletProvider();
@@ -64,7 +65,9 @@ const Tokens: React.FC<any> = ({ loading, tokenList }) => {
       <Column style={{ width: "100%" }}>
         <Heading1>Tokens</Heading1>
         <Spacer size="lg" />
-        {loading ? <Loader /> : <TokensContent assetList={tokenList} />}
+        <ErrorBoundary name="[Home][Tokens]">
+          {loading ? <Loader /> : <TokensContent assetList={tokenList} />}
+        </ErrorBoundary>
       </Column>
     </ContentBox>
   );

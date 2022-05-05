@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useState } from "react";
 import styled from "styled-components";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 interface ModalsContext {
   content?: React.ReactNode;
@@ -51,18 +52,20 @@ const ModalProvider: React.FC = ({ children }) => {
         onDismiss: handleDismiss,
       }}
     >
-      {children}
-      {isOpen && (
-        <StyledModalWrapper>
-          <StyledModalBackdrop
-            onClick={!persist ? handleDismiss : () => null}
-          />
-          {React.isValidElement(content) &&
-            React.cloneElement(content, {
-              onDismiss: handleDismiss,
-            })}
-        </StyledModalWrapper>
-      )}
+      <ErrorBoundary name={`[Modal][${modalKey}]`}>
+        {children}
+        {isOpen && (
+          <StyledModalWrapper>
+            <StyledModalBackdrop
+              onClick={!persist ? handleDismiss : () => null}
+            />
+            {React.isValidElement(content) &&
+              React.cloneElement(content, {
+                onDismiss: handleDismiss,
+              })}
+          </StyledModalWrapper>
+        )}
+      </ErrorBoundary>
     </Context.Provider>
   );
 };

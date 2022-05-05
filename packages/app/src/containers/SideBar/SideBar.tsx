@@ -169,7 +169,7 @@ const SideBar: React.FC<any> = () => {
               alignItems: "center",
               backgroundColor: "red",
               borderRadius: "50%",
-              fontSize: "20px",
+              fontSize: "14px",
               fontWeight: "bold",
               position: "absolute",
               left: "27px",

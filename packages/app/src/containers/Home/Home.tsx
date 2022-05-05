@@ -11,6 +11,7 @@ import { ThemeContext } from "styled-components";
 import { ResponsiveRow } from "../../components/Row/Row";
 import Tokens from "./Tokens";
 import FadeInOut from "../../components/AnimationFade";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const Home: React.FC<any> = () => {
   const { breakpoints } = useContext(ThemeContext);
@@ -104,32 +105,34 @@ const Home: React.FC<any> = () => {
   const isDoneLoadingTokens = activeAddress && topTokensList?.data;
 
   return (
-    <FadeInOut>
-      <Balance
-        loading={!isDoneLoadingBalance}
-        accountData={accountData}
-        fMint={fMintData}
-        delegations={delegationsData}
-        tokenPrice={tokenPrice?.data?.price?.price}
-        currency={settings.currency}
-      />
-      <Spacer />
-      <ResponsiveRow
-        breakpoint={breakpoints.ultra}
-        breakpointReverse
-        style={{ marginBottom: "1rem" }}
-      >
-        <TransactionHistory
-          loading={!isDoneLoadingTransactionHistory}
-          address={activeAddress}
+    <ErrorBoundary name="[Home]">
+      <FadeInOut>
+        <Balance
+          loading={!isDoneLoadingBalance}
+          accountData={accountData}
+          fMint={fMintData}
+          delegations={delegationsData}
           tokenPrice={tokenPrice?.data?.price?.price}
           currency={settings.currency}
-          accountData={accountData}
         />
         <Spacer />
-        <Tokens loading={!isDoneLoadingTokens} tokenList={erc20AssetsList} />
-      </ResponsiveRow>
-    </FadeInOut>
+        <ResponsiveRow
+          breakpoint={breakpoints.ultra}
+          breakpointReverse
+          style={{ marginBottom: "1rem" }}
+        >
+          <TransactionHistory
+            loading={!isDoneLoadingTransactionHistory}
+            address={activeAddress}
+            tokenPrice={tokenPrice?.data?.price?.price}
+            currency={settings.currency}
+            accountData={accountData}
+          />
+          <Spacer />
+          <Tokens loading={!isDoneLoadingTokens} tokenList={erc20AssetsList} />
+        </ResponsiveRow>
+      </FadeInOut>
+    </ErrorBoundary>
   );
 };
 

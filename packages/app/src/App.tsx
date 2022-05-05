@@ -2,9 +2,11 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import { I18nextProvider } from "react-i18next";
 import { ThemeProvider } from "styled-components";
-
 import i18next from "./i18n";
 import theme from "./theme/theme";
+import Bugsnag from "@bugsnag/js";
+import BugsnagPluginReact from "@bugsnag/plugin-react";
+
 import withConnectedWallet from "./hocs/withConnectedWallet";
 import ModalProvider from "./context/ModalProvider";
 import { AccountProvider } from "./context/AccountProvider";
@@ -34,6 +36,15 @@ import { ApiDataProvider } from "./context/ApiDataProvider";
 import NotifyProvider from "./context/NotifyProvider";
 import Bridge from "./containers/Bridge";
 import { TokenPriceProvider } from "./context/TokenPriceProvider";
+import ErrorBoundary from "./components/ErrorBoundary";
+
+Bugsnag.start({
+  apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
+  autoDetectErrors: false,
+  autoTrackSessions: false,
+  collectUserIp: false,
+  plugins: [new BugsnagPluginReact()],
+});
 
 const AppContent: React.FC<any> = () => {
   const location = useLocation();
@@ -100,27 +111,29 @@ function App() {
   return (
     <Providers>
       <Body>
-        {resolutionType === "mobile" || resolutionType === "tablet" ? (
-          <Column
-            style={{
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <img
-              alt="fwallet"
-              style={{ width: "15rem" }}
-              src={fWalletLogoImg}
-            />
-            <Spacer />
-            <Heading1>Resolution not supported</Heading1>
-            <Heading3>Mobile is coming soon!</Heading3>
-          </Column>
-        ) : (
-          <AppContentWithWallet />
-          // <AppContent />
-        )}
+        <ErrorBoundary name="/">
+          {resolutionType === "mobile" || resolutionType === "tablet" ? (
+            <Column
+              style={{
+                width: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                alt="fwallet"
+                style={{ width: "15rem" }}
+                src={fWalletLogoImg}
+              />
+              <Spacer />
+              <Heading1>Resolution not supported</Heading1>
+              <Heading3>Mobile is coming soon!</Heading3>
+            </Column>
+          ) : (
+            <AppContentWithWallet />
+            // <AppContent />
+          )}
+        </ErrorBoundary>
       </Body>
     </Providers>
   );

@@ -5,6 +5,7 @@ import Spacer from "../../components/Spacer";
 import TransactionLine from "../../components/TransactionLine";
 import { getAccountTransactions } from "../../utils/account";
 import Loader from "../../components/Loader";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const TransactionHistoryContent: React.FC<any> = ({
   transactions,
@@ -51,16 +52,18 @@ const TransactionHistory: React.FC<any> = ({
       <Column style={{ width: "100%" }}>
         <Heading1>History</Heading1>
         <Spacer size="lg" />
-        {loading ? (
-          <Loader />
-        ) : (
-          <TransactionHistoryContent
-            transactions={accountTransactions}
-            address={address}
-            tokenPrice={tokenPrice}
-            currency={currency}
-          />
-        )}
+        <ErrorBoundary name="[Home][History]">
+          {loading ? (
+            <Loader />
+          ) : (
+            <TransactionHistoryContent
+              transactions={accountTransactions}
+              address={address}
+              tokenPrice={tokenPrice}
+              currency={currency}
+            />
+          )}
+        </ErrorBoundary>
       </Column>
     </ContentBox>
   );

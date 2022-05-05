@@ -43,6 +43,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import useTransaction from "../../hooks/useTransaction";
 import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
+import ErrorBoundary from "../../components/ErrorBoundary";
 
 const ChainSelect: React.FC<any> = ({ selectChain, chains }) => {
   const { color } = useContext(ThemeContext);
@@ -727,217 +728,222 @@ const Bridge: React.FC<any> = () => {
   }, [bridgeTxHash]);
 
   return (
-    <FadeInOut>
-      {bridgeTxHash && (
-        <ContentBox
-          style={{
-            background: color.secondary.navy(),
-            color: color.white,
-            fontFamily: "proxima-nova, sans-serif",
-            borderRadius: "8px",
-            position: "fixed",
-            right: "2rem",
-            top: "8rem",
-            zIndex: 100,
-            padding: "1rem",
-          }}
-        >
-          <Column style={{}}>
-            <Typo2 style={{ fontWeight: "bold" }}>Bridge transaction</Typo2>
-            <Spacer size="xs" />
-            <Typo2>
-              {"Hash: "}
-              <a
-                href={`https://anyswap.net/explorer/tx?params=${bridgeTxHash}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {formatAddress(bridgeTxHash)}
-              </a>
-            </Typo2>
-            {bridgeStatus > 0 && (
+    <ErrorBoundary name="[Bridge]">
+      <FadeInOut>
+        {bridgeTxHash && (
+          <ContentBox
+            style={{
+              background: color.secondary.navy(),
+              color: color.white,
+              fontFamily: "proxima-nova, sans-serif",
+              borderRadius: "8px",
+              position: "fixed",
+              right: "2rem",
+              top: "8rem",
+              zIndex: 100,
+              padding: "1rem",
+            }}
+          >
+            <Column style={{}}>
+              <Typo2 style={{ fontWeight: "bold" }}>Bridge transaction</Typo2>
+              <Spacer size="xs" />
               <Typo2>
-                {transactionStatusMapping[bridgeStatus] || "Unknown"}
+                {"Hash: "}
+                <a
+                  href={`https://anyswap.net/explorer/tx?params=${bridgeTxHash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {formatAddress(bridgeTxHash)}
+                </a>
               </Typo2>
-            )}
-            <Spacer size="sm" />
-            <OverlayButton
-              style={{ padding: 0 }}
-              onClick={() => resetTransactionStatus()}
-            >
-              <Typo2 style={{ fontWeight: "bold" }}>Close</Typo2>
-            </OverlayButton>
-          </Column>
-        </ContentBox>
-      )}
-      <Row style={{ width: "100%", justifyContent: "center" }}>
-        <ContentBox style={{ width: "600px" }}>
-          <Column style={{ width: "100%" }}>
-            <Row style={{ justifyContent: "space-between" }}>
-              <div
-                style={{
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                }}
+              {bridgeStatus > 0 && (
+                <Typo2>
+                  {transactionStatusMapping[bridgeStatus] || "Unknown"}
+                </Typo2>
+              )}
+              <Spacer size="sm" />
+              <OverlayButton
+                style={{ padding: 0 }}
+                onClick={() => resetTransactionStatus()}
               >
-                Bridge
-              </div>
-              <div
-                style={{
-                  borderRadius: "34px",
-                  backgroundColor: color.primary.black(),
-                }}
-              >
-                <Row style={{ justifyContent: "space-between", gap: "1rem" }}>
-                  <Typo3
-                    style={{ color: "#67748B", padding: ".5rem 0 .5rem 1rem" }}
-                  >
-                    Powered by multichain
-                  </Typo3>
-                  <img alt="multichain" src={multichainImg} />
-                </Row>
-              </div>
-            </Row>
-            <Spacer />
-            {walletContext.activeWallet.providerType === "hardware" ? (
-              <Typo1>
-                Hardware wallet is unsupported. Use any of the other wallet
-                types to use the bridge.
-              </Typo1>
-            ) : (
-              <>
-                <ChainSelection
-                  setTokenList={setTokenList}
-                  connectToChain={setFromChain}
-                  bridgeToChain={setToChain}
-                />
-                <Spacer />
-                <Divider />
-                <Spacer size="lg" />
-                <BridgeTokenList
-                  tokenList={tokenList}
-                  setSelectedToken={setSelectedToken}
-                  fromChain={fromChain}
-                  toChain={toChain}
-                  amount={amount}
-                  setAmount={handleSetAmount}
-                  inputError={inputError}
-                  isBridgeTxCompleted={isBridgeTxCompleted}
-                />
-                <Spacer />
-                <Divider />
-                <Spacer size="lg" />
-                <ContentBox
+                <Typo2 style={{ fontWeight: "bold" }}>Close</Typo2>
+              </OverlayButton>
+            </Column>
+          </ContentBox>
+        )}
+        <Row style={{ width: "100%", justifyContent: "center" }}>
+          <ContentBox style={{ width: "600px" }}>
+            <Column style={{ width: "100%" }}>
+              <Row style={{ justifyContent: "space-between" }}>
+                <div
                   style={{
-                    backgroundColor: color.primary.black(),
-                    padding: "1.5rem",
+                    fontSize: "20px",
+                    fontWeight: "bold",
                   }}
                 >
-                  <Column style={{ width: "100%", gap: ".5rem" }}>
-                    <Row style={{ justifyContent: "space-between" }}>
-                      <Typo2 style={{ color: "#84888d" }}>
-                        Current Bridgeable Range
-                      </Typo2>
-                      <Typo2>
-                        {selectedToken
-                          ? `${formatSimpleValue(
-                              selectedToken.MinimumSwap
-                            )} - ${formatSimpleValue(
-                              selectedToken.MaximumSwap
-                            )} ${selectedToken.symbol}`
-                          : "-"}
-                      </Typo2>
-                    </Row>
-                    <Row style={{ justifyContent: "space-between" }}>
-                      <Typo2 style={{ color: "#84888d" }}>
-                        Max bridge amount
-                      </Typo2>
-                      <Typo2
-                        style={{
-                          color:
-                            inputError === "Above maximum amount"
-                              ? "red"
-                              : "inherit",
-                        }}
-                      >
-                        {selectedToken
-                          ? `${formatSimpleValue(selectedToken.MaximumSwap)} ${
-                              selectedToken.symbol
-                            }`
-                          : "-"}
-                      </Typo2>
-                    </Row>
-                    <Row style={{ justifyContent: "space-between" }}>
-                      <Typo2 style={{ color: "#84888d" }}>
-                        Min Bridge amount
-                      </Typo2>
-                      <Typo2
-                        style={{
-                          color:
-                            inputError === "Below minimum amount"
-                              ? "red"
-                              : "inherit",
-                        }}
-                      >
-                        {selectedToken
-                          ? `${formatSimpleValue(selectedToken.MinimumSwap)} ${
-                              selectedToken.symbol
-                            }`
-                          : "-"}
-                      </Typo2>
-                    </Row>
-                    <Row style={{ justifyContent: "space-between" }}>
-                      <Typo2 style={{ color: "#84888d" }}>Minimum fee</Typo2>
-                      <Typo2>
-                        {selectedToken
-                          ? `${formatSimpleValue(
-                              selectedToken.MinimumSwapFee
-                            )} ${selectedToken.symbol}`
-                          : "-"}
-                      </Typo2>
-                    </Row>
-                  </Column>
-                </ContentBox>
-                <Spacer />
-                <Typo3>
-                  {selectedToken
-                    ? `* Amounts greater than ${formatSimpleValue(
-                        selectedToken.BigValueThreshold
-                      )} ${selectedToken.symbol} could
-                  take up to 12 hours`
-                    : ""}
-                </Typo3>
-                <Spacer />
-                {isApproved ? (
-                  <Button
-                    disabled={
-                      inputError ||
-                      !amount ||
-                      walletContext.activeWallet.chainId !== fromChain
-                    }
-                    variant="primary"
-                    onClick={handleBridgeAction}
+                  Bridge
+                </div>
+                <div
+                  style={{
+                    borderRadius: "34px",
+                    backgroundColor: color.primary.black(),
+                  }}
+                >
+                  <Row style={{ justifyContent: "space-between", gap: "1rem" }}>
+                    <Typo3
+                      style={{
+                        color: "#67748B",
+                        padding: ".5rem 0 .5rem 1rem",
+                      }}
+                    >
+                      Powered by multichain
+                    </Typo3>
+                    <img alt="multichain" src={multichainImg} />
+                  </Row>
+                </div>
+              </Row>
+              <Spacer />
+              {walletContext.activeWallet.providerType === "hardware" ? (
+                <Typo1>
+                  Hardware wallet is unsupported. Use any of the other wallet
+                  types to use the bridge.
+                </Typo1>
+              ) : (
+                <>
+                  <ChainSelection
+                    setTokenList={setTokenList}
+                    connectToChain={setFromChain}
+                    bridgeToChain={setToChain}
+                  />
+                  <Spacer />
+                  <Divider />
+                  <Spacer size="lg" />
+                  <BridgeTokenList
+                    tokenList={tokenList}
+                    setSelectedToken={setSelectedToken}
+                    fromChain={fromChain}
+                    toChain={toChain}
+                    amount={amount}
+                    setAmount={handleSetAmount}
+                    inputError={inputError}
+                    isBridgeTxCompleted={isBridgeTxCompleted}
+                  />
+                  <Spacer />
+                  <Divider />
+                  <Spacer size="lg" />
+                  <ContentBox
+                    style={{
+                      backgroundColor: color.primary.black(),
+                      padding: "1.5rem",
+                    }}
                   >
-                    {isBridgeTxPending
-                      ? "Broadcasting transaction"
-                      : "Bridge Token"}
-                  </Button>
-                ) : (
-                  <Button variant="primary" onClick={handleApproveToken}>
-                    {isApprovePending
-                      ? "Approving"
-                      : isApproveCompleted
-                      ? "Approve successful"
-                      : "Approve Token"}
-                  </Button>
-                )}
-              </>
-            )}
-          </Column>
-        </ContentBox>
-      </Row>
-      <Spacer />
-    </FadeInOut>
+                    <Column style={{ width: "100%", gap: ".5rem" }}>
+                      <Row style={{ justifyContent: "space-between" }}>
+                        <Typo2 style={{ color: "#84888d" }}>
+                          Current Bridgeable Range
+                        </Typo2>
+                        <Typo2>
+                          {selectedToken
+                            ? `${formatSimpleValue(
+                                selectedToken.MinimumSwap
+                              )} - ${formatSimpleValue(
+                                selectedToken.MaximumSwap
+                              )} ${selectedToken.symbol}`
+                            : "-"}
+                        </Typo2>
+                      </Row>
+                      <Row style={{ justifyContent: "space-between" }}>
+                        <Typo2 style={{ color: "#84888d" }}>
+                          Max bridge amount
+                        </Typo2>
+                        <Typo2
+                          style={{
+                            color:
+                              inputError === "Above maximum amount"
+                                ? "red"
+                                : "inherit",
+                          }}
+                        >
+                          {selectedToken
+                            ? `${formatSimpleValue(
+                                selectedToken.MaximumSwap
+                              )} ${selectedToken.symbol}`
+                            : "-"}
+                        </Typo2>
+                      </Row>
+                      <Row style={{ justifyContent: "space-between" }}>
+                        <Typo2 style={{ color: "#84888d" }}>
+                          Min Bridge amount
+                        </Typo2>
+                        <Typo2
+                          style={{
+                            color:
+                              inputError === "Below minimum amount"
+                                ? "red"
+                                : "inherit",
+                          }}
+                        >
+                          {selectedToken
+                            ? `${formatSimpleValue(
+                                selectedToken.MinimumSwap
+                              )} ${selectedToken.symbol}`
+                            : "-"}
+                        </Typo2>
+                      </Row>
+                      <Row style={{ justifyContent: "space-between" }}>
+                        <Typo2 style={{ color: "#84888d" }}>Minimum fee</Typo2>
+                        <Typo2>
+                          {selectedToken
+                            ? `${formatSimpleValue(
+                                selectedToken.MinimumSwapFee
+                              )} ${selectedToken.symbol}`
+                            : "-"}
+                        </Typo2>
+                      </Row>
+                    </Column>
+                  </ContentBox>
+                  <Spacer />
+                  <Typo3>
+                    {selectedToken
+                      ? `* Amounts greater than ${formatSimpleValue(
+                          selectedToken.BigValueThreshold
+                        )} ${selectedToken.symbol} could
+                  take up to 12 hours`
+                      : ""}
+                  </Typo3>
+                  <Spacer />
+                  {isApproved ? (
+                    <Button
+                      disabled={
+                        inputError ||
+                        !amount ||
+                        walletContext.activeWallet.chainId !== fromChain
+                      }
+                      variant="primary"
+                      onClick={handleBridgeAction}
+                    >
+                      {isBridgeTxPending
+                        ? "Broadcasting transaction"
+                        : "Bridge Token"}
+                    </Button>
+                  ) : (
+                    <Button variant="primary" onClick={handleApproveToken}>
+                      {isApprovePending
+                        ? "Approving"
+                        : isApproveCompleted
+                        ? "Approve successful"
+                        : "Approve Token"}
+                    </Button>
+                  )}
+                </>
+              )}
+            </Column>
+          </ContentBox>
+        </Row>
+        <Spacer />
+      </FadeInOut>
+    </ErrorBoundary>
   );
 };
 
