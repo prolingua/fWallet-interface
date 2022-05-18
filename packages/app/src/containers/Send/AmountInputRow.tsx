@@ -31,7 +31,9 @@ const AmountInputRow: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [inputValue, setInputValue] = useState(
     initialInputValue
-      ? weiToMaxUnit(initialInputValue.toString(), token.decimals).toString()
+      ? parseFloat(
+          weiToMaxUnit(initialInputValue.toString(), token.decimals)
+        ).toString()
       : ""
   );
   const [fiatValue, setFiatValue] = useState(null);

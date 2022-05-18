@@ -17,7 +17,7 @@ import useFantomApiData from "../../hooks/useFantomApiData";
 import useTokenPrice from "../../hooks/useTokenPrice";
 
 const AccountSnapshot: React.FC<any> = () => {
-  const { getCoinsList, getPrice } = useCoingeckoApi();
+  const { getCoinsList, getPrice, getCoinInfo } = useCoingeckoApi();
   const { apiData: fantomApiData } = useFantomApiData();
   const { apiData } = useApiData();
   const ftmTokenList =

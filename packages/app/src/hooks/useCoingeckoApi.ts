@@ -46,10 +46,26 @@ const useCoingeckoApi = () => {
     });
   };
 
+  const getCoinInfo = (code: string) => {
+    return get({
+      path: COINGECKO_METHODS.GET_MARKET_CHART,
+      params: [code],
+      queryParams: [
+        ["localization", false],
+        ["tickers", false],
+        ["market_data", false],
+        ["community_data", false],
+        ["developer_data", false],
+        ["sparkline", false],
+      ],
+    });
+  };
+
   return {
     getPrice,
     getMarketHistory,
     getCoinsList,
+    getCoinInfo,
   };
 };
 

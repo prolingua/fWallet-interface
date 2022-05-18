@@ -61,7 +61,6 @@ const SendTokensContent: React.FC<any> = ({
         18
       )
     : ["", ""];
-
   const isNative = tokenSelected.symbol === "FTM";
   const [txHash, setTxHash] = useState(null);
   const tx = transaction[txHash];

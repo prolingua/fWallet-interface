@@ -10,6 +10,10 @@ export const TokenPriceProvider: React.FC = ({ children }) => {
         return {
           ...action.tokens,
         };
+      // case "setTokenImages":
+      //   return {
+      //     ...action.tokens,
+      //   };
       default:
         return state;
     }
