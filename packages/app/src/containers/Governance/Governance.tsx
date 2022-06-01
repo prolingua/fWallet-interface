@@ -26,7 +26,7 @@ import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
 import ErrorBoundary from "../../components/ErrorBoundary";
 
-const CategorySwitch: React.FC<any> = ({
+export const CategorySwitch: React.FC<any> = ({
   categories,
   activeCategory,
   setActiveCategory,

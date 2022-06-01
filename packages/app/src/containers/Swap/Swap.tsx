@@ -50,7 +50,14 @@ import { formatDate } from "../../utils/common";
 import FadeInOut from "../../components/AnimationFade";
 import useDetectResolutionType from "../../hooks/useDetectResolutionType";
 import openoceanImg from "../../assets/img/icons/openocean.svg";
+import orionprotocolImg from "../../assets/img/icons/orionprotocol.svg";
 import ErrorBoundary from "../../components/ErrorBoundary";
+
+import { simpleFetch } from "@orionprotocol/sdk";
+import { CategorySwitch } from "../Governance/Governance";
+import useOrionProtocolSDK from "../../hooks/useOrionProtocolSDK";
+import useAggregator from "../../hooks/useAggregator";
+import InputInteger from "../../components/InputInteger/InputInteger";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -62,6 +69,7 @@ const SwapTokenInput: React.FC<any> = ({
   disableMaximum,
   disabledInput,
   refetchTimer,
+  min,
 }) => {
   const { color } = useContext(ThemeContext);
   const { getTokenBalance } = useFantomERC20();
@@ -125,6 +133,18 @@ const SwapTokenInput: React.FC<any> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, refetchTimer]);
+
+  useEffect(() => {
+    if (!min && error && error.includes("Minimum of")) {
+      return setError(null);
+    }
+    if (min && inputValue >= min && error === `Minimum of ${min} required`) {
+      return setError(null);
+    }
+    if (min && inputValue < min) {
+      return setError(`Minimum of ${min} required`);
+    }
+  }, [inputValue, min]);
 
   return (
     <Column>
@@ -197,42 +217,47 @@ const SwapTokensContent: React.FC<any> = ({
   setActiveTokens,
   setSwapRoute,
   refetchTimer,
+  aggregator,
 }) => {
   const { color } = useContext(ThemeContext);
-  const { walletContext } = useWalletProvider();
-  const { sendTx } = useFantomNative();
   const { getAllowance, approve } = useFantomERC20();
-  const { getSwapQuote, getQuote } = useOpenOceanApi();
+  const {
+    quoteData,
+    swapQuoteData,
+    swapContractAddress,
+    swapTxFunc,
+    inToken,
+    setInToken,
+    outToken,
+    setOutToken,
+    inTokenAmount,
+    setInTokenAmount,
+    allowance,
+    setAllowance,
+    slippage,
+    setSlippage,
+  } = useAggregator(aggregator);
   const { getPrice } = useCoingeckoApi();
   const { apiData } = useApiData();
-  const OOQuoteData =
-    apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_QUOTE]?.response?.data
-      ?.data;
-  const OOSwapQuoteData =
-    apiData[OPENOCEAN_BASEURL + OPENOCEAN_METHODS.GET_SWAP_QUOTE]?.response
-      ?.data?.data;
-  const tokenPriceData =
-    apiData[COINGECKO_BASEURL + COINGECKO_METHODS.GET_PRICE + "-swap"]?.response
-      ?.data;
-
-  const [inToken, setInToken] = useState(null);
-  const [outToken, setOutToken] = useState(null);
-  const [inTokenAmount, setInTokenAmount] = useState("1");
   const [outTokenAmount, setOutTokenAmount] = useState("");
   const [estimatedGas, setEstimatedGas] = useState(null);
   const [priceImpact, setPriceImpact] = useState(null);
   const [minReceived, setMinReceived] = useState(null);
-  const [allowance, setAllowance] = useState(BigNumber.from(0));
+  const [minInAmount, setMinInAmount] = useState(0);
 
-  const hasAllowance = (value: BigNumber) => {
+  const hasAllowance = () => {
     if (inToken?.decimals) {
       if (inToken.address === "0x0000000000000000000000000000000000000000") {
         if (isApproveCompleted) {
           resetApproveTx();
         }
+
         return true;
       }
-      return value.gte(unitToWei(inTokenAmount, inToken.decimals));
+      if (allowance.eq(0)) {
+        return false;
+      }
+      return allowance.gte(unitToWei(inTokenAmount, inToken.decimals));
     }
     return false;
   };
@@ -245,7 +270,7 @@ const SwapTokensContent: React.FC<any> = ({
   } = useSendTransaction(() =>
     approve(
       inToken.address,
-      addresses[parseInt(config.chainId)]["openOceanExchange"],
+      swapContractAddress,
       unitToWei(inTokenAmount, inToken.decimals).toString()
     )
   );
@@ -255,18 +280,7 @@ const SwapTokensContent: React.FC<any> = ({
     isPending: isSwapPending,
     isCompleted: isSwapCompleted,
     reset: resetSwapTx,
-  } = useSendTransaction(() =>
-    sendTx(
-      OOSwapQuoteData.to,
-      Math.floor(OOSwapQuoteData.estimatedGas * 1.5),
-      +OOSwapQuoteData.gasPrice * 2,
-      OOSwapQuoteData.data,
-      OOSwapQuoteData.inToken.address ===
-        "0x0000000000000000000000000000000000000000"
-        ? OOSwapQuoteData.value
-        : null
-    )
-  );
+  } = useSendTransaction(swapTxFunc);
 
   const handleSwapInOut = () => {
     setInTokenAmount("1");
@@ -274,6 +288,7 @@ const SwapTokensContent: React.FC<any> = ({
     setEstimatedGas(null);
     setMinReceived(null);
     setPriceImpact(null);
+    setMinInAmount(0);
     setInToken(outToken);
     setOutToken(inToken);
   };
@@ -296,10 +311,11 @@ const SwapTokensContent: React.FC<any> = ({
     setOutTokenAmount("");
     setMinReceived(null);
     setPriceImpact(null);
+    setMinInAmount(0);
     if (inTokenAmount === "") {
       setEstimatedGas(null);
     }
-  }, [inTokenAmount]);
+  }, [inTokenAmount, aggregator]);
 
   useEffect(() => {
     if (inToken) {
@@ -321,118 +337,112 @@ const SwapTokensContent: React.FC<any> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSwapCompleted]);
 
-  useEffect(() => {
-    if (inToken && outToken && parseFloat(inTokenAmount) > 0) {
-      getQuote(inToken, outToken, inTokenAmount, 2);
-      getSwapQuote(
-        inToken,
-        outToken,
-        inTokenAmount,
-        2,
-        walletContext.activeWallet.address
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inToken, outToken, inTokenAmount, refetchTimer]);
-
-  useEffect(() => {
-    if (
-      inToken &&
-      outToken &&
-      OOSwapQuoteData &&
-      parseFloat(inTokenAmount) > 0
-    ) {
-      getPrice([inToken.code, outToken.code], "usd", "swap");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inToken, outToken, OOSwapQuoteData]);
+  const tokenPriceData =
+    apiData[COINGECKO_BASEURL + COINGECKO_METHODS.GET_PRICE + "-swap"]?.response
+      ?.data;
 
   useEffect(() => {
     if (inToken && outToken && parseFloat(inTokenAmount) > 0) {
       if (inToken.address === "0x0000000000000000000000000000000000000000") {
         return;
       }
-      getAllowance(
-        inToken.address,
-        addresses[parseInt(config.chainId)]["openOceanExchange"]
-      ).then((result) => {
+      getAllowance(inToken.address, swapContractAddress).then((result) => {
         setAllowance(result);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inToken, outToken, inTokenAmount, isApproveCompleted, refetchTimer]);
 
+  // Fetch price data from CoinGecko
   useEffect(() => {
-    if (
-      OOSwapQuoteData &&
-      outToken?.decimals &&
-      parseFloat(inTokenAmount) > 0
-    ) {
+    if (inToken && outToken && swapQuoteData && parseFloat(inTokenAmount) > 0) {
+      getPrice([inToken.code, outToken.code], "usd", "swap");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inToken, outToken]);
+
+  useEffect(() => {
+    if (swapQuoteData && outToken?.decimals && parseFloat(inTokenAmount) > 0) {
       // Only update if the data fetched is still representative
       if (
         parseFloat(inTokenAmount).toFixed(4) ===
         parseFloat(
-          weiToUnit(BigNumber.from(OOSwapQuoteData.inAmount)).toString()
+          weiToUnit(
+            BigNumber.from(swapQuoteData.inAmount),
+            inToken.decimals
+          ).toString()
         ).toFixed(4)
       ) {
-        // setOutTokenAmount(
-        //   weiToUnit(
-        //     BigNumber.from(OOSwapQuoteData.outAmount),
-        //     outToken.decimals
-        //   ).toString()
-        // );
-
-        setMinReceived(
-          weiToUnit(
-            BigNumber.from(OOSwapQuoteData.minOutAmount),
-            outToken.decimals
-          ).toString()
-        );
-        setEstimatedGas(
-          weiToUnit(
-            BigNumber.from(OOSwapQuoteData.estimatedGas).mul(
-              BigNumber.from(OOSwapQuoteData.gasPrice)
-            )
-          ).toString()
-        );
+        if (
+          swapQuoteData.minOutAmount > 0 &&
+          swapQuoteData.aggregator === aggregator
+        ) {
+          setMinReceived(
+            weiToUnit(
+              BigNumber.from(swapQuoteData.minOutAmount),
+              outToken.decimals
+            ).toString()
+          );
+          setEstimatedGas(
+            weiToUnit(
+              BigNumber.from(swapQuoteData.estimatedGas).mul(
+                BigNumber.from(swapQuoteData.gasPrice)
+              )
+            ).toString()
+          );
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OOSwapQuoteData]);
+  }, [swapQuoteData]);
 
   useEffect(() => {
-    if (OOQuoteData && outToken?.decimals && parseFloat(inTokenAmount) > 0) {
+    if (quoteData && outToken?.decimals && parseFloat(inTokenAmount) > 0) {
       if (
+        aggregator === "OO" &&
         parseFloat(inTokenAmount).toFixed(4) ===
-        parseFloat(OOQuoteData.inAmount).toFixed(4)
+          parseFloat(quoteData.inAmount).toFixed(4)
       ) {
-        setOutTokenAmount(OOQuoteData.outAmount);
+        setOutTokenAmount(quoteData.outAmount);
+        setSwapRoute(quoteData.path);
+      }
+      if (aggregator === "OP" && quoteData.aggregator === aggregator) {
+        if (parseFloat(quoteData?.outAmount) > 0) {
+          setOutTokenAmount(
+            weiToUnit(
+              BigNumber.from(quoteData.outAmount),
+              outToken.decimals
+            ).toString()
+          );
+        }
 
-        setSwapRoute(OOQuoteData.path);
+        setMinInAmount(
+          weiToUnit(BigNumber.from(quoteData.minAmountIn), inToken.decimals)
+        );
+        setSwapRoute(quoteData.path);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OOQuoteData]);
+  }, [quoteData]);
 
   useEffect(() => {
     if (
-      OOSwapQuoteData &&
+      swapQuoteData &&
       tokenPriceData &&
       parseFloat(inTokenAmount) > 0 &&
       parseFloat(outTokenAmount) > 0
     ) {
       const inTokenAmount = weiToUnit(
-        BigNumber.from(OOSwapQuoteData.inAmount),
+        BigNumber.from(swapQuoteData.inAmount),
         inToken.decimals
       );
       const outTokenAmount = weiToUnit(
-        BigNumber.from(OOSwapQuoteData.outAmount),
+        BigNumber.from(swapQuoteData.outAmount),
         outToken.decimals
       );
 
       const inTokenPrice = tokenPriceData[inToken.code]["usd"];
       const outTokenPrice = tokenPriceData[outToken.code]["usd"];
-      // console.log(inTokenAmount, outTokenAmount, inTokenPrice, outTokenPrice);
       const priceImpact =
         (inTokenAmount * inTokenPrice - outTokenAmount * outTokenPrice) /
         (inTokenAmount * inTokenPrice);
@@ -440,7 +450,7 @@ const SwapTokensContent: React.FC<any> = ({
       setPriceImpact(priceImpact * 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OOSwapQuoteData, tokenPriceData]);
+  }, [swapQuoteData, tokenPriceData]);
 
   return (
     <ContentBox>
@@ -465,9 +475,15 @@ const SwapTokensContent: React.FC<any> = ({
               <Typo3
                 style={{ color: "#67748B", padding: ".5rem 0 .5rem 1rem" }}
               >
-                Powered by OpenOcean
+                {aggregator === "OO"
+                  ? "Powered by OpenOcean"
+                  : "Powered by OrionProtocol"}
               </Typo3>
-              <img alt="openocean" src={openoceanImg} />
+              <img
+                style={{ width: "33px", height: "33px", zIndex: 1 }}
+                alt="aggregator"
+                src={aggregator === "OO" ? openoceanImg : orionprotocolImg}
+              />
             </Row>
           </div>
         </Row>
@@ -482,9 +498,9 @@ const SwapTokensContent: React.FC<any> = ({
             title={"Pay"}
             refetchTimer={refetchTimer}
             disabledInput={isSwapPending || isSwapCompleted}
+            min={minInAmount}
           />
         )}
-
         <Spacer size="lg" />
         <Row style={{ justifyContent: "center", alignItems: "center" }}>
           <div
@@ -522,34 +538,50 @@ const SwapTokensContent: React.FC<any> = ({
             refetchTimer={refetchTimer}
           />
         )}
-        <Spacer size="lg" />
-        <Spacer />
-        {hasAllowance(allowance) ? (
-          <Button
-            variant="primary"
-            onClick={handleSwap}
-            disabled={isSwapPending || isSwapCompleted || !minReceived}
-          >
-            {isSwapPending
-              ? "Swapping..."
-              : isSwapCompleted
-              ? "Swap successful"
-              : !minReceived
-              ? "Fetching best price..."
-              : "Swap"}
-          </Button>
+        {hasAllowance() ? (
+          <>
+            <Row style={{ justifyContent: "end" }}>
+              <InputInteger
+                title="Slippage"
+                value={slippage}
+                setValue={setSlippage}
+                min={0.1}
+                max={5}
+                valueName="%"
+                type="minimal"
+                setError={() => console.log}
+              />
+            </Row>
+            <Spacer />
+            <Button
+              variant="primary"
+              onClick={handleSwap}
+              disabled={isSwapPending || isSwapCompleted || !minReceived}
+            >
+              {isSwapPending
+                ? "Swapping..."
+                : isSwapCompleted
+                ? "Swap successful"
+                : !minReceived
+                ? "Fetching best price..."
+                : "Swap"}
+            </Button>
+          </>
         ) : (
-          <Button
-            variant="primary"
-            onClick={handleApprove}
-            disabled={isApproveCompleted || isApprovePending}
-          >
-            {isApprovePending
-              ? "Approving..."
-              : isApproveCompleted
-              ? "Approved!"
-              : "Approve"}
-          </Button>
+          <>
+            <Spacer size="lg" />
+            <Button
+              variant="primary"
+              onClick={handleApprove}
+              disabled={isApproveCompleted || isApprovePending}
+            >
+              {isApprovePending
+                ? "Approving..."
+                : isApproveCompleted
+                ? "Approved!"
+                : "Approve"}
+            </Button>
+          </>
         )}
         {/*{tx && tx.error ? (*/}
         {/*  <>*/}
@@ -763,8 +795,13 @@ const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer, width }) => {
   );
 };
 
-const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
-  const RouteBox = (part: any, first: boolean) => {
+const SwapRoute: React.FC<any> = ({
+  aggregator,
+  route,
+  tokenList,
+  activeTokens,
+}) => {
+  const RouteBoxOO = (part: any, first: boolean) => {
     const token = tokenList.find(
       (token: any) =>
         token.address.toLowerCase() ===
@@ -791,6 +828,32 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
     );
   };
 
+  const RouteBoxOP = (symbol: string) => {
+    const token = tokenList.find(
+      (token: any) => token.symbol.toLowerCase() === symbol.toLowerCase()
+    );
+    return (
+      <ContentBox
+        key={`route-column-${symbol}`}
+        style={{ padding: ".5rem", width: "150px" }}
+      >
+        <Row
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          <img
+            alt=""
+            style={{ height: "32px", width: "32px" }}
+            src={token?.icon}
+          />
+        </Row>
+      </ContentBox>
+    );
+  };
+
   return (
     <Column style={{ width: "100%" }}>
       <Heading3>Routing</Heading3>
@@ -808,22 +871,32 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
           />
         </Row>
         <Column style={{ gap: ".2rem" }}>
-          {route?.routes.map((routePart: any) => {
-            return (
-              <Row
-                key={`route-row-${routePart.parts}`}
-                style={{
-                  gap: ".2rem",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                }}
-              >
-                {routePart.subRoutes.map((subRoutePart: any, index: number) => {
-                  return RouteBox(subRoutePart, index === 0);
-                })}
-              </Row>
-            );
-          })}
+          {aggregator === "OO" &&
+            route?.routes?.map((routePart: any) => {
+              return (
+                <Row
+                  key={`route-row-${routePart.parts}`}
+                  style={{
+                    gap: ".2rem",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                  }}
+                >
+                  {routePart.subRoutes.map(
+                    (subRoutePart: any, index: number) => {
+                      return RouteBoxOO(subRoutePart, index === 0);
+                    }
+                  )}
+                </Row>
+              );
+            })}
+          {aggregator === "OP" && route?.length && (
+            <Row>
+              {route?.map((symbol: string) => {
+                return RouteBoxOP(symbol);
+              })}
+            </Row>
+          )}
         </Column>
         <Row style={{ alignItems: "center" }}>
           <div
@@ -842,12 +915,14 @@ const SwapRoute: React.FC<any> = ({ route, tokenList, activeTokens }) => {
 };
 
 const Swap: React.FC<any> = () => {
+  const { getTokenBalance } = useFantomERC20();
   const { getTokenList } = useOpenOceanApi();
   const { walletContext } = useWalletProvider();
   const { apiData: fantomApiData } = useFantomApiData();
   const { width } = useDetectResolutionType();
   const { apiData } = useApiData();
   const [tokenList, setTokenList] = useState(null);
+  const [switchTokenList, setSwitchTokenList] = useState([]);
   const [activeTokens, setActiveTokens] = useState([
     {
       address: "0x0000000000000000000000000000000000000000",
@@ -868,6 +943,7 @@ const Swap: React.FC<any> = () => {
   ]);
   const [swapRoute, setSwapRoute] = useState(null);
   const [refetchTimer, setRefetchTimer] = useState(0);
+  const [aggregator, setAggregator] = useState("OO");
   const activeAddress = walletContext.activeWallet.address
     ? walletContext.activeWallet.address.toLowerCase()
     : null;
@@ -939,13 +1015,101 @@ const Swap: React.FC<any> = () => {
         })
       );
     }
-  }, [assetsListData, OOTokenListData, accountFantomBalanceData]);
+  }, [assetsListData, OOTokenListData, accountFantomBalanceData, aggregator]);
 
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market_chart?vs_currency=usd&days=60
   //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
+
+  // Integrate ORION
+  const { orionUnit } = useOrionProtocolSDK();
+  const { orionBlockchain, orionAggregator } = orionUnit;
+
+  useEffect(() => {
+    if (!tokenList) {
+      return;
+    }
+
+    const fetchPairsPromise = simpleFetch(orionAggregator.getPairsList)();
+    const fetchChainInfoPromise = simpleFetch(orionBlockchain.getInfo)();
+    const fetchOrnBalancePromise = getTokenBalance(
+      "0xd2cdcb6bdee6f78de7988a6a60d13f6ef0b576d9"
+    );
+
+    Promise.all([
+      fetchPairsPromise,
+      fetchChainInfoPromise,
+      fetchOrnBalancePromise,
+    ]).then(([pairs, info, ornBalance]) => {
+      if (aggregator === "OO") {
+        return setSwitchTokenList(tokenList);
+      }
+
+      const allTokens = pairs.flatMap((pair: string) => {
+        return pair.split("-");
+      });
+      const uniqueTokens = [...new Set(allTokens)];
+
+      // TODO migrate to own tokenlist instead of using OO and mutating
+      const OOTokenSymbol = (token: string) => {
+        if (token === "USDT") {
+          return "fUSDT";
+        }
+        if (token === "ETH") {
+          return "WETH";
+        }
+        return token;
+      };
+
+      const swapTokenList = uniqueTokens.map((token) => {
+        let OOToken = tokenList.find(
+          (ooToken: any) =>
+            ooToken.symbol.toLowerCase() === OOTokenSymbol(token).toLowerCase()
+        );
+
+        if (!OOToken) {
+          if (token === "ORN") {
+            // getTokenBalance(info.assetToAddress[token]).then((balance) => {
+            OOToken = {
+              code: "orion-protocol",
+              logoURL:
+                "https://assets.coingecko.com/coins/images/11841/small/orion_logo.png?1594943318",
+              balanceOf: ornBalance,
+            };
+            // });
+          } else {
+            console.warn(`[Swap][Orion] OOToken not found for ${token}`);
+            return null;
+          }
+        }
+
+        return {
+          address: info.assetToAddress[token],
+          code: OOToken.code,
+          balanceOf: OOToken.balanceOf,
+          decimals: info.assetToDecimals[token],
+          logoURL: OOToken.logoURL,
+          icon: OOToken.logoURL,
+          name: token,
+          symbol: token,
+        };
+      });
+
+      setSwitchTokenList(swapTokenList);
+    });
+  }, [tokenList, aggregator]);
+
+  useEffect(() => {
+    setSwapRoute(null);
+  }, [aggregator]);
+
   return (
     <ErrorBoundary name="[Swap]">
       <FadeInOut>
+        <CategorySwitch
+          categories={["OO", "OP"]}
+          activeCategory={aggregator}
+          setActiveCategory={setAggregator}
+        />
         <Row
           style={{
             gap: "2rem",
@@ -954,23 +1118,27 @@ const Swap: React.FC<any> = () => {
           }}
         >
           <SwapTokensContent
-            tokenList={tokenList}
+            tokenList={switchTokenList}
             setActiveTokens={setActiveTokens}
             setSwapRoute={setSwapRoute}
             refetchTimer={refetchTimer}
+            aggregator={aggregator}
           />
           <Column style={{ flex: 2, minWidth: "500px" }}>
-            <TokenChart
-              width={width}
-              activeTokens={activeTokens}
-              refetchTimer={refetchTimer}
-            />
-            <Spacer />
-            <SwapRoute
-              route={swapRoute}
-              tokenList={tokenList}
-              activeTokens={activeTokens}
-            />
+            <FadeInOut>
+              <TokenChart
+                width={width}
+                activeTokens={activeTokens}
+                refetchTimer={refetchTimer}
+              />
+              <Spacer />
+              <SwapRoute
+                route={swapRoute}
+                tokenList={tokenList}
+                activeTokens={activeTokens}
+                aggregator={aggregator}
+              />
+            </FadeInOut>
           </Column>
         </Row>
         <Spacer />

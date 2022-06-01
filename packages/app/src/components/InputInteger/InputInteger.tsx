@@ -4,6 +4,7 @@ import Row from "../Row";
 import { Input, Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import Spacer from "../Spacer";
+import ColumnOrRow from "../ColumnOrRow";
 
 const InputInteger: React.FC<any> = ({
   title,
@@ -14,6 +15,7 @@ const InputInteger: React.FC<any> = ({
   setError,
   placeholder,
   valueName = "value",
+  type = "default",
 }) => {
   const { color } = useContext(ThemeContext);
 
@@ -41,8 +43,13 @@ const InputInteger: React.FC<any> = ({
     }
   };
 
+  const inputSize = type === "minimal" ? "2rem" : "4rem";
+
   return (
-    <Column>
+    <ColumnOrRow
+      row={type === "minimal"}
+      style={{ alignItems: type === "minimal" && "center" }}
+    >
       <Row>
         <Typo2 style={{ fontWeight: "bold", color: color.greys.grey() }}>
           {title}
@@ -54,12 +61,16 @@ const InputInteger: React.FC<any> = ({
           style={{
             backgroundColor: "#202F49",
             borderRadius: "8px",
-            height: "4rem",
-            width: "4rem",
+            height: inputSize,
+            width: inputSize,
           }}
         >
           <Input
-            style={{ textAlign: "center", width: "100%" }}
+            style={{
+              textAlign: "center",
+              width: "100%",
+              fontSize: type === "minimal" ? "16px" : "inherit",
+            }}
             type="number"
             value={value}
             onChange={(event) => {
@@ -75,10 +86,12 @@ const InputInteger: React.FC<any> = ({
         <Typo1 style={{ color: color.greys.darkGrey() }}>{valueName}</Typo1>
       </Row>
       <Spacer size="xs" />
-      <Typo3
-        style={{ color: color.greys.darkGrey() }}
-      >{`min ${min} - max ${max}`}</Typo3>
-    </Column>
+      {type !== "minimal" && (
+        <Typo3
+          style={{ color: color.greys.darkGrey() }}
+        >{`min ${min} - max ${max}`}</Typo3>
+      )}
+    </ColumnOrRow>
   );
 };
 

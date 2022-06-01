@@ -59,6 +59,7 @@ const AccountSnapshot: React.FC<any> = () => {
       const allPricedTokens = cgCoinMapping.filter((coin: any) =>
         cgCoinIdList.includes(coin.id)
       );
+
       Promise.all(getPricePromises).then(([usd, eur]) => {
         const tokenPrices = {} as any;
         allPricedTokens.forEach((token: any) => {

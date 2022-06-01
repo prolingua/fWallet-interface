@@ -22,6 +22,7 @@ const useCoingeckoApi = () => {
         ["vs_currencies", currency],
         ["ids", tokens.join(",")],
       ],
+      slug,
     });
   };
 
