@@ -1,5 +1,73 @@
 import styled from "styled-components";
 
+export type MediaSizes = "xs" | "sm" | "md" | "lg";
+export const mediaExact = {
+  xs: (styles: any) => `
+  @media only screen and (min-width: 240px) and (max-width: 480px) {
+    ${styles}
+  }
+  `,
+  sm: (styles: any) => `
+  @media only screen and (min-width: 481px) and (max-width: 768px) {
+    ${styles}
+  }
+  `,
+  md: (styles: any) => `
+  @media only screen and (min-width: 769px) and (max-width: 1024px) {
+    ${styles}
+  }
+  `,
+  lg: (styles: any) => `
+  @media only screen and (min-width: 1025px) {
+    ${styles}
+  }
+  `,
+} as any;
+export const mediaTill = {
+  xs: (styles: any) => `
+  @media only screen and (max-width: 480px) {
+    ${styles}
+  }
+  `,
+  sm: (styles: any) => `
+  @media only screen and (max-width: 768px) {
+    ${styles}
+  }
+  `,
+  md: (styles: any) => `
+  @media only screen and (max-width: 1024px) {
+    ${styles}
+  }
+  `,
+  lg: (styles: any) => `
+  @media only screen and (min-width: 1025px) {
+    ${styles}
+  }
+  `,
+} as any;
+export const mediaFrom = {
+  xs: (styles: any) => `
+  @media only screen and (min-width: 240px) {
+    ${styles}
+  }
+  `,
+  sm: (styles: any) => `
+  @media only screen and (min-width: 481px) {
+    ${styles}
+  }
+  `,
+  md: (styles: any) => `
+  @media only screen and (min-width: 769px) {
+    ${styles}
+  }
+  `,
+  lg: (styles: any) => `
+  @media only screen and (min-width: 1025px) {
+    ${styles}
+  }
+  `,
+} as any;
+
 export const Header = styled.div`
   font-family: "proxima-nova", sans-serif;
   background-color: ${(props) => props.theme.color.primary.black()};
@@ -55,30 +123,48 @@ export const LinkExt = styled.a.attrs({
 `;
 
 export const Heading1 = styled.div`
-  font-size: 32px;
   font-weight: bold;
+  ${mediaExact.xs(`font-size: 20px`)}
+  ${mediaExact.sm(`font-size: 24px`)}
+  ${mediaExact.md(`font-size: 28px`)}
+  ${mediaExact.lg(`font-size: 32px`)}
 `;
 
 export const Heading2 = styled.div`
-  font-size: 26px;
   font-weight: bold;
+  ${mediaExact.xs(`font-size: 16px`)}
+  ${mediaExact.sm(`font-size: 18px`)}
+  ${mediaExact.md(`font-size: 20px`)}
+  ${mediaExact.lg(`font-size: 26px`)}
 `;
 
 export const Heading3 = styled.div`
-  font-size: 20px;
   font-weight: bold;
+  ${mediaExact.xs(`font-size: 12px`)}
+  ${mediaExact.sm(`font-size: 14px`)}
+  ${mediaExact.md(`font-size: 16px`)}
+  ${mediaExact.lg(`font-size: 20px`)}
 `;
 
 export const Typo1 = styled.div`
-  font-size: 18px;
+  ${mediaExact.xs(`font-size: 16px`)}
+  ${mediaExact.sm(`font-size: 16px`)}
+  ${mediaExact.md(`font-size: 18px`)}
+  ${mediaExact.lg(`font-size: 18px`)}
 `;
 
 export const Typo2 = styled.div`
-  font-size: 16px;
+  ${mediaExact.xs(`font-size: 14px`)}
+  ${mediaExact.sm(`font-size: 14px`)}
+  ${mediaExact.md(`font-size: 16px`)}
+  ${mediaExact.lg(`font-size: 16px`)}
 `;
 
 export const Typo3 = styled.div`
-  font-size: 14px;
+  ${mediaExact.xs(`font-size: 12px`)}
+  ${mediaExact.sm(`font-size: 12px`)}
+  ${mediaExact.md(`font-size: 14px`)}
+  ${mediaExact.lg(`font-size: 14px`)}
 `;
 
 export const OverlayButton = styled.button<{ disabled?: boolean }>`

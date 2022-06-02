@@ -1,16 +1,28 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
 import ModalClose from "../ModalClose";
+import { mediaExact, mediaFrom, mediaTill } from "../index";
+import { Item } from "../Grid/Grid";
+import ModalBack from "../ModalBack";
 
 export interface ModalProps {
   onDismiss?: () => void;
 }
 
-const Modal: React.FC<any> = ({ children, style, onDismiss }) => {
+const Modal: React.FC<any> = ({ children, style, onDismiss, onBack }) => {
   return (
     <StyledResponsiveWrapper>
       <StyledModal style={{ ...style }}>
-        {onDismiss && <ModalClose onDismiss={onDismiss} />}
+        {onBack && (
+          <Item>
+            <ModalBack onBack={onBack} />
+          </Item>
+        )}
+        {onDismiss && (
+          <Item>
+            <ModalClose onDismiss={onDismiss} />
+          </Item>
+        )}
         {children}
       </StyledModal>
     </StyledResponsiveWrapper>
@@ -26,22 +38,20 @@ const mobileKeyframes = keyframes`
   }
 `;
 
+//   animation: ${mobileKeyframes} 0.3s forwards ease-out;
+//   max-width: 100vw;
+
 const StyledResponsiveWrapper = styled.div<any>`
   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   position: relative;
-
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}px) {
-    flex: 1;
-    top: 100%;
-    right: 0;
-    left: 0;
-    max-height: 100%;
-    animation: ${mobileKeyframes} 0.3s forwards ease-out;
-    max-width: 100vw;
-  }
+  box-sizing: border-box;
+  ${mediaExact.xs(`min-width: 90vw; max-width: 90vw;`)}
+  ${mediaExact.sm(`min-width: 70vw; max-width: 90vw;`)}
+  ${mediaExact.md(`min-width: 500px; max-width: 80vw;`)}
+  ${mediaExact.lg(`min-width: 500px; max-width: 70vw;`)}
 `;
 
 const StyledModal = styled.div<any>`
@@ -57,7 +67,8 @@ const StyledModal = styled.div<any>`
   align-items: center;
   position: relative;
   min-height: 0;
-  min-width: 20rem;
+  // min-width: 20rem;
+  width: 100%;
   z-index: 1;
 `;
 

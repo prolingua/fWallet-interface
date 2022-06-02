@@ -1,8 +1,6 @@
-import Column from "../../components/Column";
 import React, { useContext, useEffect, useState } from "react";
 import styled, { ThemeContext } from "styled-components";
 import OnboardingTopBar from "./OnboardingTopBar";
-import Row from "../../components/Row";
 import {
   Button,
   ContentBox,
@@ -47,6 +45,13 @@ import { useHardwareWallet } from "../../hooks/useHardwareWallet";
 import useLedgerWatcher from "../../hooks/useLedgerWatcher";
 import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
+import { Grid, Row, Column, Item } from "../../components/Grid/Grid";
+import {
+  StyledInnerButton,
+  StyledMnemonicRow,
+  StyledOverlayButton,
+} from "./styled";
+import Scrollbar from "../../components/Scrollbar";
 
 const ConnectPrivateKey: React.FC<any> = ({ onDismiss }) => {
   const { restoreWalletFromPrivateKey } = useSoftwareWallet();
@@ -144,23 +149,29 @@ const ConnectMnemonic: React.FC<any> = ({ onDismiss }) => {
         textArea
         maxLength={false}
       />
-      <Row style={{ flexWrap: "wrap", gap: ".5rem", width: "100%" }}>
+      <Row
+        style={{
+          flexWrap: "wrap",
+          gap: ".5rem",
+          width: "100%",
+          justifyContent: "center",
+        }}
+      >
         {Array(numOfWords)
           .fill("")
           .map((fill, index) => {
             const textArray = text.split(" ");
             return (
-              <Row
+              <StyledMnemonicRow
                 key={`mnemonic-input-${index}`}
                 style={{
-                  width: "24%",
                   height: "4rem",
                   backgroundColor: "#1B283E",
                   borderRadius: "8px",
                   alignItems: "center",
                 }}
               >
-                <Spacer />
+                <Spacer responsive />
                 <Typo2 style={{ color: color.greys.darkGrey() }}>
                   {index + 1}.
                 </Typo2>
@@ -168,7 +179,7 @@ const ConnectMnemonic: React.FC<any> = ({ onDismiss }) => {
                 <Typo2 style={{ color: color.white, fontWeight: "bold" }}>
                   {textArray[index] || ""}
                 </Typo2>
-              </Row>
+              </StyledMnemonicRow>
             );
           })}
       </Row>
@@ -393,15 +404,20 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
   const [selectedSoftware, setSelectedSoftware] = useState(null);
 
   const NotRecommended = (
-    <ContentBox style={{ backgroundColor: "rgba(248, 66, 57, .15)" }}>
+    <ContentBox
+      style={{
+        padding: "1rem 1.5rem",
+        backgroundColor: "rgba(248, 66, 57, .15)",
+      }}
+    >
       <Column>
         <Typo2 style={{ fontWeight: "bold" }}>Not recommended</Typo2>
-        <Spacer size="sm" />
-        <Typo2>
+        <Spacer size="xs" />
+        <Typo3>
           This is not recommended way to access your wallet. Due to the
           sensitivity of the information involved, these options should only be
           used by experienced users.
-        </Typo2>
+        </Typo3>
       </Column>
     </ContentBox>
   );
@@ -409,76 +425,103 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
     <>
       <ModalTitle text="Access by Software" />
       <Column>{NotRecommended}</Column>
-      <Spacer size="xl" />
-      <Row style={{ width: "100%", justifyContent: "space-between" }}>
-        <OverlayButton onClick={() => setSoftware("keystore")}>
-          <ContentBox
+      <Spacer />
+      <Row
+        style={{
+          width: "100%",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: ".5rem",
+        }}
+      >
+        <OverlayButton
+          style={{ padding: 0 }}
+          onClick={() => setSoftware("keystore")}
+        >
+          <StyledInnerButton
             style={{
               backgroundColor: color.primary.black(),
-              width: "15rem",
-              height: "15rem",
-              boxSizing: "border-box",
               border: software === "keystore" && "2px solid #1969FF",
             }}
           >
-            <Column
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <img alt="" src={keystoreFileImg} />
-              <Spacer size="sm" />
-              <Heading3>Keystore file</Heading3>
+            <Column style={{ height: "100%", width: "100%" }}>
+              <Item
+                size={2}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  alt="keystore"
+                  style={{ width: "50%" }}
+                  src={keystoreFileImg}
+                />
+              </Item>
+              <Item size={1}>
+                <Heading3>Keystore file</Heading3>
+              </Item>
             </Column>
-          </ContentBox>
+          </StyledInnerButton>
         </OverlayButton>
-        <OverlayButton onClick={() => setSoftware("mnemonic")}>
-          <ContentBox
+        <OverlayButton
+          style={{ padding: 0 }}
+          onClick={() => setSoftware("mnemonic")}
+        >
+          <StyledInnerButton
             style={{
               backgroundColor: color.primary.black(),
-              width: "15rem",
-              height: "15rem",
-              boxSizing: "border-box",
               border: software === "mnemonic" && "2px solid #1969FF",
             }}
           >
-            <Column
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <img alt="" src={mnemonicImg} />
-              <Spacer size="sm" />
-              <Heading3>Mnemonic Phrase</Heading3>
+            <Column style={{ height: "100%", width: "100%" }}>
+              <Item
+                size={2}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  alt="mnemonic"
+                  style={{ width: "50%" }}
+                  src={mnemonicImg}
+                />
+              </Item>
+              <Item size={1}>
+                <Heading3>Mnemonic Phrase</Heading3>
+              </Item>
             </Column>
-          </ContentBox>
+          </StyledInnerButton>
         </OverlayButton>
-        <OverlayButton onClick={() => setSoftware("pkey")}>
-          <ContentBox
+        <OverlayButton
+          style={{ padding: 0 }}
+          onClick={() => setSoftware("pkey")}
+        >
+          <StyledInnerButton
             style={{
               backgroundColor: color.primary.black(),
-              width: "15rem",
-              height: "15rem",
-              boxSizing: "border-box",
               border: software === "pkey" && "2px solid #1969FF",
             }}
           >
-            <Column
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <img alt="" src={pkeyImg} />
-              <Spacer size="sm" />
-              <Heading3>Private key</Heading3>
+            <Column style={{ height: "100%", width: "100%" }}>
+              <Item
+                size={2}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img alt="pkey" style={{ width: "50%" }} src={pkeyImg} />
+              </Item>
+              <Item size={1}>
+                <Heading3>Private key</Heading3>
+              </Item>
             </Column>
-          </ContentBox>
+          </StyledInnerButton>
         </OverlayButton>
       </Row>
       <Spacer size="xl" />
@@ -494,7 +537,7 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
         {/*  </Typo2>*/}
         {/*</OverlayButton>*/}
       </Column>
-      <Spacer size="xl" />
+      <Spacer />
       <Button
         disabled={!software}
         style={{ width: "100%" }}
@@ -508,7 +551,10 @@ const AccessBySoftwareModal: React.FC<any> = ({ onDismiss, setFlow }) => {
   );
 
   return (
-    <Modal onDismiss={onDismiss} style={{ width: "50rem" }}>
+    <Modal
+      onDismiss={onDismiss}
+      onBack={selectedSoftware ? () => setSelectedSoftware(null) : undefined}
+    >
       {!selectedSoftware && SelectSoftware}
       {selectedSoftware === "pkey" && (
         <ConnectPrivateKey onDismiss={onDismiss} />
@@ -540,19 +586,19 @@ const SelectLedgerAccountModal: React.FC<any> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setLedgerAddresses([]);
-    setIsLoading(true);
-    listAddresses(startingIndex)
-      .then((addresses) => setLedgerAddresses(addresses))
-      .catch(onDismiss)
-      .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startingIndex]);
+  // useEffect(() => {
+  //   setLedgerAddresses([]);
+  //   setIsLoading(true);
+  //   listAddresses(startingIndex)
+  //     .then((addresses) => setLedgerAddresses(addresses))
+  //     .catch(onDismiss)
+  //     .finally(() => setIsLoading(false));
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [startingIndex]);
 
   return (
-    <Modal onDismiss={onDismiss} style={{ minWidth: "35rem" }}>
-      <Heading2>Select ledger account</Heading2>
+    <Modal onDismiss={onDismiss}>
+      <ModalTitle text="Select ledger account" />
       <Spacer />
       <ContentBox
         style={{
@@ -702,153 +748,172 @@ export const AccessWallet: React.FC<any> = ({
   }, [selectedTool]);
 
   return (
-    <Column>
+    <Grid plain>
       {selectedTool !== "keystore" && (
-        <Column>
+        <Grid plain>
           <Spacer size="xxl" />
-          <Heading1 style={{ textAlign: "center" }}>
-            How do you want to access your wallet?
-          </Heading1>
+          <Row>
+            <Item>
+              <Heading1 style={{ textAlign: "center" }}>
+                How do you want to access your wallet?
+              </Heading1>
+            </Item>
+          </Row>
           <Spacer size="xl" />
           <Row
             style={{
-              gap: "1rem",
+              gap: ".5rem",
               flexWrap: "wrap",
-              alignItems: "center",
               justifyContent: "center",
-              margin: "0 2rem",
             }}
           >
-            <StyledOverlayButton onClick={() => handleSetTool("metamask")}>
-              <ContentBox
-                style={{
-                  width: "14rem",
-                  height: "16rem",
-                  boxSizing: "border-box",
-                  border: tool === "metamask" && "2px solid #1969FF",
-                }}
-              >
-                <Column
+            <Row style={{ alignItems: "center" }}>
+              <StyledOverlayButton onClick={() => handleSetTool("metamask")}>
+                <StyledInnerButton
                   style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    border: tool === "metamask" && "2px solid #1969FF",
                   }}
                 >
-                  <img
-                    alt="metamask"
-                    style={{ height: "90px", width: "90px" }}
-                    src={metamaskImg}
-                  />
-                  <Spacer />
-                  <Heading2>Metamask</Heading2>
-                </Column>
-              </ContentBox>
-            </StyledOverlayButton>
-            <StyledOverlayButton onClick={() => handleSetTool("walletConnect")}>
-              <ContentBox
-                style={{
-                  width: "14rem",
-                  height: "16rem",
-                  boxSizing: "border-box",
-                  border: tool === "walletConnect" && "2px solid #1969FF",
-                }}
+                  <Column style={{ height: "100%", width: "100%" }}>
+                    <Item
+                      size={2}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        alt="metamask"
+                        style={{ width: "50%" }}
+                        src={metamaskImg}
+                      />
+                    </Item>
+                    <Item size={1}>
+                      <Heading2>Metamask</Heading2>
+                    </Item>
+                  </Column>
+                </StyledInnerButton>
+              </StyledOverlayButton>
+            </Row>
+            <Row style={{ alignItems: "center" }}>
+              <StyledOverlayButton
+                onClick={() => handleSetTool("walletConnect")}
               >
-                <Column
+                <StyledInnerButton
                   style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    border: tool === "walletConnect" && "2px solid #1969FF",
                   }}
                 >
-                  <img
-                    alt="wallet-connect"
-                    style={{ height: "90px", width: "90px" }}
-                    src={walletConnectImg}
-                  />
-                  <Spacer />
-                  <Heading2>WalletConnect</Heading2>
-                </Column>
-              </ContentBox>
-            </StyledOverlayButton>
-            <StyledOverlayButton onClick={() => handleSetTool("coinbase")}>
-              <ContentBox
-                style={{
-                  width: "14rem",
-                  height: "16rem",
-                  boxSizing: "border-box",
-                  border: tool === "coinbase" && "2px solid #1969FF",
-                }}
-              >
-                <Column
+                  <Column style={{ height: "100%", width: "100%" }}>
+                    <Item
+                      size={2}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        alt="wallet-connect"
+                        style={{ width: "45%" }}
+                        src={walletConnectImg}
+                      />
+                    </Item>
+                    <Item size={1}>
+                      <Heading2>WalletConnect</Heading2>
+                    </Item>
+                  </Column>
+                </StyledInnerButton>
+              </StyledOverlayButton>
+            </Row>
+            <Row style={{ alignItems: "center", justifyContent: "center" }}>
+              <StyledOverlayButton onClick={() => handleSetTool("coinbase")}>
+                <StyledInnerButton
                   style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    border: tool === "coinbase" && "2px solid #1969FF",
                   }}
                 >
-                  <img
-                    alt="coinbase"
-                    style={{ height: "90px", width: "90px" }}
-                    src={coinbaseImg}
-                  />
-                  <Spacer />
-                  <Heading2>Coinbase</Heading2>
-                </Column>
-              </ContentBox>
-            </StyledOverlayButton>
-            <StyledOverlayButton onClick={() => handleSetTool("ledger")}>
-              <ContentBox
-                style={{
-                  width: "14rem",
-                  height: "16rem",
-                  boxSizing: "border-box",
-                  border: tool === "ledger" && "2px solid #1969FF",
-                }}
-              >
-                <Column
+                  <Column style={{ height: "100%", width: "100%" }}>
+                    <Item
+                      size={2}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        alt="coinbase"
+                        style={{ width: "45%" }}
+                        src={coinbaseImg}
+                      />
+                    </Item>
+                    <Item size={1}>
+                      <Heading2>Coinbase</Heading2>
+                    </Item>
+                  </Column>
+                </StyledInnerButton>
+              </StyledOverlayButton>
+            </Row>
+            <Row style={{ alignItems: "center", justifyContent: "center" }}>
+              <StyledOverlayButton onClick={() => handleSetTool("ledger")}>
+                <StyledInnerButton
                   style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    border: tool === "ledger" && "2px solid #1969FF",
                   }}
                 >
-                  <img
-                    alt="ledger"
-                    style={{ height: "90px", width: "90px" }}
-                    src={ledgerImg}
-                  />
-                  <Spacer />
-                  <Heading2>Ledger</Heading2>
-                </Column>
-              </ContentBox>
-            </StyledOverlayButton>
-            <StyledOverlayButton onClick={() => handleSetTool("keystore")}>
-              <ContentBox
-                style={{
-                  width: "14rem",
-                  height: "16rem",
-                  boxSizing: "border-box",
-                  border: tool === "keystore" && "2px solid #1969FF",
-                }}
-              >
-                <Column
+                  <Column style={{ height: "100%", width: "100%" }}>
+                    <Item
+                      size={2}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        alt="ledger"
+                        style={{ width: "50%" }}
+                        src={ledgerImg}
+                      />
+                    </Item>
+                    <Item size={1}>
+                      <Heading2>Ledger</Heading2>
+                    </Item>
+                  </Column>
+                </StyledInnerButton>
+              </StyledOverlayButton>
+            </Row>
+            <Row style={{ alignItems: "center", justifyContent: "center" }}>
+              <StyledOverlayButton onClick={() => handleSetTool("keystore")}>
+                <StyledInnerButton
                   style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    border: tool === "keystore" && "2px solid #1969FF",
                   }}
                 >
-                  <img
-                    alt="software"
-                    style={{ height: "80px", width: "80px" }}
-                    src={softwareWalletImg}
-                  />
-                  <Spacer />
-                  <Heading2 style={{ paddingTop: "10px" }}>Software</Heading2>
-                </Column>
-              </ContentBox>
-            </StyledOverlayButton>
+                  <Column style={{ height: "100%", width: "100%" }}>
+                    <Item
+                      size={2}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        alt="software"
+                        style={{ width: "45%" }}
+                        src={softwareWalletImg}
+                      />
+                    </Item>
+                    <Item size={1}>
+                      <Heading2>Software</Heading2>
+                    </Item>
+                  </Column>
+                </StyledInnerButton>
+              </StyledOverlayButton>
+            </Row>
           </Row>
           <Spacer size="xl" />
           <Column style={{ alignSelf: "center", alignItems: "center" }}>
@@ -878,7 +943,6 @@ export const AccessWallet: React.FC<any> = ({
                 {/*    Cancel*/}
                 {/*  </Typo1>*/}
                 {/*</OverlayButton>*/}
-                <Spacer size="xl" />
                 <Column
                   style={{
                     marginTop: "auto",
@@ -904,19 +968,11 @@ export const AccessWallet: React.FC<any> = ({
               </>
             )}
           </Column>
-        </Column>
+        </Grid>
       )}
-    </Column>
+    </Grid>
   );
 };
-
-const StyledOverlayButton = styled(OverlayButton)`
-  transition: 0.2s all;
-
-  :hover {
-    transform: ${(props) => !props.disabled && "scale(1.04)"};
-  }
-`;
 
 const CreateOrAccessWallet: React.FC<any> = ({ setFlow }) => {
   const { color } = useContext(ThemeContext);
@@ -1360,37 +1416,34 @@ const OnboardingContent: React.FC<any> = ({ contentFlow, setContentFlow }) => {
 const Onboarding: React.FC<any> = () => {
   const [contentFlow, setContentFlow] = useState("accessWallet");
   return (
-    <Column style={{ width: "100%" }}>
-      <OnboardingTopBar setContentFlow={setContentFlow} />
-      <Column
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          height: "100%",
-        }}
+    <Scrollbar style={{ barColor: "#0e1d37", height: "100vh" }}>
+      <Grid
+        style={{ display: "flex", flexDirection: "column", height: "100%" }}
       >
-        <OnboardingContent
-          setContentFlow={setContentFlow}
-          contentFlow={contentFlow}
-        />
-      </Column>
-      <Row
-        style={{
-          padding: "2rem",
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/*<Typo2 style={{ color: "#707B8F" }}>*/}
-        {/*  By using this application you agree to the*/}
-        {/*</Typo2>*/}
-        {/*<Spacer size="xxs" />*/}
-        {/*<Typo2 style={{ color: color.greys.grey() }}>Terms of Use.</Typo2>*/}
-        <Typo2 style={{ color: "#707B8F" }}>©2022 Fantom Foundation</Typo2>
-      </Row>
-    </Column>
+        <Row>
+          <Item collapseLTE="sm">
+            <OnboardingTopBar setContentFlow={setContentFlow} />
+          </Item>
+        </Row>
+        <Row>
+          <Item>
+            <OnboardingContent
+              setContentFlow={setContentFlow}
+              contentFlow={contentFlow}
+            />
+          </Item>
+        </Row>
+        <Row
+          style={{
+            justifyContent: "center",
+            marginTop: "auto",
+            padding: "1rem 0 .2rem 0",
+          }}
+        >
+          <Typo2 style={{ color: "#707B8F" }}>©2022 Fantom Foundation</Typo2>
+        </Row>
+      </Grid>
+    </Scrollbar>
   );
 };
 

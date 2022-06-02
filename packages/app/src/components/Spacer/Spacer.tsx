@@ -1,11 +1,13 @@
 import React, { useContext } from "react";
 import styled, { ThemeContext } from "styled-components";
+import { mediaExact } from "../index";
 
 interface SpacerProps {
   size?: "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
+  responsive?: boolean;
 }
 
-const Spacer: React.FC<SpacerProps> = ({ size = "md" }) => {
+const Spacer: React.FC<SpacerProps> = ({ size = "md", responsive = false }) => {
   const { spacing } = useContext(ThemeContext);
 
   let s: number;
@@ -33,16 +35,25 @@ const Spacer: React.FC<SpacerProps> = ({ size = "md" }) => {
       s = spacing[4];
   }
 
-  return <StyledSpacer size={s} />;
+  return <StyledSpacer size={s} responsive={responsive} />;
 };
 
 interface StyledSpacerProps {
   size: number;
+  responsive: boolean;
 }
 
 const StyledSpacer = styled.div<StyledSpacerProps>`
   height: ${(props) => props.size}px;
-  width: ${(props) => props.size}px;
+  // width: ${(props) => props.size}px;
+  ${(props) =>
+    props.responsive && mediaExact.xs(`width: ${props.size * 0.7}px;`)}
+  ${(props) =>
+    props.responsive && mediaExact.sm(`width: ${props.size * 0.8}px;`)}
+  ${(props) =>
+    props.responsive && mediaExact.md(`width: ${props.size * 0.9}px;`)}
+  ${(props) => `width: ${props.size}px;`}
+}
 `;
 
 export default Spacer;

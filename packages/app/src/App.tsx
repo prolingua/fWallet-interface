@@ -107,32 +107,32 @@ const AppContent: React.FC<any> = () => {
 const AppContentWithWallet = withConnectedWallet(AppContent);
 
 function App() {
-  const { resolutionType } = useDetectResolutionType();
+  // const { resolutionType } = useDetectResolutionType();
   return (
     <Providers>
       <Body>
         <ErrorBoundary name="/">
-          {resolutionType === "mobile" || resolutionType === "tablet" ? (
-            <Column
-              style={{
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                alt="fwallet"
-                style={{ width: "15rem" }}
-                src={fWalletLogoImg}
-              />
-              <Spacer />
-              <Heading1>Resolution not supported</Heading1>
-              <Heading3>Mobile is coming soon!</Heading3>
-            </Column>
-          ) : (
-            <AppContentWithWallet />
-            // <AppContent />
-          )}
+          {/*{resolutionType === "mobile" || resolutionType === "tablet" ? (*/}
+          {/*  <Column*/}
+          {/*    style={{*/}
+          {/*      width: "100%",*/}
+          {/*      alignItems: "center",*/}
+          {/*      justifyContent: "center",*/}
+          {/*    }}*/}
+          {/*  >*/}
+          {/*    <img*/}
+          {/*      alt="fwallet"*/}
+          {/*      style={{ width: "15rem" }}*/}
+          {/*      src={fWalletLogoImg}*/}
+          {/*    />*/}
+          {/*    <Spacer />*/}
+          {/*    <Heading1>Resolution not supported</Heading1>*/}
+          {/*    <Heading3>Mobile is coming soon!</Heading3>*/}
+          {/*  </Column>*/}
+          {/*) : (*/}
+          <AppContentWithWallet />
+          {/*  <AppContent />*/}
+          {/*)}*/}
         </ErrorBoundary>
       </Body>
     </Providers>
