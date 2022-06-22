@@ -77,6 +77,7 @@ const InputAddress: React.FC<any> = ({
       >
         <Spacer />
         <Input
+          style={{ maxWidth: "80%" }}
           type="text"
           value={value}
           onChange={(event) => {

@@ -27,7 +27,7 @@ const EstimatedFees: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const [estimatedGas, setEstimatedGas] = useState(BigNumber.from(0));
   const estimatedGasInUnits = parseFloat(weiToMaxUnit(estimatedGas.toString()));
-  const formattedEstimatedGas = toFormattedBalance(estimatedGasInUnits, 18);
+  const formattedEstimatedGas = toFormattedBalance(estimatedGasInUnits, 6);
 
   useEffect(() => {
     const isNative = token.symbol === "FTM";
@@ -63,7 +63,7 @@ const EstimatedFees: React.FC<any> = ({
     <Row style={{ justifyContent: "center" }}>
       <Column
         style={{
-          width: "60%",
+          width: "90%",
           backgroundColor: color.primary.black(),
           borderRadius: "8px",
           padding: "1rem",

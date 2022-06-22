@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useHistory, NavLink } from "react-router-dom";
 
-import { Typo2 } from "../../components";
+import {
+  mediaExact,
+  mediaFrom,
+  mediaTill,
+  OverlayButton,
+  Typo2,
+} from "../../components";
 
 import fWalletLogoImg from "../../assets/img/fWalletLogo_beta.svg";
 import homeSymbolImg from "../../assets/img/symbols/Home.svg";
@@ -22,7 +28,9 @@ import { delegatedToAddressesList } from "../../utils/delegation";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import { votesLeftForProposal } from "../../utils/governance";
-import Row from "../../components/Row";
+import { Row, Item } from "../../components/Grid/Grid";
+import CrossSymbol from "../../assets/img/symbols/Close.svg";
+import MenuSymbol from "../../assets/img/symbols/Menu.svg";
 
 const SideBarLink: React.FC<any> = ({
   img,
@@ -69,7 +77,7 @@ const StyledLinkName = styled(Typo2)<StyledLinkNameProps>`
   padding-left: 1.5rem;
 `;
 
-const SideBar: React.FC<any> = () => {
+const SideBarContent: React.FC<any> = ({ isMobile, toggleOpen }) => {
   const history = useHistory();
   const [currentPath, setCurrentPath] = useState(history.location.pathname);
 
@@ -84,6 +92,14 @@ const SideBar: React.FC<any> = () => {
   const governanceProposals =
     apiData && apiData[FantomApiMethods.getGovernanceProposals];
   const [voteActions, setVoteActions] = useState(0);
+
+  const handlePathChange = (pathName: string) => {
+    console.log(pathName);
+    if (isMobile) {
+      toggleOpen();
+    }
+    setCurrentPath(pathName);
+  };
 
   useFantomApi(FantomApiMethods.getDelegations);
   useFantomApi(
@@ -124,8 +140,31 @@ const SideBar: React.FC<any> = () => {
   }, [governanceProposals, accountDelegations, delegations]);
 
   return (
-    <StyledSideBar>
-      <img height="50" width="109" src={fWalletLogoImg} alt="fWallet" />
+    <>
+      <Row style={{ alignItems: "center" }}>
+        <Item>
+          <img height="50" width="109" src={fWalletLogoImg} alt="fWallet" />
+        </Item>
+        <Item collapseGTE="md">
+          <Row style={{ width: "100%", justifyContent: "end" }}>
+            <OverlayButton onClick={() => toggleOpen()}>
+              <Row
+                style={{
+                  height: "44px",
+                  width: "44px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#202f49",
+                  borderRadius: "50%",
+                  marginRight: "1rem",
+                }}
+              >
+                <img alt="close" src={CrossSymbol} />
+              </Row>
+            </OverlayButton>
+          </Row>
+        </Item>
+      </Row>
       <div style={{ marginTop: "4rem" }} />
       <SideBarLink
         img={homeSymbolImg}
@@ -133,7 +172,7 @@ const SideBar: React.FC<any> = () => {
         name="Home"
         path="/home"
         currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
+        setCurrentPath={handlePathChange}
       />
       <SideBarLink
         img={sendSymbolImg}
@@ -141,7 +180,7 @@ const SideBar: React.FC<any> = () => {
         name="Send"
         path="/send"
         currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
+        setCurrentPath={handlePathChange}
       />
       <SideBarLink
         img={stakingSymbolImg}
@@ -149,7 +188,7 @@ const SideBar: React.FC<any> = () => {
         name="Staking"
         path="/staking"
         currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
+        setCurrentPath={handlePathChange}
       />
       <Row style={{ position: "relative" }}>
         <SideBarLink
@@ -158,7 +197,7 @@ const SideBar: React.FC<any> = () => {
           name="Governance"
           path="/governance"
           currentPath={currentPath}
-          setCurrentPath={setCurrentPath}
+          setCurrentPath={handlePathChange}
         />
         {voteActions > 0 && (
           <Row
@@ -194,7 +233,7 @@ const SideBar: React.FC<any> = () => {
         name="Swap"
         path="/swap"
         currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
+        setCurrentPath={handlePathChange}
       />
       <SideBarLink
         img={bridgeSymbolImg}
@@ -202,11 +241,60 @@ const SideBar: React.FC<any> = () => {
         name="Bridge"
         path="/bridge"
         currentPath={currentPath}
-        setCurrentPath={setCurrentPath}
+        setCurrentPath={handlePathChange}
       />
-    </StyledSideBar>
+    </>
   );
 };
+
+const SideBar: React.FC<any> = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleOpen = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  return (
+    <>
+      <StyledSideBar>
+        <SideBarContent />
+      </StyledSideBar>
+      <StyledOpenMobileMenuButton isOpen={isOpen}>
+        <Row style={{ width: "100%", justifyContent: "end" }}>
+          <OverlayButton onClick={() => toggleOpen()}>
+            <Row
+              style={{
+                height: "50px",
+                width: "50px",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#202f49",
+                borderRadius: "50%",
+                marginRight: "1rem",
+              }}
+            >
+              <img alt="menu" src={MenuSymbol} />
+            </Row>
+          </OverlayButton>
+        </Row>
+      </StyledOpenMobileMenuButton>
+      <StyledMobileSideBar isOpen={isOpen}>
+        <SideBarContent isMobile toggleOpen={toggleOpen} />
+      </StyledMobileSideBar>
+    </>
+  );
+};
+
+// const ResponsiveSideBar: React.FC<any> = () => {
+//   const [isOpen, setIsOpen] = useState(false);
+//
+//   return (
+//     <>
+//       <SideBar />
+//       <MobileSideBar />
+//     </>
+//   );
+// };
 
 const StyledSideBar = styled.div`
   background-color: ${(props) => props.theme.color.secondary.navy()};
@@ -214,6 +302,38 @@ const StyledSideBar = styled.div`
   flex-direction: column;
   min-width: 12rem;
   padding: 2rem 0 0 2rem;
+
+  ${mediaTill["sm"](`display: none`)}
+`;
+
+const StyledOpenMobileMenuButton = styled(OverlayButton)<{ isOpen: boolean }>`
+  height: 56px;
+  position: absolute;
+  box-sizing: border-box;
+
+  ${mediaExact.xs(`padding: 2rem 0 0 1.5rem`)};
+  ${mediaExact.sm(`padding: 2rem 0 0 2rem`)};
+
+  ${mediaFrom["md"](`display: none`)}
+
+  ${(props) => props.isOpen && `display: none`}
+`;
+
+const StyledMobileSideBar = styled.div<{ isOpen: boolean }>`
+  background-color: ${(props) => props.theme.color.secondary.navy()};
+  display: flex;
+  position: absolute;
+  z-index: 1000;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem 0 0 2rem;
+  box-sizing: border-box;
+
+  ${mediaExact["xs"](`width: 100vw;`)}
+  ${mediaExact["sm"](`width: 300px`)}  
+  ${mediaFrom["md"](`display: none`)}
+  
+  ${(props) => !props.isOpen && `display: none`}
 `;
 
 export default SideBar;

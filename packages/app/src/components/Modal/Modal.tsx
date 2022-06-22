@@ -44,7 +44,7 @@ const mobileKeyframes = keyframes`
 const StyledResponsiveWrapper = styled.div<any>`
   align-items: center;
   display: flex;
-  flex-direction: column;
+  // flex-direction: column;
   justify-content: flex-end;
   position: relative;
   box-sizing: border-box;

@@ -17,6 +17,7 @@ import InputError from "../../components/InputError";
 import InputCurrency from "../../components/InputCurrency";
 import FormattedValue from "../../components/FormattedBalance";
 import { getAccountAssetBalance } from "../../utils/account";
+import { Item } from "../../components/Grid/Grid";
 
 const AmountInputRow: React.FC<any> = ({
   accountAssets,
@@ -105,19 +106,21 @@ const AmountInputRow: React.FC<any> = ({
           token={token}
         />
         <Row style={{ flex: 1, alignItems: "center" }}>
-          {isNative && formattedTotalValue?.length ? (
-            <Row
-              style={{ fontSize: "16px", flex: 4, color: color.greys.grey() }}
-            >
-              ~
-              <FormattedValue
-                formattedValue={formattedTotalValue}
-                currencySymbol={toCurrencySymbol(currency)}
-              />
-            </Row>
-          ) : (
-            <div style={{ flex: 4 }} />
-          )}
+          <Item collapseLTE="xs">
+            {isNative && formattedTotalValue?.length ? (
+              <Row
+                style={{ fontSize: "16px", flex: 4, color: color.greys.grey() }}
+              >
+                ~
+                <FormattedValue
+                  formattedValue={formattedTotalValue}
+                  currencySymbol={toCurrencySymbol(currency)}
+                />
+              </Row>
+            ) : (
+              <div style={{ flex: 4 }} />
+            )}
+          </Item>
           <Spacer />
           <Button
             fontSize="14px"

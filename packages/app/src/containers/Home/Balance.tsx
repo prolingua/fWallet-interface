@@ -63,7 +63,7 @@ const BalanceContent: React.FC<any> = ({
   );
 
   return (
-    <Row>
+    <Row style={{ flexWrap: "wrap", gap: "2rem" }}>
       <Column style={{ flex: 2 }}>
         <Row style={{ alignItems: "flex-end" }}>
           <div style={{ fontSize: "64px", fontWeight: "bold" }}>
@@ -81,21 +81,25 @@ const BalanceContent: React.FC<any> = ({
           </div>
         </Row>
       </Column>
-      <Row style={{ flex: 4, justifyContent: "space-evenly" }}>
+      <Row
+        style={{
+          flex: 4,
+          flexWrap: "wrap",
+          gap: "2rem",
+        }}
+      >
         <StatPair
           title="Available"
           value1={availableFTM[0]}
           value2={availableFTM[1]}
           suffix="FTM"
         />
-        <Spacer />
         <StatPair
           title="Staked"
           value1={stakedFTM[0]}
           value2={stakedFTM[1]}
           suffix="FTM"
         />
-        <Spacer />
         <StatPair
           title="Pending rewards"
           value1={rewardsFTM[0]}

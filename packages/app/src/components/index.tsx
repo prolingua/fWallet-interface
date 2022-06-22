@@ -72,12 +72,16 @@ export const Header = styled.div`
   font-family: "proxima-nova", sans-serif;
   background-color: ${(props) => props.theme.color.primary.black()};
   height: ${(props) => props.theme.topBarSize}px;
-  padding: 0 4rem 0 2rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   color: white;
+
+  ${mediaExact.xs(`padding: 0 1.5rem 0 1rem`)};
+  ${mediaExact.sm(`padding: 0 2rem 0 1.5rem`)};
+  ${mediaExact.md(`padding: 0 4rem 0 2rem`)};
+  ${mediaExact.lg(`padding: 0 4rem 0 2rem`)};
 `;
 
 export const Body = styled.div`

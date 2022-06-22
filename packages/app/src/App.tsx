@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import { I18nextProvider } from "react-i18next";
-import { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import i18next from "./i18n";
 import theme from "./theme/theme";
 import Bugsnag from "@bugsnag/js";
@@ -21,7 +21,7 @@ import Test from "./containers/Test/Test";
 import TopBar from "./containers/TopBar/TopBar";
 import Send from "./containers/Send";
 import Staking from "./containers/Staking";
-import { Body, Heading1, Heading3 } from "./components";
+import { Body, Heading1, Heading3, mediaExact } from "./components";
 import Column from "./components/Column";
 import Spacer from "./components/Spacer";
 import fWalletLogoImg from "./assets/img/fWalletLogo_beta.svg";
@@ -70,14 +70,13 @@ const AppContent: React.FC<any> = () => {
             barColor: "rgba(196,202,213,0.41)",
           }}
         >
-          <div
+          <StyledRouteContainer
             ref={containerRef}
             style={{
               flex: 1,
               display: "flex",
               flexDirection: "column",
               alignItems: "stretch",
-              padding: "0 4rem 0 2rem",
               backgroundColor: "rgba(10, 22, 46, 1)",
             }}
           >
@@ -97,42 +96,28 @@ const AppContent: React.FC<any> = () => {
               <Route path="/governance/proposal/:id" component={Proposal} />
               <Route path="/" component={Home} />
             </Switch>
-          </div>
+          </StyledRouteContainer>
         </Scrollbar>
       </div>
     </>
   );
 };
 
+const StyledRouteContainer = styled.div`
+  ${mediaExact.xs(`padding: 0 1.5rem 0 1rem`)};
+  ${mediaExact.sm(`padding: 0 2rem 0 1.5rem`)};
+  ${mediaExact.md(`padding: 0 4rem 0 2rem`)};
+  ${mediaExact.lg(`padding: 0 4rem 0 2rem`)};
+`;
+
 const AppContentWithWallet = withConnectedWallet(AppContent);
 
 function App() {
-  // const { resolutionType } = useDetectResolutionType();
   return (
     <Providers>
       <Body>
         <ErrorBoundary name="/">
-          {/*{resolutionType === "mobile" || resolutionType === "tablet" ? (*/}
-          {/*  <Column*/}
-          {/*    style={{*/}
-          {/*      width: "100%",*/}
-          {/*      alignItems: "center",*/}
-          {/*      justifyContent: "center",*/}
-          {/*    }}*/}
-          {/*  >*/}
-          {/*    <img*/}
-          {/*      alt="fwallet"*/}
-          {/*      style={{ width: "15rem" }}*/}
-          {/*      src={fWalletLogoImg}*/}
-          {/*    />*/}
-          {/*    <Spacer />*/}
-          {/*    <Heading1>Resolution not supported</Heading1>*/}
-          {/*    <Heading3>Mobile is coming soon!</Heading3>*/}
-          {/*  </Column>*/}
-          {/*) : (*/}
           <AppContentWithWallet />
-          {/*  <AppContent />*/}
-          {/*)}*/}
         </ErrorBoundary>
       </Body>
     </Providers>

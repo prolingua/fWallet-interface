@@ -79,6 +79,7 @@ const InputCurrency: React.FC<any> = ({
 
   return (
     <Input
+      style={{ maxWidth: "35%" }}
       disabled={disabled}
       type="text"
       value={formatValue(value)}

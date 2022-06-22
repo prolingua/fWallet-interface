@@ -3,6 +3,8 @@ import {
   Button,
   ContentBox,
   Heading1,
+  mediaExact,
+  mediaFrom,
   OverlayButton,
   Typo1,
   Typo2,
@@ -332,7 +334,7 @@ const SendTokens: React.FC<any> = ({
   currency,
 }) => {
   return (
-    <ContentBox style={{ width: "610px" }}>
+    <StyledContentBox>
       <ErrorBoundary name="[Send]">
         <SendTokensContent
           accountData={accountData?.data}
@@ -343,9 +345,16 @@ const SendTokens: React.FC<any> = ({
           loading={loading}
         />
       </ErrorBoundary>
-    </ContentBox>
+    </StyledContentBox>
   );
 };
+
+const StyledContentBox = styled(ContentBox)`
+  box-sizing: border-box;
+  ${mediaExact["xs"](`width: 100vw`)};
+  ${mediaExact["sm"](`width: 90vw`)};
+  ${mediaFrom["md"](`width: 610px`)};
+`;
 
 const Send: React.FC<any> = () => {
   const { apiData } = useFantomApiData();

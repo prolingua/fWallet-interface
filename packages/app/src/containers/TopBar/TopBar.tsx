@@ -4,7 +4,6 @@ import useSettings from "../../hooks/useSettings";
 import { Header } from "../../components";
 import CurrencySelector from "../../components/CurrencySelector";
 import Spacer from "../../components/Spacer";
-import Row from "../../components/Row";
 import WalletSelector from "../../components/WalletSelector";
 import useNotify from "../../hooks/useNotify";
 import useCoingeckoApi, {
@@ -15,9 +14,10 @@ import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
 import useApiData from "../../hooks/useApiData";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useTokenPrice from "../../hooks/useTokenPrice";
+import { Item, Row } from "../../components/Grid/Grid";
 
 const AccountSnapshot: React.FC<any> = () => {
-  const { getCoinsList, getPrice, getCoinInfo } = useCoingeckoApi();
+  const { getCoinsList, getPrice } = useCoingeckoApi();
   const { apiData: fantomApiData } = useFantomApiData();
   const { apiData } = useApiData();
   const ftmTokenList =
@@ -102,12 +102,16 @@ const TopBar: React.FC<any> = () => {
         {/*/>*/}
       </Row>
       <Row>
-        <CurrencySelector
-          width="140px"
-          current={settings.currency}
-          dispatch={dispatchSettings}
-        />
-        <Spacer size="xs" />
+        <Item collapseLTE="xs">
+          <>
+            <CurrencySelector
+              width="140px"
+              current={settings.currency}
+              dispatch={dispatchSettings}
+            />
+            <Spacer size="xs" />
+          </>
+        </Item>
         <WalletSelector width="200px" />
       </Row>
     </Header>
