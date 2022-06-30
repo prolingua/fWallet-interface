@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useState } from "react";
 import styled from "styled-components";
 import ErrorBoundary from "../components/ErrorBoundary";
+import Scrollbar from "../components/Scrollbar";
+import { Row } from "../components/Grid/Grid";
 
 interface ModalsContext {
   content?: React.ReactNode;
@@ -59,10 +61,21 @@ const ModalProvider: React.FC = ({ children }) => {
             <StyledModalBackdrop
               onClick={!persist ? handleDismiss : () => null}
             />
-            {React.isValidElement(content) &&
-              React.cloneElement(content, {
-                onDismiss: handleDismiss,
-              })}
+            <Scrollbar style={{ top: 0, bottom: 0 }}>
+              <Row
+                style={{
+                  width: "100%",
+                  height: "99vh",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {React.isValidElement(content) &&
+                  React.cloneElement(content, {
+                    onDismiss: handleDismiss,
+                  })}
+              </Row>
+            </Scrollbar>
           </StyledModalWrapper>
         )}
       </ErrorBoundary>

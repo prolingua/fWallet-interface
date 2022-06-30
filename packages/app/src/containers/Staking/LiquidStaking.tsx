@@ -100,7 +100,7 @@ const MintSFTMRow: React.FC<any> = ({ activeDelegation }) => {
       <Row style={{ width: "15rem", alignItems: "center" }}>
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-          imageSize="32px"
+          imageSize={32}
           id={activeDelegation.delegation.toStakerId}
         />
       </Row>
@@ -447,7 +447,7 @@ const RepaySFTMRow: React.FC<any> = ({
       <Row style={{ width: "15rem", alignItems: "center" }}>
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-          imageSize="32px"
+          imageSize={32}
           id={activeDelegation.delegation.toStakerId}
         />
       </Row>

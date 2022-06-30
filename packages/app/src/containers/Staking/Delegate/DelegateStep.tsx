@@ -16,7 +16,13 @@ import {
   getValidators,
   maxLockDays,
 } from "../../../utils/delegation";
-import { Button, Heading3, OverlayButton, Typo2 } from "../../../components";
+import {
+  Button,
+  Heading3,
+  mediaExact,
+  OverlayButton,
+  Typo2,
+} from "../../../components";
 import Spacer from "../../../components/Spacer";
 import InputCurrencyBox from "../../../components/InputCurrency/InputCurrencyBox";
 import SliderWithMarks from "../../../components/Slider";
@@ -30,6 +36,7 @@ import FormattedValue from "../../../components/FormattedBalance";
 import { compare } from "../../../utils/common";
 import sortImg from "../../../assets/img/symbols/Sort.svg";
 import Column from "../../../components/Column";
+import { Item } from "../../../components/Grid/Grid";
 
 const DelegateStep: React.FC<any> = ({
   delegationsData,
@@ -265,6 +272,7 @@ const DelegateStep: React.FC<any> = ({
           <Spacer size="xs" />
         </Row>
       </OverlayButton>
+      <Spacer size="xs" />
       <InputCurrencyBox
         disabled={isDelegateCompleted || isDelegatePending}
         value={delegateAmount}
@@ -283,46 +291,56 @@ const DelegateStep: React.FC<any> = ({
         />
         <Spacer size="xl" />
       </div>
+      <Spacer />
       <Heading3 style={{ color: color.greys.grey() }}>
         Select a validator node
       </Heading3>
       <Spacer />
       <ModalContent style={{ padding: "20px 0 0 0" }}>
-        <Row style={{ margin: "0 1.5rem" }}>
-          <OverlayButton
-            style={{
-              width: "10rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: ".5rem",
-            }}
-            onClick={() => handleSetSort("name")}
-          >
-            <Typo2
+        <Row
+          style={{
+            padding: "0 1.5rem",
+            boxSizing: "border-box",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Item collapseLTE="sm">
+            <ResponsiveTableHeaderItem
+              width={10}
               style={{
-                textAlign: "left",
-                fontWeight: sort[0] === "name" ? "bold" : "normal",
-                color: color.greys.grey(),
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: ".5rem",
               }}
+              onClick={() => handleSetSort("name")}
             >
-              Name
-            </Typo2>
-            <Row
-              style={{
-                fontWeight: sort[0] === "name" ? "bold" : "normal",
-              }}
-            >
-              {sort[0] === "name"
-                ? sort[1] === 1
-                  ? SortImg("A")
-                  : SortImg("D")
-                : SortImg(null)}
-            </Row>
-          </OverlayButton>
-          <OverlayButton
+              <Typo2
+                style={{
+                  textAlign: "left",
+                  fontWeight: sort[0] === "name" ? "bold" : "normal",
+                  color: color.greys.grey(),
+                }}
+              >
+                Name
+              </Typo2>
+              <Row
+                style={{
+                  fontWeight: sort[0] === "name" ? "bold" : "normal",
+                }}
+              >
+                {sort[0] === "name"
+                  ? sort[1] === 1
+                    ? SortImg("A")
+                    : SortImg("D")
+                  : SortImg(null)}
+              </Row>
+            </ResponsiveTableHeaderItem>
+          </Item>
+          <ResponsiveTableHeaderItem
+            width={3}
             style={{
-              width: "5rem",
               display: "flex",
               justifyContent: "end",
               alignItems: "center",
@@ -346,10 +364,10 @@ const DelegateStep: React.FC<any> = ({
                   : SortImg("D")
                 : SortImg(null)}
             </Typo2>
-          </OverlayButton>
-          <OverlayButton
+          </ResponsiveTableHeaderItem>
+          <ResponsiveTableHeaderItem
+            width={8}
             style={{
-              width: "8rem",
               display: "flex",
               justifyContent: "end",
               alignItems: "center",
@@ -375,11 +393,11 @@ const DelegateStep: React.FC<any> = ({
                   : SortImg("D")
                 : SortImg(null)}
             </Typo2>
-          </OverlayButton>
-          <OverlayButton
+          </ResponsiveTableHeaderItem>
+          <ResponsiveTableHeaderItem
+            width={8}
             style={{
               fontWeight: sort[0] === "apr" ? "bold" : "normal",
-              width: "7rem",
               display: "flex",
               justifyContent: "end",
               alignItems: "center",
@@ -398,36 +416,42 @@ const DelegateStep: React.FC<any> = ({
                   : SortImg("D")
                 : SortImg(null)}
             </Typo2>
-          </OverlayButton>
-          <OverlayButton
-            style={{
-              fontWeight: sort[0] === "delegations" ? "bold" : "normal",
-              width: "9rem",
-              display: "flex",
-              justifyContent: "end",
-              alignItems: "center",
-              gap: ".5rem",
-              padding: 0,
-            }}
-            onClick={() => handleSetSort("delegations")}
-          >
-            <Typo2 style={{ color: color.greys.grey() }}>Delegations</Typo2>
-            <Typo2
+          </ResponsiveTableHeaderItem>
+          <Item collapseLTE="sm">
+            <ResponsiveTableHeaderItem
+              width={8}
               style={{
                 fontWeight: sort[0] === "delegations" ? "bold" : "normal",
+                display: "flex",
+                justifyContent: "end",
+                alignItems: "center",
+                gap: ".5rem",
+                padding: 0,
               }}
+              onClick={() => handleSetSort("delegations")}
             >
-              {sort[0] === "delegations"
-                ? sort[1] === 1
-                  ? SortImg("A")
-                  : SortImg("D")
-                : SortImg(null)}
-            </Typo2>
-          </OverlayButton>
-          <OverlayButton
+              <Typo2
+                style={{ color: color.greys.grey(), wordBreak: "break-all" }}
+              >
+                Delegations
+              </Typo2>
+              <Typo2
+                style={{
+                  fontWeight: sort[0] === "delegations" ? "bold" : "normal",
+                }}
+              >
+                {sort[0] === "delegations"
+                  ? sort[1] === 1
+                    ? SortImg("A")
+                    : SortImg("D")
+                  : SortImg(null)}
+              </Typo2>
+            </ResponsiveTableHeaderItem>
+          </Item>
+          <ResponsiveTableHeaderItem
+            width={10}
             style={{
               fontWeight: sort[0] === "free" ? "bold" : "normal",
-              width: "10rem",
               display: "flex",
               justifyContent: "end",
               alignItems: "center",
@@ -446,7 +470,7 @@ const DelegateStep: React.FC<any> = ({
                   : SortImg("D")
                 : SortImg(null)}
             </Typo2>
-          </OverlayButton>
+          </ResponsiveTableHeaderItem>
         </Row>
         <Spacer size="sm" />
 
@@ -540,6 +564,13 @@ const DelegateStep: React.FC<any> = ({
     </>
   );
 };
+
+const ResponsiveTableHeaderItem = styled(OverlayButton)<{ width: number }>`
+  ${(props) => mediaExact.xs(`width: ${props.width * 0.8}rem`)};
+  ${(props) => mediaExact.sm(`width: ${props.width * 0.8}rem`)};
+  ${(props) => mediaExact.md(`width: ${props.width}rem`)};
+  ${(props) => mediaExact.lg(`width: ${props.width}rem`)};
+`;
 
 const StyledDelegationSelectRow = styled.div<{ disabled: boolean }>`
   :hover {

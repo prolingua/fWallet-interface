@@ -36,7 +36,7 @@ const DelegationSelectRow: React.FC<any> = ({
     >
       <DelegationNameInfo
         delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-        imageSize="35px"
+        imageSize={35}
       />
       <Row style={{ alignItems: "center" }}>
         {hasVoted && (

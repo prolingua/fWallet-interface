@@ -10,13 +10,33 @@ export const Grid = styled.div<{ plain?: boolean }>`
   ${(props) => !props.plain && mediaExact.lg(`padding: 2rem`)}
 `;
 
-export const Row = styled.div<any>`
+export const Row = styled.div<{
+  flipDirectionGTE?: MediaSizes;
+  flipDirectionLTE?: MediaSizes;
+}>`
   display: flex;
+
+  ${(props) =>
+    props.flipDirectionLTE &&
+    mediaTill[props.flipDirectionLTE](`flex-direction: column;`)}
+  ${(props) =>
+    props.flipDirectionGTE &&
+    mediaFrom[props.flipDirectionGTE](`flex-direction: column;`)}
 `;
 
-export const Column = styled.div<any>`
+export const Column = styled.div<{
+  flipDirectionGTE?: MediaSizes;
+  flipDirectionLTE?: MediaSizes;
+}>`
   display: flex;
   flex-direction: column;
+
+  ${(props) =>
+    props.flipDirectionLTE &&
+    mediaTill[props.flipDirectionLTE](`flex-direction: row;`)}
+  ${(props) =>
+    props.flipDirectionGTE &&
+    mediaFrom[props.flipDirectionGTE](`flex-direction: row;`)}
 `;
 
 export const Item = styled.div<{

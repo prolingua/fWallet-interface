@@ -128,25 +128,25 @@ export const LinkExt = styled.a.attrs({
 
 export const Heading1 = styled.div`
   font-weight: bold;
-  ${mediaExact.xs(`font-size: 20px`)}
+  ${mediaExact.xs(`font-size: 24px`)}
   ${mediaExact.sm(`font-size: 24px`)}
-  ${mediaExact.md(`font-size: 28px`)}
-  ${mediaExact.lg(`font-size: 32px`)}
+  ${mediaExact.md(`font-size: 30px`)}
+  ${mediaExact.lg(`font-size: 30px`)}
 `;
 
 export const Heading2 = styled.div`
   font-weight: bold;
-  ${mediaExact.xs(`font-size: 16px`)}
-  ${mediaExact.sm(`font-size: 18px`)}
-  ${mediaExact.md(`font-size: 20px`)}
-  ${mediaExact.lg(`font-size: 26px`)}
+  ${mediaExact.xs(`font-size: 20px`)}
+  ${mediaExact.sm(`font-size: 20px`)}
+  ${mediaExact.md(`font-size: 24px`)}
+  ${mediaExact.lg(`font-size: 24px`)}
 `;
 
 export const Heading3 = styled.div`
   font-weight: bold;
-  ${mediaExact.xs(`font-size: 12px`)}
-  ${mediaExact.sm(`font-size: 14px`)}
-  ${mediaExact.md(`font-size: 16px`)}
+  ${mediaExact.xs(`font-size: 16px`)}
+  ${mediaExact.sm(`font-size: 16px`)}
+  ${mediaExact.md(`font-size: 20px`)}
   ${mediaExact.lg(`font-size: 20px`)}
 `;
 
@@ -206,7 +206,7 @@ export const Button = styled.button<{
   border-radius: 8px;
   color: ${(props) => (!props.disabled ? props.color || "white" : "#6c726c")};
   cursor: ${(props) => (!props.disabled ? "pointer" : "cursor")};
-  font-size: ${(props) => (props.fontSize ? props.fontSize : "18px")};
+  font-size: ${(props) => props.fontSize};
   font-weight: bold;
   text-align: center;
   text-decoration: none;
@@ -222,6 +222,15 @@ export const Button = styled.button<{
   :active {
     transform: ${(props) => !props.disabled && "scale(0.98)"};
   }
+
+  ${(props) => !props.fontSize && mediaExact.xs(`font-size: 16px`)};
+  ${(props) => !props.fontSize && mediaExact.sm(`font-size: 16px`)};
+  ${(props) => !props.fontSize && mediaExact.md(`font-size: 18px`)};
+  ${(props) => !props.fontSize && mediaExact.lg(`font-size: 18px`)};
+  ${(props) => !props.padding && mediaExact.xs(`padding: 12px 20px`)};
+  ${(props) => !props.padding && mediaExact.sm(`padding: 12px 20px`)};
+  ${(props) => !props.padding && mediaExact.md(`padding: 14px 24px`)};
+  ${(props) => !props.padding && mediaExact.lg(`padding: 14px 24px`)};
 `;
 
 export const Container = styled.div<{ padding?: string }>`
@@ -236,18 +245,20 @@ export const ContentBox = styled.div<{ padding?: string }>`
   display: inline-flex;
   padding: ${(props) => (props.padding ? props.padding : "2rem")};
   border-radius: 8px;
+  box-sizing: border-box;
 `;
 
 export const Input = styled.input<{
   fontSize?: string;
   fontWeight?: string;
   disabled?: boolean;
+  withMarginForTokenSelect?: boolean;
 }>`
   flex: 1;
   background-color: transparent;
   border: none;
   color: white;
-  font-size: ${(props) => props.fontSize || "20px"};
+  font-size: ${(props) => props.fontSize};
   font-weight: ${(props) => props.fontWeight && props.fontWeight};
   opacity: ${(props) => props.disabled && 0.6};
 
@@ -269,6 +280,13 @@ export const Input = styled.input<{
   [type="number"] {
     -moz-appearance: textfield;
   }
+
+  ${mediaExact.xs(`width: 50%`)};
+  ${mediaExact.sm(`width: 50%`)};
+  ${(props) => !props.fontSize && mediaExact.xs(`font-size: 16px`)};
+  ${(props) => !props.fontSize && mediaExact.sm(`font-size: 16px`)};
+  ${(props) => !props.fontSize && mediaExact.md(`font-size: 20px`)};
+  ${(props) => !props.fontSize && mediaExact.lg(`font-size: 20px`)};
 `;
 
 export const TextArea = styled.textarea`

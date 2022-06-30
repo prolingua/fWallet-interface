@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import useFantomContract, {
   SFC_TX_METHODS,
 } from "../../../hooks/useFantomContract";
@@ -21,17 +21,17 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  mediaExact,
   OverlayButton,
   Typo2,
   Typo3,
 } from "../../../components";
 import Spacer from "../../../components/Spacer";
-import Column from "../../../components/Column";
-import Row from "../../../components/Row";
 import checkmarkShapeImg from "../../../assets/img/shapes/chechmarkShape.png";
 import SliderWithMarks from "../../../components/Slider";
 import StatPair from "../../../components/StatPair";
 import { BigNumber } from "@ethersproject/bignumber";
+import { Column, Item, Row } from "../../../components/Grid/Grid";
 
 const LockupStep: React.FC<any> = ({
   delegationsData,
@@ -117,7 +117,7 @@ const LockupStep: React.FC<any> = ({
         Would you like to lock your delegation for extra rewards?
       </Heading3>
       <Spacer />
-      <Column>
+      <Column style={{ width: "100%" }}>
         <OverlayButton
           style={{ textAlign: "unset" }}
           onClick={() => {
@@ -137,13 +137,10 @@ const LockupStep: React.FC<any> = ({
             }}
           >
             <Row style={{ justifyContent: "center", alignItems: "center" }}>
-              <Row
+              <StyledSelect
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  margin: "2rem",
-                  height: "2rem",
-                  width: "2rem",
                   backgroundColor: useLockup
                     ? color.primary.black()
                     : color.primary.fantomBlue(),
@@ -151,25 +148,33 @@ const LockupStep: React.FC<any> = ({
                 }}
               >
                 {!useLockup && <img alt="" src={checkmarkShapeImg} />}
-              </Row>
+              </StyledSelect>
             </Row>
-            <Column style={{ justifyContent: "center", margin: "2rem 0" }}>
-              <Heading2>Stake-as-you-go</Heading2>
-              <Spacer size="xs" />
-              <Typo2 style={{ color: color.greys.grey() }}>
-                No time lock. You can undelegate at any time with no penalty.
-              </Typo2>
-            </Column>
-            <Spacer size="xl" />
             <Row
+              flipDirectionLTE="sm"
               style={{
-                marginLeft: "auto",
-                justifyContent: "flex-end",
-                alignItems: "center",
+                gap: "1.5rem",
+                width: "100%",
+                margin: "1rem 1rem 1rem 0",
               }}
             >
-              <Heading1>~{calculateDelegationApr() * 100}% APR</Heading1>
-              <Spacer size="xl" />
+              <Column style={{ justifyContent: "center" }}>
+                <Heading2>Stake-as-you-go</Heading2>
+                <Spacer size="xs" />
+                <Typo2 style={{ color: color.greys.grey() }}>
+                  No time lock. You can undelegate at any time with no penalty.
+                </Typo2>
+              </Column>
+              <Row
+                style={{
+                  marginLeft: "auto",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  padding: "1rem",
+                }}
+              >
+                <Heading1>~{calculateDelegationApr() * 100}% APR</Heading1>
+              </Row>
             </Row>
           </Row>
         </OverlayButton>
@@ -193,50 +198,54 @@ const LockupStep: React.FC<any> = ({
               opacity: maxLockup <= 14 && 0.2,
             }}
           >
-            <Row
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                margin: "2rem",
-                height: "2rem",
-                width: "2rem",
-                backgroundColor: !useLockup
-                  ? color.primary.black()
-                  : color.primary.fantomBlue(),
-                borderRadius: "50%",
-              }}
-            >
-              {useLockup && <img alt="" src={checkmarkShapeImg} />}
+            <Row style={{ justifyContent: "center", alignItems: "center" }}>
+              <StyledSelect
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: !useLockup
+                    ? color.primary.black()
+                    : color.primary.fantomBlue(),
+                  borderRadius: "50%",
+                }}
+              >
+                {useLockup && <img alt="" src={checkmarkShapeImg} />}
+              </StyledSelect>
             </Row>
             <Column>
               <Row>
-                <Column
-                  style={{
-                    justifyContent: "center",
-                    width: "30rem",
-                    margin: "2rem 0",
-                  }}
-                >
-                  <Heading2>Fluid rewards</Heading2>
-                  <Spacer size="xs" />
-                  <Typo2 style={{ color: color.greys.grey() }}>
-                    You can lock your delegation for a period of time and earn
-                    more rewards. You can undelegate prematurely, but you get to
-                    keep only half of the base rewards.
-                  </Typo2>
-                </Column>
-                <Spacer size="xl" />
                 <Row
+                  flipDirectionLTE="sm"
                   style={{
-                    marginLeft: "auto",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
+                    gap: "1.5rem",
+                    width: "100%",
+                    margin: "1rem 1rem 1rem 0",
                   }}
                 >
-                  <Heading1 style={{ minWidth: "12rem" }}>
-                    ~{lockupApr.toFixed(2)}% APR
-                  </Heading1>
-                  <Spacer size="xl" />
+                  <Column
+                    style={{
+                      justifyContent: "center",
+                      flex: 3,
+                    }}
+                  >
+                    <Heading2>Fluid rewards</Heading2>
+                    <Spacer size="xs" />
+                    <Typo2 style={{ color: color.greys.grey() }}>
+                      You can lock your delegation for a period of time and earn
+                      more rewards. You can undelegate prematurely, but you get
+                      to keep only half of the base rewards.
+                    </Typo2>
+                  </Column>
+                  <Row
+                    style={{
+                      marginLeft: "auto",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      padding: "1rem",
+                    }}
+                  >
+                    <Heading1>~{lockupApr.toFixed(2)}% APR</Heading1>
+                  </Row>
                 </Row>
               </Row>
               {maxLockup > 14 && (
@@ -246,7 +255,7 @@ const LockupStep: React.FC<any> = ({
                   </Typo2>
 
                   <Spacer size="xl" />
-                  <div style={{ marginLeft: "1rem", width: "92%" }}>
+                  <div style={{ marginLeft: "1rem", width: "82%" }}>
                     <SliderWithMarks
                       disabled={
                         !useLockup || isLockupPending || isLockupCompleted
@@ -275,34 +284,44 @@ const LockupStep: React.FC<any> = ({
         <Spacer size="xl" />
         <ContentBox style={{ backgroundColor: color.primary.black() }}>
           <Column style={{ width: "100%" }}>
-            <Row style={{ justifyContent: "space-between" }}>
-              <StatPair
-                title="Total delegated"
-                value1={formattedDelegatedAmount[0]}
-                value2={formattedDelegatedAmount[1]}
-                suffix="FTM"
-              />
-              <StatPair
-                title="Est. weekly rewards"
-                value1={formattedWeeklyReward[0]}
-                value2={formattedWeeklyReward[1]}
-                suffix="FTM"
-                valueFlex="flex-end"
-              />
-              <StatPair
-                title="Est. monthly rewards"
-                value1={formattedMonthlyReward[0]}
-                value2={formattedMonthlyReward[1]}
-                suffix="FTM"
-                valueFlex="flex-end"
-              />
-              <StatPair
-                title="Est. yearly rewards"
-                value1={formattedYearlyReward[0]}
-                value2={formattedYearlyReward[1]}
-                suffix="FTM"
-                valueFlex="flex-end"
-              />
+            <Row
+              style={{
+                justifyContent: "space-between",
+                gap: "2rem",
+              }}
+            >
+              <Item>
+                <StatPair
+                  title="Total delegated"
+                  value1={formattedDelegatedAmount[0]}
+                  value2={formattedDelegatedAmount[1]}
+                  suffix="FTM"
+                />
+              </Item>
+              <Item collapseLTE="sm">
+                <StatPair
+                  title="Est. weekly rewards"
+                  value1={formattedWeeklyReward[0]}
+                  value2={formattedWeeklyReward[1]}
+                  suffix="FTM"
+                />
+              </Item>
+              <Item collapseLTE="sm">
+                <StatPair
+                  title="Est. monthly rewards"
+                  value1={formattedMonthlyReward[0]}
+                  value2={formattedMonthlyReward[1]}
+                  suffix="FTM"
+                />
+              </Item>
+              <Item>
+                <StatPair
+                  title="Est. yearly rewards"
+                  value1={formattedYearlyReward[0]}
+                  value2={formattedYearlyReward[1]}
+                  suffix="FTM"
+                />
+              </Item>
             </Row>
             <Spacer />
             <Row style={{ justifyContent: "flex-end" }}>
@@ -344,5 +363,12 @@ const LockupStep: React.FC<any> = ({
     </>
   );
 };
+
+const StyledSelect = styled(Row)`
+  ${mediaExact.xs(`margin: 1rem; height: 1rem; width: 1rem`)};
+  ${mediaExact.sm(`margin: 1.2rem; height: 1.2rem; width: 1.2rem`)};
+  ${mediaExact.md(`margin: 1.5rem; height: 1.5rem; width: 1.5rem`)};
+  ${mediaExact.lg(`margin: 2rem; height: 2rem; width: 2rem`)};
+`;
 
 export default LockupStep;

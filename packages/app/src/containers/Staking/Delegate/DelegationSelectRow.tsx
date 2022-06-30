@@ -11,8 +11,10 @@ import {
 } from "../../../utils/conversion";
 import Row from "../../../components/Row";
 import { DelegationNameInfo } from "../../../components/DelegationBalance/DelegationBalance";
-import { Typo2 } from "../../../components";
+import { mediaExact, OverlayButton, Typo2 } from "../../../components";
 import Spacer from "../../../components/Spacer";
+import { Item } from "../../../components/Grid/Grid";
+import styled from "styled-components";
 
 const DelegationSelectRow: React.FC<any> = ({
   delegation,
@@ -34,77 +36,92 @@ const DelegationSelectRow: React.FC<any> = ({
       style={{
         margin: "0 .5rem",
         padding: ".5rem 0",
+        justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <div
+      {" "}
+      <Item collapseLTE="sm">
+        <ResponsiveTableRowItem
+          width={10}
+          style={{
+            textAlign: "left",
+          }}
+        >
+          <DelegationNameInfo
+            imageSize={32}
+            delegationInfo={delegation.stakerInfo}
+          />
+        </ResponsiveTableRowItem>
+      </Item>
+      <ResponsiveTableRowItem
+        width={3}
         style={{
-          textAlign: "left",
-          width: "10rem",
-        }}
-      >
-        <DelegationNameInfo
-          imageSize="32px"
-          delegationInfo={delegation.stakerInfo}
-        />
-      </div>
-      <Typo2
-        style={{
-          width: "5rem",
           fontWeight: "bold",
           display: "flex",
           justifyContent: "end",
         }}
       >
-        {parseInt(delegation.id)}
+        <Typo2>{parseInt(delegation.id)}</Typo2>
         <Spacer size="xs" />
-      </Typo2>
-      <Typo2
+      </ResponsiveTableRowItem>
+      <ResponsiveTableRowItem
+        width={8}
         style={{
-          width: "8rem",
           fontWeight: "bold",
           display: "flex",
           justifyContent: "end",
         }}
       >
-        {maxDelegationLockUp <= 0 ? "-" : `${maxDelegationLockUp} days`}
+        <Typo2>
+          {maxDelegationLockUp <= 0 ? "-" : `${maxDelegationLockUp} days`}
+        </Typo2>
         <Spacer size="xs" />
-      </Typo2>
-      <Typo2
+      </ResponsiveTableRowItem>
+      <ResponsiveTableRowItem
+        width={8}
         style={{
-          width: "7rem",
           fontWeight: "bold",
           display: "flex",
           justifyContent: "end",
         }}
       >
-        {maxApr.toFixed(2)}%
+        <Typo2>{maxApr.toFixed(2)}%</Typo2>
         <Spacer size="xs" />
-      </Typo2>
-      <Typo2
+      </ResponsiveTableRowItem>
+      <Item collapseLTE="sm">
+        <ResponsiveTableRowItem
+          width={8}
+          style={{
+            fontWeight: "bold",
+            display: "flex",
+            justifyContent: "end",
+          }}
+        >
+          <Typo2>{noOfDelegations}</Typo2>
+          <Spacer size="xs" />
+        </ResponsiveTableRowItem>
+      </Item>
+      <ResponsiveTableRowItem
+        width={10}
         style={{
-          width: "9rem",
-          fontWeight: "bold",
           display: "flex",
           justifyContent: "end",
-        }}
-      >
-        {noOfDelegations}
-        <Spacer size="xs" />
-      </Typo2>
-      <Typo2
-        style={{
-          display: "flex",
-          justifyContent: "end",
-          width: "10rem",
           fontWeight: "bold",
         }}
       >
-        {formattedFreeSpace[0]}
+        <Typo2>{formattedFreeSpace[0]}</Typo2>
         <Spacer size="xs" />
-      </Typo2>
+      </ResponsiveTableRowItem>
     </Row>
   );
 };
+
+const ResponsiveTableRowItem = styled.div<{ width: number }>`
+  ${(props) => mediaExact.xs(`width: ${props.width * 0.8}rem`)};
+  ${(props) => mediaExact.sm(`width: ${props.width * 0.8}rem`)};
+  ${(props) => mediaExact.md(`width: ${props.width}rem`)};
+  ${(props) => mediaExact.lg(`width: ${props.width}rem`)};
+`;
 
 export default DelegationSelectRow;

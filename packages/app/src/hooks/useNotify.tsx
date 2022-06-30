@@ -32,7 +32,7 @@ const NotifyModal: React.FC<any> = ({ onDismiss, hash }) => {
   };
 
   return (
-    <Modal style={{ minWidth: "10rem" }}>
+    <Modal style={{ width: "unset" }}>
       {hash && transactionStatus && (
         <Column>
           <Typo1>Transaction submitted</Typo1>

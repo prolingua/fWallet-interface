@@ -16,6 +16,7 @@ import Row from "../Row";
 import StatPair from "../StatPair";
 import { Button, Typo1 } from "../index";
 import useSendTransaction from "../../hooks/useSendTransaction";
+import Spacer from "../Spacer";
 
 const WithdrawRequestRow: React.FC<any> = ({
   withdrawRequest,
@@ -67,6 +68,7 @@ const WithdrawRequestRow: React.FC<any> = ({
           value2FontSize={size === "sm" && "14px"}
         />
       </div>
+      <Spacer />
       {isUnlocked ? (
         <Button
           disabled={!isUnlocked || isPending || isCompleted}
@@ -85,6 +87,7 @@ const WithdrawRequestRow: React.FC<any> = ({
           style={{
             fontSize: size === "sm" ? "18px" : "24px",
             fontWeight: "bold",
+            textAlign: "end",
           }}
         >
           {unlocksIn[0] > 0 ? `${unlocksIn[0]} days, ` : ""}

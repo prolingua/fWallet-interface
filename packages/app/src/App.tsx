@@ -37,6 +37,11 @@ import NotifyProvider from "./context/NotifyProvider";
 import Bridge from "./containers/Bridge";
 import { TokenPriceProvider } from "./context/TokenPriceProvider";
 import ErrorBoundary from "./components/ErrorBoundary";
+import useWalletProvider from "./hooks/useWalletProvider";
+import useModal from "./hooks/useModal";
+import InfoModal from "./components/InfoModal";
+import config from "./config/config";
+import { switchToChain } from "./web3/events";
 
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
@@ -48,13 +53,53 @@ Bugsnag.start({
 
 const AppContent: React.FC<any> = () => {
   const location = useLocation();
+  const { walletContext } = useWalletProvider();
   const containerRef = useRef(null);
 
   // refresh scrollbar on height change
   const [, setContainerHeight] = useState(null);
+  const [correctChainLoaded, setCorrectChainLoaded] = useState(false);
+
+  const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
+    <InfoModal
+      message={`[Web3] wrong network selected. Please change your network to Fantom ${
+        parseInt(config.chainId) === 250 ? "Opera" : "Testnet"
+      } to continue`}
+      withCloseButton={false}
+      handleActionButton={async () =>
+        await switchToChain(
+          walletContext.activeWallet.provider,
+          parseInt(config.chainId)
+        )
+      }
+      actionButtonText={`Switch to ${
+        parseInt(config.chainId) === 250 ? "Fantom Opera" : "Fantom Testnet"
+      }`}
+      actionButtonNoDismiss={true}
+    />,
+    "browser-wrong-network-modal",
+    true
+  );
+
   useEffect(() => {
     setContainerHeight(containerRef?.current?.clientHeight);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === "/bridge") {
+      return setCorrectChainLoaded(true);
+    }
+    return setCorrectChainLoaded(
+      walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
+    );
+  }, [location.pathname, walletContext.web3ProviderState.chainSelected]);
+
+  useEffect(() => {
+    if (!correctChainLoaded) {
+      return onPresentWrongChainSelected();
+    }
+    onDismissWrongChainSelected();
+  }, [correctChainLoaded]);
 
   return (
     <>

@@ -1,14 +1,15 @@
 import React, { useContext } from "react";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import { hexToUnit, toFormattedBalance } from "../../utils/conversion";
 import Row from "../Row";
-import { Typo1, Typo2, Typo3 } from "../index";
+import { mediaExact, Typo1, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
 import { delegationDaysLockedLeft } from "../../utils/delegation";
 
 export const DelegationNameInfo: React.FC<any> = ({
   imageSize,
+  fontSize,
   delegationInfo,
   daysLocked,
   flexColumn,
@@ -17,22 +18,26 @@ export const DelegationNameInfo: React.FC<any> = ({
   const { color } = useContext(ThemeContext);
   const content = (
     <>
-      <img
+      <StyledResponsiveImage
+        size={imageSize}
         alt=""
         style={{
           borderRadius: "50%",
-          width: imageSize,
-          height: imageSize,
           marginRight: !flexColumn && ".6rem",
           marginBottom: flexColumn && ".2rem",
         }}
         src={delegationInfo?.logoUrl || delegationFallbackImg}
       />
       <Column>
-        <Typo1 style={{ fontWeight: "bold" }}>
+        <Typo2
+          style={{
+            fontWeight: "bold",
+            fontSize,
+          }}
+        >
           {id ? `${parseInt(id)}. ` : ""}
           {delegationInfo?.name || "Unnamed"}
-        </Typo1>
+        </Typo2>
         {daysLocked > 0 && (
           <Typo3 style={{ color: color.greys.grey() }}>
             {daysLocked ? `Unlocks in ${daysLocked} days` : ""}
@@ -52,9 +57,16 @@ export const DelegationNameInfo: React.FC<any> = ({
   );
 };
 
+const StyledResponsiveImage = styled.img<{ size: number }>`
+  ${(props) => mediaExact.xs(`width: ${props.size * 0.8}px`)};
+  ${(props) => mediaExact.sm(`width: ${props.size * 0.8}px`)};
+  ${(props) => mediaExact.md(`width: ${props.size}px`)};
+  ${(props) => mediaExact.lg(`width: ${props.size}px`)};
+`;
+
 export const DelegationBalance: React.FC<any> = ({
   activeDelegation,
-  imageSize = " 32px",
+  imageSize = 32,
 }) => {
   const { color } = useContext(ThemeContext);
 
@@ -74,6 +86,7 @@ export const DelegationBalance: React.FC<any> = ({
       <Row style={{ alignItems: "center" }}>
         <Typo2
           style={{
+            textAlign: "end",
             fontWeight: "bold",
             color: color.primary.semiWhite(),
           }}

@@ -36,26 +36,26 @@ const WalletSelector: React.FC<any> = ({ width }) => {
     "browser-wrong-account-modal",
     true
   );
-  const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
-    <InfoModal
-      message={`[Web3] wrong network selected. Please change your network to Fantom ${
-        parseInt(config.chainId) === 250 ? "Opera" : "Testnet"
-      } to continue`}
-      withCloseButton={false}
-      handleActionButton={async () =>
-        await switchToChain(
-          walletContext.activeWallet.provider,
-          parseInt(config.chainId)
-        )
-      }
-      actionButtonText={`Switch to ${
-        parseInt(config.chainId) === 250 ? "Fantom Opera" : "Fantom Testnet"
-      }`}
-      actionButtonNoDismiss={true}
-    />,
-    "browser-wrong-network-modal",
-    true
-  );
+  // const [onPresentWrongChainSelected, onDismissWrongChainSelected] = useModal(
+  //   <InfoModal
+  //     message={`[Web3] wrong network selected. Please change your network to Fantom ${
+  //       parseInt(config.chainId) === 250 ? "Opera" : "Testnet"
+  //     } to continue`}
+  //     withCloseButton={false}
+  //     handleActionButton={async () =>
+  //       await switchToChain(
+  //         walletContext.activeWallet.provider,
+  //         parseInt(config.chainId)
+  //       )
+  //     }
+  //     actionButtonText={`Switch to ${
+  //       parseInt(config.chainId) === 250 ? "Fantom Opera" : "Fantom Testnet"
+  //     }`}
+  //     actionButtonNoDismiss={true}
+  //   />,
+  //   "browser-wrong-network-modal",
+  //   true
+  // );
 
   const switchToNewWeb3Provider = () => {
     return dispatchWalletContext({
@@ -140,23 +140,23 @@ const WalletSelector: React.FC<any> = ({ width }) => {
   // Present warning modal if wrong metamask account or network is selected
   useEffect(() => {
     // TODO: create solution useable on all pages (useMultiChain)
-    if (location.pathname === "/bridge") {
-      return;
-    }
-    if (
-      walletContext.activeWallet.providerType === "browser" &&
-      walletContext.web3ProviderState.chainSelected &&
-      walletContext.web3ProviderState.chainSelected !== parseInt(config.chainId)
-    ) {
-      return onPresentWrongChainSelected();
-    }
-    if (
-      walletContext.web3ProviderState.chainSelected ===
-        parseInt(config.chainId) &&
-      modalContext.modalKey === "browser-wrong-network-modal"
-    ) {
-      onDismissWrongChainSelected();
-    }
+    // if (location.pathname === "/bridge") {
+    //   return;
+    // }
+    // if (
+    //   walletContext.activeWallet.providerType === "browser" &&
+    //   walletContext.web3ProviderState.chainSelected &&
+    //   walletContext.web3ProviderState.chainSelected !== parseInt(config.chainId)
+    // ) {
+    //   return onPresentWrongChainSelected();
+    // }
+    // if (
+    //   walletContext.web3ProviderState.chainSelected ===
+    //     parseInt(config.chainId) &&
+    //   modalContext.modalKey === "browser-wrong-network-modal"
+    // ) {
+    //   onDismissWrongChainSelected();
+    // }
     if (warning) {
       onPresentWrongAccountModal();
       setWarning(null);

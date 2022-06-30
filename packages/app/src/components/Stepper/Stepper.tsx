@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
-import { ThemeContext } from "styled-components";
-import Row from "../Row";
+import styled, { ThemeContext } from "styled-components";
 import Spacer from "../Spacer";
 import checkMarkShapeImg from "../../assets/img/shapes/chechmarkShape.png";
+import { mediaExact, Typo2 } from "../index";
+import { Row } from "../Grid/Grid";
 
 const Stepper: React.FC<any> = ({ activeStep, steps }) => {
   const { color } = useContext(ThemeContext);
@@ -14,13 +15,11 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
       {steps.map((step: string, index: number) => {
         return (
           <Row key={`stepper-step-${index}`}>
-            <Row
+            <StyledResponsiveStepperBox
               style={{
                 alignItems: "center",
                 justifyContent: "center",
                 boxSizing: "border-box",
-                height: "1.5rem",
-                width: "1.5rem",
                 fontWeight: "bold",
                 color: activeStep === step ? "white" : color.greys.grey(),
                 backgroundColor:
@@ -32,7 +31,6 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
                 border:
                   !(activeStep === step) &&
                   `1px solid ${color.greys.darkGrey()}`,
-                borderRadius: "8px",
               }}
             >
               {stepIndex > index ? (
@@ -40,8 +38,8 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
               ) : (
                 <div>{index + 1}</div>
               )}
-            </Row>
-            <Spacer size="sm" />
+            </StyledResponsiveStepperBox>
+            <Spacer responsive size="sm" />
             <Row
               style={{
                 alignItems: "center",
@@ -50,21 +48,20 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
                 color: activeStep === step ? "white" : color.greys.darkGrey(),
               }}
             >
-              {step}
+              <Typo2>{step}</Typo2>
             </Row>
-            <Spacer size="sm" />
+            <Spacer responsive size="sm" />
             {index + 1 < steps.length && (
               <>
                 <Row style={{ alignItems: "center" }}>
-                  <div
+                  <StyledResponsiveLine
                     style={{
                       height: "1px",
-                      width: "3rem",
                       borderBottom: `1px solid ${color.greys.darkGrey()}`,
                     }}
                   />
                 </Row>
-                <Spacer />
+                <Spacer responsive size="sm" />
               </>
             )}
           </Row>
@@ -73,5 +70,19 @@ const Stepper: React.FC<any> = ({ activeStep, steps }) => {
     </Row>
   );
 };
+
+const StyledResponsiveStepperBox = styled(Row)`
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 8px;
+  ${mediaExact.xs(`width: 1rem; height: 1rem; border-radius: 3px`)};
+`;
+
+const StyledResponsiveLine = styled.div`
+  ${mediaExact.xs(`width: .5rem`)};
+  ${mediaExact.sm(`width: 1.5rem`)};
+  ${mediaExact.md(`width: 2rem`)};
+  ${mediaExact.lg(`width: 3rem`)};
+`;
 
 export default Stepper;

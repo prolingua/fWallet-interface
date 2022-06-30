@@ -23,8 +23,6 @@ import {
 } from "../../utils/conversion";
 import Modal from "../../components/Modal";
 import ModalTitle from "../../components/ModalTitle";
-import Column from "../../components/Column";
-import Row from "../../components/Row";
 import {
   Button,
   ContentBox,
@@ -52,6 +50,7 @@ import useSendTransaction from "../../hooks/useSendTransaction";
 import InputCurrency from "../../components/InputCurrency";
 import { BigNumber } from "@ethersproject/bignumber";
 import Loader from "../../components/Loader";
+import { Item, Column, Row } from "../../components/Grid/Grid";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -78,7 +77,7 @@ const UndelegateModal: React.FC<any> = ({
   const accountDelegations = getAccountDelegations(
     accountDelegationsResponse.data
   );
-  const selectedDelegation = accountDelegations.find(
+  const selectedDelegation = accountDelegations?.find(
     (accountDelegation) => accountDelegation.delegation.toStakerId === stakerId
   );
   const pendingRewards = selectedDelegation.delegation.pendingRewards.amount;
@@ -161,11 +160,14 @@ const UndelegateModal: React.FC<any> = ({
   }, [isUnlockCompleted, isClaimRewardsCompleted, isUnstakeCompleted]);
 
   return (
-    <Modal style={{ padding: "2rem 6rem" }} onDismiss={onDismiss}>
+    <Modal style={{ padding: "1.4rem 2rem" }} onDismiss={onDismiss}>
       {hasDebt ? (
         <>
           {" "}
-          <ModalTitle text="You have an outstanding sFTM debt" />
+          <Row>
+            <ModalTitle text="You have an outstanding sFTM debt" />
+            <Spacer responsive size="xl" />
+          </Row>
           <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
             You need to repay your sFTM debt before being allowed to unstake.
           </Typo2>
@@ -176,7 +178,10 @@ const UndelegateModal: React.FC<any> = ({
         </>
       ) : isLocked && !acceptLossOfRewards ? (
         <>
-          <ModalTitle text="Unlock & Claim pending rewards first" />
+          <Row>
+            <ModalTitle text="Unlock & Claim pending rewards first" />
+            <Spacer responsive size="xl" />
+          </Row>
           <Typo2 style={{ color: color.greys.grey(), textAlign: "center" }}>
             Your stake is locked. You need to unlock your stake and claim your
             pending rewards before you are eligible to undelegate. <br />
@@ -226,7 +231,10 @@ const UndelegateModal: React.FC<any> = ({
         </>
       ) : (
         <>
-          <ModalTitle text="How much FTM would you like to unstake?" />
+          <Row>
+            <ModalTitle text="How much FTM would you like to unstake?" />
+            <Spacer responsive size="xl" />
+          </Row>
           <Column style={{ width: "100%", alignItems: "center" }}>
             <Row>
               <Typo1 style={{ color: color.greys.grey() }}>
@@ -249,24 +257,22 @@ const UndelegateModal: React.FC<any> = ({
             >
               <Row
                 style={{
-                  padding: "2rem",
+                  padding: "1rem",
                   width: "100%",
                   alignItems: "center",
-                  justifyContent: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                <div style={{ fontWeight: "bold" }}>
-                  <InputCurrency
-                    handleError={(err: any) => console.error(err)}
-                    disabled={isUnstakePending}
-                    value={undelegateAmount}
-                    handleValue={(value: any) => setUndelegateAmount(value)}
-                    max={parseFloat(
-                      weiToUnit(BigNumber.from(delegatedAmount)).toString()
-                    )}
-                    token={FANTOM_NATIVE}
-                  />
-                </div>
+                <InputCurrency
+                  handleError={(err: any) => console.error(err)}
+                  disabled={isUnstakePending}
+                  value={undelegateAmount}
+                  handleValue={(value: any) => setUndelegateAmount(value)}
+                  max={parseFloat(
+                    weiToUnit(BigNumber.from(delegatedAmount)).toString()
+                  )}
+                  token={FANTOM_NATIVE}
+                />
                 <Spacer />
                 <Button
                   fontSize="14px"
@@ -280,19 +286,20 @@ const UndelegateModal: React.FC<any> = ({
               </Row>
             </Row>
             <Spacer size="xl" />
-            <div style={{ width: "98%" }}>
+            <div style={{ width: "95%" }}>
               <SliderWithMarks
                 value={undelegateAmount}
                 setValue={(value: number) =>
                   setUndelegateAmount(value.toString())
                 }
-                max={weiToMaxUnit(BigNumber.from(delegatedAmount).toString())}
+                max={weiToUnit(BigNumber.from(delegatedAmount))}
                 steps={0.1}
               />
               <Spacer size="xl" />
               <Spacer size="xl" />
               <Button
                 disabled={
+                  // parseFloat(delegatedAmount) < 0.1 ||
                   parseInt(undelegateAmount) <= 0 ||
                   isUnstakePending ||
                   isUnstakeCompleted
@@ -311,7 +318,7 @@ const UndelegateModal: React.FC<any> = ({
               <Typo1 style={{ textAlign: "center", color: color.greys.grey() }}>
                 *as a security measure, unstaking takes 7 days.
               </Typo1>
-              <Spacer size="xl" />
+              <Spacer />
             </div>
           </Column>
         </>
@@ -324,6 +331,7 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const { txSFCContractMethod } = useFantomContract();
   const { transaction } = useTransaction();
   const [txHash, setTxHash] = useState({} as any);
+
   const delegatedAmount = hexToUnit(
     activeDelegation.delegation.amountDelegated
   );
@@ -385,9 +393,14 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   return (
     <>
       <ContentBox style={{ width: "100%", padding: 0 }}>
-        <Column style={{ padding: "2rem", width: "100%" }}>
+        <Column style={{ padding: "2rem", width: "100%", gap: "1rem" }}>
           <Row
-            style={{ alignItems: "center", justifyContent: "space-between" }}
+            style={{
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "1rem",
+              justifyContent: "space-between",
+            }}
           >
             <StatPair
               title="Delegation amount"
@@ -396,50 +409,65 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
               suffix="FTM"
               width="12rem"
             />
-            <Spacer size="xl" />
             <StatPair
               title="Delegation date"
               value2={formatDate(delegationDate)}
               width="12rem"
             />
-            <Spacer size="xl" />
-            <Row>
-              <StatPair
-                title="Pending rewards"
-                value1={formattedPendingRewards[0]}
-                value2={formattedPendingRewards[1]}
-                suffix="FTM"
-              />
-              <Spacer />
-              <Button
-                disabled={claimed || isClaiming || pendingRewards < 0.01}
-                onClick={() => handleClaimReward()}
-                style={{
-                  flex: 1,
-                  padding: ".5rem 1.5rem",
-                  alignSelf: "center",
-                }}
-                variant="primary"
-              >
-                {claimed ? "Claimed" : isClaiming ? "Claiming..." : "Claim"}
-              </Button>
-            </Row>
           </Row>
-          <Spacer size="xl" />
-          <Row style={{ alignItems: "center" }}>
+          {daysLocked > 0 && (
+            <Row
+              style={{
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "1rem",
+                justifyContent: "space-between",
+              }}
+            >
+              <StatPair
+                title="Locked amount"
+                value1={formattedLockedAmount[0]}
+                value2={formattedLockedAmount[1]}
+                suffix="FTM"
+                width="12rem"
+              />
+              <StatPair
+                title="Unlocks in"
+                value1={daysLocked > 0 ? `${daysLocked} days` : "-"}
+                value2={
+                  daysLocked > 0 && `\u00A0\u00A0${formatDate(unlockDate)}`
+                }
+              />
+            </Row>
+          )}
+          <Row
+            style={{
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "1rem",
+            }}
+          >
             <StatPair
-              title="Locked amount"
-              value1={formattedLockedAmount[0]}
-              value2={formattedLockedAmount[1]}
+              title="Pending rewards"
+              value1={formattedPendingRewards[0]}
+              value2={formattedPendingRewards[1]}
               suffix="FTM"
-              width="12rem"
             />
-            <Spacer size="xl" />
-            <StatPair
-              title="Unlocks in"
-              value1={daysLocked > 0 ? `${daysLocked} days` : "-"}
-              value2={daysLocked > 0 && `\u00A0\u00A0${formatDate(unlockDate)}`}
-            />
+            <Button
+              disabled={claimed || isClaiming || pendingRewards < 0.01}
+              onClick={() => handleClaimReward()}
+              style={{
+                padding: ".5rem 1.5rem",
+                alignSelf: "center",
+              }}
+              variant="primary"
+            >
+              {claimed
+                ? "Claimed"
+                : isClaiming
+                ? "Claiming..."
+                : "Claim rewards"}
+            </Button>
           </Row>
         </Column>
       </ContentBox>
@@ -450,77 +478,77 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
         <Row
           style={{
             width: "100%",
-            padding: "2rem",
-            justifyContent: "space-between",
+            padding: "2rem 2rem 0 2rem",
+            flexWrap: "wrap",
+            gap: "1rem",
           }}
         >
-          <Column>
+          <Column style={{ gap: "1rem" }}>
+            <Item collapseGTE="md">
+              <Column>
+                <Spacer size="xs" />
+                <DelegationNameInfo
+                  delegationInfo={activeDelegation.delegationInfo.stakerInfo}
+                  imageSize={50}
+                  fontSize="20px"
+                />
+              </Column>
+            </Item>
             <StatPair
               title="Lock-up"
               value1={
                 maxDelegationLockUp > 0 ? `${maxDelegationLockUp} days` : "-"
               }
               value1FontSize="20px"
-              width="12rem"
             />
-            <Spacer />
             <StatPair
               title="Delegators"
               value1={delegations}
               value1FontSize="20px"
-              width="12rem"
             />
-            <Spacer />
           </Column>
-          <Column>
-            <div style={{ height: "5rem" }}>
+          <Column style={{ padding: "0 2rem" }}>
+            <Item collapseLTE="sm">
               <CircularRatioBar
                 ratios={[70, 80]}
                 ratioColors={["#3F69D4", "#2BBEBE"]}
               >
                 <DelegationNameInfo
                   delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-                  imageSize="35px"
+                  imageSize={35}
                   flexColumn
                 />
               </CircularRatioBar>
-            </div>
+            </Item>
           </Column>
-          <Column
-            style={{ alignItems: "center", justifyContent: "space-between" }}
-          >
+          <Column style={{ gap: "1rem" }}>
             <StatPair
               title="Self staked"
               titleColor="#3F69D4"
               value1={formattedSelfStaked[0]}
               value1FontSize="20px"
-              width="12rem"
             />
-            <Spacer />
             <StatPair
               title="Total staked"
               titleColor="#2BBEBE"
               value1={formattedTotalStaked[0]}
               value1FontSize="20px"
-              width="12rem"
             />
-            <Spacer />
             <StatPair
               title="Free space"
               value1={formattedFreeSpace[0]}
               value1FontSize="20px"
               value2={`(${freeSpacePercentage.toFixed(0)}%)`}
-              width="12rem"
             />
           </Column>
         </Row>
       </ContentBox>
 
       <Spacer size="xl" />
-      {delegatedAmount > 0 && (
+      {delegatedAmount > 0.1 && (
         <Row style={{ padding: "0rem 2rem" }}>
           <Button
-            disabled={delegatedAmount <= 0}
+            disabled={delegatedAmount <= 0.1}
             onClick={() => onPresentUndelegateModal()}
             style={{ flex: 1, border: "1px solid red" }}
             variant="secondary"
@@ -555,7 +583,7 @@ const WithdrawRequestsTab: React.FC<any> = ({ activeDelegation }) => {
 
   return (
     <ContentBox style={{ width: "100%", height: "100%", padding: 0 }}>
-      <Column style={{ padding: "2rem", width: "100%" }}>
+      <Column style={{ padding: "2rem", width: "100%", height: "500px" }}>
         <StatPair
           title="Total undelegations"
           value1={formattedTotalAmountToWithdraw[0]}
@@ -645,7 +673,6 @@ const ManageDelegationModal: React.FC<any> = ({
       style={{
         padding: "0",
         backgroundColor: color.primary.black(),
-        minWidth: "50rem",
       }}
     >
       <Row style={{ alignSelf: "flex-start" }}>
@@ -674,9 +701,10 @@ const ManageDelegationModal: React.FC<any> = ({
           >
             <Heading3>Pending undelegations</Heading3>
           </OverlayButton>
+          <Spacer size="xxl" />
         </Row>
       </Row>
-      <div style={{ height: "625px", width: "100%" }}>
+      <div style={{ width: "100%" }}>
         {activeTab === "Overview" ? (
           <DelegationOverviewTab activeDelegation={selectedDelegation} />
         ) : (

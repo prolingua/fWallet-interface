@@ -46,7 +46,7 @@ const AmountInputRow: React.FC<any> = ({
     : getAccountAssetBalance({ erc20Assets: accountAssets }, token.address);
   const tokenBalance = weiToMaxUnit(tokenBalanceInWei, token.decimals);
   const formattedBalance = toFormattedBalance(tokenBalance);
-  const formattedTotalValue = fiatValue && toFormattedBalance(fiatValue);
+  const formattedTotalValue = fiatValue && toFormattedBalance(fiatValue, 2);
 
   const handleSetMax = () => {
     setError(null);

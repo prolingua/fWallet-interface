@@ -99,7 +99,7 @@ const ClaimDelegationRewardRow: React.FC<any> = ({
       <Row style={{ width: "18rem", alignItems: "center" }}>
         <DelegationNameInfo
           delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-          imageSize="32px"
+          imageSize={32}
           id={activeDelegation.delegation.toStakerId}
         />
       </Row>
@@ -366,7 +366,7 @@ const Rewards: React.FC<any> = ({ loading, accountDelegations }) => {
   );
   return (
     <ContentBox style={{ flex: 1 }}>
-      <Column>
+      <Column style={{ width: "100%" }}>
         <Heading1>Rewards</Heading1>
         <Spacer />
         <Typo2 style={{ color: "#B7BECB" }}>

@@ -3,7 +3,7 @@ import { ThemeContext } from "styled-components";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import useFantomApi, { FantomApiMethods } from "../../hooks/useFantomApi";
-import Row, { ResponsiveRow } from "../../components/Row/Row";
+import { ResponsiveRow } from "../../components/Row/Row";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import StakingOverview from "./StakingOverview";
@@ -15,6 +15,8 @@ import WithdrawRequests from "./WithdrawRequests";
 import FluidRewards from "./FluidRewards";
 import FadeInOut from "../../components/AnimationFade";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { ContentBox } from "../../components";
+import { Item, Row } from "../../components/Grid/Grid";
 
 const Staking: React.FC<any> = () => {
   const { breakpoints } = useContext(ThemeContext);
@@ -82,14 +84,13 @@ const Staking: React.FC<any> = () => {
               accountDelegations={accountDelegations}
             />
             <Spacer />
-            <Row>
+            <Row flipDirectionLTE="sm" style={{ gap: "1.5rem" }}>
               <Delegate
                 loading={!delegateIsDoneLoading}
                 accountBalance={accountBalance}
                 delegations={delegations}
                 accountDelegations={accountDelegations}
               />
-              <Spacer />
               <Rewards
                 loading={!activeDelegationsIsDoneLoading}
                 accountDelegations={accountDelegations}
@@ -97,18 +98,22 @@ const Staking: React.FC<any> = () => {
               />
             </Row>
             <Spacer />
-            <Row>
-              <FluidRewards
-                loading={!activeDelegationsIsDoneLoading}
-                accountDelegations={accountDelegations?.data}
-                delegations={delegations?.data}
-              />
-              {/*<Spacer />*/}
+            <Row flipDirectionLTE="sm" style={{ gap: "1.5rem" }}>
+              <Item>
+                <FluidRewards
+                  loading={!activeDelegationsIsDoneLoading}
+                  accountDelegations={accountDelegations?.data}
+                  delegations={delegations?.data}
+                />
+              </Item>
               {/*<LiquidStaking*/}
               {/*  loading={!activeDelegationsIsDoneLoading}*/}
               {/*  accountDelegations={accountDelegations}*/}
               {/*  delegations={delegations}*/}
               {/*/>*/}
+              <Item collapseLTE="sm" style={{ flex: 1 }}>
+                <ContentBox style={{ backgroundColor: "transparent" }} />
+              </Item>
             </Row>
           </Column>
           <Spacer />

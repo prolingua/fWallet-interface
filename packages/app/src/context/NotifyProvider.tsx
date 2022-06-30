@@ -18,15 +18,12 @@ const NotifyProvider: React.FC = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState<React.ReactNode>();
   const [notifyKey, setNotifyKey] = useState<string>();
-  // const [persist, setPersist] = useState(false);
 
   const handlePresent = useCallback(
     (notifyContent: React.ReactNode, key?: string) => {
       setNotifyKey(key);
       setContent(notifyContent);
       setIsOpen(true);
-      // setPersist(persist);
-
       // Disable page scrollbar on modal open
       document.body.style.overflow = "hidden";
     },
@@ -65,16 +62,14 @@ const NotifyProvider: React.FC = ({ children }) => {
 };
 
 const StyledNotifyWrapper = styled.div`
-  align-items: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   position: fixed;
   z-index: 2000;
-  // top: 0;
   right: 0;
   bottom: 0;
-  // left: 0;
   margin: 2rem;
 `;
 

@@ -13,6 +13,7 @@ import LockupStep from "./Delegate/LockupStep";
 import ConfirmationStep from "./Delegate/ConfirmationStep";
 import { getAccountDelegations } from "../../utils/delegation";
 import Loader from "../../components/Loader";
+import { Item } from "../../components/Grid/Grid";
 
 const DelegateModal: React.FC<any> = ({
   onDismiss,
@@ -26,7 +27,10 @@ const DelegateModal: React.FC<any> = ({
   const [steps, setSteps] = useState(["Delegate", "Lockup", "Confirmation"]);
 
   return (
-    <Modal style={{ minWidth: "50rem" }} onDismiss={onDismiss}>
+    <Modal onDismiss={onDismiss}>
+      <Item collapseGTE="md">
+        <Spacer size="xl" />
+      </Item>
       <Stepper activeStep={activeStep} steps={steps} />
       <Spacer size="xl" />
       {activeStep === "Delegate" && (
@@ -98,10 +102,10 @@ const Delegate: React.FC<any> = ({
   );
   return (
     <ContentBox style={{ flex: 1 }}>
-      <Column>
+      <Column style={{ width: "100%" }}>
         <Heading1>Delegate</Heading1>
         <Spacer />
-        <Typo2 style={{ color: "#B7BECB" }}>
+        <Typo2 style={{ color: "#B7BECB", wordWrap: "break-word" }}>
           Delegate your FTM to a validator node and earn staking rewards.
         </Typo2>
         <Column style={{ marginTop: "auto", width: "100%" }}>

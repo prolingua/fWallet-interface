@@ -51,6 +51,7 @@ import FadeInOut from "../../components/AnimationFade";
 import useDetectResolutionType from "../../hooks/useDetectResolutionType";
 import openoceanImg from "../../assets/img/icons/openocean.svg";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { Item } from "../../components/Grid/Grid";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -150,15 +151,17 @@ const SwapTokenInput: React.FC<any> = ({
           alignItems: "center",
         }}
       >
-        <Spacer />
-        <InputCurrency
-          disabled={disabledInput}
-          value={inputValue}
-          max={maximum}
-          handleValue={setInputValue}
-          handleError={setError}
-          token={token}
-        />
+        <Item style={{ flex: 1 }}>
+          <Spacer />
+          <InputCurrency
+            disabled={disabledInput}
+            value={inputValue}
+            max={maximum}
+            handleValue={setInputValue}
+            handleError={setError}
+            token={token}
+          />
+        </Item>
         <Row style={{ flex: 1, alignItems: "center" }}>
           <Spacer />
           {!disabledInput && (

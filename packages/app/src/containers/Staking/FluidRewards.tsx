@@ -14,6 +14,7 @@ import {
   formatHexToBN,
   hexToUnit,
   toFormattedBalance,
+  unitToWei,
 } from "../../utils/conversion";
 import useFantomContract, {
   SFC_TX_METHODS,
@@ -43,6 +44,8 @@ import SliderWithMarks from "../../components/Slider";
 import vShapeImg from "../../assets/img/shapes/vShapeBack.svg";
 import ConfirmationStep from "./Delegate/ConfirmationStep";
 import Loader from "../../components/Loader";
+import { Item } from "../../components/Grid/Grid";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const LockupSelect: React.FC<any> = ({
   validator,
@@ -118,7 +121,6 @@ const LockupSelect: React.FC<any> = ({
         <Column
           style={{
             justifyContent: "center",
-            width: "40rem",
             margin: "2rem 0",
           }}
         >
@@ -171,34 +173,39 @@ const LockupSelect: React.FC<any> = ({
       <Spacer size="xl" />
       <ContentBox style={{ backgroundColor: color.primary.black() }}>
         <Column style={{ width: "100%" }}>
-          <Row style={{ justifyContent: "space-between" }}>
-            <StatPair
-              title="Delegation amount"
-              value1={formattedDelegatedAmount[0]}
-              value2={formattedDelegatedAmount[1]}
-              suffix="FTM"
-            />
-            <StatPair
-              title="Est. weekly rewards"
-              value1={formattedWeeklyReward[0]}
-              value2={formattedWeeklyReward[1]}
-              suffix="FTM"
-              valueFlex="flex-end"
-            />
-            <StatPair
-              title="Est. monthly rewards"
-              value1={formattedMonthlyReward[0]}
-              value2={formattedMonthlyReward[1]}
-              suffix="FTM"
-              valueFlex="flex-end"
-            />
-            <StatPair
-              title="Est. yearly rewards"
-              value1={formattedYearlyReward[0]}
-              value2={formattedYearlyReward[1]}
-              suffix="FTM"
-              valueFlex="flex-end"
-            />
+          <Row style={{ justifyContent: "space-between", gap: "1rem" }}>
+            <Item>
+              <StatPair
+                title="Delegation amount"
+                value1={formattedDelegatedAmount[0]}
+                value2={formattedDelegatedAmount[1]}
+                suffix="FTM"
+              />
+            </Item>
+            <Item collapseLTE="sm">
+              <StatPair
+                title="Est. weekly rewards"
+                value1={formattedWeeklyReward[0]}
+                value2={formattedWeeklyReward[1]}
+                suffix="FTM"
+              />
+            </Item>
+            <Item collapseLTE="sm">
+              <StatPair
+                title="Est. monthly rewards"
+                value1={formattedMonthlyReward[0]}
+                value2={formattedMonthlyReward[1]}
+                suffix="FTM"
+              />
+            </Item>
+            <Item>
+              <StatPair
+                title="Est. yearly rewards"
+                value1={formattedYearlyReward[0]}
+                value2={formattedYearlyReward[1]}
+                suffix="FTM"
+              />
+            </Item>
           </Row>
           <Spacer />
           <Row style={{ justifyContent: "flex-end" }}>
@@ -243,24 +250,28 @@ const LockupFTMRow: React.FC<any> = ({
   );
   const maxLockup = maxLockDays(validator);
   const maxApr = calculateDelegationApr(maxLockup <= 0 ? 0 : maxLockup) * 100;
-  console.log(validator.dele);
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
       <Row style={{ width: "16rem", alignItems: "center" }}>
-        <DelegationNameInfo
-          delegationInfo={validator.stakerInfo}
-          imageSize="32px"
-          id={validator.id}
-        />
+        <Item collapseLTE="xs">
+          <DelegationNameInfo
+            delegationInfo={validator.stakerInfo}
+            imageSize={32}
+            id={validator.id}
+          />
+        </Item>
+        <Item collapseGTE="sm">
+          <Typo1 style={{ fontWeight: "bold" }}>{parseInt(validator.id)}</Typo1>
+        </Item>
       </Row>
       <Row style={{ width: "12rem", alignItems: "center" }}>
-        <Typo1 style={{ fontWeight: "bold" }}>{availableFTMToLockup} FTM</Typo1>
+        <Typo2 style={{ fontWeight: "bold" }}>{availableFTMToLockup} FTM</Typo2>
       </Row>
       <Row style={{ width: "8rem", alignItems: "center" }}>
-        <Typo1 style={{ fontWeight: "bold" }}>{maxLockup} days</Typo1>
+        <Typo2 style={{ fontWeight: "bold" }}>{maxLockup} days</Typo2>
       </Row>
       <Row style={{ width: "8rem", alignItems: "center" }}>
-        <Typo1 style={{ fontWeight: "bold" }}>{maxApr.toFixed(2)}%</Typo1>
+        <Typo2 style={{ fontWeight: "bold" }}>{maxApr.toFixed(2)}%</Typo2>
       </Row>
 
       <Row
@@ -314,13 +325,15 @@ export const LockupFTMModal: React.FC<any> = ({
 
       return (
         canLockDelegation(stakedDelegation, validator) &&
-        stakedDelegation.delegation.amountDelegated !== "0x0"
+        BigNumber.from(stakedDelegation.delegation.amountDelegated).gte(
+          unitToWei("1")
+        )
       );
     }
   );
 
   return (
-    <Modal style={{ width: "52rem" }} onDismiss={onDismiss}>
+    <Modal onDismiss={onDismiss}>
       {step === "Select" && (
         <>
           <ModalTitle text="Fluid rewards" />
@@ -481,8 +494,8 @@ const FluidRewards: React.FC<any> = ({
     "lockup-ftm-modal"
   );
   return (
-    <ContentBox style={{ flex: 1 }}>
-      <Column>
+    <ContentBox style={{ flex: 1, width: "100%" }}>
+      <Column style={{ width: "100%" }}>
         <Heading1>Fluid Rewards</Heading1>
         <Spacer />
         <Typo2 style={{ color: "#B7BECB" }}>

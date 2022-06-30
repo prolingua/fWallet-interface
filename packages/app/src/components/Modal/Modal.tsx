@@ -44,14 +44,14 @@ const mobileKeyframes = keyframes`
 const StyledResponsiveWrapper = styled.div<any>`
   align-items: center;
   display: flex;
-  // flex-direction: column;
   justify-content: flex-end;
   position: relative;
   box-sizing: border-box;
+  margin: auto;
   ${mediaExact.xs(`min-width: 90vw; max-width: 90vw;`)}
   ${mediaExact.sm(`min-width: 70vw; max-width: 90vw;`)}
-  ${mediaExact.md(`min-width: 500px; max-width: 80vw;`)}
-  ${mediaExact.lg(`min-width: 500px; max-width: 70vw;`)}
+  ${mediaExact.md(`min-width: 500px; max-width: 85vw;`)}
+  ${mediaExact.lg(`min-width: 500px; max-width: 75vw;`)}
 `;
 
 const StyledModal = styled.div<any>`
@@ -67,9 +67,15 @@ const StyledModal = styled.div<any>`
   align-items: center;
   position: relative;
   min-height: 0;
-  // min-width: 20rem;
   width: 100%;
   z-index: 1;
+  box-sizing: border-box;
+  margin: 1rem 0;
+
+  ${(props) => !props.padding && mediaExact.xs(`padding: 20px 20px`)};
+  ${(props) => !props.padding && mediaExact.sm(`padding: 20px 40px`)}
+  ${(props) => !props.padding && mediaExact.md(`padding: 20px 40px`)}
+  ${(props) => !props.padding && mediaExact.lg(`padding: 20px 40px`)}
 `;
 
 export default Modal;
