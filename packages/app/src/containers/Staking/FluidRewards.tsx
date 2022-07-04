@@ -251,31 +251,47 @@ const LockupFTMRow: React.FC<any> = ({
   const maxLockup = maxLockDays(validator);
   const maxApr = calculateDelegationApr(maxLockup <= 0 ? 0 : maxLockup) * 100;
   return (
-    <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
-      <Row style={{ width: "16rem", alignItems: "center" }}>
+    <Row
+      style={{
+        textAlign: "left",
+        height: "3rem",
+        padding: ".5rem 0",
+        gap: "14px",
+      }}
+    >
+      <Row style={{ width: "32%" }}>
         <Item collapseLTE="xs">
-          <DelegationNameInfo
-            delegationInfo={validator.stakerInfo}
-            imageSize={32}
-            id={validator.id}
-          />
+          <Row style={{ width: "100%", height: "100%", alignItems: "center" }}>
+            <DelegationNameInfo
+              delegationInfo={validator.stakerInfo}
+              imageSize={32}
+              id={validator.id}
+              dropNameAtMediaSize="sm"
+            />
+          </Row>
         </Item>
         <Item collapseGTE="sm">
           <Typo1 style={{ fontWeight: "bold" }}>{parseInt(validator.id)}</Typo1>
         </Item>
       </Row>
-      <Row style={{ width: "12rem", alignItems: "center" }}>
+      <Row
+        style={{ width: "17%", alignItems: "center", justifyContent: "center" }}
+      >
         <Typo2 style={{ fontWeight: "bold" }}>{availableFTMToLockup} FTM</Typo2>
       </Row>
-      <Row style={{ width: "8rem", alignItems: "center" }}>
+      <Row
+        style={{ width: "17%", alignItems: "center", justifyContent: "center" }}
+      >
         <Typo2 style={{ fontWeight: "bold" }}>{maxLockup} days</Typo2>
       </Row>
-      <Row style={{ width: "8rem", alignItems: "center" }}>
+      <Row
+        style={{ width: "17%", alignItems: "center", justifyContent: "center" }}
+      >
         <Typo2 style={{ fontWeight: "bold" }}>{maxApr.toFixed(2)}%</Typo2>
       </Row>
-
       <Row
         style={{
+          width: "17%",
           marginLeft: "auto",
           alignItems: "center",
           justifyContent: "flex-end",
@@ -352,25 +368,26 @@ export const LockupFTMModal: React.FC<any> = ({
           </Row>
           <Spacer size="xl" />
           <ModalContent>
-            <Row style={{ textAlign: "left" }}>
+            <Row style={{ textAlign: "center", gap: "14px" }}>
               <Typo3
                 style={{
-                  width: "16rem",
+                  textAlign: "start",
                   color: color.greys.grey(),
+                  width: "32%",
                 }}
               >
                 Validator
               </Typo3>
-              <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
+              <Typo3 style={{ color: color.greys.grey(), width: "17%" }}>
                 Available FTM to lockup
               </Typo3>
-              <Typo3 style={{ width: "8rem", color: color.greys.grey() }}>
+              <Typo3 style={{ color: color.greys.grey(), width: "17%" }}>
                 Max lockup
               </Typo3>
-              <Typo3 style={{ width: "8rem", color: color.greys.grey() }}>
+              <Typo3 style={{ color: color.greys.grey(), width: "17%" }}>
                 Max apr
               </Typo3>
-              <div style={{ width: "8rem" }} />
+              <div style={{ width: "17%" }} />
             </Row>
             <Spacer size="sm" />
             {accountDelegations?.length && validatorsEligibleToLock?.length ? (

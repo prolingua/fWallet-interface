@@ -2,10 +2,11 @@ import React, { useContext } from "react";
 import styled, { ThemeContext } from "styled-components";
 import { hexToUnit, toFormattedBalance } from "../../utils/conversion";
 import Row from "../Row";
-import { mediaExact, Typo1, Typo2, Typo3 } from "../index";
+import { mediaExact, Typo2, Typo3 } from "../index";
 import Column from "../Column";
 import delegationFallbackImg from "../../assets/img/delegationFallbackImg.png";
 import { delegationDaysLockedLeft } from "../../utils/delegation";
+import { Item } from "../Grid/Grid";
 
 export const DelegationNameInfo: React.FC<any> = ({
   imageSize,
@@ -14,6 +15,7 @@ export const DelegationNameInfo: React.FC<any> = ({
   daysLocked,
   flexColumn,
   id,
+  dropNameAtMediaSize,
 }) => {
   const { color } = useContext(ThemeContext);
   const content = (
@@ -28,15 +30,26 @@ export const DelegationNameInfo: React.FC<any> = ({
         }}
         src={delegationInfo?.logoUrl || delegationFallbackImg}
       />
-      <Column>
+      <Column style={{ alignItems: flexColumn ? "center" : "initial" }}>
         <Typo2
           style={{
             fontWeight: "bold",
             fontSize,
+            whiteSpace: "nowrap",
+            maxWidth: "100%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
           }}
         >
-          {id ? `${parseInt(id)}. ` : ""}
-          {delegationInfo?.name || "Unnamed"}
+          <Row>
+            <Item>{id ? `${parseInt(id)}` : ""}</Item>
+            {id && delegationInfo?.name && (
+              <Item collapseLTE={dropNameAtMediaSize}>{"."}&nbsp;</Item>
+            )}
+            <Item collapseLTE={dropNameAtMediaSize}>
+              {delegationInfo?.name || "Unnamed"}
+            </Item>
+          </Row>
         </Typo2>
         {daysLocked > 0 && (
           <Typo3 style={{ color: color.greys.grey() }}>
@@ -56,6 +69,13 @@ export const DelegationNameInfo: React.FC<any> = ({
     </>
   );
 };
+
+// const StyledResponsiveInfo = styled(Typo2)`
+//   ${(props) => mediaExact.xs(`width: ${props.size * 0.8}px`)};
+//   ${(props) => mediaExact.sm(`width: ${props.size * 0.8}px`)};
+//   ${(props) => mediaExact.md(`width: ${props.size}px`)};
+//   ${(props) => mediaExact.lg(`width: ${props.size}px`)};
+// `;
 
 const StyledResponsiveImage = styled.img<{ size: number }>`
   ${(props) => mediaExact.xs(`width: ${props.size * 0.8}px`)};
@@ -77,12 +97,21 @@ export const DelegationBalance: React.FC<any> = ({
 
   return (
     <Row style={{ justifyContent: "space-between" }}>
-      <DelegationNameInfo
-        imageSize={imageSize}
-        delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-        daysLocked={daysLocked}
-        id={activeDelegation.delegation.toStakerId}
-      />
+      <Row
+        style={{
+          maxWidth: "80%",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        <DelegationNameInfo
+          imageSize={imageSize}
+          delegationInfo={activeDelegation.delegationInfo.stakerInfo}
+          daysLocked={daysLocked}
+          id={activeDelegation.delegation.toStakerId}
+        />
+      </Row>
       <Row style={{ alignItems: "center" }}>
         <Typo2
           style={{

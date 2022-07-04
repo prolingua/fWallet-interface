@@ -45,6 +45,8 @@ export const Item = styled.div<{
   collapseLTE?: MediaSizes;
 }>`
   flex: ${(props) => (props?.size ? props.size : 1)};
+  width: 100%;
+  height: 100%;
   ${(props) =>
     props.collapseLTE && mediaTill[props.collapseLTE](`display: none`)}
   ${(props) =>

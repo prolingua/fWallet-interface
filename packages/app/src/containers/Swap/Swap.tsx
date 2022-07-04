@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ThemeContext } from "styled-components";
 import { BigNumber } from "@ethersproject/bignumber";
 import Column from "../../components/Column";
@@ -13,7 +13,6 @@ import {
   Typo2,
   Typo3,
 } from "../../components";
-import Row from "../../components/Row";
 import InputError from "../../components/InputError";
 import useOpenOceanApi, {
   OOToken,
@@ -48,10 +47,10 @@ import useCoingeckoApi, {
 import Chart from "../../components/Chart";
 import { formatDate } from "../../utils/common";
 import FadeInOut from "../../components/AnimationFade";
-import useDetectResolutionType from "../../hooks/useDetectResolutionType";
+import useDetectResolution from "../../hooks/useDetectResolution";
 import openoceanImg from "../../assets/img/icons/openocean.svg";
 import ErrorBoundary from "../../components/ErrorBoundary";
-import { Item } from "../../components/Grid/Grid";
+import { Item, Row } from "../../components/Grid/Grid";
 
 const SwapTokenInput: React.FC<any> = ({
   inputValue,
@@ -131,16 +130,18 @@ const SwapTokenInput: React.FC<any> = ({
     <Column>
       <Row style={{ position: "relative", justifyContent: "space-between" }}>
         <Typo2 style={{ color: color.greys.grey() }}>{title}</Typo2>
-        <Row>
-          <img alt="" src={walletSymbol} />
-          <Spacer size="xs" />
-          <FormattedValue
-            formattedValue={formattedTokenBalance}
-            tokenSymbol={token.symbol}
-            color={color.greys.grey()}
-            fontSize="16px"
-          />
-        </Row>
+        <OverlayButton onClick={handleSetMax}>
+          <Row>
+            <img alt="" src={walletSymbol} />
+            <Spacer size="xs" />
+            <FormattedValue
+              formattedValue={formattedTokenBalance}
+              tokenSymbol={token.symbol}
+              color={color.greys.grey()}
+              fontSize="16px"
+            />
+          </Row>
+        </OverlayButton>
       </Row>
       <Spacer size="xs" />
       <Row
@@ -151,32 +152,30 @@ const SwapTokenInput: React.FC<any> = ({
           alignItems: "center",
         }}
       >
-        <Item style={{ flex: 1 }}>
-          <Spacer />
-          <InputCurrency
-            disabled={disabledInput}
-            value={inputValue}
-            max={maximum}
-            handleValue={setInputValue}
-            handleError={setError}
-            token={token}
-          />
-        </Item>
+        <Spacer responsive />
+        <InputCurrency
+          disabled={disabledInput}
+          value={inputValue}
+          max={maximum}
+          handleValue={setInputValue}
+          handleError={setError}
+          token={token}
+        />
         <Row style={{ flex: 1, alignItems: "center" }}>
           <Spacer />
           {!disabledInput && (
-            <Button
-              fontSize="14px"
-              color={color.greys.grey()}
-              padding="8px"
-              style={{ flex: 1 }}
-              variant="tertiary"
-              onClick={handleSetMax}
-            >
-              {token.address === "0x0000000000000000000000000000000000000000"
-                ? "MAX"
-                : "MAX"}
-            </Button>
+            <Item collapseLTE="xs">
+              <Button
+                fontSize="14px"
+                color={color.greys.grey()}
+                padding="8px"
+                style={{ flex: 1 }}
+                variant="tertiary"
+                onClick={handleSetMax}
+              >
+                MAX
+              </Button>
+            </Item>
           )}
           <Spacer />
           <TokenSelectButton
@@ -706,6 +705,8 @@ const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer, width }) => {
     }
   }, [chartData]);
 
+  const parentRef = useRef(null);
+
   return (
     <Column>
       <Row style={{ justifyContent: "space-between" }}>
@@ -758,8 +759,12 @@ const TokenChart: React.FC<any> = ({ activeTokens, refetchTimer, width }) => {
         </Column>
       </Row>
       {chartData && (
-        <div key={width + (chartData?.length || 0)}>
-          <Chart data={chartData} handleCrossHairData={handleCrosshairData} />
+        <div ref={parentRef} key={width + (chartData?.length || 0)}>
+          <Chart
+            width={parentRef?.current?.offsetWidth}
+            data={chartData}
+            handleCrossHairData={handleCrosshairData}
+          />
         </div>
       )}
     </Column>
@@ -848,7 +853,7 @@ const Swap: React.FC<any> = () => {
   const { getTokenList } = useOpenOceanApi();
   const { walletContext } = useWalletProvider();
   const { apiData: fantomApiData } = useFantomApiData();
-  const { width } = useDetectResolutionType();
+  const { width } = useDetectResolution();
   const { apiData } = useApiData();
   const [tokenList, setTokenList] = useState(null);
   const [activeTokens, setActiveTokens] = useState([
@@ -952,8 +957,8 @@ const Swap: React.FC<any> = () => {
         <Row
           style={{
             gap: "2rem",
-            flexWrap: "wrap",
             justifyContent: "center",
+            flexWrap: "wrap",
           }}
         >
           <SwapTokensContent
@@ -962,7 +967,7 @@ const Swap: React.FC<any> = () => {
             setSwapRoute={setSwapRoute}
             refetchTimer={refetchTimer}
           />
-          <Column style={{ flex: 2, minWidth: "500px" }}>
+          <Column style={{ flex: 2, minWidth: "50%" }}>
             <TokenChart
               width={width}
               activeTokens={activeTokens}

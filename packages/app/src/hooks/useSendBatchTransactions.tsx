@@ -12,6 +12,10 @@ const useSendBatchTransactions = (transactions: any[][]) => {
   const successfulTxs = txs.filter((tx) => tx.status === "completed");
   const failedTxs = txs.filter((tx) => tx.status === "failed");
 
+  const reset = () => {
+    setTxHashes({});
+  };
+
   const sendBatch = async () => {
     const hashes = {} as any;
     try {
@@ -31,6 +35,7 @@ const useSendBatchTransactions = (transactions: any[][]) => {
     pendingTxs,
     successfulTxs,
     failedTxs,
+    reset,
   };
 };
 

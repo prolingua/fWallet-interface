@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 
-const useDetectResolutionType = () => {
+const useDetectResolution = () => {
   const [width, setWidth] = useState(window.innerWidth);
   let timeout: any;
   const handleWindowSizeChange = () => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       setWidth(window.innerWidth);
-    }, 300);
+    }, 100);
   };
 
   useEffect(() => {
@@ -19,19 +19,19 @@ const useDetectResolutionType = () => {
   }, []);
 
   const getResolutionType = () => {
-    if (width <= 576) {
-      return "mobile";
+    if (width <= 480) {
+      return "xs";
     }
     if (width <= 768) {
-      return "tablet";
+      return "sm";
     }
-    if (width <= 1200) {
-      return "desktop";
+    if (width <= 1024) {
+      return "md";
     }
-    return "ultra";
+    return "lg";
   };
 
-  return { resolutionType: getResolutionType(), width };
+  return { resolutionSize: getResolutionType(), width };
 };
 
-export default useDetectResolutionType;
+export default useDetectResolution;

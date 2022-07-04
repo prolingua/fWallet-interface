@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   getAccountDelegations,
   getAccountDelegationSummary,
@@ -96,20 +96,24 @@ const ClaimDelegationRewardRow: React.FC<any> = ({
 
   return (
     <Row style={{ textAlign: "left", height: "3rem", padding: ".5rem 0" }}>
-      <Row style={{ width: "18rem", alignItems: "center" }}>
-        <DelegationNameInfo
-          delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-          imageSize={32}
-          id={activeDelegation.delegation.toStakerId}
-        />
-      </Row>
-      <Row style={{ width: "12rem", alignItems: "center" }}>
-        <Typo1 style={{ fontWeight: "bold" }}>
-          {isClaimed
-            ? "0.00"
-            : `${formattedPendingReward[0]}${formattedPendingReward[1]}`}{" "}
-          FTM
-        </Typo1>
+      <Row style={{ width: "100%" }}>
+        <Row style={{ alignItems: "center" }}>
+          <DelegationNameInfo
+            delegationInfo={activeDelegation.delegationInfo.stakerInfo}
+            imageSize={32}
+            id={activeDelegation.delegation.toStakerId}
+            dropNameAtMediaSize="sm"
+          />
+        </Row>
+        <Row style={{ alignItems: "center", marginLeft: "auto" }}>
+          <Typo1 style={{ fontWeight: "bold" }}>
+            {isClaimed
+              ? "0.00"
+              : `${formattedPendingReward[0]}${formattedPendingReward[1]}`}{" "}
+            FTM
+          </Typo1>
+          <Spacer responsive />
+        </Row>
       </Row>
       <Row
         style={{
@@ -175,7 +179,7 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
   ].get(activeAddress);
 
   const accountDelegations = getAccountDelegations(
-    accountDelegationsResponse.data
+    accountDelegationsResponse?.data
   );
   const delegations = getValidators(delegationsResponse.data);
   const activeDelegations = !(delegations && accountDelegations)
@@ -238,6 +242,7 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
     pendingTxs: pendingClaimTxs,
     successfulTxs: successfulClaimTxs,
     failedTxs: failedClaimTxs,
+    reset: resetClaimTxs,
   } = useSendBatchTransactions(claimAllBatch);
 
   const {
@@ -247,25 +252,33 @@ const ClaimRewardsModal: React.FC<any> = ({ onDismiss }) => {
     pendingTxs: pendingCompoundTxs,
     successfulTxs: successfulCompoundTxs,
     failedTxs: failedCompoundTxs,
+    reset: resetCompoundTxs,
   } = useSendBatchTransactions(compoundAllBatch);
+
+  useEffect(() => {
+    resetClaimTxs();
+    resetCompoundTxs();
+  }, [walletContext.activeWallet.address]);
 
   return (
     <Modal onDismiss={onDismiss}>
       <ModalTitle text="Claim Rewards" />
       <ModalContent>
-        <Row style={{ textAlign: "left" }}>
+        <Row
+          style={{
+            textAlign: "left",
+            width: "80%",
+            justifyContent: "space-between",
+          }}
+        >
           <Typo3
             style={{
-              width: "18rem",
               color: color.greys.grey(),
             }}
           >
             Validator
           </Typo3>
-          <Typo3 style={{ width: "12rem", color: color.greys.grey() }}>
-            Pending rewards
-          </Typo3>
-          <div style={{ width: "5rem" }} />
+          <Typo3 style={{ color: color.greys.grey() }}>Pending rewards</Typo3>
         </Row>
         <Spacer size="sm" />
         {activeDelegations.map((delegation, index) => {

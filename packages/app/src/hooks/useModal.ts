@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Context } from "../context/ModalProvider";
 
 const useModal = (modal: React.ReactNode, key?: string, persist = false) => {

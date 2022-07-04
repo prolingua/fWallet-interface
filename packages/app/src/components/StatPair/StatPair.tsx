@@ -20,7 +20,7 @@ const StatPair: React.FC<any> = ({
 }) => {
   const { color } = useContext(ThemeContext);
   return (
-    <Column style={{ width: width && width }}>
+    <Column style={{ width: width && width, alignItems: valueFlex }}>
       {title && (
         <>
           <Typo1

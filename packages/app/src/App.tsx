@@ -14,7 +14,7 @@ import { ActiveWalletProvider } from "./context/ActiveWalletProvider";
 import { FantomApiProvider } from "./context/FantomApiProvider";
 import { SettingsProvider } from "./context/SettingsProvider";
 import { TransactionProvider } from "./context/TransactionProvider";
-import useDetectResolutionType from "./hooks/useDetectResolutionType";
+import useDetectResolution from "./hooks/useDetectResolution";
 import Home from "./containers/Home";
 import SideBar from "./containers/SideBar/SideBar";
 import Test from "./containers/Test/Test";

@@ -121,18 +121,22 @@ const AmountInputRow: React.FC<any> = ({
               <div style={{ flex: 4 }} />
             )}
           </Item>
-          <Spacer />
-          <Button
-            fontSize="14px"
-            color={color.greys.grey()}
-            padding="8px"
-            style={{ flex: 1 }}
-            variant="tertiary"
-            onClick={handleSetMax}
-          >
-            MAX
-          </Button>
-          <Spacer />
+          <Spacer responsive />
+          <Item collapseLTE="xs">
+            <Row>
+              <Button
+                fontSize="14px"
+                color={color.greys.grey()}
+                padding="8px"
+                style={{ flex: 1 }}
+                variant="tertiary"
+                onClick={handleSetMax}
+              >
+                MAX
+              </Button>
+              <Spacer responsive />
+            </Row>
+          </Item>
           <TokenSelectButton
             currentToken={token}
             ftmBalance={accountBalance}

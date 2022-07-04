@@ -82,7 +82,13 @@ const TransactionLine: React.FC<any> = ({
           {isSender ? "Sent" : "Received"}
         </Typo1>
         <Spacer size="xs" />
-        <Typo1 style={{ color: color.primary.cyan(), fontWeight: "bold" }}>
+        <Typo1
+          style={{
+            color: color.primary.cyan(),
+            fontWeight: "bold",
+            textAlign: "start",
+          }}
+        >
           {type
             ? `${type}`
             : tokenTransactions.length

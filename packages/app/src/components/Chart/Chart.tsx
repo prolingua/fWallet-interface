@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createChart } from "lightweight-charts";
 import { Heading3 } from "../index";
 
-const Chart: React.FC<any> = ({ data, handleCrossHairData }) => {
+const Chart: React.FC<any> = ({ width, data, handleCrossHairData }) => {
   const chartRef = React.useRef(null);
   const [chart, setChart] = useState(null);
   const [series, setSeries] = useState<any>(null);
@@ -14,10 +14,14 @@ const Chart: React.FC<any> = ({ data, handleCrossHairData }) => {
   };
 
   React.useEffect(() => {
+    if (chartRef.current?.children.length) {
+      chartRef.current.removeChild(chartRef.current.children[0]);
+    }
+
     if (chartRef.current) {
       setChart(
         createChart(chartRef.current, {
-          // width: 700,
+          width: width,
           height: 300,
           layout: {
             backgroundColor: "transparent",
@@ -48,10 +52,11 @@ const Chart: React.FC<any> = ({ data, handleCrossHairData }) => {
         })
       );
     }
-  }, []);
+  }, [width]);
 
   useEffect(() => {
     if (chart && series) {
+      setChart(null);
       try {
         chart.removeSeries(series);
       } catch (err) {

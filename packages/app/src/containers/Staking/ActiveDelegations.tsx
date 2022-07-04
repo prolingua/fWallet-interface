@@ -51,6 +51,7 @@ import InputCurrency from "../../components/InputCurrency";
 import { BigNumber } from "@ethersproject/bignumber";
 import Loader from "../../components/Loader";
 import { Item, Column, Row } from "../../components/Grid/Grid";
+import useDetectResolution from "../../hooks/useDetectResolution";
 
 export interface ActiveDelegation {
   delegation: AccountDelegation;
@@ -331,6 +332,7 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const { txSFCContractMethod } = useFantomContract();
   const { transaction } = useTransaction();
   const [txHash, setTxHash] = useState({} as any);
+  const { resolutionSize } = useDetectResolution();
 
   const delegatedAmount = hexToUnit(
     activeDelegation.delegation.amountDelegated
@@ -343,18 +345,31 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
   const delegationDate = new Date(
     formatHexToInt(activeDelegation.delegation.createdTime) * 1000
   );
-  const unlockDate = new Date(
-    formatHexToInt(activeDelegation.delegation.lockedUntil) * 1000
-  );
+  // const unlockDate = new Date(
+  //   formatHexToInt(activeDelegation.delegation.lockedUntil) * 1000
+  // );
   const selfStaked = hexToUnit(activeDelegation.delegationInfo.stake);
+  const selfStakedPercentage =
+    (selfStaked /
+      hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit)) *
+    100;
   const totalStaked = hexToUnit(activeDelegation.delegationInfo.totalStake);
+  const totalStakedPercentage =
+    (totalStaked /
+      hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit)) *
+    100;
   const delegations = formatHexToInt(
     activeDelegation.delegationInfo.delegations.totalCount
   );
-  const freeSpace = hexToUnit(activeDelegation.delegationInfo.delegatedLimit);
+  const freeSpace =
+    hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit) -
+    hexToUnit(activeDelegation.delegationInfo.totalStake);
   const freeSpacePercentage =
-    100 -
-    freeSpace / hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit);
+    (freeSpace /
+      hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit)) *
+    100;
+
+  console.log(activeDelegation.delegationInfo);
 
   const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
   const formattedPendingRewards = toFormattedBalance(pendingRewards);
@@ -397,9 +412,9 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
           <Row
             style={{
               alignItems: "center",
-              flexWrap: "wrap",
               gap: "1rem",
               justifyContent: "space-between",
+              flexWrap: resolutionSize === "xs" ? "wrap" : "initial",
             }}
           >
             <StatPair
@@ -413,15 +428,16 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
               title="Delegation date"
               value2={formatDate(delegationDate)}
               width="12rem"
+              valueFlex={resolutionSize === "xs" ? "flex-start" : "flex-end"}
             />
           </Row>
           {daysLocked > 0 && (
             <Row
               style={{
                 alignItems: "center",
-                flexWrap: "wrap",
                 gap: "1rem",
                 justifyContent: "space-between",
+                flexWrap: resolutionSize === "xs" ? "wrap" : "initial",
               }}
             >
               <StatPair
@@ -434,16 +450,16 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
               <StatPair
                 title="Unlocks in"
                 value1={daysLocked > 0 ? `${daysLocked} days` : "-"}
-                value2={
-                  daysLocked > 0 && `\u00A0\u00A0${formatDate(unlockDate)}`
-                }
+                // value2={
+                //   daysLocked > 0 && `\u00A0\u00A0${formatDate(unlockDate)}`
+                // }
+                valueFlex={resolutionSize === "xs" ? "flex-start" : "flex-end"}
               />
             </Row>
           )}
           <Row
             style={{
               alignItems: "center",
-              flexWrap: "wrap",
               gap: "1rem",
             }}
           >
@@ -475,73 +491,95 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
       <ContentBox
         style={{ backgroundColor: "transparent", width: "100%", padding: 0 }}
       >
-        <Row
-          style={{
-            width: "100%",
-            padding: "2rem 2rem 0 2rem",
-            flexWrap: "wrap",
-            gap: "1rem",
-          }}
+        <Column
+          style={{ padding: "0 2rem", width: "100%", marginTop: ".5rem" }}
         >
-          <Column style={{ gap: "1rem" }}>
-            <Item collapseGTE="md">
+          <Item collapseGTE="md" style={{ width: "100%" }}>
+            <Column>
+              <Spacer size="xs" />
+              <DelegationNameInfo
+                delegationInfo={activeDelegation.delegationInfo.stakerInfo}
+                imageSize={50}
+                fontSize="20px"
+              />
+            </Column>
+            <Spacer />
+          </Item>
+          <Row
+            style={{
+              width: "100%",
+              flexWrap: "wrap",
+              gap: `${resolutionSize === "xs" ? "1rem" : "2rem"}`,
+              justifyContent: "space-between",
+            }}
+          >
+            <Column
+              style={{
+                gap: "1rem",
+                minWidth: `${resolutionSize === "xs" ? "100%" : "150px"}`,
+              }}
+            >
+              <StatPair
+                title="Lock-up"
+                value1={
+                  maxDelegationLockUp > 0 ? `${maxDelegationLockUp} days` : "-"
+                }
+                value1FontSize="20px"
+              />
+              <StatPair
+                title="Delegators"
+                value1={delegations}
+                value1FontSize="20px"
+              />
+            </Column>
+            <Item collapseLTE="sm">
               <Column>
-                <Spacer size="xs" />
-                <DelegationNameInfo
-                  delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-                  imageSize={50}
-                  fontSize="20px"
-                />
+                <CircularRatioBar
+                  ratios={[
+                    selfStakedPercentage,
+                    selfStakedPercentage + totalStakedPercentage,
+                  ]}
+                  ratioColors={["#3F69D4", "#2BBEBE"]}
+                >
+                  <DelegationNameInfo
+                    delegationInfo={activeDelegation.delegationInfo.stakerInfo}
+                    imageSize={35}
+                    flexColumn
+                  />
+                </CircularRatioBar>
               </Column>
             </Item>
-            <StatPair
-              title="Lock-up"
-              value1={
-                maxDelegationLockUp > 0 ? `${maxDelegationLockUp} days` : "-"
-              }
-              value1FontSize="20px"
-            />
-            <StatPair
-              title="Delegators"
-              value1={delegations}
-              value1FontSize="20px"
-            />
-          </Column>
-          <Column style={{ padding: "0 2rem" }}>
-            <Item collapseLTE="sm">
-              <CircularRatioBar
-                ratios={[70, 80]}
-                ratioColors={["#3F69D4", "#2BBEBE"]}
-              >
-                <DelegationNameInfo
-                  delegationInfo={activeDelegation.delegationInfo.stakerInfo}
-                  imageSize={35}
-                  flexColumn
-                />
-              </CircularRatioBar>
-            </Item>
-          </Column>
-          <Column style={{ gap: "1rem" }}>
-            <StatPair
-              title="Self staked"
-              titleColor="#3F69D4"
-              value1={formattedSelfStaked[0]}
-              value1FontSize="20px"
-            />
-            <StatPair
-              title="Total staked"
-              titleColor="#2BBEBE"
-              value1={formattedTotalStaked[0]}
-              value1FontSize="20px"
-            />
-            <StatPair
-              title="Free space"
-              value1={formattedFreeSpace[0]}
-              value1FontSize="20px"
-              value2={`(${freeSpacePercentage.toFixed(0)}%)`}
-            />
-          </Column>
-        </Row>
+            <Column
+              style={{
+                gap: "1rem",
+                minWidth: "165px",
+              }}
+            >
+              <StatPair
+                title="Self staked"
+                titleColor="#3F69D4"
+                value1={formattedSelfStaked[0]}
+                value1FontSize="20px"
+                valueFlex={resolutionSize === "xs" ? "flex-start" : "flex-end"}
+              />
+              <StatPair
+                title="Total staked"
+                titleColor="#2BBEBE"
+                value1={formattedTotalStaked[0]}
+                value1FontSize="20px"
+                valueFlex={resolutionSize === "xs" ? "flex-start" : "flex-end"}
+              />
+              <StatPair
+                title="Free space"
+                titleColor="#515967"
+                value1={formattedFreeSpace[0]}
+                value1FontSize="20px"
+                value2={`(${freeSpacePercentage.toFixed(0)}%)`}
+                valueFlex={resolutionSize === "xs" ? "flex-start" : "flex-end"}
+              />
+            </Column>
+          </Row>
+        </Column>
       </ContentBox>
 
       <Spacer size="xl" />
@@ -676,7 +714,7 @@ const ManageDelegationModal: React.FC<any> = ({
       }}
     >
       <Row style={{ alignSelf: "flex-start" }}>
-        <Row style={{ height: "4rem" }}>
+        <Row style={{ height: "5rem" }}>
           <OverlayButton
             style={{
               backgroundColor:

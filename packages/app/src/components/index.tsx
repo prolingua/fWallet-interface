@@ -281,9 +281,7 @@ export const Input = styled.input<{
     -moz-appearance: textfield;
   }
 
-  ${mediaExact.xs(`width: 50%`)};
-  ${mediaExact.sm(`width: 50%`)};
-  ${(props) => !props.fontSize && mediaExact.xs(`font-size: 16px`)};
+  ${(props) => !props.fontSize && mediaExact.xs(`font-size: 15px`)};
   ${(props) => !props.fontSize && mediaExact.sm(`font-size: 16px`)};
   ${(props) => !props.fontSize && mediaExact.md(`font-size: 20px`)};
   ${(props) => !props.fontSize && mediaExact.lg(`font-size: 20px`)};

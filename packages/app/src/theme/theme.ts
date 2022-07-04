@@ -4,10 +4,10 @@ const theme = {
   fontFamily: '"proxima-nova", sans-serif',
   borderRadius: 12,
   breakpoints: {
-    mobile: 576,
+    mobile: 480,
     tablet: 768,
-    desktop: 992,
-    ultra: 1200,
+    desktop: 1024,
+    ultra: 4000,
   },
   fontColor: {
     primary: white,
