@@ -32,8 +32,9 @@ const DelegationSelector: React.FC<any> = ({
           display: "flex",
           alignItems: "center",
           fontWeight: "bold",
-          width: "25rem",
           height: "56px",
+          minWidth: "22rem",
+          maxWidth: "100%",
         }}
       >
         {!selectedDelegation ? (

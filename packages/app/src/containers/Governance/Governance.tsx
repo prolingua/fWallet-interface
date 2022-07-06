@@ -350,7 +350,7 @@ const Governance: React.FC<any> = () => {
             style={{
               flex: 1,
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "flex-start",
               gap: "1rem",
             }}
             breakpoint={breakpoints.tablet}

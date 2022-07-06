@@ -260,19 +260,14 @@ const LockupFTMRow: React.FC<any> = ({
       }}
     >
       <Row style={{ width: "32%" }}>
-        <Item collapseLTE="xs">
-          <Row style={{ width: "100%", height: "100%", alignItems: "center" }}>
-            <DelegationNameInfo
-              delegationInfo={validator.stakerInfo}
-              imageSize={32}
-              id={validator.id}
-              dropNameAtMediaSize="sm"
-            />
-          </Row>
-        </Item>
-        <Item collapseGTE="sm">
-          <Typo1 style={{ fontWeight: "bold" }}>{parseInt(validator.id)}</Typo1>
-        </Item>
+        <Row style={{ width: "100%", height: "100%", alignItems: "center" }}>
+          <DelegationNameInfo
+            delegationInfo={validator.stakerInfo}
+            imageSize={32}
+            id={validator.id}
+            dropNameAtMediaSize="sm"
+          />
+        </Row>
       </Row>
       <Row
         style={{ width: "17%", alignItems: "center", justifyContent: "center" }}

@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
-import { ThemeContext } from "styled-components";
-import Row from "../../components/Row";
-import Column from "../../components/Column";
+import React, { Fragment, useContext } from "react";
+import styled, { ThemeContext } from "styled-components";
+import Linkify from "react-linkify";
 import { ContentBox, Heading1, Typo1 } from "../../components";
 import Spacer from "../../components/Spacer";
 import ProposalResult from "./ProposalResult";
@@ -9,6 +8,7 @@ import ProposalVote from "./ProposalVote";
 import { formatDate } from "../../utils/common";
 import { formatHexToInt } from "../../utils/conversion";
 import { getProposalStatus, isProposalActive } from "../../utils/governance";
+import { Column, Row } from "../../components/Grid/Grid";
 
 const ProposalOverview: React.FC<any> = ({ proposal, selectedDelegation }) => {
   const { color } = useContext(ThemeContext);
@@ -28,13 +28,26 @@ const ProposalOverview: React.FC<any> = ({ proposal, selectedDelegation }) => {
           <Heading1>{proposal?.name}</Heading1>
           <Spacer size="sm" />
           <Typo1 style={{ color: color.greys.grey() }}>
-            {proposal?.description}
+            <Linkify
+              componentDecorator={(decoratedHref, decoratedText, key) => (
+                <a
+                  style={{ color: "ffffffd6" }}
+                  target="blank"
+                  href={decoratedHref}
+                  key={key}
+                >
+                  {decoratedText}
+                </a>
+              )}
+            >
+              {proposal?.description}
+            </Linkify>
           </Typo1>
           <Spacer />
         </Column>
       </Row>
       <Spacer />
-      <Row style={{ width: "100%", gap: "1rem" }}>
+      <Row flipDirectionLTE="md" style={{ width: "100%", gap: "1rem" }}>
         <ProposalVote
           selectedDelegation={selectedDelegation}
           hasVoted={hasVoted}
@@ -91,9 +104,16 @@ const ProposalOverview: React.FC<any> = ({ proposal, selectedDelegation }) => {
             </Column>
           )}
         </ContentBox>
+        <Spacer />
       </Row>
     </>
   );
 };
+
+const StyledLinkify = styled(Linkify)`
+  a {
+    color: white !important;
+  }
+`;
 
 export default ProposalOverview;

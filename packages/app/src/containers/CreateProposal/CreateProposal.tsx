@@ -1,6 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import Row from "../../components/Row";
-import Column from "../../components/Column";
 import InputTextBox from "../../components/InputText/InputTextBox";
 import { Button, Heading3, OverlayButton, Typo2 } from "../../components";
 import { ThemeContext } from "styled-components";
@@ -19,6 +17,7 @@ import { useHistory } from "react-router-dom";
 import FadeInOut from "../../components/AnimationFade";
 import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { Column, Row } from "../../components/Grid/Grid";
 
 const CreateProposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
@@ -134,7 +133,10 @@ const CreateProposal: React.FC<any> = () => {
         >
           <img alt="" src={backArrowSymbol} />
         </OverlayButton>
-        <Row style={{ columnGap: "5rem", marginTop: "2rem" }}>
+        <Row
+          flipDirectionLTE="md"
+          style={{ columnGap: "5rem", marginTop: "2rem" }}
+        >
           <Column style={{ flex: 1 }}>
             <InputTextBox
               key="name-input"
@@ -239,7 +241,12 @@ const CreateProposal: React.FC<any> = () => {
             </div>
             <Spacer size="xl" />
             <Spacer size="lg" />
-            <Row style={{ justifyContent: "space-between" }}>
+            <Row
+              style={{
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+              }}
+            >
               <InputInteger
                 title="Starts in"
                 min={1}
@@ -307,6 +314,7 @@ const CreateProposal: React.FC<any> = () => {
             </Typo2>
           </Column>
         </Row>
+        <Spacer />
       </FadeInOut>
     </ErrorBoundary>
   );
