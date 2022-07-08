@@ -644,19 +644,16 @@ const Bridge: React.FC<any> = () => {
 
     let tx;
     if (isNative) {
-      console.log("NATIVE BRIDGE");
       tx = await bridgeNativeMethod(
         selectedToken,
         unitToWei(amount, Decimals).toString()
       );
     } else if (isStableType) {
-      console.log("STABLE BRIDGE");
       tx = await bridgeStableMethod(
         selectedToken,
         unitToWei(amount, Decimals).toString()
       );
     } else {
-      console.log("BRIDGE");
       tx = await bridgeMethod(
         selectedToken,
         unitToWei(amount, Decimals).toString()

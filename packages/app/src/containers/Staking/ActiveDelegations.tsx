@@ -369,8 +369,6 @@ const DelegationOverviewTab: React.FC<any> = ({ activeDelegation }) => {
       hexToUnit(activeDelegation.delegationInfo.totalDelegatedLimit)) *
     100;
 
-  console.log(activeDelegation.delegationInfo);
-
   const formattedDelegatedAmount = toFormattedBalance(delegatedAmount);
   const formattedPendingRewards = toFormattedBalance(pendingRewards);
   const formattedLockedAmount = toFormattedBalance(lockedAmount);

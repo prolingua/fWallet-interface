@@ -94,7 +94,6 @@ const SideBarContent: React.FC<any> = ({ isMobile, toggleOpen }) => {
   const [voteActions, setVoteActions] = useState(0);
 
   const handlePathChange = (pathName: string) => {
-    console.log(pathName);
     if (isMobile) {
       toggleOpen();
     }
