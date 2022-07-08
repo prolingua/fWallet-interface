@@ -3,6 +3,7 @@ import Row from "../../components/Row";
 import {
   Button,
   ContentBox,
+  mediaExact,
   OverlayButton,
   Typo1,
   Typo2,
@@ -312,13 +313,12 @@ const TokenSelector: React.FC<any> = ({ tokens, selected, selectToken }) => {
         disabled={!tokens || !tokens.length}
         onClick={() => tokens && tokens.length && onPresentSelectTokenModal()}
       >
-        <ContentBox
+        <StyledTokenSelect
+          padding={"0 2rem"}
           style={{
             boxSizing: "border-box",
             width: "100%",
             backgroundColor: color.primary.black(),
-            padding: "1rem",
-            height: "64px",
           }}
         >
           <Row style={{ gap: "1rem", alignItems: "center" }}>
@@ -337,11 +337,18 @@ const TokenSelector: React.FC<any> = ({ tokens, selected, selectToken }) => {
               <Loader />
             )}
           </Row>
-        </ContentBox>
+        </StyledTokenSelect>
       </OverlayButton>
     </Column>
   );
 };
+
+const StyledTokenSelect = styled(ContentBox)`
+  ${mediaExact.xs(`height: 54px`)};
+  ${mediaExact.sm(`height: 54px`)};
+  ${mediaExact.md(`height: 64px`)};
+  ${mediaExact.lg(`height: 64px`)};
+`;
 
 const BridgeTokenSelectModal: React.FC<any> = ({
   tokens,

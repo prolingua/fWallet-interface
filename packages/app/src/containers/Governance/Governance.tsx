@@ -6,7 +6,14 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import Row, { ResponsiveRow } from "../../components/Row/Row";
 import styled, { ThemeContext } from "styled-components";
 import Column from "../../components/Column";
-import { Button, ContentBox, Heading1, Typo1, Typo2 } from "../../components";
+import {
+  Button,
+  ContentBox,
+  Heading1,
+  mediaExact,
+  Typo1,
+  Typo2,
+} from "../../components";
 import {
   getGovernanceProposals,
   getInactiveGovernanceProposals,
@@ -54,12 +61,19 @@ const StyledCategorySelector = styled.div<{ isActive: boolean }>`
       ? props.theme.color.primary.fantomBlue()
       : props.theme.color.secondary.navy()};
   font-size: 16px;
-  padding: 0.8rem 0;
-  width: 12rem;
   text-align: center;
   border-radius: 8px;
   font-weight: bold;
   cursor: ${(props) => (props.isActive ? "default" : "pointer")};
+
+  ${mediaExact.xs(`padding: 0.6rem 0;
+  width: 10rem;`)}
+  ${mediaExact.sm(`padding: 0.6rem 0;
+  width: 10rem;`)}
+  ${mediaExact.md(`padding: 0.8rem 0;
+  width: 12rem;`)}
+  ${mediaExact.lg(`  padding: 0.8rem 0;
+  width: 12rem;`)}
 `;
 
 const ProposalBox: React.FC<any> = ({ proposal }) => {
