@@ -226,22 +226,26 @@ const SideBarContent: React.FC<any> = ({ isMobile, toggleOpen }) => {
       {/*  currentPath={currentPath}*/}
       {/*  setCurrentPath={setCurrentPath}*/}
       {/*/>*/}
-      <SideBarLink
-        img={defiSymbolImg}
-        activeImg={defiActiveSymbolImg}
-        name="Swap"
-        path="/swap"
-        currentPath={currentPath}
-        setCurrentPath={handlePathChange}
-      />
-      <SideBarLink
-        img={bridgeSymbolImg}
-        activeImg={bridgeActiveSymbolImg}
-        name="Bridge"
-        path="/bridge"
-        currentPath={currentPath}
-        setCurrentPath={handlePathChange}
-      />
+      {process.env.REACT_APP_USE !== "testnet" && (
+        <>
+          <SideBarLink
+            img={defiSymbolImg}
+            activeImg={defiActiveSymbolImg}
+            name="Swap"
+            path="/swap"
+            currentPath={currentPath}
+            setCurrentPath={handlePathChange}
+          />
+          <SideBarLink
+            img={bridgeSymbolImg}
+            activeImg={bridgeActiveSymbolImg}
+            name="Bridge"
+            path="/bridge"
+            currentPath={currentPath}
+            setCurrentPath={handlePathChange}
+          />
+        </>
+      )}
     </>
   );
 };
