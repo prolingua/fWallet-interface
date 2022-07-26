@@ -149,6 +149,10 @@ const AppContent: React.FC<any> = () => {
               />
               <Route path="/governance/proposal/:id" component={Proposal} />
               <Route path="/preferences" component={Preferences} />
+              <Route
+                path="/governance/proposal/:gov/:id"
+                component={Proposal}
+              />
               <Route path="/" component={Home} />
             </Switch>
           </StyledRouteContainer>

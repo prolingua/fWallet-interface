@@ -25,7 +25,7 @@ import ErrorBoundary from "../../components/ErrorBoundary";
 
 const Proposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
-  const { id }: any = useParams();
+  const { gov, id }: any = useParams();
   const history = useHistory();
   const { apiData } = useFantomApiData();
   const { walletContext } = useWalletProvider();
@@ -39,11 +39,10 @@ const Proposal: React.FC<any> = () => {
   ].get(activeAddress);
   const proposalResponse = apiData[FantomApiMethods.getGovernanceProposal];
 
-  // TODO hardcoded address for governance contract
   useFantomApi(
     FantomApiMethods.getGovernanceProposal,
     {
-      address: addresses[parseInt(config.chainId)]["gov"],
+      address: gov,
       from: walletContext.activeWallet.address,
       id: id,
     },
