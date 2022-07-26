@@ -138,7 +138,10 @@ const AppContent: React.FC<any> = () => {
                 component={CreateProposal}
                 exact
               />
-              <Route path="/governance/proposal/:id" component={Proposal} />
+              <Route
+                path="/governance/proposal/:gov/:id"
+                component={Proposal}
+              />
               <Route path="/" component={Home} />
             </Switch>
           </StyledRouteContainer>

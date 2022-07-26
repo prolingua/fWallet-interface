@@ -100,6 +100,7 @@ const ProposalVote: React.FC<any> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVoteCompleted, isCancelVoteCompleted]);
+
   return (
     <ContentBox style={{ flex: 3 }}>
       <Column style={{ width: "100%", gap: "2rem" }}>
@@ -128,7 +129,7 @@ const ProposalVote: React.FC<any> = ({
                       max={parseInt(opinionScales[opinionScales.length - 1])}
                       markInPercentage={false}
                       markLabels={opinionScales.map(
-                        (scale: string) => `${parseInt(scale) * 25}%`
+                        (scale: string, index: number) => `${index * 25}%`
                       )}
                       color={
                         !isOpen || hasVoted?.length

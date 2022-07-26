@@ -92,74 +92,80 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
       <Column style={{ width: "100%" }}>
         <Heading1>{proposal.proposal.name}</Heading1>
         <Spacer size="lg" />
-        <Typo1 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
-          Voting progress
-        </Typo1>
-        <Spacer />
-        <SliderWithMarks
-          value={currentVoted || 0}
-          max={100}
-          steps={1}
-          markPoints={[0, 33, 66, 100]}
-          disabled
-          tooltip
-          color="#FFA319"
-          tooltipTextColor="#ffa319"
-          noHandle
-        />
-        <Spacer size="xl" />
-        <Spacer size="xl" />
-        <Row style={{ justifyContent: "space-between" }}>
-          <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
-            Voting started
-          </Typo2>
-          <Typo2 style={{ color: "white" }}>
-            {formatDate(
-              new Date(formatHexToInt(proposal.proposal.votingStarts) * 1000),
-              "d LLLL yyy"
-            )}
-          </Typo2>
-        </Row>
-        <Spacer size="sm" />
-        <Row style={{ justifyContent: "space-between" }}>
-          <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
-            Voting will end
-          </Typo2>
-          <Typo2 style={{ color: "white" }}>
-            {formatDate(
-              new Date(formatHexToInt(proposal.proposal.votingMustEnd) * 1000),
-              "d LLLL yyy"
-            )}
-          </Typo2>
-        </Row>
-        <Spacer size="sm" />
-        <Row style={{ justifyContent: "space-between" }}>
-          <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
-            Votes
-          </Typo2>
-          <Typo2 style={{ color: "white" }}>
-            {`${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left`}
-          </Typo2>
-        </Row>
-        <Spacer size="xl" />
-        <Button
-          onClick={() =>
-            history.push(`governance/proposal/${proposal.proposal.id}`)
-          }
-          variant="primary"
-          style={{
-            border:
-              (!isActiveProposal || delegationsToVoteWith[0] === 0) &&
-              "2px solid #1869FF",
-            backgroundColor:
-              (!isActiveProposal || delegationsToVoteWith[0] === 0) &&
-              "transparent",
-          }}
-        >
-          {isActiveProposal && delegationsToVoteWith[0] > 0
-            ? `Vote now`
-            : `Details`}
-        </Button>
+        <Column style={{ width: "100%", marginTop: "auto" }}>
+          <Typo1 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+            Voting progress
+          </Typo1>
+          <Spacer />
+          <SliderWithMarks
+            value={currentVoted || 0}
+            max={100}
+            steps={1}
+            markPoints={[0, 33, 66, 100]}
+            disabled
+            tooltip
+            color="#FFA319"
+            tooltipTextColor="#ffa319"
+            noHandle
+          />
+          <Spacer size="xl" />
+          <Spacer size="xl" />
+          <Row style={{ justifyContent: "space-between" }}>
+            <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+              Voting started
+            </Typo2>
+            <Typo2 style={{ color: "white" }}>
+              {formatDate(
+                new Date(formatHexToInt(proposal.proposal.votingStarts) * 1000),
+                "d LLLL yyy"
+              )}
+            </Typo2>
+          </Row>
+          <Spacer size="sm" />
+          <Row style={{ justifyContent: "space-between" }}>
+            <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+              Voting will end
+            </Typo2>
+            <Typo2 style={{ color: "white" }}>
+              {formatDate(
+                new Date(
+                  formatHexToInt(proposal.proposal.votingMustEnd) * 1000
+                ),
+                "d LLLL yyy"
+              )}
+            </Typo2>
+          </Row>
+          <Spacer size="sm" />
+          <Row style={{ justifyContent: "space-between" }}>
+            <Typo2 style={{ color: color.greys.grey(), fontWeight: "bold" }}>
+              Votes
+            </Typo2>
+            <Typo2 style={{ color: "white" }}>
+              {`${delegationsToVoteWith[0]} / ${delegationsToVoteWith[1]} votes left`}
+            </Typo2>
+          </Row>
+          <Spacer size="xl" />
+          <Button
+            onClick={() =>
+              history.push(
+                `governance/proposal/${proposal.proposal.governanceId}/${proposal.proposal.id}`
+              )
+            }
+            variant="primary"
+            style={{
+              border:
+                (!isActiveProposal || delegationsToVoteWith[0] === 0) &&
+                "2px solid #1869FF",
+              backgroundColor:
+                (!isActiveProposal || delegationsToVoteWith[0] === 0) &&
+                "transparent",
+            }}
+          >
+            {isActiveProposal && delegationsToVoteWith[0] > 0
+              ? `Vote now`
+              : `Details`}
+          </Button>
+        </Column>
       </Column>
     </ContentBox>
   );
@@ -199,7 +205,9 @@ const ProposalTable: React.FC<any> = ({ proposals }) => {
             <StyledProposalRow
               key={`proposal-row-${proposal.proposal.id}`}
               onClick={() =>
-                history.push(`governance/proposal/${proposal.proposal.id}`)
+                history.push(
+                  `governance/proposal/${proposal.proposal.governanceId}/${proposal.proposal.id}`
+                )
               }
             >
               <Row

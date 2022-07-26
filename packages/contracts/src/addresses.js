@@ -28,6 +28,7 @@ export default {
     ...commonFantomContracts,
     stakeTokenizer: "0xea285cffa1defe82d34639d275d444785e05a128",
     gov: "0xaa3a160e91f63f1db959640e0a7b8911b6bd5b95",
+    networkgov: "0xdCFFfcB46Bb241DE8EED0a70329348000f5f03c7",
     govProposal: "0xf843e0625e4975e7e654b2f1b374818ba2b4ffbf",
     govProposalPlaintext: "0xb4673f085ae472c2974febfed3a41bb73aeb172e",
   },
