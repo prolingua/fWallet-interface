@@ -64,9 +64,9 @@ const InputTextBox: React.FC<any> = ({
             borderRadius: "8px",
             height: "200px",
             alignItems: "center",
+            paddingLeft: ".9rem",
           }}
         >
-          <Spacer />
           <TextArea
             value={text}
             onInput={(event) => {

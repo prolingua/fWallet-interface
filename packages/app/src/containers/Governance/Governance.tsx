@@ -33,14 +33,21 @@ import StopMarkImg from "../../assets/img/symbols/StopMark.svg";
 import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import { Item } from "../../components/Grid/Grid";
 
-const CategorySwitch: React.FC<any> = ({
+export const CategorySwitch: React.FC<any> = ({
   categories,
   activeCategory,
   setActiveCategory,
 }) => {
   return (
-    <Row>
+    <Row
+      style={{
+        backgroundColor: "#151D30",
+        borderRadius: "12px",
+        width: "fit-content",
+      }}
+    >
       {categories.map((category: string, index: number) => {
         return (
           <StyledCategorySelector
@@ -57,23 +64,22 @@ const CategorySwitch: React.FC<any> = ({
 };
 
 const StyledCategorySelector = styled.div<{ isActive: boolean }>`
-  background-color: ${(props) =>
-    props.isActive
-      ? props.theme.color.primary.fantomBlue()
-      : props.theme.color.secondary.navy()};
-  font-size: 16px;
+  background-color: ${(props) => (props.isActive ? "#232F46" : "transparent")};
+  box-sizing: border-box;
+  border: ${(props) => (props.isActive ? "1px solid #232F46" : "none")};
+  font-size: 14px;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: bold;
   cursor: ${(props) => (props.isActive ? "default" : "pointer")};
 
-  ${mediaExact.xs(`padding: 0.6rem 0;
+  ${mediaExact.xs(`padding: 0.8rem 0;
   width: 10rem;`)}
-  ${mediaExact.sm(`padding: 0.6rem 0;
-  width: 10rem;`)}
-  ${mediaExact.md(`padding: 0.8rem 0;
+  ${mediaExact.sm(`padding: 0.8rem 0;
   width: 12rem;`)}
-  ${mediaExact.lg(`  padding: 0.8rem 0;
+  ${mediaExact.md(`padding: 1rem 0;
+  width: 12rem;`)}
+  ${mediaExact.lg(`  padding: 1rem 0;
   width: 12rem;`)}
 `;
 
@@ -89,7 +95,7 @@ const ProposalBox: React.FC<any> = ({ proposal }) => {
   const isActiveProposal = isProposalActive(proposal.proposal);
 
   return (
-    <ContentBox style={{ width: "22rem" }}>
+    <ContentBox style={{ width: "23rem" }}>
       <Column style={{ width: "100%" }}>
         <Heading1>{proposal.proposal.name}</Heading1>
         <Spacer size="lg" />
@@ -369,27 +375,47 @@ const Governance: React.FC<any> = () => {
     <ErrorBoundary name="[Governance]">
       <FadeInOut>
         <Column style={{ marginBottom: "1.5rem" }}>
-          <ResponsiveRow
+          <Row
             style={{
               flex: 1,
               justifyContent: "space-between",
               alignItems: "flex-start",
               gap: "1rem",
             }}
-            breakpoint={breakpoints.tablet}
           >
             <CategorySwitch
               categories={["Current proposals", "Past proposals"]}
               setActiveCategory={setActiveCategory}
               activeCategory={activeCategory}
             />
-            <Button
-              variant="primary"
-              onClick={() => history.push(`governance/proposal/create`)}
-            >
-              Create proposal
-            </Button>
-          </ResponsiveRow>
+            <Row style={{ position: "relative" }}>
+              <Item collapseLTE="md">
+                <Button
+                  variant="primary"
+                  onClick={() => history.push(`governance/proposal/create`)}
+                >
+                  Create a new proposal
+                </Button>
+              </Item>
+              <Item
+                collapseGTE="lg"
+                style={{ position: "absolute", right: "3rem" }}
+              >
+                <Button
+                  style={{
+                    borderRadius: "50%",
+                    fontSize: "40px",
+                    padding: "0 .9rem",
+                    fontWeight: "normal",
+                  }}
+                  variant="primary"
+                  onClick={() => history.push(`governance/proposal/create`)}
+                >
+                  +
+                </Button>
+              </Item>
+            </Row>
+          </Row>
           <Spacer />
           <GovernanceProposalsList
             loading={!governanceProposals?.data}

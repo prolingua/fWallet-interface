@@ -294,12 +294,17 @@ export const TextArea = styled.textarea`
   border: none;
   color: white;
   font-size: 20px;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
   height: 170px;
   resize: none;
   line-height: 24px;
 
   :focus {
     outline: none;
+  }
+
+  ::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    font-size: 17px;
   }
 `;

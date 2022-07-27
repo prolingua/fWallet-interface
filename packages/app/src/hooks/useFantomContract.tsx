@@ -3,12 +3,14 @@ import useWalletProvider from "./useWalletProvider";
 import { send } from "../utils/transactions";
 import useTransaction from "./useTransaction";
 import { unitToWei } from "../utils/conversion";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export enum FANTOM_CONTRACTS {
   SFC = "sfc",
   STAKE_TOKENIZER = "stakeTokenizer",
   GOV = "gov",
   GOV_PROPOSAL_PLAINTEXT = "govProposalPlaintext",
+  GOV_PROPOSAL_NETWORK = "govProposalNetwork",
 }
 export enum SFC_CALL_METHODS {
   URI = "uri",
@@ -136,6 +138,9 @@ const govTx: { [key in GOV_TX_METHODS]: any } = {
 export enum GOV_PROPOSAL_PLAINTEXT_TX_METHODS {
   create = "create",
 }
+export enum GOV_PROPOSAL_NETWORK_TX_METHODS {
+  create = "deployNewNetworkParameterProposal",
+}
 
 const govProposalPlaintextTx: {
   [key in GOV_PROPOSAL_PLAINTEXT_TX_METHODS]: any;
@@ -161,6 +166,44 @@ const govProposalPlaintextTx: {
       minEndTime,
       maxEndTime,
       { value: unitToWei("100") }
+    );
+  },
+};
+
+const govProposalNetworkTx: {
+  [key in GOV_PROPOSAL_NETWORK_TX_METHODS]: any;
+} = {
+  [GOV_PROPOSAL_NETWORK_TX_METHODS.create]: async (
+    contract: Contract,
+    proposalName: string,
+    proposalDescription: string,
+    options: string[],
+    minVoteAmount: number,
+    minAgreementAmount: number,
+    startTime: number,
+    minEndTime: number,
+    maxEndTime: number,
+    sfcAddress: string,
+    proposalTemplateAddress: string,
+    networkParameter: string,
+    optionsList: string[]
+  ) => {
+    return contract[GOV_PROPOSAL_NETWORK_TX_METHODS.create](
+      proposalName,
+      proposalDescription,
+      options,
+      minVoteAmount,
+      minAgreementAmount,
+      startTime,
+      minEndTime,
+      maxEndTime,
+      sfcAddress,
+      proposalTemplateAddress,
+      networkParameter,
+      optionsList,
+      BigNumber.from(2),
+      [0, 2, 3, 4, 5],
+      { value: unitToWei("1") }
     );
   },
 };
@@ -208,7 +251,8 @@ const useFantomContract = () => {
       | SFC_TX_METHODS
       | STAKE_TOKENIZER_TX_METHODS
       | GOV_TX_METHODS
-      | GOV_PROPOSAL_PLAINTEXT_TX_METHODS,
+      | GOV_PROPOSAL_PLAINTEXT_TX_METHODS
+      | GOV_PROPOSAL_NETWORK_TX_METHODS,
     args: any
   ) => {
     if (!contractIsLoaded(contract)) {
@@ -278,6 +322,19 @@ const useFantomContract = () => {
         )
       );
     }
+
+    if (contract === FANTOM_CONTRACTS.GOV_PROPOSAL_NETWORK) {
+      if (!govProposalNetworkTx[method as GOV_PROPOSAL_NETWORK_TX_METHODS]) {
+        console.error(`[govProposalNetworkTx] method: ${method} not found`);
+      }
+
+      return sendTx(() =>
+        govProposalNetworkTx[method as GOV_PROPOSAL_NETWORK_TX_METHODS](
+          walletContext.activeWallet.contracts.get(contract),
+          ...args
+        )
+      );
+    }
   };
 
   return {
@@ -297,6 +354,15 @@ const useFantomContract = () => {
     ) =>
       txFantomContractMethod(
         FANTOM_CONTRACTS.GOV_PROPOSAL_PLAINTEXT,
+        method,
+        args
+      ),
+    txGovProposalNetworkContractMethod: async (
+      method: GOV_PROPOSAL_NETWORK_TX_METHODS,
+      args: any[]
+    ) =>
+      txFantomContractMethod(
+        FANTOM_CONTRACTS.GOV_PROPOSAL_NETWORK,
         method,
         args
       ),
