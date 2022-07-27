@@ -8,6 +8,7 @@ import stakeTokenizer from "./abis/fantom/stake-tokenizer.json";
 import gov from "./abis/fantom/gov-abi-0.0.1-rc2.json";
 import govProposal from "./abis/fantom/gov-proposal.json";
 import govProposalPlaintext from "./abis/fantom/gov-proposal-plaintext.json";
+import govProposalNetwork from "./abis/fantom/gov-proposal-network.json";
 import bridgeRouter from "./abis/multichain/bridgeRouter.json";
 import bridge from "./abis/multichain/bridge.json";
 
@@ -22,6 +23,7 @@ export default {
   gov,
   govProposal,
   govProposalPlaintext,
+  govProposalNetwork,
   bridgeRouter,
   bridge,
 };

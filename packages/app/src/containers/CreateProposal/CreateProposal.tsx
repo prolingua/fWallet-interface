@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import InputTextBox from "../../components/InputText/InputTextBox";
 import { Button, Heading3, OverlayButton, Typo2 } from "../../components";
-import { ThemeContext } from "styled-components";
+import styled, { ThemeContext } from "styled-components";
 import CrossSymbol from "../../assets/img/symbols/Cross.svg";
 import SliderWithMarks from "../../components/Slider";
 import Spacer from "../../components/Spacer";
@@ -9,6 +9,7 @@ import InputInteger from "../../components/InputInteger/InputInteger";
 import InputError from "../../components/InputError";
 import { unitToWei } from "../../utils/conversion";
 import useFantomContract, {
+  GOV_PROPOSAL_NETWORK_TX_METHODS,
   GOV_PROPOSAL_PLAINTEXT_TX_METHODS,
 } from "../../hooks/useFantomContract";
 import useTransaction from "../../hooks/useTransaction";
@@ -18,12 +19,120 @@ import FadeInOut from "../../components/AnimationFade";
 import backArrowSymbol from "../../assets/img/symbols/BackArrow.svg";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { Column, Row } from "../../components/Grid/Grid";
+import { CategorySwitch } from "../Governance/Governance";
+import openOrClose from "../../assets/img/shapes/vShape.png";
+import { parseEther } from "@ethersproject/units";
+import config from "../../config/config";
+// @ts-ignore
+import { addresses } from "@f-wallet/contracts";
+
+const NetworkParametersDropdown: React.FC<any> = ({
+  placeholder,
+  list,
+  current,
+  setCurrent,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const handleSelect = (value: string) => {
+    setCurrent(value);
+    setIsOpen(false);
+  };
+
+  return (
+    <div>
+      <StyledDropdownWrapper>
+        <StyledDropdownButton type="button" onClick={() => setIsOpen(!isOpen)}>
+          <StyledDropdownTitle style={{ color: current ? "white" : "#757575" }}>
+            {current || placeholder}
+          </StyledDropdownTitle>
+          {isOpen ? (
+            <img src={openOrClose} style={{ transform: "rotate(180deg)" }} />
+          ) : (
+            <img src={openOrClose} style={{ transform: "rotate(0deg)" }} />
+          )}
+        </StyledDropdownButton>
+        {isOpen && (
+          <StyledDropdownList>
+            {list.map((item: string) => (
+              <StyledDropdownItem
+                type="button"
+                key={item}
+                onClick={() => handleSelect(item)}
+                style={{ fontWeight: current === item ? "bold" : "normal" }}
+              >
+                {item}
+              </StyledDropdownItem>
+            ))}
+          </StyledDropdownList>
+        )}
+      </StyledDropdownWrapper>
+    </div>
+  );
+};
+
+const StyledDropdownWrapper = styled.div`
+  position: relative;
+  font-size: 1.6rem;
+  user-select: none;
+`;
+const StyledDropdownButton = styled.button`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  cursor: pointer;
+  background: #202f49;
+  border-radius: 8px;
+  border: none;
+  padding: 16px;
+  outline: none;
+  margin-bottom: 2px;
+`;
+const StyledDropdownTitle = styled.div`
+  color: #ffffff;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 24px;
+`;
+const StyledDropdownList = styled.div`
+  position: absolute;
+  border-radius: 8px;
+  z-index: 10;
+  width: 100%;
+  max-height: 215px;
+  font-weight: 300;
+  text-align: left;
+  -webkit-overflow-scrolling: touch;
+`;
+const StyledDropdownItem = styled.button`
+  background-color: #202f49;
+  border: none;
+  border-bottom: 2px solid #0a162e;
+  padding: 16px;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 24px;
+  color: #ffffff;
+  display: inline-block;
+  overflow: hidden;
+  width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+`;
 
 const CreateProposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
   const history = useHistory();
-  const { txGovProposalPlaintextContractMethod } = useFantomContract();
+  const {
+    txGovProposalPlaintextContractMethod,
+    txGovProposalNetworkContractMethod,
+  } = useFantomContract();
   const [proposalName, setProposalName] = useState("");
+  const [networkParameter, setNetworkParameter] = useState("");
   const [proposalDescription, setProposalDescription] = useState("");
   const [numVotingOptions, setNumVotingOptions] = useState(1);
   const [votingOptions, setVotingOptions] = useState([]);
@@ -89,6 +198,34 @@ const CreateProposal: React.FC<any> = () => {
     }
   };
 
+  const handleCreateNetworkProposal = async () => {
+    let minVoteAmount = unitToWei(minParticipation.toString(), 16);
+    let minAgreeAmount = unitToWei(minAgreement.toString(), 16);
+
+    try {
+      const hash = await txGovProposalNetworkContractMethod(
+        GOV_PROPOSAL_NETWORK_TX_METHODS.create,
+        [
+          proposalName,
+          proposalDescription,
+          votingOptions.map((option) => formatBytes32String(option)),
+          minVoteAmount,
+          minAgreeAmount,
+          startInHours * 3600,
+          endMinimumInDays * 24 * 3600,
+          endMaximumInDays * 24 * 3600,
+          addresses[parseInt(config.chainId)]["sfc"],
+          addresses[parseInt(config.chainId)]["govProposalTemplate"],
+          networkParameter,
+          votingOptions.map((option) => parseEther(option)),
+        ]
+      );
+      setTxHash(hash);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const isValidProposal = () => {
     if (!proposalName) return false;
     if (!proposalDescription) return false;
@@ -124,6 +261,7 @@ const CreateProposal: React.FC<any> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProposalCompleted]);
 
+  const [proposalType, setProposalType] = useState("Plain");
   return (
     <ErrorBoundary name="[Governance][Create]">
       <FadeInOut>
@@ -133,6 +271,16 @@ const CreateProposal: React.FC<any> = () => {
         >
           <img alt="" src={backArrowSymbol} />
         </OverlayButton>
+        <Spacer />
+        <Typo2 style={{ fontWeight: "bold", color: color.greys.grey() }}>
+          Proposal type
+        </Typo2>
+        <Spacer size="xs" />
+        <CategorySwitch
+          categories={["Plain", "Network"]}
+          setActiveCategory={setProposalType}
+          activeCategory={proposalType}
+        />
         <Row
           flipDirectionLTE="md"
           style={{ columnGap: "5rem", marginTop: "2rem" }}
@@ -146,6 +294,33 @@ const CreateProposal: React.FC<any> = () => {
               placeholder="Enter a name for your proposal"
               valueName="name"
             />
+            {proposalType === "Network" && (
+              <>
+                <Typo2
+                  style={{ fontWeight: "bold", color: color.greys.grey() }}
+                >
+                  Network parameter
+                </Typo2>
+                <Spacer size="xs" />
+                <NetworkParametersDropdown
+                  placeholder="Select Network Parameter Option"
+                  list={[
+                    "setMaxDelegation(uint256)",
+                    "setMinSelfStake(uint256)",
+                    "setValidatorCommission(uint256)",
+                    "setContractCommission(uint256)",
+                    "setUnlockedRewardRatio(uint256)",
+                    "setMinLockupDuration(uint256)",
+                    "setMaxLockupDuration(uint256)",
+                    "setWithdrawalPeriodEpoch(uint256)",
+                    "setWithdrawalPeriodTime(uint256)",
+                  ]}
+                  current={networkParameter}
+                  setCurrent={setNetworkParameter}
+                />
+                <Spacer />
+              </>
+            )}
             <Spacer size="sm" />
             <InputTextBox
               title="Description"
@@ -290,7 +465,11 @@ const CreateProposal: React.FC<any> = () => {
             })}
             <Spacer size="xl" />
             <Button
-              onClick={handleCreatePlainTextProposal}
+              onClick={
+                proposalType === "Plain"
+                  ? handleCreatePlainTextProposal
+                  : handleCreateNetworkProposal
+              }
               disabled={
                 !isValidProposal() || isProposalPending || isProposalCompleted
               }
@@ -300,7 +479,9 @@ const CreateProposal: React.FC<any> = () => {
                 ? "Success!"
                 : isProposalPending
                 ? "Creating..."
-                : "Create Proposal"}
+                : `Create ${
+                    proposalType === "Plain" ? "" : "Network"
+                  } Proposal`}
             </Button>
             <Spacer size="xs" />
             <Typo2
@@ -310,7 +491,7 @@ const CreateProposal: React.FC<any> = () => {
                 textAlign: "center",
               }}
             >
-              Proposal fee: 100 FTM
+              {`Proposal fee: ${proposalType === "Plain" ? "100" : "1"} FTM`}
             </Typo2>
           </Column>
         </Row>
