@@ -391,7 +391,7 @@ const Governance: React.FC<any> = () => {
               <Item collapseLTE="md">
                 <Button
                   variant="primary"
-                  onClick={() => history.push(`governance/proposal/create`)}
+                  onClick={() => history.push(`/governance/proposal/create`)}
                 >
                   Create a new proposal
                 </Button>
@@ -408,7 +408,7 @@ const Governance: React.FC<any> = () => {
                     fontWeight: "normal",
                   }}
                   variant="primary"
-                  onClick={() => history.push(`governance/proposal/create`)}
+                  onClick={() => history.push(`/governance/proposal/create`)}
                 >
                   +
                 </Button>

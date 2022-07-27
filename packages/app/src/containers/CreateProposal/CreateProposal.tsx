@@ -254,7 +254,7 @@ const CreateProposal: React.FC<any> = () => {
   useEffect(() => {
     let timeout: any;
     if (isProposalCompleted) {
-      timeout = setTimeout(() => history.push("governance"), 1000);
+      timeout = setTimeout(() => history.push("/governance"), 1000);
     }
 
     return () => clearTimeout(timeout);
