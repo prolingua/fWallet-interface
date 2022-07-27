@@ -31,7 +31,8 @@ export default {
     govNetwork: "0xdCFFfcB46Bb241DE8EED0a70329348000f5f03c7",
     govProposal: "0xf843e0625e4975e7e654b2f1b374818ba2b4ffbf",
     govProposalPlaintext: "0xb4673f085ae472c2974febfed3a41bb73aeb172e",
-    govProposalNetwork: "0x1D5430c72Db9f4F835f86fbE4f5Bc1597d3C3f45",
+    // govProposalNetwork: "0x1D5430c72Db9f4F835f86fbE4f5Bc1597d3C3f45",
+    govProposalNetwork: "0x96682BFeF7a2dbcF6724A5312369be626154F22A",
     govProposalTemplate: "0xb09012a5C48840d9BCb94ab127263eB603325D50",
   },
 };
