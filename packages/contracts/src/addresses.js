@@ -25,7 +25,8 @@ export default {
     tokens: {
       SFTM: "0x3b28f151899bd945ac1559a3540b5741c7d2bd55",
     },
-    sfc: "0xA87c1a650D8aCEfcf017b3Ef480ece942E1BF02b",
+    // sfc: "0xA87c1a650D8aCEfcf017b3Ef480ece942E1BF02b",
+    sfc: "0xfc00face00000000000000000000000000000000",
     stakeTokenizer: "0xea285cffa1defe82d34639d275d444785e05a128",
     gov: "0xaa3a160e91f63f1db959640e0a7b8911b6bd5b95",
     govNetwork: "0xdCFFfcB46Bb241DE8EED0a70329348000f5f03c7",
