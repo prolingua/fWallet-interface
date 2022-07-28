@@ -295,6 +295,7 @@ export const FETCH_GOVERNANCE_PROPOSAL = (
               canVote(from: $from)
               delegationsBy(from: $from)
               proposal(id: $id) {
+                  governanceId
                   name
                   id
                   description

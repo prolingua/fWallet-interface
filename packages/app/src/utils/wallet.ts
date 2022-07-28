@@ -70,6 +70,10 @@ export const loadContracts = async (signer: Signer, chainId: number) => {
     ],
     ["gov", new Contract(addresses[chainId]["gov"], abis.gov, signer)],
     [
+      "govNetwork",
+      new Contract(addresses[chainId]["govNetwork"], abis.gov, signer),
+    ],
+    [
       "govProposal",
       new Contract(addresses[chainId]["govProposal"], abis.govProposal, signer),
     ],

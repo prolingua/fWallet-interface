@@ -4,11 +4,16 @@ import { send } from "../utils/transactions";
 import useTransaction from "./useTransaction";
 import { unitToWei } from "../utils/conversion";
 import { BigNumber } from "@ethersproject/bignumber";
+// @ts-ignore
+import { addresses } from "@f-wallet/contracts";
+import config from "../config/config";
+import { isSameAddress } from "../utils/wallet";
 
 export enum FANTOM_CONTRACTS {
   SFC = "sfc",
   STAKE_TOKENIZER = "stakeTokenizer",
   GOV = "gov",
+  GOV_NETWORK = "govNetwork",
   GOV_PROPOSAL_PLAINTEXT = "govProposalPlaintext",
   GOV_PROPOSAL_NETWORK = "govProposalNetwork",
 }
@@ -293,9 +298,12 @@ const useFantomContract = () => {
       );
     }
 
-    if (contract === FANTOM_CONTRACTS.GOV) {
+    if (
+      contract === FANTOM_CONTRACTS.GOV ||
+      contract === FANTOM_CONTRACTS.GOV_NETWORK
+    ) {
       if (!govTx[method as GOV_TX_METHODS]) {
-        console.error(`[stakeTokenizerContractTx] method: ${method} not found`);
+        console.error(`[govContractTx] method: ${method} not found`);
       }
 
       return sendTx(() =>
@@ -346,8 +354,20 @@ const useFantomContract = () => {
       method: STAKE_TOKENIZER_TX_METHODS,
       args: any[]
     ) => txFantomContractMethod(FANTOM_CONTRACTS.STAKE_TOKENIZER, method, args),
-    txGovContractMethod: async (method: GOV_TX_METHODS, args: any[]) =>
-      txFantomContractMethod(FANTOM_CONTRACTS.GOV, method, args),
+    txGovContractMethod: async (
+      method: GOV_TX_METHODS,
+      govContractAddress: string,
+      args: any[]
+    ) => {
+      console.log(args);
+      const govContract = isSameAddress(
+        addresses[parseInt(config.chainId)].govNetwork,
+        govContractAddress
+      )
+        ? FANTOM_CONTRACTS.GOV_NETWORK
+        : FANTOM_CONTRACTS.GOV;
+      return txFantomContractMethod(govContract, method, args);
+    },
     txGovProposalPlaintextContractMethod: async (
       method: GOV_PROPOSAL_PLAINTEXT_TX_METHODS,
       args: any[]

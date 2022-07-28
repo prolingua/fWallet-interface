@@ -10,10 +10,13 @@ import { Button, ContentBox, Typo1 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import SliderWithMarks from "../../components/Slider";
+import proposal from "./Proposal";
+import { BigNumber } from "@ethersproject/bignumber";
 
 const ProposalVote: React.FC<any> = ({
   selectedDelegation,
   proposalId,
+  governanceId,
   hasVoted,
   options,
   opinionScales,
@@ -58,11 +61,15 @@ const ProposalVote: React.FC<any> = ({
 
   const handleVote = async () => {
     try {
-      const hash = await txGovContractMethod(GOV_TX_METHODS.vote, [
-        selectedDelegation.delegationInfo.stakerAddress,
-        parseInt(proposalId),
-        voteState,
-      ]);
+      const hash = await txGovContractMethod(
+        GOV_TX_METHODS.vote,
+        governanceId,
+        [
+          selectedDelegation.delegationInfo.stakerAddress,
+          parseInt(proposalId),
+          voteState.map((value: number) => BigNumber.from(value)),
+        ]
+      );
       setVoteTxHash(hash);
     } catch (err) {
       console.error(err);
@@ -71,10 +78,11 @@ const ProposalVote: React.FC<any> = ({
 
   const handleCancelVote = async () => {
     try {
-      const hash = await txGovContractMethod(GOV_TX_METHODS.cancelVote, [
-        selectedDelegation.delegationInfo.stakerAddress,
-        parseInt(proposalId),
-      ]);
+      const hash = await txGovContractMethod(
+        GOV_TX_METHODS.cancelVote,
+        governanceId,
+        [selectedDelegation.delegationInfo.stakerAddress, parseInt(proposalId)]
+      );
       setCancelVoteTxHash(hash);
     } catch (err) {
       console.error(err);
@@ -101,6 +109,11 @@ const ProposalVote: React.FC<any> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVoteCompleted, isCancelVoteCompleted]);
 
+  console.log(
+    "[Proposal] Selected delegation address: ",
+    selectedDelegation?.delegationInfo?.stakerAddress
+  );
+
   return (
     <ContentBox style={{ flex: 3 }}>
       <Column style={{ width: "100%", gap: "2rem" }}>
@@ -126,10 +139,15 @@ const ProposalVote: React.FC<any> = ({
                       }
                       value={voteState[index]}
                       setValue={(value: number) => setVoteValue(value, index)}
-                      max={parseInt(opinionScales[opinionScales.length - 1])}
+                      max={opinionScales.length}
+                      markPoints={opinionScales.map(
+                        (scale: string) =>
+                          parseInt(scale) * (100 / opinionScales.length)
+                      )}
                       markInPercentage={false}
                       markLabels={opinionScales.map(
-                        (scale: string, index: number) => `${index * 25}%`
+                        (scale: string) =>
+                          `${parseInt(scale) * (100 / opinionScales.length)}%`
                       )}
                       color={
                         !isOpen || hasVoted?.length
