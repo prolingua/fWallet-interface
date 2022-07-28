@@ -54,6 +54,7 @@ const ProposalOverview: React.FC<any> = ({ proposal, selectedDelegation }) => {
           options={proposal?.options}
           opinionScales={proposal?.opinionScales}
           proposalId={proposal?.id}
+          governanceId={proposal?.governanceId}
           isOpen={isOpen}
         />
         <ProposalResult proposal={proposal} isOpen={isOpen} />
