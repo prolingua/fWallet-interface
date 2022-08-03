@@ -34,6 +34,7 @@ import Loader from "../../components/Loader";
 import FadeInOut from "../../components/AnimationFade";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { Item } from "../../components/Grid/Grid";
+import { isSameAddress } from "../../utils/wallet";
 
 export const CategorySwitch: React.FC<any> = ({
   categories,
@@ -204,8 +205,7 @@ const ProposalTable: React.FC<any> = ({ proposals }) => {
         </Typo1>
       </Row>
       <Spacer size="xs" />
-      {proposals &&
-        proposals.length &&
+      {proposals?.length > 0 ? (
         proposals.map((proposal: any) => {
           const delegationsToVoteWith = votesLeftForProposal(proposal.proposal);
           return (
@@ -264,7 +264,21 @@ const ProposalTable: React.FC<any> = ({ proposals }) => {
               </Row>
             </StyledProposalRow>
           );
-        })}
+        })
+      ) : (
+        <Row
+          style={{
+            width: "100%",
+            textAlign: "center",
+            alignItems: "center",
+            margin: "1rem 0",
+          }}
+        >
+          <Typo1 style={{ flex: 4, textAlign: "start" }}>
+            No proposals found
+          </Typo1>
+        </Row>
+      )}
     </Column>
   );
 };
@@ -283,12 +297,28 @@ const GovernanceProposalsList: React.FC<any> = ({
   loading,
   governanceProposalsData,
   filterInactive,
+  myProposals,
 }) => {
+  const { walletContext } = useWalletProvider();
   const governanceProposals = getGovernanceProposals(governanceProposalsData);
   const filteredProposals =
     governanceProposals && filterInactive
-      ? getInactiveGovernanceProposals(governanceProposals)
-      : getActiveGovernanceProposals(governanceProposals);
+      ? getInactiveGovernanceProposals(governanceProposals).filter((govProp) =>
+          myProposals
+            ? isSameAddress(
+                govProp.proposal.owner,
+                walletContext.activeWallet.address
+              )
+            : true
+        )
+      : governanceProposals.filter((govProp: any) => {
+          return myProposals
+            ? isSameAddress(
+                govProp.proposal.owner,
+                walletContext.activeWallet.address
+              )
+            : true;
+        });
 
   return (
     <Row style={{ flexWrap: "wrap", gap: "1rem" }}>
@@ -309,7 +339,6 @@ const GovernanceProposalsList: React.FC<any> = ({
 
 const Governance: React.FC<any> = () => {
   const history = useHistory();
-  const { breakpoints } = useContext(ThemeContext);
   const { apiData } = useFantomApiData();
   const { walletContext } = useWalletProvider();
   const activeAddress = walletContext.activeWallet.address?.toLowerCase();
@@ -320,6 +349,7 @@ const Governance: React.FC<any> = () => {
     address: activeAddress,
   } as any);
   const [pageInfo, setPageInfo] = useState(null);
+  const [myProposals, setMyProposals] = useState(false);
   const governanceProposals =
     apiData && apiData[FantomApiMethods.getGovernanceProposals];
 
@@ -378,9 +408,10 @@ const Governance: React.FC<any> = () => {
           <Row
             style={{
               flex: 1,
-              justifyContent: "space-between",
               alignItems: "flex-start",
+              justifyContent: "space-between",
               gap: "1rem",
+              position: "relative",
             }}
           >
             <CategorySwitch
@@ -388,39 +419,66 @@ const Governance: React.FC<any> = () => {
               setActiveCategory={setActiveCategory}
               activeCategory={activeCategory}
             />
-            <Row style={{ position: "relative" }}>
-              <Item collapseLTE="md">
+            <Row>
+              <Item collapseLTE="xs">
                 <Button
-                  variant="primary"
-                  onClick={() => history.push(`/governance/proposal/create`)}
-                >
-                  Create a new proposal
-                </Button>
-              </Item>
-              <Item
-                collapseGTE="lg"
-                style={{ position: "absolute", right: "3rem" }}
-              >
-                <Button
+                  variant="tertiary"
                   style={{
-                    borderRadius: "50%",
-                    fontSize: "40px",
-                    padding: "0 .9rem",
-                    fontWeight: "normal",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    color: "#1969FF",
+                    backgroundColor: "transparent",
+                    border: myProposals ? "1px solid #1969FF" : "initial",
+                    boxSizing: "border-box",
+                    marginRight: ".2rem",
                   }}
-                  variant="primary"
-                  onClick={() => history.push(`/governance/proposal/create`)}
+                  onClick={() => setMyProposals(!myProposals)}
                 >
-                  +
+                  My proposals
                 </Button>
               </Item>
+              <Item collapseGTE="lg" style={{ width: "50px" }} />
+              <Row>
+                <Item collapseLTE="md">
+                  <Button
+                    variant="primary"
+                    onClick={() => history.push(`/governance/proposal/create`)}
+                    style={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    Create proposal
+                  </Button>
+                </Item>
+              </Row>
             </Row>
+            <Item
+              collapseGTE="lg"
+              style={{ width: "50px", position: "absolute", right: 0 }}
+            >
+              <Button
+                style={{
+                  borderRadius: "50%",
+                  fontSize: "38px",
+                  padding: "0 .8rem",
+                  fontWeight: "normal",
+                }}
+                variant="primary"
+                onClick={() => history.push(`/governance/proposal/create`)}
+              >
+                +
+              </Button>
+            </Item>
           </Row>
           <Spacer />
           <GovernanceProposalsList
             loading={!governanceProposals?.data}
             governanceProposalsData={governanceProposals?.data}
             filterInactive={activeCategory === "Past proposals"}
+            myProposals={myProposals}
           />
         </Column>
       </FadeInOut>
