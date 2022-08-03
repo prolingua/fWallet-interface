@@ -246,6 +246,7 @@ export const FETCH_GOVERNANCE_PROPOSALS = (
         proposal {
           id
           name
+          owner
           description
           contract
           governanceId
@@ -298,6 +299,7 @@ export const FETCH_GOVERNANCE_PROPOSAL = (
                   governanceId
                   name
                   id
+                  owner
                   description
                   contract
                   opinionScales
