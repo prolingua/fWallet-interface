@@ -21,10 +21,12 @@ const Home: React.FC<any> = () => {
   const activeAddress = walletContext.activeWallet.address
     ? walletContext.activeWallet.address.toLowerCase()
     : null;
+  const [count, setCount] = useState(10);
   const [fetchTransHistoryVars, setFetchTransHistoryVars] = useState<any>({
     address: activeAddress,
-    count: 10,
+    count,
   });
+  const [csvData, setCsvData] = useState(null);
 
   const tokenPrice = apiData[FantomApiMethods.getTokenPrice];
   const accountData = apiData[
@@ -83,14 +85,32 @@ const Home: React.FC<any> = () => {
   );
 
   useEffect(() => {
-    if (activeAddress) {
+    if (activeAddress && count) {
       setFetchTransHistoryVars({
         ...fetchTransHistoryVars,
         address: activeAddress,
+        count,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeAddress]);
+  }, [activeAddress, count]);
+
+  useEffect(() => {
+    if (count >= 100) {
+      setCsvData(
+        accountData?.data?.account?.txList?.edges.map((edge: any) => ({
+          ...edge.transaction,
+          block: edge.transaction.block.number,
+          blockTimestamp: edge.transaction.block.timestamp,
+          tokenTransactions: JSON.stringify(
+            edge.transaction.tokenTransactions,
+            null,
+            2
+          ),
+        }))
+      );
+    }
+  }, [accountData]);
 
   const isDoneLoadingBalance =
     activeAddress &&
@@ -127,6 +147,8 @@ const Home: React.FC<any> = () => {
             tokenPrice={tokenPrice?.data?.price?.price}
             currency={settings.currency}
             accountData={accountData}
+            setCount={setCount}
+            csvData={csvData}
           />
           <Spacer />
           <Tokens loading={!isDoneLoadingTokens} tokenList={erc20AssetsList} />

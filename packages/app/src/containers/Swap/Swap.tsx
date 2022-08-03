@@ -434,7 +434,6 @@ const SwapTokensContent: React.FC<any> = ({
 
       const inTokenPrice = tokenPriceData[inToken.code]["usd"];
       const outTokenPrice = tokenPriceData[outToken.code]["usd"];
-      // console.log(inTokenAmount, outTokenAmount, inTokenPrice, outTokenPrice);
       const priceImpact =
         (inTokenAmount * inTokenPrice - outTokenAmount * outTokenPrice) /
         (inTokenAmount * inTokenPrice);

@@ -1,11 +1,13 @@
-import React from "react";
-import { ContentBox, Heading1, Typo1 } from "../../components";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, ContentBox, Heading1, Typo1 } from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import TransactionLine from "../../components/TransactionLine";
 import { getAccountTransactions } from "../../utils/account";
 import Loader from "../../components/Loader";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import Row from "../../components/Row";
+import { CSVLink } from "react-csv";
 
 const TransactionHistoryContent: React.FC<any> = ({
   transactions,
@@ -43,14 +45,41 @@ const TransactionHistory: React.FC<any> = ({
   address,
   tokenPrice,
   currency,
+  setCount,
+  csvData,
 }) => {
+  const csvRef = useRef(null);
   const accountTransactions =
     !loading && getAccountTransactions(accountData.data);
+  const [loadExport, setLoadExport] = useState(false);
+
+  useEffect(() => {
+    if (csvData?.length && loadExport) {
+      csvRef.current.link.click();
+      setLoadExport(false);
+    }
+  }, [csvData, loadExport]);
 
   return (
     <ContentBox style={{ flex: 2 }}>
       <Column style={{ width: "100%" }}>
-        <Heading1>History</Heading1>
+        <Row style={{ justifyContent: "space-between" }}>
+          <Heading1>History</Heading1>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setCount(100);
+              setLoadExport(true);
+            }}
+          >
+            {loadExport ? "downloading..." : "export csv"}
+          </Button>
+          <CSVLink
+            ref={csvRef}
+            data={csvData || []}
+            style={{ display: "none" }}
+          />
+        </Row>
         <Spacer size="lg" />
         <ErrorBoundary name="[Home][History]">
           {loading ? (
