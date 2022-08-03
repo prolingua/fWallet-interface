@@ -110,6 +110,10 @@ export const useSoftwareWallet = () => {
     return addWalletToContext(connectedWallet, provider);
   };
 
+  const encryptWallet = (wallet: Wallet, password: string = "test123") => {
+    return wallet.encrypt(password);
+  };
+
   return {
     generateMnemonic: () => generateMnemonic(),
     createNewWallet: (mnemonic: string) => handleCreateNewWallet(mnemonic),
@@ -120,5 +124,6 @@ export const useSoftwareWallet = () => {
     restoreWalletFromKeystoreFile: (json: string, password: string) =>
       handleRestoreWalletFromEncryptedJson(json, password),
     changeWalletProvider,
+    encryptWallet,
   };
 };

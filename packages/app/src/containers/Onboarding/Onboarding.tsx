@@ -223,7 +223,7 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
     try {
       const content = reader.result;
       const json = JSON.parse(content);
-      if (json && json?.address && json?.crypto) {
+      if (json && json?.address && (json?.crypto || json?.Crypto)) {
         return setFileContent(content);
       }
       setFileError("Invalid keystore file");

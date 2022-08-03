@@ -85,9 +85,17 @@ const AppContent: React.FC<any> = () => {
     if (location.pathname === "/bridge") {
       return setCorrectChainLoaded(true);
     }
-    return setCorrectChainLoaded(
-      walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
-    );
+    if (walletContext.activeWallet.providerType === "browser") {
+      return setCorrectChainLoaded(
+        walletContext.web3ProviderState.chainSelected ===
+          parseInt(config.chainId)
+      );
+    }
+    if (walletContext.activeWallet.providerType === "software") {
+      walletContext.activeWallet.provider.getNetwork().then((network: any) => {
+        setCorrectChainLoaded(network.chainId === parseInt(config.chainId));
+      });
+    }
   }, [location.pathname, walletContext.web3ProviderState.chainSelected]);
 
   useEffect(() => {

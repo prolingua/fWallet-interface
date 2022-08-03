@@ -4,11 +4,19 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import { ThemeContext } from "styled-components";
 import { Wallet } from "../../context/AccountProvider";
 import { isSameAddress } from "../../utils/wallet";
-import { Container, OverlayButton, Typo1, Typo2 } from "../index";
+import {
+  Button,
+  Container,
+  Heading3,
+  OverlayButton,
+  Typo1,
+  Typo2,
+} from "../index";
 import Column from "../Column";
 import Row from "../Row";
 import copySymbol from "../../assets/img/symbols/Copy.svg";
 import crossSymbol from "../../assets/img/symbols/Cross.svg";
+import jsonSymbol from "../../assets/img/symbols/Keys.svg";
 import Spacer from "../Spacer";
 import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import WalletSelectView from "./WalletSelectView";
@@ -32,6 +40,78 @@ import { AccessWallet } from "../../containers/Onboarding/Onboarding";
 import { Context } from "../../context/ModalProvider";
 import FadeInOut from "../AnimationFade";
 import useAccountSnapshot from "../../hooks/useAccountSnapshot";
+import { useSoftwareWallet } from "../../hooks/useSoftwareWallet";
+import ModalTitle from "../ModalTitle";
+import ModalContent from "../ModalContent";
+import InputTextBox from "../InputText/InputTextBox";
+
+const EncryptModal: React.FC<any> = ({ onDismiss, wallet }) => {
+  const { encryptWallet } = useSoftwareWallet();
+  const [data, setData] = useState(null);
+  const [password, setPassword] = useState("test123");
+  const handleCreateKeyJSON = async (wallet: any) => {
+    const JSONData = await encryptWallet(
+      wallet.walletProvider.signer,
+      password
+    );
+    return JSON.parse(JSONData);
+  };
+
+  useEffect(() => {
+    if (wallet) {
+      handleCreateKeyJSON(wallet).then((data) => setData(data));
+    }
+  }, [wallet]);
+
+  return (
+    <Modal>
+      <ModalTitle text="Create Encypted Wallet JSON file" />
+      <ModalContent>
+        <Typo1>For testing only!</Typo1>
+        <InputTextBox
+          placeholder="encrypt with password"
+          text={password}
+          setText={setPassword}
+          maxLength={30}
+        />
+      </ModalContent>
+      <Spacer size="md" />
+      <Row style={{ width: "100%", justifyContent: "center", gap: "1rem" }}>
+        {data ? (
+          !password || password.length < 6 ? (
+            <Button variant="primary" disabled>
+              Download file
+            </Button>
+          ) : (
+            <a
+              style={{
+                textDecoration: "none",
+                color: "white",
+                fontSize: "18px",
+                fontWeight: "bold",
+                backgroundColor: "#1969FF",
+                borderRadius: "8px",
+                padding: "14px 24px",
+              }}
+              type="button"
+              href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                JSON.stringify(data)
+              )}`}
+              download="your-wallet-file.json"
+            >
+              Download File
+            </a>
+          )
+        ) : (
+          "Loading..."
+        )}
+        <OverlayButton style={{ flex: 1 }} onClick={() => onDismiss()}>
+          <Heading3 style={{ color: "#765cde" }}>Close</Heading3>
+        </OverlayButton>
+      </Row>
+    </Modal>
+  );
+};
 
 const WalletSelect: React.FC<any> = ({
   handleClose,
@@ -50,6 +130,7 @@ const WalletSelect: React.FC<any> = ({
   const { accountSnapshots } = useAccountSnapshot();
   const { color } = useContext(ThemeContext);
   const [copied, setCopied] = useState(null);
+  const [encryptWallet, setEncryptWallet] = useState(null);
 
   const [totalFtmBalance, setTotalFtmBalance] = useState(0);
   const [totalFtmValue, setTotalFtmValue] = useState(0);
@@ -151,6 +232,15 @@ const WalletSelect: React.FC<any> = ({
     });
   };
 
+  const handleStartEncryptJSON = (wallet: any) => {
+    setEncryptWallet(wallet);
+  };
+
+  const [onPresentEncryptJSONModal] = useModal(
+    <EncryptModal wallet={encryptWallet} />,
+    "encypt-json-modal"
+  );
+
   const handleCopy = (address: string) => {
     navigator.clipboard.writeText(address).then(() => {
       setCopied(address);
@@ -203,6 +293,12 @@ const WalletSelect: React.FC<any> = ({
     dispatchAccount({ type: "reset" });
   };
 
+  useEffect(() => {
+    if (encryptWallet) {
+      onPresentEncryptJSONModal();
+    }
+  }, [encryptWallet]);
+
   return (
     <FadeInOut>
       <Container padding="0">
@@ -233,6 +329,23 @@ const WalletSelect: React.FC<any> = ({
                       justifyContent: "flex-end",
                     }}
                   >
+                    {wallet.providerType === "software" && (
+                      <OverlayButton
+                        onClick={() => handleStartEncryptJSON(wallet)}
+                      >
+                        <div style={{ position: "relative" }}>
+                          <img
+                            alt=""
+                            style={{
+                              height: "16px",
+                              width: "16px",
+                              marginRight: ".5rem",
+                            }}
+                            src={jsonSymbol}
+                          />
+                        </div>
+                      </OverlayButton>
+                    )}
                     <OverlayButton onClick={() => handleCopy(wallet.address)}>
                       <div style={{ position: "relative" }}>
                         <img
@@ -240,7 +353,7 @@ const WalletSelect: React.FC<any> = ({
                           style={{
                             height: "16px",
                             width: "16px",
-                            marginRight: "1.5rem",
+                            marginRight: ".5rem",
                           }}
                           src={copySymbol}
                         />
