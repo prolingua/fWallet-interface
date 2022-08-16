@@ -7,6 +7,10 @@ import DropDownButton from "../DropDownButton";
 import vShape from "../../assets/img/shapes/vShape.png";
 import usFlagIcon from "../../assets/img/icons/usFlag.svg";
 import euFlagIcon from "../../assets/img/icons/euFlag.png";
+import cnFlagIcon from "../../assets/img/icons/cnFlag.png";
+import gbFlagIcon from "../../assets/img/icons/gbFlag.png";
+import jpFlagIcon from "../../assets/img/icons/jpFlag.png";
+import skrFlagIcon from "../../assets/img/icons/skrFlag.png";
 
 export const currencyOptions: any = {
   usd: {
@@ -20,6 +24,30 @@ export const currencyOptions: any = {
     long: "Euro",
     symbol: "€",
     icon: euFlagIcon,
+  },
+  cny: {
+    name: "CNY",
+    long: "Chinese Yuan",
+    symbol: "¥",
+    icon: cnFlagIcon,
+  },
+  gbp: {
+    name: "GBP",
+    long: "Pound",
+    symbol: "£",
+    icon: gbFlagIcon,
+  },
+  jpy: {
+    name: "JPY",
+    long: "Japanese Yen",
+    symbol: "¥",
+    icon: jpFlagIcon,
+  },
+  krw: {
+    name: "KRW",
+    long: "South-Korean Won",
+    symbol: "₩",
+    icon: skrFlagIcon,
   },
 };
 
@@ -88,7 +116,7 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
         <img
           alt=""
           src={currencyOptions[current].icon}
-          style={{ height: "20px", width: "20px", paddingRight: ".5rem" }}
+          style={{ height: "25px", width: "25px", paddingRight: ".5rem" }}
         />
         {current.toUpperCase()}
         <img

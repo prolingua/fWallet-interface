@@ -55,11 +55,15 @@ const AccountSnapshot: React.FC<any> = () => {
       const getPricePromises = [
         getPrice(cgCoinIdList, "usd"),
         getPrice(cgCoinIdList, "eur"),
+        getPrice(cgCoinIdList, "cny"),
+        getPrice(cgCoinIdList, "gbp"),
+        getPrice(cgCoinIdList, "jpy"),
+        getPrice(cgCoinIdList, "krw"),
       ];
       const allPricedTokens = cgCoinMapping.filter((coin: any) =>
         cgCoinIdList.includes(coin.id)
       );
-      Promise.all(getPricePromises).then(([usd, eur]) => {
+      Promise.all(getPricePromises).then(([usd, eur, cny, gbp, jpy, krw]) => {
         const tokenPrices = {} as any;
         allPricedTokens.forEach((token: any) => {
           tokenPrices[token.symbol] = {
@@ -68,6 +72,10 @@ const AccountSnapshot: React.FC<any> = () => {
             price: {
               eur: eur?.data[token.id]?.eur,
               usd: usd?.data[token.id]?.usd,
+              cny: cny?.data[token.id]?.cny,
+              gbp: gbp?.data[token.id]?.gbp,
+              jpy: jpy?.data[token.id]?.jpy,
+              krw: krw?.data[token.id]?.krw,
             },
           };
         });

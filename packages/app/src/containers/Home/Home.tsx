@@ -137,7 +137,7 @@ const Home: React.FC<any> = () => {
         />
         <Spacer />
         <ResponsiveRow
-          breakpoint={breakpoints.ultra}
+          breakpoint={breakpoints.desktop}
           breakpointReverse
           style={{ marginBottom: "1rem" }}
         >

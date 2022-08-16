@@ -60,17 +60,35 @@ const useAccountSnapshot = () => {
                   );
                   const eurValue = amountInUnit * tokenPrices[symbol].price.eur;
                   const usdValue = amountInUnit * tokenPrices[symbol].price.usd;
+                  const cnyValue = amountInUnit * tokenPrices[symbol].price.cny;
+                  const gbpValue = amountInUnit * tokenPrices[symbol].price.gbp;
+                  const jpyValue = amountInUnit * tokenPrices[symbol].price.jpy;
+                  const krwValue = amountInUnit * tokenPrices[symbol].price.krw;
 
-                  return [accumulator[0] + usdValue, accumulator[1] + eurValue];
+                  return [
+                    accumulator[0] + usdValue,
+                    accumulator[1] + eurValue,
+                    accumulator[2] + cnyValue,
+                    accumulator[3] + gbpValue,
+                    accumulator[4] + jpyValue,
+                    accumulator[5] + krwValue,
+                  ];
                 },
-                [0, 0]
+                [0, 0, 0, 0, 0, 0]
               );
 
               dispatch({
                 type: "update",
                 address: wallet.address,
                 snapshot: {
-                  walletAssetValue: { usd: totalValue[0], eur: totalValue[1] },
+                  walletAssetValue: {
+                    usd: totalValue[0],
+                    eur: totalValue[1],
+                    cny: totalValue[2],
+                    gbp: totalValue[3],
+                    jpy: totalValue[4],
+                    krw: totalValue[5],
+                  },
                 },
               });
             }
