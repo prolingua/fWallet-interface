@@ -1,0 +1,357 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_governance", "type": "address" },
+      { "internalType": "address", "name": "_sfc", "type": "address" }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "NetworkParameterProposalDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "PlaintextProposalDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "ProposalDisabled",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "string", "name": "__name", "type": "string" },
+      { "internalType": "string", "name": "__description", "type": "string" },
+      { "internalType": "bytes32[]", "name": "__options", "type": "bytes32[]" },
+      { "internalType": "uint256", "name": "__minVotes", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "__minAgreement",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "__start", "type": "uint256" },
+      { "internalType": "uint256", "name": "__minEnd", "type": "uint256" },
+      { "internalType": "uint256", "name": "__maxEnd", "type": "uint256" },
+      { "internalType": "address", "name": "verifier", "type": "address" },
+      { "internalType": "string", "name": "__signature", "type": "string" },
+      {
+        "internalType": "uint256[]",
+        "name": "__optionsList",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "enum Proposal.ExecType",
+        "name": "__exec",
+        "type": "uint8"
+      },
+      { "internalType": "uint256[]", "name": "__scales", "type": "uint256[]" }
+    ],
+    "name": "deployNewNetworkParameterProposal",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "string", "name": "__name", "type": "string" },
+      { "internalType": "string", "name": "__description", "type": "string" },
+      { "internalType": "bytes32[]", "name": "__options", "type": "bytes32[]" },
+      { "internalType": "uint256", "name": "__minVotes", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "__minAgreement",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "__start", "type": "uint256" },
+      { "internalType": "uint256", "name": "__minEnd", "type": "uint256" },
+      { "internalType": "uint256", "name": "__maxEnd", "type": "uint256" }
+    ],
+    "name": "deployNewPlainTextProposal",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "proposalContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "disableProposalContract",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "exists",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalDescription",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalMaxEnd",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalMinAgreement",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalMinEnd",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalMinVotes",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalName",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalOptions",
+    "outputs": [
+      { "internalType": "bytes32[]", "name": "", "type": "bytes32[]" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalOptionsList",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalSignature",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "_address", "type": "address" }
+    ],
+    "name": "getProposalStart",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "governance",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "isOwner",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "lastNetworkProposal",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "lastPlainTextProposal",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "proposals",
+    "outputs": [
+      { "internalType": "string", "name": "_name", "type": "string" },
+      { "internalType": "string", "name": "_description", "type": "string" },
+      { "internalType": "uint256", "name": "_minVotes", "type": "uint256" },
+      { "internalType": "uint256", "name": "_minAgreement", "type": "uint256" },
+      { "internalType": "uint256", "name": "_start", "type": "uint256" },
+      { "internalType": "uint256", "name": "_minEnd", "type": "uint256" },
+      { "internalType": "uint256", "name": "_maxEnd", "type": "uint256" },
+      { "internalType": "string", "name": "_signature", "type": "string" },
+      { "internalType": "bool", "name": "_deployed", "type": "bool" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "sfc",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -70,29 +70,33 @@ export const loadContracts = async (signer: Signer, chainId: number) => {
     ],
     ["gov", new Contract(addresses[chainId]["gov"], abis.gov, signer)],
     [
-      "govNetwork",
-      new Contract(addresses[chainId]["govNetwork"], abis.gov, signer),
-    ],
-    [
-      "govProposal",
-      new Contract(addresses[chainId]["govProposal"], abis.govProposal, signer),
-    ],
-    [
-      "govProposalPlaintext",
+      "govProposalFactory",
       new Contract(
-        addresses[chainId]["govProposalPlaintext"],
-        abis.govProposalPlaintext,
+        addresses[chainId]["govProposalFactory"],
+        abis.govProposalFactory,
         signer
       ),
     ],
-    [
-      "govProposalNetwork",
-      new Contract(
-        addresses[chainId]["govProposalNetwork"],
-        abis.govProposalNetwork,
-        signer
-      ),
-    ],
+    // [
+    //   "govProposal",
+    //   new Contract(addresses[chainId]["govProposal"], abis.govProposal, signer),
+    // ],
+    // [
+    //   "govProposalPlaintext",
+    //   new Contract(
+    //     addresses[chainId]["govProposalPlaintext"],
+    //     abis.govProposalPlaintext,
+    //     signer
+    //   ),
+    // ],
+    // [
+    //   "govProposalNetwork",
+    //   new Contract(
+    //     addresses[chainId]["govProposalNetwork"],
+    //     abis.govProposalNetwork,
+    //     signer
+    //   ),
+    // ],
   ]);
 };
 

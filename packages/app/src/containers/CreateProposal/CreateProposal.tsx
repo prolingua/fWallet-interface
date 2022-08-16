@@ -9,8 +9,7 @@ import InputInteger from "../../components/InputInteger/InputInteger";
 import InputError from "../../components/InputError";
 import { unitToWei } from "../../utils/conversion";
 import useFantomContract, {
-  GOV_PROPOSAL_NETWORK_TX_METHODS,
-  GOV_PROPOSAL_PLAINTEXT_TX_METHODS,
+  GOV_PROPOSAL_FACTORY_TX_METHODS,
 } from "../../hooks/useFantomContract";
 import useTransaction from "../../hooks/useTransaction";
 import { formatBytes32String } from "@ethersproject/strings";
@@ -127,10 +126,7 @@ const StyledDropdownItem = styled.button`
 const CreateProposal: React.FC<any> = () => {
   const { color } = useContext(ThemeContext);
   const history = useHistory();
-  const {
-    txGovProposalPlaintextContractMethod,
-    txGovProposalNetworkContractMethod,
-  } = useFantomContract();
+  const { txGovProposalFactoryContractMethod } = useFantomContract();
   const [proposalName, setProposalName] = useState("");
   const [networkParameter, setNetworkParameter] = useState("");
   const [proposalDescription, setProposalDescription] = useState("");
@@ -179,8 +175,8 @@ const CreateProposal: React.FC<any> = () => {
     let minAgreeAmount = unitToWei(minAgreement.toString(), 16);
 
     try {
-      const hash = await txGovProposalPlaintextContractMethod(
-        GOV_PROPOSAL_PLAINTEXT_TX_METHODS.create,
+      const hash = await txGovProposalFactoryContractMethod(
+        GOV_PROPOSAL_FACTORY_TX_METHODS.createPlainTextProposal,
         [
           proposalName,
           proposalDescription,
@@ -201,10 +197,10 @@ const CreateProposal: React.FC<any> = () => {
   const handleCreateNetworkProposal = async () => {
     let minVoteAmount = unitToWei(minParticipation.toString(), 16);
     let minAgreeAmount = unitToWei(minAgreement.toString(), 16);
-
+    console.log(addresses[parseInt(config.chainId)]["govProposalTemplate"]);
     try {
-      const hash = await txGovProposalNetworkContractMethod(
-        GOV_PROPOSAL_NETWORK_TX_METHODS.create,
+      const hash = await txGovProposalFactoryContractMethod(
+        GOV_PROPOSAL_FACTORY_TX_METHODS.createNetworkProposal,
         [
           proposalName,
           proposalDescription,
@@ -214,7 +210,6 @@ const CreateProposal: React.FC<any> = () => {
           startInHours * 3600,
           endMinimumInDays * 24 * 3600,
           endMaximumInDays * 24 * 3600,
-          addresses[parseInt(config.chainId)]["sfc"],
           addresses[parseInt(config.chainId)]["govProposalTemplate"],
           networkParameter,
           votingOptions.map((option) => parseEther(option)),
@@ -491,7 +486,7 @@ const CreateProposal: React.FC<any> = () => {
                 textAlign: "center",
               }}
             >
-              {`Proposal fee: ${proposalType === "Plain" ? "100" : "1"} FTM`}
+              {`Proposal fee: ${proposalType === "Plain" ? "1" : "1"} FTM`}
             </Typo2>
           </Column>
         </Row>
