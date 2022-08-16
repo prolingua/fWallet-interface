@@ -39,6 +39,7 @@ const useBridge = () => {
   const bridgeMethod = async (token: arrayBridgeProps, amount: string) => {
     const { ContractAddress, type, DepositAddress } = token;
     const bridgeContract = await getBridgeContract("default", ContractAddress);
+    console.log(bridgeContract);
 
     let bridgeMethod = null;
     if (type === "swapOut") {

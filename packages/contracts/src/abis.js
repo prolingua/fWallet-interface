@@ -9,6 +9,7 @@ import gov from "./abis/fantom/gov-abi-0.0.1-rc2.json";
 import govProposal from "./abis/fantom/gov-proposal.json";
 import govProposalPlaintext from "./abis/fantom/gov-proposal-plaintext.json";
 import govProposalNetwork from "./abis/fantom/gov-proposal-network.json";
+import govProposalFactory from "./abis/fantom/gov-proposal-factory.json";
 import bridgeRouter from "./abis/multichain/bridgeRouter.json";
 import bridge from "./abis/multichain/bridge.json";
 
@@ -24,6 +25,7 @@ export default {
   govProposal,
   govProposalPlaintext,
   govProposalNetwork,
+  govProposalFactory,
   bridgeRouter,
   bridge,
 };
