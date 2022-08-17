@@ -13,7 +13,17 @@ const useCoingeckoApi = () => {
 
   const getPrice = (
     tokens: string[],
-    currency: "usd" | "eur" | "cny" | "gbp" | "jpy" | "krw" = "usd",
+    currency:
+      | "usd"
+      | "eur"
+      | "cny"
+      | "gbp"
+      | "jpy"
+      | "krw"
+      | "aud"
+      | "cad"
+      | "chf"
+      | "aed" = "usd",
     slug?: string
   ) => {
     return get({

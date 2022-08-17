@@ -11,6 +11,10 @@ import cnFlagIcon from "../../assets/img/icons/cnFlag.png";
 import gbFlagIcon from "../../assets/img/icons/gbFlag.png";
 import jpFlagIcon from "../../assets/img/icons/jpFlag.png";
 import skrFlagIcon from "../../assets/img/icons/skrFlag.png";
+import auFlagIcon from "../../assets/img/icons/auFlag.png";
+import caFlagIcon from "../../assets/img/icons/caFlag.png";
+import chFlagIcon from "../../assets/img/icons/chFlag.png";
+import uaeFlagIcon from "../../assets/img/icons/uaeFlag.png";
 
 export const currencyOptions: any = {
   usd: {
@@ -48,6 +52,30 @@ export const currencyOptions: any = {
     long: "South-Korean Won",
     symbol: "₩",
     icon: skrFlagIcon,
+  },
+  aud: {
+    name: "AUD",
+    long: "Australian Dollar",
+    symbol: "A$",
+    icon: auFlagIcon,
+  },
+  cad: {
+    name: "CAD",
+    long: "Canadian Dollar",
+    symbol: "C$",
+    icon: caFlagIcon,
+  },
+  chf: {
+    name: "CHF",
+    long: "Swiss Franc",
+    symbol: "CHF",
+    icon: chFlagIcon,
+  },
+  aed: {
+    name: "AED",
+    long: "UAE Dirham",
+    symbol: "AED",
+    icon: uaeFlagIcon,
   },
 };
 

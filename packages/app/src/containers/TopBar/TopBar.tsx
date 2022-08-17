@@ -59,29 +59,39 @@ const AccountSnapshot: React.FC<any> = () => {
         getPrice(cgCoinIdList, "gbp"),
         getPrice(cgCoinIdList, "jpy"),
         getPrice(cgCoinIdList, "krw"),
+        getPrice(cgCoinIdList, "aud"),
+        getPrice(cgCoinIdList, "cad"),
+        getPrice(cgCoinIdList, "chf"),
+        getPrice(cgCoinIdList, "aed"),
       ];
       const allPricedTokens = cgCoinMapping.filter((coin: any) =>
         cgCoinIdList.includes(coin.id)
       );
-      Promise.all(getPricePromises).then(([usd, eur, cny, gbp, jpy, krw]) => {
-        const tokenPrices = {} as any;
-        allPricedTokens.forEach((token: any) => {
-          tokenPrices[token.symbol] = {
-            symbol: token.symbol,
-            cgCode: token.id,
-            price: {
-              eur: eur?.data[token.id]?.eur,
-              usd: usd?.data[token.id]?.usd,
-              cny: cny?.data[token.id]?.cny,
-              gbp: gbp?.data[token.id]?.gbp,
-              jpy: jpy?.data[token.id]?.jpy,
-              krw: krw?.data[token.id]?.krw,
-            },
-          };
-        });
+      Promise.all(getPricePromises).then(
+        ([usd, eur, cny, gbp, jpy, krw, aud, cad, chf, aed]) => {
+          const tokenPrices = {} as any;
+          allPricedTokens.forEach((token: any) => {
+            tokenPrices[token.symbol] = {
+              symbol: token.symbol,
+              cgCode: token.id,
+              price: {
+                eur: eur?.data[token.id]?.eur,
+                usd: usd?.data[token.id]?.usd,
+                cny: cny?.data[token.id]?.cny,
+                gbp: gbp?.data[token.id]?.gbp,
+                jpy: jpy?.data[token.id]?.jpy,
+                krw: krw?.data[token.id]?.krw,
+                aud: aud?.data[token.id]?.aud,
+                cad: cad?.data[token.id]?.cad,
+                chf: chf?.data[token.id]?.chf,
+                aed: aed?.data[token.id]?.aed,
+              },
+            };
+          });
 
-        dispatchTokenPrices({ type: "setTokenPrices", tokens: tokenPrices });
-      });
+          dispatchTokenPrices({ type: "setTokenPrices", tokens: tokenPrices });
+        }
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cgCoinIdList]);
