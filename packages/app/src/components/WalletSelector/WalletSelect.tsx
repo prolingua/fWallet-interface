@@ -16,7 +16,7 @@ import Column from "../Column";
 import Row from "../Row";
 import copySymbol from "../../assets/img/symbols/Copy.svg";
 import crossSymbol from "../../assets/img/symbols/Cross.svg";
-import jsonSymbol from "../../assets/img/symbols/Keys.svg";
+import jsonSymbol from "../../assets/img/icons/keyStoreFileIconGrey.svg";
 import Spacer from "../Spacer";
 import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import WalletSelectView from "./WalletSelectView";
@@ -48,7 +48,7 @@ import InputTextBox from "../InputText/InputTextBox";
 const EncryptModal: React.FC<any> = ({ onDismiss, wallet }) => {
   const { encryptWallet } = useSoftwareWallet();
   const [data, setData] = useState(null);
-  const [password, setPassword] = useState("test123");
+  const [password, setPassword] = useState("");
   const handleCreateKeyJSON = async (wallet: any) => {
     const JSONData = await encryptWallet(
       wallet.walletProvider.signer,
@@ -56,35 +56,58 @@ const EncryptModal: React.FC<any> = ({ onDismiss, wallet }) => {
     );
     return JSON.parse(JSONData);
   };
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [error, setError] = useState("");
+
+  const validatePasswordRequirements = (value: string) => {
+    setError("");
+    if (value.length >= 8 && !/[A-Z]/.test(value)) {
+      setError("Your chosen password does not meet all requirements");
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
-    if (wallet) {
+    if (validatePasswordRequirements(password)) {
       handleCreateKeyJSON(wallet).then((data) => setData(data));
     }
-  }, [wallet]);
+  }, [password]);
 
   return (
     <Modal>
       <ModalTitle text="Create Encypted Wallet JSON file" />
-      <ModalContent>
-        <Typo1>For testing only!</Typo1>
+      <ModalContent style={{ maxWidth: "30rem" }}>
+        <Typo2
+          style={{
+            width: "100%",
+            textAlign: "center",
+            whiteSpace: "break-spaces",
+          }}
+        >
+          Set your password. Password requirements: minimum 8 characters long
+          with at minimum 1 uppercase letter
+        </Typo2>
+        <Spacer size="sm" />
         <InputTextBox
           placeholder="encrypt with password"
           text={password}
           setText={setPassword}
-          maxLength={30}
+          maxLength={20}
         />
+        <Typo2 style={{ color: "red", height: "1rem" }}>{error}</Typo2>
       </ModalContent>
       <Spacer size="md" />
-      <Row style={{ width: "100%", justifyContent: "center", gap: "1rem" }}>
+      <Row style={{ width: "100%", justifyContent: "center", gap: "5rem" }}>
         {data ? (
-          !password || password.length < 6 ? (
-            <Button variant="primary" disabled>
+          !password || password.length < 8 || error ? (
+            <Button style={{ flex: 1 }} variant="primary" disabled>
               Download file
             </Button>
           ) : (
             <a
               style={{
+                flex: 1,
                 textDecoration: "none",
                 color: "white",
                 fontSize: "18px",
@@ -92,18 +115,27 @@ const EncryptModal: React.FC<any> = ({ onDismiss, wallet }) => {
                 backgroundColor: "#1969FF",
                 borderRadius: "8px",
                 padding: "14px 24px",
+                textAlign: "center",
               }}
               type="button"
               href={`data:text/json;charset=utf-8,${encodeURIComponent(
                 JSON.stringify(data)
               )}`}
-              download="your-wallet-file.json"
+              download={`your-fWallet-file-${(Date.now() / 1000).toFixed(
+                0
+              )}.json`}
+              onClick={() => {
+                setIsDownloading(true);
+                setTimeout(() => onDismiss(), 1000);
+              }}
             >
-              Download File
+              {isDownloading ? "Downloading..." : "Download File"}
             </a>
           )
         ) : (
-          "Loading..."
+          <Button style={{ flex: 1 }} variant="primary" disabled>
+            Loading...
+          </Button>
         )}
         <OverlayButton style={{ flex: 1 }} onClick={() => onDismiss()}>
           <Heading3 style={{ color: "#765cde" }}>Close</Heading3>
@@ -337,9 +369,9 @@ const WalletSelect: React.FC<any> = ({
                           <img
                             alt=""
                             style={{
-                              height: "16px",
-                              width: "16px",
-                              marginRight: ".5rem",
+                              height: "35px",
+                              width: "35px",
+                              marginRight: ".3rem",
                             }}
                             src={jsonSymbol}
                           />

@@ -65,18 +65,23 @@ const TransactionHistory: React.FC<any> = ({
       <Column style={{ width: "100%" }}>
         <Row style={{ justifyContent: "space-between" }}>
           <Heading1>History</Heading1>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setCount(100);
-              setLoadExport(true);
-            }}
-          >
-            {loadExport ? "downloading..." : "export csv"}
-          </Button>
+          {accountTransactions.length > 0 && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setCount(100);
+                setLoadExport(true);
+              }}
+            >
+              {loadExport ? "downloading..." : "export csv"}
+            </Button>
+          )}
           <CSVLink
             ref={csvRef}
             data={csvData || []}
+            filename={`fWallet-export-txHistory-${address}-${(
+              Date.now() / 1000
+            ).toFixed(0)}.csv`}
             style={{ display: "none" }}
           />
         </Row>
