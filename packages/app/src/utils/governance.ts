@@ -11,7 +11,13 @@ export const getInactiveGovernanceProposals = (govProposalList: any[]) => {
   return govProposalList.filter(
     (govProposal) =>
       new Date(formatHexToInt(govProposal.proposal.votingMustEnd) * 1000) <
-      new Date(Date.now())
+        new Date(Date.now()) || govProposal.proposal.state.isResolved
+  );
+};
+
+export const getActiveGovernanceProposals = (govProposalList: any[]) => {
+  return govProposalList.filter(
+    (govProposal) => !govProposal.proposal.state.isResolved
   );
 };
 

@@ -15,6 +15,7 @@ import {
   Typo2,
 } from "../../components";
 import {
+  getActiveGovernanceProposals,
   getGovernanceProposals,
   getInactiveGovernanceProposals,
   getProposalStatus,
@@ -273,7 +274,7 @@ const GovernanceProposalsList: React.FC<any> = ({
   const filteredProposals =
     governanceProposals && filterInactive
       ? getInactiveGovernanceProposals(governanceProposals)
-      : governanceProposals;
+      : getActiveGovernanceProposals(governanceProposals);
 
   return (
     <Row style={{ flexWrap: "wrap", gap: "1rem" }}>
