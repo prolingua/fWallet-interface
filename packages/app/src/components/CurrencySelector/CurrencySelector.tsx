@@ -99,7 +99,7 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
       DropDown={() => CurrencySelect({ dispatch, handleClose })}
       dropdownWidth={336}
       dropdownTop={70}
-      dropdownLeft={5}
+      dropdownLeft={0}
       getState={setIsDropdownOpen}
     >
       <Button
@@ -107,18 +107,20 @@ const CurrencySelector: React.FC<any> = ({ current, width, dispatch }) => {
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           fontWeight: "bold",
           width: "100%",
           height: "56px",
         }}
       >
-        <img
-          alt=""
-          src={currencyOptions[current].icon}
-          style={{ height: "25px", width: "25px", paddingRight: ".5rem" }}
-        />
-        {current.toUpperCase()}
+        <Row style={{ alignItems: "center", justifyContent: "center" }}>
+          <img
+            alt=""
+            src={currencyOptions[current].icon}
+            style={{ height: "25px", width: "25px", paddingRight: ".5rem" }}
+          />
+          {current.toUpperCase()}
+        </Row>
         <img
           alt=""
           src={vShape}

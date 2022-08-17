@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Container, OverlayButton } from "../index";
+import { Button, Container, OverlayButton, Typo1 } from "../index";
 import Column from "../Column";
 import Row from "../Row";
 import DropDownButton from "../DropDownButton";
@@ -30,7 +30,9 @@ const LanguageSelect: React.FC<any> = ({ dispatch, handleClose, i18n }) => {
                 handleClose();
               }}
             >
-              <Row>{`${value.name}`}</Row>
+              <Row>
+                <Typo1 style={{ fontWeight: "bold" }}>{`${value.name}`}</Typo1>
+              </Row>
             </OverlayButton>
           );
         })}
@@ -60,7 +62,7 @@ const LanguageSelector: React.FC<any> = ({
       width={width}
       triggerClose={closeDropDown}
       DropDown={() => LanguageSelect({ dispatch, handleClose, i18n })}
-      dropdownWidth={254}
+      dropdownWidth={336}
       dropdownTop={70}
       dropdownLeft={0}
     >
@@ -69,7 +71,7 @@ const LanguageSelector: React.FC<any> = ({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           fontWeight: "bold",
           width: "100%",
           height: "56px",

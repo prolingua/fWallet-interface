@@ -38,6 +38,7 @@ import useModal from "./hooks/useModal";
 import InfoModal from "./components/InfoModal";
 import config from "./config/config";
 import { switchToChain } from "./web3/events";
+import Preferences from "./containers/Preferences";
 
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
@@ -143,6 +144,7 @@ const AppContent: React.FC<any> = () => {
                 exact
               />
               <Route path="/governance/proposal/:id" component={Proposal} />
+              <Route path="/preferences" component={Preferences} />
               <Route path="/" component={Home} />
             </Switch>
           </StyledRouteContainer>
