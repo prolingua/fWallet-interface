@@ -377,10 +377,10 @@ const CreateProposal: React.FC<any> = () => {
               <SliderWithMarks
                 value={minParticipation}
                 setValue={setMinParticipation}
-                min={55}
+                min={66}
                 max={90}
                 steps={1}
-                markPoints={[55, 90]}
+                markPoints={[66, 90]}
                 markPointsAbsolute
                 railColor="#202F49"
                 tooltip
@@ -398,10 +398,10 @@ const CreateProposal: React.FC<any> = () => {
               <SliderWithMarks
                 value={minAgreement}
                 setValue={setMinAgreement}
-                min={55}
+                min={66}
                 max={90}
                 steps={1}
-                markPoints={[55, 90]}
+                markPoints={[66, 90]}
                 markPointsAbsolute
                 railColor="#202F49"
                 tooltip
