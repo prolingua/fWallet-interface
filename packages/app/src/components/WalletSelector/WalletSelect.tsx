@@ -16,7 +16,7 @@ import Column from "../Column";
 import Row from "../Row";
 import copySymbol from "../../assets/img/symbols/Copy.svg";
 import crossSymbol from "../../assets/img/symbols/Cross.svg";
-import jsonSymbol from "../../assets/img/icons/keyStoreFileIconGrey.svg";
+import jsonSymbol from "../../assets/img/symbols/Download.svg";
 import Spacer from "../Spacer";
 import syncSymbol from "../../assets/img/symbols/Sync.svg";
 import WalletSelectView from "./WalletSelectView";
@@ -369,8 +369,8 @@ const WalletSelect: React.FC<any> = ({
                           <img
                             alt=""
                             style={{
-                              height: "35px",
-                              width: "35px",
+                              height: "20px",
+                              width: "20px",
                               marginRight: ".3rem",
                             }}
                             src={jsonSymbol}

@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, ContentBox, Heading1, Typo1 } from "../../components";
+import {
+  Button,
+  ContentBox,
+  Heading1,
+  OverlayButton,
+  Typo1,
+} from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import TransactionLine from "../../components/TransactionLine";
@@ -8,6 +14,7 @@ import Loader from "../../components/Loader";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import Row from "../../components/Row";
 import { CSVLink } from "react-csv";
+import exportCSVImg from "../../assets/img/symbols/ExportCSV.svg";
 
 const TransactionHistoryContent: React.FC<any> = ({
   transactions,
@@ -66,15 +73,14 @@ const TransactionHistory: React.FC<any> = ({
         <Row style={{ justifyContent: "space-between" }}>
           <Heading1>History</Heading1>
           {accountTransactions.length > 0 && (
-            <Button
-              variant="secondary"
+            <OverlayButton
               onClick={() => {
                 setCount(100);
                 setLoadExport(true);
               }}
             >
-              {loadExport ? "downloading..." : "export csv"}
-            </Button>
+              {loadExport ? "exporting..." : <img src={exportCSVImg} />}
+            </OverlayButton>
           )}
           <CSVLink
             ref={csvRef}
