@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "styled-components";
 import useWalletProvider from "../../hooks/useWalletProvider";
 import { isSameAddress, isValidAddress } from "../../utils/wallet";
@@ -9,6 +9,7 @@ import walletSymbol from "../../assets/img/symbols/wallet.svg";
 import Spacer from "../Spacer";
 import AddressBalance from "../AddressBalance";
 import InputError from "../InputError";
+import useUnstoppableDomains from "../../hooks/useUnstoppableDomains";
 
 const InputAddress: React.FC<any> = ({
   token,
@@ -17,36 +18,82 @@ const InputAddress: React.FC<any> = ({
 }) => {
   const { color } = useContext(ThemeContext);
   const { walletContext } = useWalletProvider();
+  const {
+    getFantomDomainForAddress,
+    getFantomAddressForDomain,
+    isValidDomain,
+  } = useUnstoppableDomains();
+
   const [value, setValue] = useState(initial || "");
   const [error, setError] = useState(null);
   const [validAddress, setValidAddress] = useState(null);
+  const [domain, setDomain] = useState("");
+  const [validDomain, setValidDomain] = useState(null);
+
   const onHandleBlur = (value: string) => {
     if (!value.length) {
       return;
     }
-    if (!isValidAddress(value)) {
-      setError("Invalid address");
+
+    if (!isValidAddress(value) && !isValidDomain(value)) {
+      setError("Invalid address or unknown domain");
     }
   };
+
   const onHandleChange = (value: string) => {
     setError(null);
     setValidAddress(null);
+    setDomain("");
+    setValidDomain(null);
     setReceiverAddress(null);
     setValue(value);
+
+    if (isValidAddress(value)) {
+      if (isSameAddress(value, walletContext.activeWallet.address)) {
+        return setError("Receiver address is same as sender address");
+      }
+      return setValidAddress(value);
+    }
+
+    if (isValidDomain(value)) {
+      //TODO check if same address as sender
+      return setValidDomain(value);
+    }
+
     if ((value.length === 42 && !isValidAddress(value)) || value.length > 42) {
       return setError("Invalid address");
     }
-    if (
-      value.length === 42 &&
-      isSameAddress(value, walletContext.activeWallet.address)
-    ) {
-      return setError("Receiver address is same as sender address");
-    }
-    if (value.length === 42 && isValidAddress(value)) {
-      setValidAddress(value);
-      setReceiverAddress(value);
-    }
   };
+
+  useEffect(() => {
+    if (validAddress) {
+      // setAddress(value);
+      setReceiverAddress(value);
+      getFantomDomainForAddress(value).then((fetchedDomain) => {
+        setDomain(fetchedDomain);
+      });
+    }
+  }, [validAddress]);
+
+  useEffect(() => {
+    if (domain) {
+      setValue(domain);
+    }
+  }, [domain]);
+
+  useEffect(() => {
+    if (validDomain) {
+      getFantomAddressForDomain(value).then((fetchedAddress) => {
+        if (fetchedAddress) {
+          setReceiverAddress(fetchedAddress);
+          // setAddress(fetchedAddress);
+          setError(fetchedAddress);
+          return;
+        }
+        setError("No UD FTM record found for domain");
+      });
+    }
+  }, [validDomain]);
 
   return (
     <Column>

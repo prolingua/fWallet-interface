@@ -15,23 +15,23 @@ const useRestApi = (baseUrl: string) => {
     return url;
   };
 
-  const post = ({ path, params, queryParams, body }: any) => {
+  const post = ({ path, params, queryParams, body, config = {} }: any) => {
     return handleApiCall(baseUrl, path, async () =>
       axios.post(
         buildUri({ baseUrl: baseUrl, path, params, queryParams }),
         body,
-        {}
+        config
       )
     );
   };
-  const get = ({ path, params, queryParams, slug }: any) => {
+  const get = ({ path, params, queryParams, config = {}, slug }: any) => {
     return handleApiCall(
       baseUrl,
       path,
       async () =>
         axios.get(
           buildUri({ baseUrl: baseUrl, path, params, queryParams }),
-          {}
+          config
         ),
       params,
       slug
