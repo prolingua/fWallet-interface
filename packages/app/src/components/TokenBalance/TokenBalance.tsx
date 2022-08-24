@@ -11,6 +11,7 @@ import useTokenPrice from "../../hooks/useTokenPrice";
 import useSettings from "../../hooks/useSettings";
 import useCoingeckoApi from "../../hooks/useCoingeckoApi";
 import Spacer from "../Spacer";
+import { tokenUrls } from "../../utils/logos";
 
 export const TokenBalance: React.FC<any> = ({ token, imageSize = " 32px" }) => {
   const { settings } = useSettings();
@@ -21,6 +22,9 @@ export const TokenBalance: React.FC<any> = ({ token, imageSize = " 32px" }) => {
 
   useEffect(() => {
     if (token.logoURL === "https://repository.fantom.network/logos/erc20.svg") {
+      if ((tokenUrls as any)[token.symbol.toLowerCase()]) {
+        return setTokenUrl((tokenUrls as any)[token.symbol.toLowerCase()]);
+      }
       if (tokenPrices[token.symbol.toLowerCase()]) {
         getCoinInfo(tokenPrices[token.symbol.toLowerCase()].cgCode).then(
           (response) => {
