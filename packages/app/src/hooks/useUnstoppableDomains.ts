@@ -59,14 +59,13 @@ const useUnstoppableDomains = () => {
   const getFantomDomainForAddress = async (address: string) => {
     const response = await getOwnerDomains(address);
     if (response?.data?.data?.length) {
-      return response.data.data[0].id;
+      return response.data.data.map((record: any) => record.id);
     }
-    return "";
+    return [];
   };
 
   const isValidDomain = (domain: string) => {
     const splitDomain = domain.split(".");
-    console.log(splitDomain[1]);
     if (splitDomain.length === 2) {
       if (tlds.includes(splitDomain[1].toLowerCase())) {
         return true;

@@ -4,7 +4,7 @@ import useWalletProvider from "../../hooks/useWalletProvider";
 import { isSameAddress, isValidAddress } from "../../utils/wallet";
 import Column from "../Column";
 import Row from "../Row";
-import { Input, Typo2 } from "../index";
+import { Input, OverlayButton, Typo2, Typo3 } from "../index";
 import walletSymbol from "../../assets/img/symbols/wallet.svg";
 import Spacer from "../Spacer";
 import AddressBalance from "../AddressBalance";
@@ -28,6 +28,7 @@ const InputAddress: React.FC<any> = ({
   const [error, setError] = useState(null);
   const [validAddress, setValidAddress] = useState(null);
   const [domain, setDomain] = useState("");
+  const [labels, setLabels] = useState([]);
   const [validDomain, setValidDomain] = useState(null);
 
   const onHandleBlur = (value: string) => {
@@ -36,7 +37,7 @@ const InputAddress: React.FC<any> = ({
     }
 
     if (!isValidAddress(value) && !isValidDomain(value)) {
-      setError("Invalid address or unknown domain");
+      setError("Invalid fantom address or domain");
     }
   };
 
@@ -44,6 +45,7 @@ const InputAddress: React.FC<any> = ({
     setError(null);
     setValidAddress(null);
     setDomain("");
+    setLabels([]);
     setValidDomain(null);
     setReceiverAddress(null);
     setValue(value);
@@ -66,14 +68,42 @@ const InputAddress: React.FC<any> = ({
   };
 
   useEffect(() => {
-    if (validAddress) {
-      // setAddress(value);
-      setReceiverAddress(value);
-      getFantomDomainForAddress(value).then((fetchedDomain) => {
-        setDomain(fetchedDomain);
-      });
+    setDomain(null);
+    if (value) {
+      if (isValidAddress(value)) {
+        setReceiverAddress(value);
+        getFantomDomainForAddress(value).then((fetchedDomains) => {
+          setLabels([...fetchedDomains, validAddress]);
+        });
+      }
+      if (isValidDomain(value)) {
+        getFantomAddressForDomain(value).then((fetchedAddress) => {
+          if (fetchedAddress) {
+            setReceiverAddress(fetchedAddress);
+            setLabels([
+              ...labels.filter(
+                (label) =>
+                  label?.toLowerCase() !== fetchedAddress?.toLowerCase()
+              ),
+              fetchedAddress,
+            ]);
+            setValidAddress(fetchedAddress);
+            return;
+          }
+          setError("Invalid fantom address or domain");
+        });
+      }
     }
-  }, [validAddress]);
+  }, [value]);
+
+  // useEffect(() => {
+  //   if (validAddress) {
+  //     setReceiverAddress(value);
+  //     getFantomDomainForAddress(value).then((fetchedDomains) => {
+  //       setLabels([...fetchedDomains, validAddress]);
+  //     });
+  //   }
+  // }, [validAddress]);
 
   useEffect(() => {
     if (domain) {
@@ -81,19 +111,40 @@ const InputAddress: React.FC<any> = ({
     }
   }, [domain]);
 
-  useEffect(() => {
-    if (validDomain) {
-      getFantomAddressForDomain(value).then((fetchedAddress) => {
-        if (fetchedAddress) {
-          setReceiverAddress(fetchedAddress);
-          // setAddress(fetchedAddress);
-          setError(fetchedAddress);
-          return;
-        }
-        setError("No UD FTM record found for domain");
-      });
-    }
-  }, [validDomain]);
+  // useEffect(() => {
+  //   if (validDomain) {
+  //     setValidAddress(null);
+  //     getFantomAddressForDomain(value).then((fetchedAddress) => {
+  //       if (fetchedAddress) {
+  //         setReceiverAddress(fetchedAddress);
+  //         setLabels([...labels, fetchedAddress]);
+  //         setValidAddress(fetchedAddress);
+  //         return;
+  //       }
+  //       setError("Invalid fantom address or domain");
+  //     });
+  //   }
+  // }, [validDomain]);
+
+  const createLabel = (text: string) => {
+    return (
+      <OverlayButton
+        key={`address-label-${text}`}
+        style={{ padding: 0 }}
+        onClick={() => setValue(text)}
+      >
+        <Row
+          style={{
+            backgroundColor: "#0a162e",
+            padding: ".3rem .6rem",
+            borderRadius: "8px",
+          }}
+        >
+          <Typo3>{text}</Typo3>
+        </Row>
+      </OverlayButton>
+    );
+  };
 
   return (
     <Column>
@@ -124,7 +175,7 @@ const InputAddress: React.FC<any> = ({
       >
         <Spacer />
         <Input
-          style={{ maxWidth: "80%" }}
+          style={{ maxWidth: "80%", fontSize: "18px" }}
           type="text"
           value={value}
           onChange={(event) => {
@@ -135,7 +186,21 @@ const InputAddress: React.FC<any> = ({
         />
       </Row>
       <Spacer size="xs" />
-      {error ? <InputError error={error} /> : <Spacer size="lg" />}
+      {labels?.length > 0 && (
+        <Row style={{ flexWrap: "wrap", gap: ".5rem" }}>
+          {labels
+            .filter((label) => label?.toLowerCase() !== value?.toLowerCase())
+            .map((label) => createLabel(label))}
+        </Row>
+      )}
+      {error ? (
+        <Row>
+          <Spacer size="xxs" />
+          <InputError error={error} />
+        </Row>
+      ) : (
+        <Spacer size="lg" />
+      )}
     </Column>
   );
 };
