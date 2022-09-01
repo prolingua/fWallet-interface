@@ -165,6 +165,16 @@ const govProposalFactoryTx: {
     minEndTime: number,
     maxEndTime: number
   ) => {
+    console.log({
+      _name: proposalName,
+      _description: proposalDescription,
+      _options: options,
+      _minVotes: minVoteAmount,
+      _minAgreement: minAgreementAmount,
+      _start: startTime,
+      _minEnd: minEndTime,
+      _maxEnd: maxEndTime,
+    });
     return contract[
       GOV_PROPOSAL_FACTORY_TX_METHODS.createPlainTextProposal
     ](
