@@ -132,8 +132,8 @@ const CreateProposal: React.FC<any> = () => {
   const [proposalDescription, setProposalDescription] = useState("");
   const [numVotingOptions, setNumVotingOptions] = useState(1);
   const [votingOptions, setVotingOptions] = useState([]);
-  const [minParticipation, setMinParticipation] = useState(55);
-  const [minAgreement, setMinAgreement] = useState(55);
+  const [minParticipation, setMinParticipation] = useState(66);
+  const [minAgreement, setMinAgreement] = useState(66);
   const [startInHours, setStartInHours] = useState(1);
   const [endMinimumInDays, setEndMinimumInDays] = useState(7);
   const [endMaximumInDays, setEndMaximumInDays] = useState(7);
