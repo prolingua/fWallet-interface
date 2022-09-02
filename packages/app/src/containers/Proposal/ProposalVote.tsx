@@ -109,11 +109,6 @@ const ProposalVote: React.FC<any> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVoteCompleted, isCancelVoteCompleted]);
 
-  console.log(
-    "[Proposal] Selected delegation address: ",
-    selectedDelegation?.delegationInfo?.stakerAddress
-  );
-
   return (
     <ContentBox style={{ flex: 3 }}>
       <Column style={{ width: "100%", gap: "2rem" }}>
@@ -139,15 +134,17 @@ const ProposalVote: React.FC<any> = ({
                       }
                       value={voteState[index]}
                       setValue={(value: number) => setVoteValue(value, index)}
-                      max={opinionScales.length}
+                      max={opinionScales.length - 1}
                       markPoints={opinionScales.map(
                         (scale: string) =>
-                          parseInt(scale) * (100 / opinionScales.length)
+                          parseInt(scale) * (100 / (opinionScales.length - 1))
                       )}
                       markInPercentage={false}
                       markLabels={opinionScales.map(
                         (scale: string) =>
-                          `${parseInt(scale) * (100 / opinionScales.length)}%`
+                          `${
+                            parseInt(scale) * (100 / (opinionScales.length - 1))
+                          }%`
                       )}
                       color={
                         !isOpen || hasVoted?.length

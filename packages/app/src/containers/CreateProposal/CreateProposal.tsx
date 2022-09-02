@@ -197,7 +197,7 @@ const CreateProposal: React.FC<any> = () => {
   const handleCreateNetworkProposal = async () => {
     let minVoteAmount = unitToWei(minParticipation.toString(), 16);
     let minAgreeAmount = unitToWei(minAgreement.toString(), 16);
-    console.log(addresses[parseInt(config.chainId)]["govProposalTemplate"]);
+
     try {
       const hash = await txGovProposalFactoryContractMethod(
         GOV_PROPOSAL_FACTORY_TX_METHODS.createNetworkProposal,
