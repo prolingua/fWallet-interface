@@ -143,6 +143,15 @@ const CreateProposal: React.FC<any> = () => {
     null,
     null,
   ]);
+  const [proposalType, setProposalType] = useState("Plain");
+
+  useEffect(() => {
+    if (proposalType === "Network") {
+      setStartInHours(20);
+      setEndMinimumInDays(1);
+      setEndMaximumInDays(2);
+    }
+  }, [proposalType]);
 
   const handleSetVotingOption = (value: string, index: number) => {
     const updatedVotingOptions = votingOptions;
@@ -256,7 +265,6 @@ const CreateProposal: React.FC<any> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProposalCompleted]);
 
-  const [proposalType, setProposalType] = useState("Plain");
   return (
     <ErrorBoundary name="[Governance][Create]">
       <FadeInOut>
@@ -419,30 +427,30 @@ const CreateProposal: React.FC<any> = () => {
             >
               <InputInteger
                 title="Starts in"
-                min={1}
-                max={720}
+                min={proposalType === "Network" ? 20 : 1}
+                max={proposalType === "Network" ? 40 : 720}
                 value={startInHours}
                 setValue={setStartInHours}
                 setError={(error: string) => handleProposalTimeErrors(error, 0)}
-                valueName="hours"
+                valueName={proposalType === "Network" ? "minutes" : "hours"}
               />
               <InputInteger
                 title="Ending in mimimum"
-                min={7}
-                max={180}
+                min={proposalType === "Network" ? 1 : 7}
+                max={proposalType === "Network" ? 1 : 180}
                 value={endMinimumInDays}
                 setValue={setEndMinimumInDays}
                 setError={(error: string) => handleProposalTimeErrors(error, 1)}
-                valueName="days"
+                valueName={proposalType === "Network" ? "hours" : "days"}
               />
               <InputInteger
                 title="Ending in maximum"
-                min={7}
-                max={180}
+                min={proposalType === "Network" ? 2 : 7}
+                max={proposalType === "Network" ? 2 : 180}
                 value={endMaximumInDays}
                 setValue={setEndMaximumInDays}
                 setError={(error: string) => handleProposalTimeErrors(error, 2)}
-                valueName="days"
+                valueName={proposalType === "Network" ? "hours" : "days"}
               />
             </Row>
             <Spacer />
