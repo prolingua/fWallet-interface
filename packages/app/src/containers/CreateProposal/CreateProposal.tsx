@@ -149,7 +149,7 @@ const CreateProposal: React.FC<any> = () => {
     if (proposalType === "Network") {
       setStartInHours(20);
       setEndMinimumInDays(1);
-      setEndMaximumInDays(2);
+      setEndMaximumInDays(1);
     }
   }, [proposalType]);
 
@@ -437,7 +437,7 @@ const CreateProposal: React.FC<any> = () => {
               <InputInteger
                 title="Ending in mimimum"
                 min={proposalType === "Network" ? 1 : 7}
-                max={proposalType === "Network" ? 1 : 180}
+                max={proposalType === "Network" ? 2 : 180}
                 value={endMinimumInDays}
                 setValue={setEndMinimumInDays}
                 setError={(error: string) => handleProposalTimeErrors(error, 1)}
@@ -445,7 +445,7 @@ const CreateProposal: React.FC<any> = () => {
               />
               <InputInteger
                 title="Ending in maximum"
-                min={proposalType === "Network" ? 2 : 7}
+                min={proposalType === "Network" ? 1 : 7}
                 max={proposalType === "Network" ? 2 : 180}
                 value={endMaximumInDays}
                 setValue={setEndMaximumInDays}
