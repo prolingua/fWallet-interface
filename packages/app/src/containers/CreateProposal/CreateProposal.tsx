@@ -221,7 +221,7 @@ const CreateProposal: React.FC<any> = () => {
           endMaximumInDays * 3600,
           addresses[parseInt(config.chainId)]["govProposalTemplate"],
           networkParameter,
-          votingOptions.map((option) => parseEther(option)),
+          votingOptions.map((option) => parseFloat(option)),
         ]
       );
       setTxHash(hash);
