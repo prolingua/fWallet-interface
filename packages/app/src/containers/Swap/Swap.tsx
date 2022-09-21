@@ -434,7 +434,6 @@ const SwapTokensContent: React.FC<any> = ({
 
       const inTokenPrice = tokenPriceData[inToken.code]["usd"];
       const outTokenPrice = tokenPriceData[outToken.code]["usd"];
-      // console.log(inTokenAmount, outTokenAmount, inTokenPrice, outTokenPrice);
       const priceImpact =
         (inTokenAmount * inTokenPrice - outTokenAmount * outTokenPrice) /
         (inTokenAmount * inTokenPrice);
@@ -949,8 +948,6 @@ const Swap: React.FC<any> = () => {
     }
   }, [assetsListData, OOTokenListData, accountFantomBalanceData]);
 
-  //https://api.coingecko.com/api/v3/coins/beethoven-x/market_chart?vs_currency=usd&days=60
-  //https://api.coingecko.com/api/v3/coins/beethoven-x/market-chart?vs_currency=usd&days=1
   return (
     <ErrorBoundary name="[Swap]">
       <FadeInOut>

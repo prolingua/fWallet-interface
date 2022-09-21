@@ -1,5 +1,6 @@
 import { BigNumber, formatFixed, parseFixed } from "@ethersproject/bignumber";
 import { formatBytes32String } from "@ethersproject/strings";
+import { currencyOptions } from "../components/CurrencySelector/CurrencySelector";
 
 export const formatStringToBytes32 = (value: string) => {
   return formatBytes32String(value);
@@ -81,8 +82,7 @@ export const toFormattedBalance = (
 };
 
 export const toCurrencySymbol = (currency: string) => {
-  if (currency.toLowerCase() === "usd") return "$";
-  if (currency.toLowerCase() === "eur") return "€";
+  return currencyOptions[currency.toLowerCase()].symbol;
 };
 
 export const millisecondsToTimeUnit = (millis: number) => {

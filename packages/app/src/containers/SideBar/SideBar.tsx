@@ -131,7 +131,7 @@ const SideBarContent: React.FC<any> = ({ isMobile, toggleOpen }) => {
       const openProposals = governanceProposals.data.govProposals.edges.filter(
         (proposal: any) => {
           const [votesLeft] = votesLeftForProposal(proposal.proposal);
-          return votesLeft > 0;
+          return votesLeft > 0 && !proposal.proposal.state.isResolved;
         }
       );
       setVoteActions(openProposals.length);

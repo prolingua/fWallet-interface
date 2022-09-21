@@ -223,7 +223,7 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
     try {
       const content = reader.result;
       const json = JSON.parse(content);
-      if (json && json?.address && json?.crypto) {
+      if (json && json?.address && (json?.crypto || json?.Crypto)) {
         return setFileContent(content);
       }
       setFileError("Invalid keystore file");
@@ -287,7 +287,7 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
           <ContentBox
             style={{
               padding: "1.5rem 0rem",
-              width: "50%",
+              width: "90%",
               backgroundColor: color.primary.black(),
             }}
           >
@@ -306,8 +306,9 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
             </Row>
           </ContentBox>
           <Spacer />
-          <Row style={{ width: "50%" }}>
+          <Row style={{ width: "90%" }}>
             <InputTextBox
+              alignText="center"
               disabled={isLoading}
               style={{ width: "100%" }}
               text={text}
@@ -319,7 +320,7 @@ const ConnectKeystoreFile: React.FC<any> = ({ onDismiss }) => {
           </Row>
           <Spacer size="sm" />
           <Button
-            style={{ width: "50%" }}
+            style={{ width: "90%" }}
             disabled={isLoading || !text}
             variant="primary"
             onClick={handleConnect}

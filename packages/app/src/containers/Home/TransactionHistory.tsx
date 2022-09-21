@@ -1,11 +1,20 @@
-import React from "react";
-import { ContentBox, Heading1, Typo1 } from "../../components";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Button,
+  ContentBox,
+  Heading1,
+  OverlayButton,
+  Typo1,
+} from "../../components";
 import Column from "../../components/Column";
 import Spacer from "../../components/Spacer";
 import TransactionLine from "../../components/TransactionLine";
 import { getAccountTransactions } from "../../utils/account";
 import Loader from "../../components/Loader";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import Row from "../../components/Row";
+import { CSVLink } from "react-csv";
+import exportCSVImg from "../../assets/img/symbols/ExportCSV.svg";
 
 const TransactionHistoryContent: React.FC<any> = ({
   transactions,
@@ -43,14 +52,45 @@ const TransactionHistory: React.FC<any> = ({
   address,
   tokenPrice,
   currency,
+  setCount,
+  csvData,
 }) => {
+  const csvRef = useRef(null);
   const accountTransactions =
     !loading && getAccountTransactions(accountData.data);
+  const [loadExport, setLoadExport] = useState(false);
+
+  useEffect(() => {
+    if (csvData?.length && loadExport) {
+      csvRef.current.link.click();
+      setLoadExport(false);
+    }
+  }, [csvData, loadExport]);
 
   return (
     <ContentBox style={{ flex: 2 }}>
       <Column style={{ width: "100%" }}>
-        <Heading1>History</Heading1>
+        <Row style={{ justifyContent: "space-between" }}>
+          <Heading1>History</Heading1>
+          {accountTransactions.length > 0 && (
+            <OverlayButton
+              onClick={() => {
+                setCount(100);
+                setLoadExport(true);
+              }}
+            >
+              {loadExport ? "exporting..." : <img src={exportCSVImg} />}
+            </OverlayButton>
+          )}
+          <CSVLink
+            ref={csvRef}
+            data={csvData || []}
+            filename={`fWallet-export-txHistory-${address}-${(
+              Date.now() / 1000
+            ).toFixed(0)}.csv`}
+            style={{ display: "none" }}
+          />
+        </Row>
         <Spacer size="lg" />
         <ErrorBoundary name="[Home][History]">
           {loading ? (

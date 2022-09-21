@@ -38,6 +38,7 @@ import useModal from "./hooks/useModal";
 import InfoModal from "./components/InfoModal";
 import config from "./config/config";
 import { switchToChain } from "./web3/events";
+import Preferences from "./containers/Preferences";
 
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
@@ -85,9 +86,17 @@ const AppContent: React.FC<any> = () => {
     if (location.pathname === "/bridge") {
       return setCorrectChainLoaded(true);
     }
-    return setCorrectChainLoaded(
-      walletContext.web3ProviderState.chainSelected === parseInt(config.chainId)
-    );
+    if (walletContext.activeWallet.providerType === "browser") {
+      return setCorrectChainLoaded(
+        walletContext.web3ProviderState.chainSelected ===
+          parseInt(config.chainId)
+      );
+    }
+    if (walletContext.activeWallet.providerType === "software") {
+      walletContext.activeWallet.provider.getNetwork().then((network: any) => {
+        setCorrectChainLoaded(network.chainId === parseInt(config.chainId));
+      });
+    }
   }, [location.pathname, walletContext.web3ProviderState.chainSelected]);
 
   useEffect(() => {
@@ -138,10 +147,8 @@ const AppContent: React.FC<any> = () => {
                 component={CreateProposal}
                 exact
               />
-              <Route
-                path="/governance/proposal/:gov/:id"
-                component={Proposal}
-              />
+              <Route path="/governance/proposal/:id" component={Proposal} />
+              <Route path="/preferences" component={Preferences} />
               <Route path="/" component={Home} />
             </Switch>
           </StyledRouteContainer>

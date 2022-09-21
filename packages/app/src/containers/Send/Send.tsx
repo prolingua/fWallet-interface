@@ -38,6 +38,7 @@ import useModal from "../../hooks/useModal";
 import InfoModal from "../../components/InfoModal";
 import FadeInOut from "../../components/AnimationFade";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import useUnstoppableDomains from "../../hooks/useUnstoppableDomains";
 
 const SendTokensContent: React.FC<any> = ({
   accountData,
@@ -397,6 +398,22 @@ const Send: React.FC<any> = () => {
 
   const isDoneLoading =
     activeAddress && accountData?.data && assetsList?.data && tokenPrice?.data;
+
+  // TODO remove UD examples / test
+  // const {
+  //   getFantomAddressForDomain,
+  //   getFantomDomainForAddress,
+  // } = useUnstoppableDomains();
+  // useEffect(() => {
+  //   getFantomAddressForDomain("jim-unstoppable.x").then((result) => {
+  //     console.log({ result });
+  //   });
+  //   getFantomDomainForAddress(
+  //     "0x621bf2A4720DbFF5E0AC4A94f539ef7c4555Cf22"
+  //   ).then((result) => {
+  //     console.log({ result });
+  //   });
+  // }, []);
 
   return (
     <FadeInOut>

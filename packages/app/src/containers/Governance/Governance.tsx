@@ -15,6 +15,7 @@ import {
   Typo2,
 } from "../../components";
 import {
+  getActiveGovernanceProposals,
   getGovernanceProposals,
   getInactiveGovernanceProposals,
   getProposalStatus,

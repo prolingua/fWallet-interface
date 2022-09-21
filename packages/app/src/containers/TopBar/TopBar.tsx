@@ -15,9 +15,11 @@ import useApiData from "../../hooks/useApiData";
 import useFantomApiData from "../../hooks/useFantomApiData";
 import useTokenPrice from "../../hooks/useTokenPrice";
 import { Item, Row } from "../../components/Grid/Grid";
+import { settings } from "cluster";
 
 const AccountSnapshot: React.FC<any> = () => {
   const { getCoinsList, getPrice } = useCoingeckoApi();
+  const { settings } = useSettings();
   const { apiData: fantomApiData } = useFantomApiData();
   const { apiData } = useApiData();
   const ftmTokenList =
@@ -51,23 +53,18 @@ const AccountSnapshot: React.FC<any> = () => {
   }, [cgCoinMapping, ftmTokenList]);
 
   useEffect(() => {
-    if (cgCoinIdList.length && cgCoinMapping) {
-      const getPricePromises = [
-        getPrice(cgCoinIdList, "usd"),
-        getPrice(cgCoinIdList, "eur"),
-      ];
+    if (cgCoinIdList.length && cgCoinMapping && settings.currency) {
       const allPricedTokens = cgCoinMapping.filter((coin: any) =>
         cgCoinIdList.includes(coin.id)
       );
-      Promise.all(getPricePromises).then(([usd, eur]) => {
+      getPrice(cgCoinIdList, settings.currency).then((result) => {
         const tokenPrices = {} as any;
         allPricedTokens.forEach((token: any) => {
           tokenPrices[token.symbol] = {
             symbol: token.symbol,
             cgCode: token.id,
             price: {
-              eur: eur?.data[token.id]?.eur,
-              usd: usd?.data[token.id]?.usd,
+              [settings.currency]: result?.data[token.id][settings.currency],
             },
           };
         });
@@ -76,7 +73,7 @@ const AccountSnapshot: React.FC<any> = () => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cgCoinIdList]);
+  }, [cgCoinIdList, settings.currency]);
 
   return <></>;
 };

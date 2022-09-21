@@ -75,7 +75,7 @@ const Staking: React.FC<any> = () => {
     <ErrorBoundary name="[Staking]">
       <FadeInOut>
         <ResponsiveRow
-          breakpoint={breakpoints.ultra}
+          breakpoint={breakpoints.desktop}
           style={{ marginBottom: "1.5rem" }}
         >
           <Column style={{ flex: 7 }}>
