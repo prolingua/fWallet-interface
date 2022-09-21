@@ -154,6 +154,12 @@ const CreateProposal: React.FC<any> = () => {
   }, [proposalType]);
 
   const handleSetVotingOption = (value: string, index: number) => {
+    // Only numbers when Network
+    if (proposalType === "Network") {
+      if (value !== "" && parseInt(value) !== 0 && !Number(value)) {
+        return;
+      }
+    }
     const updatedVotingOptions = votingOptions;
     updatedVotingOptions[index] = value;
     setVotingOptions([...updatedVotingOptions]);
